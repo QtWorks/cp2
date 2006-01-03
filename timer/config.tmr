@@ -1,0 +1,27 @@
+outpath          c:\data\
+;outfilename     record.dat
+;ethernet        0xFFFFFFFF   ; ethernet address
+freq            9240e6 ;stalo frequency (Hz)
+;freq 0
+velsign         1     ;use 1 if stalo < xmit, -1 if stalo > xmit
+timingmode      0     ;0 = continuous, 1 = triggered, 2 = sync, 
+delay           1      ;delay to first sample (special case: timingmode 2)
+gates           250     ;number of range gates
+hits            90     ;pulse pair integration (hits per dwell)
+pulsewidth      14     ;receiver sample spacing in 100nS counts
+xmitpulse       10     ;transmitter pulsewidth in 100nS counts for use by discrim
+prt          10000
+trigger         on
+tpdelay         -5     ; test pulse delay in 100nS counts (line-up G0)
+tpwidth         10    ; test pulse delay in 100nS counts
+gate0mode       on     ;high rate sampling of gate 0 (on or off)
+phasecorrect    on     ;remove gate0 phase from all gates (for magnetron)
+;phasecorrect    off     ;remove gate0 phase from all gates (for magnetron)
+clutterfilter   off     ;clutter filter on or off
+timeseries      off     ;time series on or off
+tsgate          0      ;gate where time series is sampled
+afcgain         1e5   ;use positive sign if high voltage = > 60MHz IF
+;afchigh         9450e6  ;highest afc frequency
+;afclow          9440e6   ;lowest afc frequency
+locktime        10.0
+debug           off   ;turns on certain debug printouts
