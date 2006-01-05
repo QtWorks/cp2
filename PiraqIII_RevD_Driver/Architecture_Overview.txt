@@ -1,0 +1,200 @@
+Architecture Overview of the PiraqIII_RevA_Driver
+
+The PiraqIII_RevA_Driver project is made up of five classes:
+Piraq.cpp, Plx.cpp, Control.cpp, FirFilters.cpp & HPIB.cpp 
+
+Piraq.cpp contains all the exposed APIs that the host application can call. 
+It also creates instances of the other four classes, which handle most of the functionality.
+It mainly translates API calls to specific calls into the other four classes.
+
+Plx.cpp handles all the PLX PCI chip specific calls such as setting up shared PC memory.
+
+Control.cpp handles the Status Registers and the Timers.
+
+FirFilters.cpp handles the Gray Chip Digital filters.
+
+HPIB handles loading code into the DSP chip.
+
+===========================================
+Example of how call the APIs:
+===========================================
+
+void InitPiraqHardware() 
+{
+		PIRAQ * pPiraq;
+		unsigned long* m_pCommonBufferAddress;
+		unsigned long m_lCommonBufferLength;
+		volatile int *m_pParameters;
+		volatile int *m_pErrors;
+		float *m_pTimeSeriesData;
+
+		pPiraq= new PIRAQ();
+
+		lReturnValue = pPiraq->Init( 0x10b5,0x9054 );
+		if(lReturnValue)
+		{
+			pPiraq->GetErrorString(m_cErrorString);
+			AddText(m_cErrorString);
+			delete pPiraq;
+			pPiraq = NULL;
+			return -1;
+		}
+
+		pPiraq->GetCommonBufferMemoryPointer(&m_pCommonBufferAddress, &m_lCommonBufferLength);
+		m_pParameters = (volatile int *)((char*)m_pCommonBufferAddress + PARAMETEROFFSET);
+		m_pErrors = (volatile int *)((char*)m_pCommonBufferAddress + ERROROFFSET);
+		m_pTimeSeriesData = (float *)((char*)m_pCommonBufferAddress + TIMESERIESDATAOFFSET);
+}
+
+void ToggleLed() 
+{
+		pPiraq->ToggleLED();
+}
+
+
+void ReadEprom() 
+{
+	unsigned int pEPROM[32];
+	pPiraq->ReadEPROM(pEPROM);
+}
+
+
+void PcMemoryTest() 
+{
+	lReturnValue = pPiraq->PCMemoryTest();
+	if(lReturnValue)
+	{
+		pPiraq->GetErrorString(m_cErrorString);
+		AddText(m_cErrorString);
+		return;
+	}
+		
+	BOOL bPass = true;
+	unsigned long* pFir = m_pCommonBufferAddress;
+	for(unsigned long j = 0; j< m_lCommonBufferLength; j++) // 256 heights * 4096 points * 2 (I&Q) - 4byte floats
+	{
+		if(*pFir != (0x0001 + j))
+		{
+		  bPass = false;
+		  AddText ("Piraq - Failed PC Memory Test");
+			return;
+		}
+		pFir = pFir + 1;
+	}	
+	AddText("Piraq - PC Memory Test Passed");
+}
+
+void LoadParams() 
+{
+	pPiraq->LoadParameters(m_fRadarControllerClockHz, m_lTransmitPulseWidthNs,
+													m_lPreBlankNs, m_lTimeDelayToFirstGateNs,
+													m_lGateSpacingNs, m_lNumRangeGates,
+													m_lNumCodeBits, m_lNumCoherentIntegrations,
+													lTimeSeriesPoints, m_lNumReceivers,
+													m_lTimerDivider, m_iFilterType, m_lNumCodeBits);
+}
+
+
+void CPiraq_Rc_TesterDlg::OnPReadTimerValues() 
+{
+	unsigned int iCountsPerDelay;
+	unsigned int iCountsForAllGates;
+	unsigned int iCountsPerGatePulse;
+	unsigned short iStatus0;
+	unsigned short iStatus1;
+
+	pPiraq->ReturnTimerValues(&iCountsPerDelay, &iCountsForAllGates, &iCountsPerGatePulse, &iStatus0, &iStatus1);	
+}
+
+void ReadFilterValues() 
+{
+	char cTemp[256];
+	unsigned short fFilter[128];
+	unsigned int iCount;
+	pPiraq->ReturnFilterValues(fFilter, &iCount);
+
+	for(unsigned int i = 0; i< iCount; i++)
+	{
+		sprintf(cTemp, "Value %d = %d", i, fFilter[i]);
+		AddText(cTemp);
+	}
+}
+
+void LoadDspCode() 
+{
+	CString csFilePathAndName = "c:\\Program files\\crada\\lapxm\\bin";
+
+	lReturnValue = pPiraq->LoadDspCode("c:\\temp\\mem_test.out");
+	if(lReturnValue != 0)
+	{
+		pPiraq->GetErrorString(m_cErrorString);
+		AddText(m_cErrorString);
+		return;
+	}
+}
+
+
+void StartDsp() 
+{
+	pPiraq->StartDsp();
+}
+
+void StopDsp() 
+{
+	pPiraq->StopDsp();
+}
+
+long SemaWait(unsigned long lSemaphore)
+{	
+	int iTimeOutInMiliSeconds = 60000;
+
+	lReturnValue = pPiraq->SemaWait(lSemaphore, iTimeOutInMiliSeconds);
+
+	// Make sure we did not time out
+	if(lReturnValue != 0)
+	{
+		if(lSemaphore == 1)
+		{
+			AddText("Timed out waiting on 'DSP_ALIVE' semaphore");
+			AddText("DSP code did not start.");
+		}
+		else if(lSemaphore == 3)
+		{
+			AddText("Timed out waiting on 'DSP_READY_FOR_PARAMETERS' semaphore");
+			AddText("DSP did not request parameters.");
+		}
+		else if(lSemaphore == 5)
+		{
+			AddText("Timed out waiting on 'DSP_REQUESTS_PULSES_ON' semaphore");
+			AddText("DSP did request that pulse be turned on.");
+		}
+		else if(lSemaphore == 6)
+		{
+			AddText("Timed out waiting on 'DSP_REQUESTS_PULSES_OFF' semaphore");
+			AddText("DSP did not receive enough data. Fifos may have overflowed.");
+		}
+		else if(lSemaphore == 8)
+		{
+			AddText("Timed out waiting on 'DSP_DATA_READY' semaphore");
+			AddText("DSP did not state that the time series data was ready.");
+		}
+		else 
+		{
+			char cTemp[100];
+			sprintf(cTemp,"Waiting on unknown semaphore %d",lSemaphore);
+			AddText(cTemp);
+		}
+		return -1;
+	}
+
+
+	return0;
+}
+
+
+void SemaSet(unsigned long lSemaphore)
+{	
+	pPiraq->SemaSet(lSemaphore);
+}
+
+
