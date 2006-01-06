@@ -238,16 +238,6 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 	TIMER ext_timer; // structure defining external timer parameters 
 	unsigned int julian_day; 
 
-// PMAC: 
-HINSTANCE hLib_open;
-DWORD PMACDevice;
-//DWORD PMACDPRAMoffset; 
-//#define COUNTS_PER_DEGREE 182.04444
-//unsigned short PMACReceivedData;
-//unsigned short PMACReceivedData1, PMACReceivedData2, PMACReceivedData3, PMACReceivedData4, PMACReceivedData5;
-//float PMAC_az, PMAC_el; 
-//unsigned short PMAC_scan_type, PMAC_sweep, PMAC_volume; 
-
 // getsockopt parameters, initialization: 
   int iError;
   int level;        
@@ -257,89 +247,15 @@ DWORD PMACDevice;
   int optvalint;
   UINT optvalUINT; 
 
-//#define CARD_TESTING // test and use PCI card-detect functions
-#ifdef CARD_TESTING // test and use PCI card-detect functions
-U32 ReqLimit;
-RETURN_CODE rc;
-DEVICE_LOCATION Device;
-// Query to get the total number of PLX devices
-ReqLimit = FIND_AMOUNT_MATCHED;
-// No search criteria, select all devices
-Device.VendorId = PIRAQ_VENDOR_ID; // PLX Vendor ID
-Device.DeviceId = PIRAQ_DEVICE_ID;
-Device.VendorId = (U32)-1; // FIND Vendor ID
-Device.DeviceId = (U32)-1;
-Device.SerialNumber[0] = 0x00;
-rc = PlxPciDeviceFind(&Device, &ReqLimit);
-printf("ReqLimit = %d\n", ReqLimit);
-
-// Query to get PLX device 0:
-ReqLimit = 0;
-// No search criteria, select all devices
-Device.BusNumber = (U32)-1;
-Device.SlotNumber = (U32)-1;
-Device.VendorId = PIRAQ_VENDOR_ID; // PLX Vendor ID
-Device.DeviceId = PIRAQ_DEVICE_ID;
-Device.SerialNumber[0] = 0x00;
-rc = PlxPciDeviceFind(&Device, &ReqLimit);
-printf("Query to get PLX device 0: rc = 0x%x ReqLimit = %d Device.SlotNumber = %d Device.BusNumber = %d\n", rc, ReqLimit, Device.SlotNumber, Device.BusNumber);
-
-// Query to get PLX device 1:
-ReqLimit = 1;
-// No search criteria, select all devices
-Device.BusNumber = (U32)-1;
-Device.SlotNumber = (U32)-1;
-Device.VendorId = PIRAQ_VENDOR_ID; // PLX Vendor ID
-Device.DeviceId = PIRAQ_DEVICE_ID;
-Device.SerialNumber[0] = 0x00;
-rc = PlxPciDeviceFind(&Device, &ReqLimit);
-printf("Query to get PLX device 1: rc = 0x%x ReqLimit = %d Device.SlotNumber = %d Device.BusNumber = %d\n", rc, ReqLimit, Device.SlotNumber, Device.BusNumber);
-
-// Query to get PLX device 2:
-ReqLimit = 2;
-// No search criteria, select all devices
-Device.BusNumber = (U32)-1;
-Device.SlotNumber = (U32)-1;
-Device.VendorId = PIRAQ_VENDOR_ID; // PLX Vendor ID
-Device.DeviceId = PIRAQ_DEVICE_ID;
-Device.SerialNumber[0] = 0x00;
-rc = PlxPciDeviceFind(&Device, &ReqLimit);
-printf("Query to get PLX device 2: rc = 0x%x ReqLimit = %d Device.SlotNumber = %d Device.BusNumber = %d\n", rc, ReqLimit, Device.SlotNumber, Device.BusNumber);
-
-//exit(0);  
-
-ReqLimit = 3;
-// No search criteria, select all devices
-Device.BusNumber = (U32)-1;
-Device.SlotNumber = (U32)-1;
-Device.VendorId = (U32)-1; // PLX Vendor ID 
-Device.DeviceId = (U32)-1;
-Device.SerialNumber[0] = 0x00;
-rc = PlxPciDeviceFind(&Device, &ReqLimit);
-printf("Query to get PMAC: rc = 0x%x ReqLimit = %d Device.SlotNumber = %d Device.BusNumber = %d Device.VendorId = %x Device.DeviceId = %x\n", rc, ReqLimit, Device.SlotNumber, Device.BusNumber, Device.VendorId, Device.DeviceId);
-
-ReqLimit = 4;
-// No search criteria, select all devices
-Device.BusNumber = (U32)-1;
-Device.SlotNumber = (U32)-1;
-Device.VendorId = (U32)-1; // PLX Vendor ID 
-Device.DeviceId = (U32)-1;
-Device.SerialNumber[0] = 0x00;
-rc = PlxPciDeviceFind(&Device, &ReqLimit);
-printf("Query to get PMAC: rc = 0x%x ReqLimit = %d Device.SlotNumber = %d Device.BusNumber = %d Device.VendorId = %x Device.DeviceId = %x\n", rc, ReqLimit, Device.SlotNumber, Device.BusNumber, Device.VendorId, Device.DeviceId);
-
-ReqLimit = 5;
-// No search criteria, select all devices
-Device.BusNumber = (U32)-1;
-Device.SlotNumber = (U32)-1;
-Device.VendorId = (U32)-1; // PLX Vendor ID 
-Device.DeviceId = (U32)-1;
-Device.SerialNumber[0] = 0x00;
-rc = PlxPciDeviceFind(&Device, &ReqLimit);
-printf("Query to get PMAC: rc = 0x%x ReqLimit = %d Device.SlotNumber = %d Device.BusNumber = %d Device.VendorId = %x Device.DeviceId = %x\n", rc, ReqLimit, Device.SlotNumber, Device.BusNumber, Device.VendorId, Device.DeviceId);
-
-exit(0); 
-#endif
+// PMAC: 
+HINSTANCE hLib_open;
+DWORD PMACDevice;
+//DWORD PMACDPRAMoffset; 
+//#define COUNTS_PER_DEGREE 182.04444
+//unsigned short PMACReceivedData;
+//unsigned short PMACReceivedData1, PMACReceivedData2, PMACReceivedData3, PMACReceivedData4, PMACReceivedData5;
+//float PMAC_az, PMAC_el; 
+//unsigned short PMAC_scan_type, PMAC_sweep, PMAC_volume; 
 
 	// initialize MFC and print and error on failure
 	if (!AfxWinInit(::GetModuleHandle(NULL), NULL, ::GetCommandLine(), 0))
@@ -394,11 +310,6 @@ fprintf(db_fp,"CP2exec.exe results:\n");
 	char fname[10]; // configuration filename
 	if (argc > 4) { // entered a filename
 		strcpy(fname, argv[4]);
-// append .dsp and try: 
-//		if (!fopen(fname, r)) { 
-//			printf(" config filename %s does not exist\n", fname); 
-//			exit(0); 
-//		} 
 	}
 	else 
 		strcpy(fname, "config"); 
@@ -434,39 +345,6 @@ printf("set/get iError = %d\n",iError);
 iError = WSAGetLastError ();
 printf("open_udp_out(): iError = %d\n",iError);
 
-#if 0 // get/set socket options
-level = SOL_SOCKET; 
-optname = SO_BROADCAST; 
-optlen = sizeof(BOOL); 
-r_c = getsockopt(outsock, level, optname, (char *)&optvalBOOL, &optlen); 
-printf("r_c = %d, outsock:%d, SOL_SOCKET, SO_BROADCAST: %d, optlen %d\n",r_c, outsock, optvalBOOL, optlen);
-if (r_c) { 
-	iError = WSAGetLastError ();
-	printf("getsockopt(): iError = 0x%x\n",iError);
-}
-
-optname = SO_DONTLINGER;
-optlen = sizeof(BOOL); 
-r_c = getsockopt(outsock, level, optname, (char *)&optvalBOOL, &optlen); 
-printf("r_c = %d, outsock:%d, SOL_SOCKET, SO_DONTLINGER: %d\n",r_c,outsock, optvalBOOL);
-optname = SO_MAX_MSG_SIZE;
-optlen = sizeof(UINT); 
-r_c = getsockopt(outsock, level, optname, (char *)&optvalUINT, &optlen); 
-printf("r_c = %d, outsock:%d, SOL_SOCKET, SO_MAX_MSG_SIZE: %d\n",r_c,outsock, optvalUINT);
-optname = SO_SNDBUF;
-optlen = sizeof(int); 
-r_c = getsockopt(outsock, level, optname, (char *)&optvalint, &optlen); 
-printf("r_c = %d, outsock:%d, SOL_SOCKET, SO_SNDBUF: %d\n",r_c,outsock, optvalint);
-optname = SO_RCVBUF;
-optlen = sizeof(int); 
-r_c = getsockopt(outsock, level, optname, (char *)&optvalint, &optlen); 
-printf("r_c = %d, outsock:%d, SOL_SOCKET, SO_RCVBUF: %d\n",r_c,outsock, optvalint);
-optname = SO_TYPE;
-optlen = sizeof(int); 
-r_c = getsockopt(outsock, level, optname, (char *)&optvalint, &optlen); 
-printf("r_c = %d, outsock:%d, SOL_SOCKET, SO_TYPE: %d\n",r_c,outsock, optvalint);
-exit(0);
-#endif
 eof_start_over: 
 #ifdef TIMER_CARD
 		timer_stop(&ext_timer); // stop timer card 
@@ -491,13 +369,9 @@ eof_start_over:
 			bytespergate = 12 * sizeof(float); 
 		}
 		else if (config->dataformat == 18) { // CP2 Timeseries 
-//			if (config->gatesa > 1000) {
-//				printf("gates = %d configured; max 1000 for dataformat 18\n", config->gatesa); exit(0);
-//			} 
 			bytespergate = 2 * sizeof(float); 
 			// CP2: compute #hits combined into one PCI Bus transfer
 			Nhits = 65536 / (HEADERSIZE + (config->gatesa * bytespergate) + BUFFER_EPSILON); 
-//			Nhits = 8; 
 		}
 
 		r_c = piraq1->Init(PIRAQ_VENDOR_ID,PIRAQ_DEVICE_ID); 
@@ -543,7 +417,6 @@ printf("Get PMACDPRAM = 0x%x\n", PMACDPRAM);
 			pn_pkt = pkt1; // set live packet pointer for subsequent UNIX-epoch pulsenumber calculation
 			pkt1->data.info.channel = 0;			// set BOARD number
 			struct_init(&pkt1->data.info, fname);   /* initialize the info structure */
-//printf("i_offset = %f\n\n", pkt1->data.info.spare[0]); exit(0); 
 			r_c = piraq1->LoadDspCode(argv[1]); // load entered DSP executable filename
 			printf("loading %s: piraq1->LoadDspCode returns %d\n", argv[1], r_c);  
 			timerset(config, piraq1); // !note: also programs pll and FIR filter. 
@@ -558,12 +431,6 @@ printf("Get PMACDPRAM = 0x%x\n", PMACDPRAM);
 			}
 			printf("cmd1_notifysock = %d \n", cmd1_notifysock); 
 		} // end if board 1 selected: 
-#ifdef TIMER_CARD_TESTING
-		start_timer_card(&ext_timer, &pn_pkt->data.info); 
-		printf("\n\nprt  = %8.3e\n", pn_pkt->data.info.prt[0]); // pn_pkt = PACKET pointer to a live piraq 
-		printf("prt2 = %8.3e\n", pn_pkt->data.info.prt[1]); 
-		exit(0); 
-#endif
 nop1:
 		piraq2 = new PIRAQ;
 
