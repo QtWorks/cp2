@@ -22,10 +22,10 @@
 
 #include <iostream>
 #include        "../include/proto.h"
-#include "../PiraqIII_RevA_Driver/piraq.h"
-#include "../PiraqIII_RevA_Driver/plx.h"
-#include "../PiraqIII_RevA_Driver/control.h"
-#include "../PiraqIII_RevA_Driver/HPIB.h"
+#include "../PiraqIII_RevD_Driver/piraq.h"
+#include "../PiraqIII_RevD_Driver/plx.h"
+#include "../PiraqIII_RevD_Driver/control.h"
+#include "../PiraqIII_RevD_Driver/HPIB.h"
 
 // TODO: reference additional headers your program requires here
 
