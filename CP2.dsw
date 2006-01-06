@@ -3,6 +3,48 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
+Project: "CP2exec"=.\CP2exec\CP2exec.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name win32lib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name PiraqIII_RevD_Driver.dsp
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "PiraqIII_RevD_Driver.dsp"=.\PiraqIII_RevD_Driver\PiraqIII_RevD_Driver.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "win32lib"=.\win32lib\win32lib.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Global:
 
 Package=<5>
