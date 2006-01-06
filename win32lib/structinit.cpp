@@ -31,45 +31,19 @@ void struct_init(INFOHEADER *h, char *fname)
    readradar(fname,radar);	/* read in the config.rdr file */   
 
    channel = h->channel * 2; /* here h->channel = board#; = channel# in channel-separated data */ 
-printf("struct_init(): h->channel = %d h->gates = %d\n", h->channel, h->gates); // 
-   // input SynthAngle output to board packet: 
-   SynthAngleInfo = fopen("config.frq", "r"); 
-   for (i = 0; i < CHANNELS; i++) { // all system channels 
-      fscanf(SynthAngleInfo, "%f %f %f", &synthinfo[i].el_off_ref, &synthinfo[i].az_off_ref, &synthinfo[i].xmit_freq);
-      printf("synthinfo[%d].el_off_ref = %+8.3e synthinfo[%d].az_off_ref = %+8.3e synthinfo[%d].xmit_freq = %+8.3e\n", i, synthinfo[i].el_off_ref, i, synthinfo[i].az_off_ref, i, synthinfo[i].xmit_freq); 
-   } 
-   h->el_off_ref = synthinfo[channel].el_off_ref; 
-   h->az_off_ref = synthinfo[channel].az_off_ref;
-   h->frequency = synthinfo[channel].xmit_freq; 
-   // copy 'v' channel parameters to temporary storage before WinDSP separates them: 
-   h->vel_off_ref = synthinfo[channel+1].el_off_ref; 
-   h->vaz_off_ref = synthinfo[channel+1].az_off_ref;
-   h->vfrequency = synthinfo[channel+1].xmit_freq;
-   printf("ch = %d h->el_off_ref = %+8.3e h->az_off_ref = %+8.3e h->frequency = %+8.3e\n", channel, h->el_off_ref, h->az_off_ref, h->frequency ); 
-   printf("ch = %d h->vel_off_ref = %+8.3e h->vaz_off_ref = %+8.3e h->vfrequency = %+8.3e \n\n", channel, h->vel_off_ref, h->vaz_off_ref, h->vfrequency ); 
-
+   printf("struct_init(): h->channel = %d h->gates = %d\n", h->channel, h->gates); // 
    strncpy(h->desc,"DWLX",4);
    h->one = 1;			/* one, per JVA request (endian flag: LITTLE_ENDIAN) */ 
    h->byte_offset_to_data = sizeof(INFOHEADER);	/*   */
    h->typeof_compression = 0; // NO_COMPRESSION;			/* none */ 
    h->ctrlflags = 0;	// later statements assume this
    h->recordlen	= 0;
-   h->start_gate	= 0;	//!!!use this sensible default, but needs attention
+   h->start_gate	= 0;	// use this sensible default, but needs attention
    h->gates 		= config->gatesa;
    h->hits			= config->hits;
-//!!!assumes 10MHz timebase:   h->rcvr_pulsewidth	= config->rcvr_pulsewidth * 100e-9;
-//!!!   h->rcvr_pulsewidth	= config->rcvr_pulsewidth * (2/SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
-   // config->rcvr_pulsewidth now entered in 6MHz counts: 
-//remove corrections?
-//   h->rcvr_pulsewidth	= config->rcvr_pulsewidth * (8/SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
-//   h->prt[0]			= config->prt * (8/SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
-//   h->prt[1]			= config->prt2 * (8/SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
    h->rcvr_pulsewidth	= (float)config->rcvr_pulsewidth * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
    h->prt[0]			= (float)config->prt * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
    h->prt[1]			= (float)config->prt2 * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
-//   h->rcvr_pulsewidth	= (float)config->rcvr_pulsewidth; //  
-//   h->prt[0]			= (float)config->prt; //  
-//   h->prt[1]			= (float)config->prt2; //
    printf("struct_init(): h->rcvr_pulsewidth = %+8.3e config->rcvr_pulsewidth = %+8.3e h->prt[0] = %+8.3e h->prt[1] = %+8.3e\n", h->rcvr_pulsewidth, config->rcvr_pulsewidth, h->prt[0], h->prt[1]); 
 //   if prt2 not specified in config file, set to prt:    if (h->prt[0] != h->prt[1]) 
 //   h->delay				= config->delay * 100e-9; // ?corresponding allocation 
@@ -160,9 +134,6 @@ printf("struct_init(): h->channel = %d h->gates = %d\n", h->channel, h->gates); 
    h->q_offset	= radar->q_offset;		// Q dc offset 
 
 // unitialized parameters: set to obviously untrue values 
-//???   h->rev = 9999;	// see radar.cpp: radar->rev = 2;  /* rev is 1: text starts after byte 40 */	
-//   h->pulse_num = 99999999;	// long so make test data long
-//   h->beam_num = 9999;	
    h->prt[2] =    h->prt[3]		= 9999.9; // [0],[1] set above
    for (i = 1; i < PX_MAX_SEGMENTS; i++) { // only first gate_spacing_meters array element initialized
 		h->gate_spacing_meters[i] = 9999.9; h->gates_in_segment[i] = 9999;
