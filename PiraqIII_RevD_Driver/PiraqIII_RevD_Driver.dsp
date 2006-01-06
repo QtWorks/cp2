@@ -23,7 +23,7 @@ CFG=PiraqIII_RevD_Driver.dsp - Win32 Debug
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
-# PROP Scc_ProjName ""$/Lapxm_Code/VmsPlx/PiraqIII_RevD_Driver.dsp", OOOAAAAA"
+# PROP Scc_ProjName ""
 # PROP Scc_LocalPath "."
 CPP=cl.exe
 MTL=midl.exe
