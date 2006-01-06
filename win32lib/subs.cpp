@@ -7,10 +7,9 @@
 #include <conio.h>
 
 #include "../include/proto.h"
-#include "../PIRAQIII_RevA_Driver/piraq.h"
-#include "../PIRAQIII_RevA_Driver/control.h"
-#include "../PIRAQIII_RevA_Driver/hpib.h"
-
+#include "../PIRAQIII_RevD_Driver/piraq.h"
+#include "../PIRAQIII_RevD_Driver/control.h"
+#include "../PIRAQIII_RevD_Driver/hpib.h"
 
 #define STOPDELAY 30
 
