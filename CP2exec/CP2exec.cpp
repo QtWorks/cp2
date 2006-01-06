@@ -21,7 +21,7 @@
 #include <mmsystem.h>
 
 #include "stdafx.h"      
-#include "CP2.h" 
+#include "CP2exec.h" 
 
 #include "../include/proto.h"
 
@@ -351,16 +351,16 @@ exit(0);
 
 // open debug data file: 
 db_fp = fopen("debug.dat","w");
-fprintf(db_fp,"go.exe results:\n");  
+fprintf(db_fp,"CP2exec.exe results:\n");  
 
-    printf("singlepiraq: usage -- \n"); 
-    printf("             default output localhost\n"); 
-    printf("             default outport 3100\n"); 
-    printf("             parameters --\n"); 
-    printf("             <DSP filename> <received data format: 'f' floats, 's' unsigned shorts>\n"); 
+    printf("CP2exec: usage -- \n"); 
+    printf("         default output localhost\n"); 
+    printf("         default outport 3100\n"); 
+    printf("         parameters --\n"); 
+    printf("         <DSP filename> <received data format: 'f' floats, 's' unsigned shorts>\n"); 
 	if (argc > 1) { // entered a filename 
         if ((dspEXEC = fopen(argv[1],"r")) == NULL) // DSP executable file not found 
-			{ printf("Usage: %s <DSP filename> else single_p3iq.out is used\n", argv[0]); exit(0); 
+			{ printf("Usage: %s <DSP filename> DSP executable file not found\n", argv[0]); exit(0); 
 		} 
 		cmdline_filename = TRUE; 
 		fclose(dspEXEC); // existence test passed; use command-line filename
