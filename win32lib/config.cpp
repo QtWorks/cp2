@@ -68,8 +68,6 @@ void readconfig(char *fname, CONFIG *config)
    config->outfilename[0] = config->outpath[0] = 0;
    config->velsign = 1;   
    config->ethernet = 0;
-//   config->dataformat = DATA_SIMPLEPP;
-//config->dataformat = PIRAQ_ABPDATA;
    config->boardnum = 0;
 
    /* if a filename is given, then append .dsp to it and use it */
@@ -113,13 +111,10 @@ void readconfig(char *fname, CONFIG *config)
 	 case 2:        /* prt */
 			set(value,"%d",&config->prt,keyword,linenum,filename);
 			printf("readconfig(): config->prt = %d\n", config->prt); 
-//restore 10MHz entry:			config->prt = config->prt * (SYSTEM_CLOCK/80e6) + 0.5; // compute value in 6/8MHz timebase: for IF 48/64mMHz
-//timebase entry:
 			config->prt = config->prt; // ENTER value in 6/8MHz timebase: for IF 48/64mMHz
 			break;
 	 case 3:        /* receiver pulsewidth: entered in config.dsp in timebase counts */
 			set(value,"%d",&config->rcvr_pulsewidth,keyword,linenum,filename);
-//			config->rcvr_pulsewidth = config->rcvr_pulsewidth * (SYSTEM_CLOCK/80e6) + 0.5; // compute value in 6/8MHz timebase: for IF 48/64mMHz
 			break;
 	 case 4:        /* GATE0MODE */
 			set(value,"%q",&config->gate0mode,keyword,linenum,filename);
@@ -174,8 +169,6 @@ void readconfig(char *fname, CONFIG *config)
 			break;
 	 case 20:        /* prt2: second prt for dual prt */
 			set(value,"%d",(int *)&config->prt2,keyword,linenum,filename);
-//restore 10MHz entry:			config->prt2 = config->prt2 * (SYSTEM_CLOCK/80e6) + 0.5; // compute value in 6/8MHz timebase: for IF 48/64mMHz
-//timebase entry:
 			config->prt2 = config->prt2; // ENTER value in 6/8MHz timebase: for IF 48/64mMHz
 			break;
 	 case 21:        /* trigger */
@@ -186,14 +179,10 @@ void readconfig(char *fname, CONFIG *config)
 			break;
 	 case 22:        /* tpwidth */
 			set(value,"%d",&config->tpwidth,keyword,linenum,filename);
-//restore 10MHz entry:			config->tpwidth = config->tpwidth * (SYSTEM_CLOCK/80e6) + 0.5; // compute value in 6/8MHz timebase: for IF 48/64mMHz
-//timebase entry:
 			config->tpwidth = config->tpwidth; // ENTER value in 6/8MHz timebase: for IF 48/64mMHz
 			break;
 	 case 23:       /* tpdelay  */
 			set(value,"%d",&config->tpdelay,keyword,linenum,filename);
-//restore 10MHz entry:			config->tpdelay = config->tpdelay * (SYSTEM_CLOCK/80e6) + 0.5; // compute value in 6/8MHz timebase: for IF 48/64mMHz
-//timebase entry:
 			config->tpdelay = config->tpdelay; // ENTER value in 6/8MHz timebase: for IF 48/64mMHz
 			break;
 	 case 24:       /* intenable */
