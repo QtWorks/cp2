@@ -3,8 +3,8 @@
 /****************************************************/
 #pragma once
 #include <windows.h>
-#include "../PIRAQIII_RevA_Driver/piraq.h"
-#include "../win32_drx/pci_w32.h"
+#include "../PIRAQIII_RevD_Driver/piraq.h"
+#include "../win32lib/pci_w32.h"
 #include "dd_types.h"
 
 #define NEW_INCLUDE // new definitions for RapidDOW DWELL, UDPHEADER, 4-byte data alignment. 
@@ -28,7 +28,7 @@
 #define DIO_VENDORID 0x1307
 #define DIO_DEVICEID 0xB
 
-#define NCAR_DRX				// NCAR drx: one piraq, no PMAC, no timer card, go.exe wait for piraq in subs.cpp\start()
+#define NCAR_DRX	// NCAR drx: one piraq, no PMAC, no timer card, CP2exec.exe wait for piraq in subs.cpp\start()
 #define PIRAQS				3 // RapidDOW: 3 piraqs
 #define CHANNELS			2*PIRAQS // ?
 #define CHANNEL_PARAMETERS	2 // #parameters currently specified by channel in config files
