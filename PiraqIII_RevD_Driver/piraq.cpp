@@ -933,7 +933,7 @@ long  PIRAQ::SemaWait(int iSemaphore, int iTimeOutInMiliSeconds)
 {	
 	
 	int iCount = 0;
-	int iMaxCount = (int)ceil((iTimeOutInMiliSeconds)/10);
+	int iMaxCount = (int)ceil((iTimeOutInMiliSeconds)/(float)10);
 
 	// Read first
 	while((m_pSemaphores[0] != (unsigned int)iSemaphore) && (iCount <iMaxCount) )
