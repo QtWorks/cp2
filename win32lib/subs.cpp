@@ -1190,7 +1190,7 @@ printf("> 2uSec: decimate output by 4\n");
    /* GAIN is set with 2^s * (1 + F/16) */
    /* 2^s * (1 + F/16) = 2^20 / sum      ->     2^(s-20) * (1 + F/16) = 1 / sum  */
    /* 2^(20-s)/(1 + F/16) = sum */
-   s = 20.0 - log(sum) / log(2.0);
+   s = 20.0 - log((double)sum) / log(2.0);
    f = 16.0 * (pow(2.0,20.0-s)/(double)sum - 1.0) + 0.5;
 printf("\n\nsum = %d s = %d f = %d \n\n",sum,s, f); 
 
