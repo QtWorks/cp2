@@ -629,7 +629,7 @@ nop3:
 #if 1
 		printf("hits = %d\n", hits); 
 		float suppm; suppm = prf/(float)hits; 
-		printf("ceil(prf/hits) = %4.5f, prf/hits = %4.5f\n", ceil(prf/hits), suppm); 
+		printf("ceil(prf/hits) = %4.5f, prf/hits = %4.5f\n", ceil(prf/(float)hits), suppm); 
 //		if (ceil(prf/hits) != suppm) {
 //			printf("integral beams/sec required\n"); exit(0); 
 //		} 
