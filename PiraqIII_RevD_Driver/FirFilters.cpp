@@ -6,6 +6,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 #include "stdafx.h"
 #include "FirFilters.h"
+#include <math.h>
 
 
 
@@ -648,7 +649,7 @@ void FIRFILTER::StartFilter()
 	// 2^s * (1 + F/16) = 2^20 / sum      ->     2^(s-20) * (1 + F/16) = 1 / sum  
 	// 2^(20-s)/(1 + F/16) = sum 
 
-   int s = (int)(20.0 - log(m_lCoeffSum) / log(2.0));
+   int s = (int)(20.0 - log((double)m_lCoeffSum) / log(2.0));
    int f = (int)(16.0 * (pow(2.0,20.0-s)/(double)m_lCoeffSum - 1.0) + 0.5);
 
    FIRCH1_I[6]  = 0x2000 + (16 * s) + f;
