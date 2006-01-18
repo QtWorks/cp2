@@ -76,7 +76,7 @@ void readradar(char *fname, RADAR *radar)
       fp = fopen(filename,"r");
       if(!fp)
 	 {
-	 strcpy(filename,"config.rdr");
+	 strcpy(filename,"..\config.rdr");
 	 fp = fopen(filename,"r");
 	 }
       }
