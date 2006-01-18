@@ -5,8 +5,8 @@
 #include        <stdio.h>
 #include        <string.h>
 #include        <errno.h>
-#include		<fstream.h>
-
+//?old iostream functions bringing in msvcirt.lib?	#include		<fstream.h>
+//#include        <iosfwd>
 //#include        "../include/dpram.h"
 
 
@@ -45,8 +45,7 @@ void readconfig(char *fname, CONFIG *config)
    int  linenum,debug,i,err=0;
    double       temp;
    char filename[180],keyword[180],value[180],line[180];
-   //FILE *fp;
-	ifstream fs;
+   FILE *fp;
 
    /* initialize all parameters in the operation state structure */
    config->prt = config->timingmode
@@ -71,30 +70,28 @@ void readconfig(char *fname, CONFIG *config)
    config->boardnum = 0;
 
    /* if a filename is given, then append .dsp to it and use it */
+   /* default file is ..\config.dsp */ 
    if(strcmp(fname,""))        
       {
       for(i=0; fname[i] && fname[i] != '.'; i++)  filename[i] = fname[i];
       strcpy(&filename[i],".dsp");
-      //fp = fopen(filename,"r");
-	  fs.open(filename);
-      if(!fs.is_open())
+      fp = fopen(filename,"r");
+      if(!fp)
 	 {
-	 strcpy(filename,"config.dsp");
-	 //fp = fopen(filename,"r");
-	 fs.open(filename);
+	 strcpy(filename,"..\config.dsp");
+	 fp = fopen(filename,"r");
 	 }
       }
    else 
       {
       strcpy(filename,"config.dsp");
-      //fp = fopen(filename,"r");
-	  fs.open(filename);
+      fp = fopen(filename,"r");
       }
 
-   if(!fs) {printf("cannot open configuration file %s\n",filename); exit(0);}
+   if(!fp) {printf("cannot open configuration file %s\n",filename); exit(0);}
 
    linenum = 0;
-   while(fs.getline(line,170) != NULL)  /* while not end of file */
+   while(fgets(line,170,fp) != NULL)  /* while not end of file */
     {
     linenum++;
     getkeyval(line,keyword,value);  /* get keyword and value */
@@ -160,7 +157,6 @@ void readconfig(char *fname, CONFIG *config)
 			break;
 	 case 18:        /* transmitter pulsewidth */
 			set(value,"%d",(int *)&config->xmit_pulsewidth,keyword,linenum,filename);
-//			config->xmit_pulsewidth = config->xmit_pulsewidth * (SYSTEM_CLOCK/80e6) + 0.5; // compute value in 6/8MHz timebase: for IF 48/64mMHz
 			break;
 	 case 19:        /* velocity sign */
 			set(value,"%d",(int *)&config->velsign,keyword,linenum,filename);
@@ -236,8 +232,7 @@ void readconfig(char *fname, CONFIG *config)
       }
      }
    
-   fs.close();
-
+   fclose(fp);
    config->gatesb = config->gatesa;
 
    /* check to see if the dataformat is supported */
@@ -320,9 +315,9 @@ void readconfig(char *fname, CONFIG *config)
       printf("%-18s %f\n",parms[25],config->stalofreq);
       printf("%-18s %d\n",parms[26],config->sync);
       printf("%-18s %08X\n",parms[27],config->ethernet);
-      printf("%-18s %08X\n",parms[28],config->dataformat);
-      printf("%-18s %08X\n",parms[29],config->boardnum);
-      printf("%-18s %08X\n",parms[30],config->testpulse);
+      printf("%-18s %d\n",parms[28],config->dataformat);
+      printf("%-18s %d\n",parms[29],config->boardnum);
+      printf("%-18s %d\n",parms[30],config->testpulse);
       printf("%-18s %d\n",parms[31],config->ts_end_gate);
       printf("%-18s %d\n",parms[32],config->startgate);
       printf("%-18s %d\n",parms[33],config->clutter_start);
