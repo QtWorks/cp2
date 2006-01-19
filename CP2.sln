@@ -1,0 +1,39 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CP2exec", "CP2exec\CP2exec.vcproj", "{F71A6507-94D5-4876-9911-BFE77683B71A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9C4402DF-828E-4BAB-A91F-502ED5839600} = {9C4402DF-828E-4BAB-A91F-502ED5839600}
+		{773E482C-9BD5-4170-881E-908AB64C55D6} = {773E482C-9BD5-4170-881E-908AB64C55D6}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PiraqIII_RevD_Driver.dsp", "PiraqIII_RevD_Driver\PiraqIII_RevD_Driver.vcproj", "{9C4402DF-828E-4BAB-A91F-502ED5839600}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "win32lib", "win32lib\win32lib.vcproj", "{773E482C-9BD5-4170-881E-908AB64C55D6}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{F71A6507-94D5-4876-9911-BFE77683B71A}.Debug.ActiveCfg = Debug|Win32
+		{F71A6507-94D5-4876-9911-BFE77683B71A}.Debug.Build.0 = Debug|Win32
+		{F71A6507-94D5-4876-9911-BFE77683B71A}.Release.ActiveCfg = Release|Win32
+		{F71A6507-94D5-4876-9911-BFE77683B71A}.Release.Build.0 = Release|Win32
+		{9C4402DF-828E-4BAB-A91F-502ED5839600}.Debug.ActiveCfg = Debug|Win32
+		{9C4402DF-828E-4BAB-A91F-502ED5839600}.Debug.Build.0 = Debug|Win32
+		{9C4402DF-828E-4BAB-A91F-502ED5839600}.Release.ActiveCfg = Release|Win32
+		{9C4402DF-828E-4BAB-A91F-502ED5839600}.Release.Build.0 = Release|Win32
+		{773E482C-9BD5-4170-881E-908AB64C55D6}.Debug.ActiveCfg = Debug|Win32
+		{773E482C-9BD5-4170-881E-908AB64C55D6}.Debug.Build.0 = Debug|Win32
+		{773E482C-9BD5-4170-881E-908AB64C55D6}.Release.ActiveCfg = Release|Win32
+		{773E482C-9BD5-4170-881E-908AB64C55D6}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal
