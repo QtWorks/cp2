@@ -78,7 +78,7 @@ void readconfig(char *fname, CONFIG *config)
       fp = fopen(filename,"r");
       if(!fp)
 	 {
-	 strcpy(filename,"..\config.dsp");
+	 strcpy(filename,"../config.dsp");
 	 fp = fopen(filename,"r");
 	 }
       }
