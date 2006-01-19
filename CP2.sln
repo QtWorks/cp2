@@ -1,15 +1,15 @@
 Microsoft Visual Studio Solution File, Format Version 8.00
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CP2exec", "CP2exec\CP2exec.vcproj", "{F71A6507-94D5-4876-9911-BFE77683B71A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CP2exec", "CP2exec\CP2exec.vcproj", "{EB607E6C-AF37-4668-854A-DF51A47ED484}"
 	ProjectSection(ProjectDependencies) = postProject
-		{9C4402DF-828E-4BAB-A91F-502ED5839600} = {9C4402DF-828E-4BAB-A91F-502ED5839600}
-		{773E482C-9BD5-4170-881E-908AB64C55D6} = {773E482C-9BD5-4170-881E-908AB64C55D6}
+		{94722C93-C44E-41E8-86BE-05288AB8A868} = {94722C93-C44E-41E8-86BE-05288AB8A868}
+		{92308F9A-E019-4D5E-8CCD-B20842731F8D} = {92308F9A-E019-4D5E-8CCD-B20842731F8D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PiraqIII_RevD_Driver.dsp", "PiraqIII_RevD_Driver\PiraqIII_RevD_Driver.vcproj", "{9C4402DF-828E-4BAB-A91F-502ED5839600}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PiraqIII_RevD_Driver.dsp", "PiraqIII_RevD_Driver\PiraqIII_RevD_Driver.vcproj", "{94722C93-C44E-41E8-86BE-05288AB8A868}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "win32lib", "win32lib\win32lib.vcproj", "{773E482C-9BD5-4170-881E-908AB64C55D6}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "win32lib", "win32lib\win32lib.vcproj", "{92308F9A-E019-4D5E-8CCD-B20842731F8D}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -19,18 +19,18 @@ Global
 		Release = Release
 	EndGlobalSection
 	GlobalSection(ProjectConfiguration) = postSolution
-		{F71A6507-94D5-4876-9911-BFE77683B71A}.Debug.ActiveCfg = Debug|Win32
-		{F71A6507-94D5-4876-9911-BFE77683B71A}.Debug.Build.0 = Debug|Win32
-		{F71A6507-94D5-4876-9911-BFE77683B71A}.Release.ActiveCfg = Release|Win32
-		{F71A6507-94D5-4876-9911-BFE77683B71A}.Release.Build.0 = Release|Win32
-		{9C4402DF-828E-4BAB-A91F-502ED5839600}.Debug.ActiveCfg = Debug|Win32
-		{9C4402DF-828E-4BAB-A91F-502ED5839600}.Debug.Build.0 = Debug|Win32
-		{9C4402DF-828E-4BAB-A91F-502ED5839600}.Release.ActiveCfg = Release|Win32
-		{9C4402DF-828E-4BAB-A91F-502ED5839600}.Release.Build.0 = Release|Win32
-		{773E482C-9BD5-4170-881E-908AB64C55D6}.Debug.ActiveCfg = Debug|Win32
-		{773E482C-9BD5-4170-881E-908AB64C55D6}.Debug.Build.0 = Debug|Win32
-		{773E482C-9BD5-4170-881E-908AB64C55D6}.Release.ActiveCfg = Release|Win32
-		{773E482C-9BD5-4170-881E-908AB64C55D6}.Release.Build.0 = Release|Win32
+		{EB607E6C-AF37-4668-854A-DF51A47ED484}.Debug.ActiveCfg = Debug|Win32
+		{EB607E6C-AF37-4668-854A-DF51A47ED484}.Debug.Build.0 = Debug|Win32
+		{EB607E6C-AF37-4668-854A-DF51A47ED484}.Release.ActiveCfg = Release|Win32
+		{EB607E6C-AF37-4668-854A-DF51A47ED484}.Release.Build.0 = Release|Win32
+		{94722C93-C44E-41E8-86BE-05288AB8A868}.Debug.ActiveCfg = Debug|Win32
+		{94722C93-C44E-41E8-86BE-05288AB8A868}.Debug.Build.0 = Debug|Win32
+		{94722C93-C44E-41E8-86BE-05288AB8A868}.Release.ActiveCfg = Release|Win32
+		{94722C93-C44E-41E8-86BE-05288AB8A868}.Release.Build.0 = Release|Win32
+		{92308F9A-E019-4D5E-8CCD-B20842731F8D}.Debug.ActiveCfg = Debug|Win32
+		{92308F9A-E019-4D5E-8CCD-B20842731F8D}.Debug.Build.0 = Debug|Win32
+		{92308F9A-E019-4D5E-8CCD-B20842731F8D}.Release.ActiveCfg = Release|Win32
+		{92308F9A-E019-4D5E-8CCD-B20842731F8D}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
