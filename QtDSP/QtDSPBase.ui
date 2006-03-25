@@ -1,0 +1,310 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>QtDSPBase</class>
+<widget class="QMainWindow">
+    <property name="name">
+        <cstring>QtDSPBase</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>531</width>
+            <height>546</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>QtDSP</string>
+    </property>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>textLabel4</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>40</x>
+                <y>356</y>
+                <width>67</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Current Status</string>
+        </property>
+    </widget>
+    <widget class="QLineEdit">
+        <property name="name">
+            <cstring>_currentStatus</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>113</x>
+                <y>356</y>
+                <width>330</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property name="readOnly">
+            <bool>true</bool>
+        </property>
+    </widget>
+    <widget class="QGroupBox">
+        <property name="name">
+            <cstring>groupBox1</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>40</x>
+                <y>0</y>
+                <width>400</width>
+                <height>130</height>
+            </rect>
+        </property>
+        <property name="title">
+            <string>Host Information</string>
+        </property>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>textLabel1</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>41</x>
+                    <y>19</y>
+                    <width>107</width>
+                    <height>20</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>Destination Hostname:</string>
+            </property>
+        </widget>
+        <widget class="QPushButton">
+            <property name="name">
+                <cstring>_startButton</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>40</x>
+                    <y>95</y>
+                    <width>190</width>
+                    <height>23</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>Start/Stop Receive and Process Data</string>
+            </property>
+        </widget>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>textLabel2</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>41</x>
+                    <y>61</y>
+                    <width>78</width>
+                    <height>20</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>Destination Port:</string>
+            </property>
+        </widget>
+        <widget class="QLineEdit">
+            <property name="name">
+                <cstring>_destinationPort</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>125</x>
+                    <y>61</y>
+                    <width>87</width>
+                    <height>20</height>
+                </rect>
+            </property>
+        </widget>
+        <widget class="QLineEdit">
+            <property name="name">
+                <cstring>_destinationHostname</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>154</x>
+                    <y>19</y>
+                    <width>100</width>
+                    <height>20</height>
+                </rect>
+            </property>
+        </widget>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>textLabel3</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>218</x>
+                    <y>61</y>
+                    <width>80</width>
+                    <height>20</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>Receive Port:</string>
+            </property>
+        </widget>
+        <widget class="QLineEdit">
+            <property name="name">
+                <cstring>_receivePort</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>293</x>
+                    <y>61</y>
+                    <width>80</width>
+                    <height>20</height>
+                </rect>
+            </property>
+        </widget>
+    </widget>
+    <widget class="QGroupBox">
+        <property name="name">
+            <cstring>groupBox2</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>40</x>
+                <y>144</y>
+                <width>310</width>
+                <height>170</height>
+            </rect>
+        </property>
+        <property name="title">
+            <string>Status Log</string>
+        </property>
+        <widget class="QTextEdit">
+            <property name="name">
+                <cstring>statusLog</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>40</x>
+                    <y>22</y>
+                    <width>240</width>
+                    <height>130</height>
+                </rect>
+            </property>
+            <property name="vScrollBarMode">
+                <enum>AlwaysOn</enum>
+            </property>
+            <property name="textFormat">
+                <enum>LogText</enum>
+            </property>
+        </widget>
+    </widget>
+</widget>
+<menubar>
+    <property name="name">
+        <cstring>MenuBar</cstring>
+    </property>
+    <item text="&amp;Help" name="helpMenu">
+        <action name="helpContentsAction"/>
+        <action name="helpIndexAction"/>
+        <separator/>
+        <action name="helpAboutAction"/>
+    </item>
+</menubar>
+<toolbars>
+    <toolbar dock="2">
+        <property name="name">
+            <cstring>toolBar</cstring>
+        </property>
+        <property name="label">
+            <string>Tools</string>
+        </property>
+        <action name="helpAboutAction"/>
+    </toolbar>
+</toolbars>
+<actions>
+    <action>
+        <property name="name">
+            <cstring>helpContentsAction</cstring>
+        </property>
+        <property name="text">
+            <string>Contents</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Contents...</string>
+        </property>
+        <property name="accel">
+            <string></string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>helpIndexAction</cstring>
+        </property>
+        <property name="text">
+            <string>Index</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Index...</string>
+        </property>
+        <property name="accel">
+            <string></string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>helpAboutAction</cstring>
+        </property>
+        <property name="text">
+            <string>About</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;About</string>
+        </property>
+        <property name="accel">
+            <string></string>
+        </property>
+    </action>
+</actions>
+<connections>
+    <connection>
+        <sender>helpIndexAction</sender>
+        <signal>activated()</signal>
+        <receiver>QtDSPBase</receiver>
+        <slot>helpIndex()</slot>
+    </connection>
+    <connection>
+        <sender>helpContentsAction</sender>
+        <signal>activated()</signal>
+        <receiver>QtDSPBase</receiver>
+        <slot>helpContents()</slot>
+    </connection>
+    <connection>
+        <sender>helpAboutAction</sender>
+        <signal>activated()</signal>
+        <receiver>QtDSPBase</receiver>
+        <slot>helpAbout()</slot>
+    </connection>
+    <connection>
+        <sender>_startButton</sender>
+        <signal>clicked()</signal>
+        <receiver>QtDSPBase</receiver>
+        <slot>startStopReceiveSlot()</slot>
+    </connection>
+</connections>
+<includes>
+    <include location="local" impldecl="in implementation">QtDSPBase.ui.h</include>
+</includes>
+<slots>
+    <slot>helpIndex()</slot>
+    <slot>helpContents()</slot>
+    <slot>helpAbout()</slot>
+    <slot>destinationHostnameTextChangedSlot( const QString &amp; )</slot>
+    <slot>dataSocketActivatedSlot( int )</slot>
+    <slot>startStopReceiveSlot()</slot>
+</slots>
+<pixmapinproject/>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>
