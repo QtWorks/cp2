@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="7.10"
+	Name="CP2Scope"
+	ProjectGUID="{7E9275A6-2DE5-4F34-8305-A8BC31999076}">
+	<Platforms>
+		<Platform
+			Name="Win32"/>
+	</Platforms>
+	<Configurations>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="1">
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories=".\GeneratedFiles; $(QTDIR)\include; .\GeneratedFiles\Release; .\tmp\moc; ; "
+				PreprocessorDefinitions="UNICODE,WIN32,QT_NO_DEBUG,NDEBUG"
+				RuntimeLibrary="2"
+				DebugInformationFormat="0"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies=" qtmain.lib qt-mt335.lib"
+				OutputFile="$(OutDir)\$(ProjectName).exe"
+				AdditionalLibraryDirectories="$(QTDIR)\lib"
+				GenerateDebugInformation="FALSE"
+				SubSystem="2"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory="."
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="1">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="4"
+				AdditionalIncludeDirectories="c:\Projects\qwt\include,..\..\QtToolbox,$(QTDIR)\include,.,C:\Qt\3.3.5\mkspecs\win32-msvc.net,C:\Projects\fftw3.1"
+				PreprocessorDefinitions="_WINDOWS,UNICODE,WIN32,QT_DLL,QT_THREAD_SUPPORT"
+				MinimalRebuild="TRUE"
+				RuntimeLibrary="3"
+				BufferSecurityCheck="FALSE"
+				AssemblerListingLocation=".\"
+				ObjectFile=".\"
+				ProgramDataBaseFileName=".\"
+				WarningLevel="3"
+				DebugInformationFormat="3"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				IgnoreImportLibrary="TRUE"
+				AdditionalDependencies="qt-mt335.lib qtmain.lib c:\Projects\lib\qwt500.lib ..\..\QtToolbox\ScopePlot\ScopePlot.lib ..\..\QtToolbox\Knob\Knob.lib C:\Projects\fftw3.1\libfftw3-3.lib C:\Projects\fftw3.1\libfftw3f-3.lib C:\Projects\fftw3.1\libfftw3l-3.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib imm32.lib winmm.lib wsock32.lib winspool.lib delayimp.lib"
+				OutputFile=".\CP2Scope.exe"
+				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories="$(QTDIR)\lib,C:\Projects\fftw3.1"
+				GenerateDebugInformation="TRUE"
+				ProgramDatabaseFile=""
+				SubSystem="2"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+		<Filter
+			Name="Source Files"
+			Filter="cpp;cxx;c;def"
+			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
+			<File
+				RelativePath=".\CP2Scope.cpp">
+			</File>
+			<File
+				RelativePath=".\CP2ScopeBase.ui.h">
+			</File>
+			<File
+				RelativePath=".\main.cpp">
+			</File>
+		</Filter>
+		<Filter
+			Name="Header Files"
+			Filter="h"
+			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			<File
+				RelativePath=".\CP2Scope.h">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Moc&apos;ing CP2Scope.h..."
+						CommandLine="$(QTDIR)\bin\moc.exe .\CP2Scope.h -o tmp\moc\moc_CP2Scope.cpp
+"
+						AdditionalDependencies="$(QTDIR)\bin\moc.exe;.\CP2Scope.h"
+						Outputs="tmp\moc\moc_CP2Scope.cpp"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Moc&apos;ing CP2Scope.h..."
+						CommandLine="$(QTDIR)\bin\moc.exe .\CP2Scope.h -o tmp\moc\moc_CP2Scope.cpp
+"
+						AdditionalDependencies="$(QTDIR)\bin\moc.exe;.\CP2Scope.h"
+						Outputs="tmp\moc\moc_CP2Scope.cpp"/>
+				</FileConfiguration>
+			</File>
+		</Filter>
+		<Filter
+			Name="Form Files"
+			Filter="ui"
+			UniqueIdentifier="{99349809-55BA-4b9d-BF79-8FDBB0286EB3}">
+			<File
+				RelativePath=".\CP2ScopeBase.ui">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Uic&apos;ing CP2ScopeBase.ui..."
+						CommandLine="$(QTDIR)\bin\uic.exe &quot;.\CP2ScopeBase.ui&quot; -o &quot;.\CP2ScopeBase.h&quot; &amp;&amp; $(QTDIR)\bin\uic.exe &quot;.\CP2ScopeBase.ui&quot; -i &quot;.\CP2ScopeBase.h&quot; -o &quot;.\CP2ScopeBase.cpp&quot; &amp;&amp; $(QTDIR)\bin\moc.exe &quot;.\CP2ScopeBase.h&quot; -o &quot;tmp\moc\moc_CP2ScopeBase.cpp&quot;
+"
+						AdditionalDependencies="$(QTDIR)\bin\moc.exe;$(QTDIR)\bin\uic.exe;.\CP2ScopeBase.ui"
+						Outputs="&quot;.\CP2ScopeBase.h&quot;;&quot;.\CP2ScopeBase.cpp&quot;;&quot;tmp\moc\moc_CP2ScopeBase.cpp&quot;"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Uic&apos;ing CP2ScopeBase.ui..."
+						CommandLine="$(QTDIR)\bin\uic.exe &quot;.\CP2ScopeBase.ui&quot; -o &quot;.\CP2ScopeBase.h&quot; &amp;&amp; $(QTDIR)\bin\uic.exe &quot;.\CP2ScopeBase.ui&quot; -i &quot;.\CP2ScopeBase.h&quot; -o &quot;.\CP2ScopeBase.cpp&quot; &amp;&amp; $(QTDIR)\bin\moc.exe &quot;.\CP2ScopeBase.h&quot; -o &quot;tmp\moc\moc_CP2ScopeBase.cpp&quot;
+"
+						AdditionalDependencies="$(QTDIR)\bin\moc.exe;$(QTDIR)\bin\uic.exe;.\CP2ScopeBase.ui"
+						Outputs="&quot;.\CP2ScopeBase.h&quot;;&quot;.\CP2ScopeBase.cpp&quot;;&quot;tmp\moc\moc_CP2ScopeBase.cpp&quot;"/>
+				</FileConfiguration>
+			</File>
+		</Filter>
+		<Filter
+			Name="Generated MOC Files"
+			Filter="moc;cpp"
+			UniqueIdentifier="{fe6e9830-be46-497d-995d-44b99b58e215}"
+			ParseFiles="FALSE">
+			<File
+				RelativePath=".\tmp\moc\moc_CP2Scope.cpp">
+			</File>
+			<File
+				RelativePath=".\tmp\moc\moc_CP2ScopeBase.cpp">
+			</File>
+		</Filter>
+		<Filter
+			Name="Generated UI Files"
+			Filter="h;cpp"
+			UniqueIdentifier="{1055a0e6-65c3-41af-a074-17d15cb3fa32}"
+			ParseFiles="FALSE">
+			<File
+				RelativePath=".\CP2ScopeBase.cpp">
+			</File>
+			<File
+				RelativePath=".\CP2ScopeBase.h">
+			</File>
+		</Filter>
+	</Files>
+	<Globals>
+	</Globals>
+</VisualStudioProject>
