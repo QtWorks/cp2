@@ -30,7 +30,24 @@ void CP2ScopeBase::yScaleKnob_valueChanged( double )
 
 
 
+
+void CP2ScopeBase::dataSetSlot( bool )
+{
+
+}
+
+
+
+
+
+
 void CP2ScopeBase::DatagramPortSpinBox_valueChanged( int )
+{
+
+}
+
+
+void CP2ScopeBase::DataSetGateSpinBox_valueChanged( int )
 {
 
 }
