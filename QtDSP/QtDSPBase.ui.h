@@ -35,11 +35,6 @@ void QtDSPBase::destinationHostnameTextChangedSlot(const QString&)
 }
 
 
-void QtDSPBase::dataSocketActivatedSlot( int )
-{
-
-}
-
 
 void QtDSPBase::startStopReceiveSlot()
 {
