@@ -334,6 +334,12 @@ printf("*pPLX_DMPBAM = 0x%x\n", *pPLX_DMPBAM);
 	FIRCH1_Q = GetFilter()->GetFIRCH1_Q();
 	FIRCH2_I = GetFilter()->GetFIRCH2_I();
 	FIRCH2_Q = GetFilter()->GetFIRCH2_Q();
+
+	// Set default PIRAQ Data Mode in MAILBOX5: SEND_COMBINED, execute the dynamic range extension algorithm 
+	unsigned long * pPLX_PIRAQ_MAILBOX5 = (unsigned long *)((unsigned char*)m_pPLX_BaseAddress + PIRAQ_MAILBOX5);
+	*pPLX_PIRAQ_MAILBOX5 = (unsigned long)SEND_COMBINED;
+//*pPLX_PIRAQ_MAILBOX5 = (unsigned long)SEND_CHB;
+
 	return 0;
 }
 
@@ -997,7 +1003,7 @@ void  PIRAQ::SetPMACAntennaDPRAMAddress(unsigned short * PMACAntennaDPRAMAddress
 //
 // WRITTEN BY: Milan Pipersky 4-23-04
 //
-// LAST MODIFIED BY:
+// LAST MODIFIED BY: Milan Pipersky 3-10-06
 //
 /////////////////////////////////////////////////////////////////////////////////////////
  
@@ -1008,6 +1014,44 @@ unsigned short * PIRAQ::GetPMACAntennaDPRAMAddress()
 	unsigned long * pPLX_PIRAQ_MAILBOX4 = (unsigned long *)((unsigned char*)(GetRegisterBase()) + PIRAQ_MAILBOX4);
 	unsigned short * PIRAQ_PMACDPRAM = (unsigned short *)*pPLX_PIRAQ_MAILBOX4; 
 	return(PIRAQ_PMACDPRAM); 
+
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+// METHOD NAME: PIRAQ::SetCP2PIRAQTestAction(unsigned short PIRAQTestAction) 
+//
+// DESCRIPTION: Set PIRAQ channel mode in PIRAQ Mailbox 5. 
+// 3 modes of data transfer from PIRAQ to host: first 2 are diagnostic
+//			SEND_CHA				// send CHA
+//			SEND_CHB				// send CHB
+//			SEND_COMBINED			// execute dynamic-range extension algorithm; send resulting  
+//									   combined data
+//			//	PIRAQ DATA TEST-SINUSOID ADJUSTMENTS:
+//			INCREMENT_TEST_SINUSIOD_COARSE
+//			INCREMENT_TEST_SINUSIOD_FINE
+//			DECREMENT_TEST_SINUSIOD_COARSE
+//			DECREMENT_TEST_SINUSIOD_FINE
+//			Definitions are in proto.h also for time being. 
+//
+// INPUT PARAMETER(s): 
+// unsigned short PIRAQTestAction
+//
+// OUTPUT PARAMETER(s): None
+//
+// RETURN: none.         
+//
+// WRITTEN BY: Milan Pipersky 2-23-06
+//
+// LAST MODIFIED BY: Milan Pipersky 3-10-06
+//
+/////////////////////////////////////////////////////////////////////////////////////////
+ 
+void  PIRAQ::SetCP2PIRAQTestAction(unsigned short PIRAQTestAction)
+{	
+	// Compute pointer to  PIRAQ mailbox 5; put PIRAQ test parameter there 
+	unsigned long * pPLX_PIRAQ_MAILBOX5 = (unsigned long *)((unsigned char*)(GetRegisterBase()) + PIRAQ_MAILBOX5);
+	*pPLX_PIRAQ_MAILBOX5 = (unsigned long)PIRAQTestAction;
 
 }
 
