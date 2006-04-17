@@ -1,24 +1,32 @@
 #ifndef CP2SCOPE_H
 #define CP2SCOPE_H
 
+#include <winsock2.h>		//	no redefinition errors if before Qt includes?
 #include <qsocketdevice.h> 
 #include <qsocketnotifier.h>
 #include <qevent.h>
 
 #include <fftw3.h>
 
+#include "../include/CP2.h"			//	CP2-wide Definitions
+#include "../include/piraqx.h"		//	CP2-piraqx Definitions
+#include "../include/dd_types.h"	//	CP2-piraqx data types
 #include "CP2ScopeBase.h"
 #include <ScopePlot/ScopePlot.h>
 
-//	CP2 Definitions: 
-//	CP2_PIRAQ_DATA_TYE defines the type, and thus the size, of the data that is sent in a block after the header.
-#define CP2_PIRAQ_DATA_TYPE	float
-#define	DISPLAY_REFRESH_INTERVAL	50		//	mSec display refresh 
-#define	WINDSP_BASE_PORT			21010	//	WinDSP base port# for broadcast
+#define	CP2SCOPE_DISPLAY_REFRESH_INTERVAL	50		//	mSec display refresh 
 #define CP2_DATA_CHANNELS			4		//	two channels each for S and X band 
 #define	PIRAQ_NORMALIZED_FULL_SCALE	1.0		//	PIRAQ data normalized to +/-1.0
+#define	PIRAQ_HALF_SCALE	pow(2,30)		//	PIRAQ data unnormalized: /2 keep int positive 
 #define	ySCALEMIN					0.0
 #define	ySCALEMAX					PIRAQ_NORMALIZED_FULL_SCALE
+#ifdef SCALE_DATA
+#define	ySCALEMAX					PIRAQ_NORMALIZED_FULL_SCALE
+#else
+#define	ySCALEMAX					PIRAQ_HALF_SCALE
+#endif
+
+enum	{	DATA_SET_PULSE,	DATA_SET_GATE,	DATA_SETS	}; 
 
 class CP2Scope : public CP2ScopeBase {
 	Q_OBJECT		// per Qt documentation: "strongly recommended"
@@ -29,6 +37,7 @@ public:
 	void terminateSocket(); 
 	void connectDataRcv();
 	double powerSpectrum(); 
+	int	getParameters( CP2_PIRAQ_DATA_TYPE[] );		//	get program operating parameters from piraqx (or other) "housekeeping" header structure
 
 	void displayData(); // remove when SLOT functions 
 
@@ -42,11 +51,14 @@ public slots:
 	void displayDataSlot(void); 
     virtual void yScaleKnob_valueChanged( double );	
 	virtual void DatagramPortSpinBox_valueChanged( int ); 
+    virtual void dataSetSlot(bool);
+	virtual void DataSetGateSpinBox_valueChanged( int ); 
 
 protected:
 	QSocketDevice*   m_pDataSocket;
 	QSocketNotifier* m_pDataSocketNotifier;
 	int				m_dataGramPort;
+	int				m_DataSetGate;		//	gate in packet to display 
 	int				m_packetCount;		//	cumulative packet count on current socket 
 	int				m_dataDisplayTimer; 
 	double			m_display_yScale;	//	y-scale factor for plotting timeseries data
@@ -58,6 +70,13 @@ protected:
 	void timerEvent(QTimerEvent *e);
 
 	ScopePlot::PLOTTYPE _plotType;
+	int				_dataSet;		//	data grouping for scope displays: along pulse, or gate
+	int				_parametersSet;	//	set when piraqx parameters successfully initialized from received data
+	//	operating parameters from piraqx (or other header) for use by program: data types per piraqx.h
+	uint4			_gates;
+	//	operating parameters derived from piraqx and N-hit implementation:	
+	int				_pulseStride;	//	length in bytes of 1 pulse: header + data
+	int				_Nhits;			//	
 
 	/// The power spectrum 
 	std::vector<double> _spectrum;
