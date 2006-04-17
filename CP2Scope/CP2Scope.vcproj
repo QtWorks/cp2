@@ -73,7 +73,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="TRUE"
-				AdditionalDependencies="qt-mt335.lib qtmain.lib c:\Projects\lib\qwt500.lib ..\..\QtToolbox\ScopePlot\ScopePlot.lib ..\..\QtToolbox\Knob\Knob.lib C:\Projects\fftw3.1\libfftw3-3.lib C:\Projects\fftw3.1\libfftw3f-3.lib C:\Projects\fftw3.1\libfftw3l-3.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib imm32.lib winmm.lib wsock32.lib winspool.lib delayimp.lib"
+				AdditionalDependencies="qt-mt335.lib qtmain.lib c:\Projects\lib\qwt500.lib ..\..\QtToolbox\ScopePlot\ScopePlot.lib ..\..\QtToolbox\Knob\Knob.lib C:\Projects\fftw3.1\libfftw3-3.lib C:\Projects\fftw3.1\libfftw3f-3.lib C:\Projects\fftw3.1\libfftw3l-3.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib imm32.lib winmm.lib ws2_32.lib winspool.lib delayimp.lib"
 				OutputFile=".\CP2Scope.exe"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="$(QTDIR)\lib,C:\Projects\fftw3.1"
@@ -124,6 +124,9 @@
 			Filter="h"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
+				RelativePath="..\include\CP2.h">
+			</File>
+			<File
 				RelativePath=".\CP2Scope.h">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -145,6 +148,12 @@
 						AdditionalDependencies="$(QTDIR)\bin\moc.exe;.\CP2Scope.h"
 						Outputs="tmp\moc\moc_CP2Scope.cpp"/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\include\dd_types.h">
+			</File>
+			<File
+				RelativePath="..\include\piraqx.h">
 			</File>
 		</Filter>
 		<Filter
