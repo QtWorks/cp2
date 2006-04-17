@@ -30,7 +30,6 @@
 #define PIRAQ_MAILBOX6 0x58
 #define PIRAQ_MAILBOX7 0x5c
 
-
 #define PARAMETEROFFSET 0x00
 #define SEMAPHOREOFFSET 0x90
 #define NUMCODEBITS 0
@@ -39,6 +38,18 @@
 #define NUMPOINTSINSPECTRUM 3
 #define NUMRECEIVERS 4
 #define FLIP 5
+
+// CP2: 3 modes of data transfer from PIRAQ to host: first 2 are diagnostic
+//		!note: same set is defined in proto.h
+#define	SEND_CHA		0		// send CHA
+#define	SEND_CHB		1		// send CHB
+#define	SEND_COMBINED	2		// execute dynamic-range extension algorithm; send resulting combined data
+// PIRAQ test-sinusoid adjustments
+// 4 PIRAQ test-sinusoid adjustments
+#define	INCREMENT_TEST_SINUSIOD_COARSE	4
+#define	INCREMENT_TEST_SINUSIOD_FINE	8
+#define	DECREMENT_TEST_SINUSIOD_COARSE	12
+#define	DECREMENT_TEST_SINUSIOD_FINE	16
 
 #define export __declspec(dllexport)
 
@@ -111,6 +122,7 @@ void	LoadFIRParameters(float sp_fFrequencyHz, long sp_lTransmitPulseWidthNs, lon
 		long	SemaWait(int iSemaphore, int iTimeOutInMiliSeconds);
 		void	SetPMACAntennaDPRAMAddress(unsigned short * PMACAntennaDPRAMAddress); 
 		unsigned short *	GetPMACAntennaDPRAMAddress(void); 
+		void	SetCP2PIRAQTestAction(unsigned short PIRAQTestAction); 
 		class CONTROL *GetControl(){ return((class CONTROL *)m_pControl);}
 		class HPIB *GetHPIB(){ return((class HPIB *)m_pHpib);}
 		unsigned long *GetBuffer(){return(m_pCommonBufferAddressOn8MegBounderyUser);}
