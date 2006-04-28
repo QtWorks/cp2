@@ -8,8 +8,6 @@
 
 #include <iostream>
 
-//#define	WINSOCK2_TEST	//	testing winsock2 implementation
-
 QtDSP::QtDSP():
 m_pDataSocket(0),    
 m_pDataSocketNotifier(0),
@@ -22,11 +20,7 @@ m_pSocketBuf(0)
 	sprintf(_postIt, "%d", CP2EXEC_BASE_PORT);	_receivePortBase->setText( QString( _postIt ) ); 
 	sprintf(_postIt, "%d", QTDSP_BASE_PORT);	_destinationPortBase->setText( QString( _postIt ) ); 
 	//	default Destination Hostname to this machine: 
-#ifdef	STREAM_SOCKET
-	m_pDataSocket = new QSocketDevice(QSocketDevice::Stream);	//	exit() below without this 
-#else
 	m_pDataSocket = new QSocketDevice(QSocketDevice::Datagram);	//	exit() below without this 
-#endif
 	char nameBuf[256];
 	if (gethostname(nameBuf, sizeof(nameBuf))) {
 		statusLog->append("gethostname failed");
@@ -72,6 +66,7 @@ QtDSP::getParameters( CP2_PIRAQ_DATA_TYPE[] )	// get program operating parameter
 	_pulseStride = (sizeof(PACKETHEADER) + 8*_gates)/sizeof(float);	//	stride in floats; 2nd term DATASIZE: 8 bytes per gate wired for now 
 	//	compute #hits combined by piraq: equal in both piraq executable (CP2_DCCS3_1.out) and host applications
 	_Nhits = UDPSENDSIZE / (HEADERSIZE + (8*_gates));	//	8 bytes per gate: define
+	sprintf(m_statusLogBuf, "_Nhits = %d", _Nhits); statusLog->append( m_statusLogBuf ); 
 	return(1);	//	condition this 
 }
 
@@ -112,6 +107,9 @@ QtDSP::startStopReceiveSlot()	//	activated on either lostFocus or returnPressed
 	std::cout << "->text() returned " << m_destinationHostname << std::endl;
 	std::cout << "->text() returned " << m_destinationPortNumber << std::endl;
 	std::cout << "->text() returned " << m_receivePortNumber << std::endl;
+
+	sprintf(m_statusLogBuf, "startStopReceiveSlot(): m_destinationHostname %s", m_destinationHostname.ascii()); 
+	statusLog->append( m_statusLogBuf );
 	//does not work:	m_destinationPort = atoi(_destinationPort->text()); 
 	m_destinationPort = atoi(m_destinationPortNumber); 
 	m_receivePort = atoi(m_receivePortNumber); 
@@ -150,22 +148,22 @@ QtDSP::dataReceiveSocketActivatedSlot0(int socket)	//	socket not used ... pass ?
 	int hit = 0;		//	index into N-hit packet
 	int	r_c;	//	return_code
 	//	define p: pointer to packet data
-	float* p = ((float*)(rcvChannel[0]._SocketBuf)) + _pulseStride*hit + (sizeof(PACKETHEADER)/sizeof(float));	//	
-	uint8* PNptr = (uint8*)((char *)(rcvChannel[0]._SocketBuf) + 32 + 28 + 32);	//	
+	float* p = ((float*)(rcvChannel[rcvChan]._SocketBuf)) + _pulseStride*hit + (sizeof(PACKETHEADER)/sizeof(float));	//	
+	uint8* PNptr = (uint8*)((char *)(rcvChannel[rcvChan]._SocketBuf) + 32 + 28 + 32);	//	
 	static	uint8	PN, lastPN;
 //	... to here
 	rcvChannel[rcvChan]._packetCount++; 
 
-	readBufLen = rcvChannel[rcvChan]._DataSocket->readBlock((char *)rcvChannel[rcvChan]._SocketBuf, sizeof(short)*1000000);
-//	readBufLen = rcvChannel[rcvChan]._DataSocket->readBlock((char *)rcvChannel[rcvChan]._SocketBuf, sizeof(short)*2000000);
+	readBufLen = rcvChannel[rcvChan]._DataSocket->readBlock((char *)rcvChannel[rcvChan]._SocketBuf, sizeof(short)*5000000);
 	if	(lastreadBufLen != readBufLen)	{	//	packet length varies: log it
 		sprintf(m_statusLogBuf, "len error %d: rBL %d lrBL %d", rcvChannel[rcvChan]._packetCount, readBufLen, lastreadBufLen); statusLog->append( m_statusLogBuf ); 
 	}
 	else	{	//	get piraqx parameters
 		if	(!_parametersSet)	{	//	piraqx parameters need to be initialized from received data
-			r_c = getParameters( rcvChannel[0]._SocketBuf );	//	 
+			r_c = getParameters( rcvChannel[rcvChan]._SocketBuf );	//	 
 			if	(r_c == 1)	{		//	success
 				_parametersSet = 1; 
+				sprintf(m_statusLogBuf, "_parametersSet"); statusLog->append( m_statusLogBuf ); 
 			}
 		}
 	}
@@ -176,9 +174,8 @@ QtDSP::dataReceiveSocketActivatedSlot0(int socket)	//	socket not used ... pass ?
 			sprintf(m_statusLogBuf, "socket %d: rBL %d lrBL %d pkts %d", socket, readBufLen, lastreadBufLen, rcvChannel[rcvChan]._packetCount); statusLog->append( m_statusLogBuf );
 		}
 	}
-//	!test PNs sequential; log if not
-		//	p is set to 1st pulse in packet
-#ifndef WINSOCK2_TEST // turn OFF for winsock2 test until rx works
+	//	test PNs sequential; log if not:
+	//	p is set to 1st pulse in packet
 	if	(_parametersSet)	{	//	operating parameters set, test PNs sequential
 		for	(hit = 0; hit < _Nhits; hit++)	{	//	all hits in packet
 			PN	= *PNptr;
@@ -192,11 +189,8 @@ QtDSP::dataReceiveSocketActivatedSlot0(int socket)	//	socket not used ... pass ?
 			PNptr = (uint8 *)((char *)PNptr + _pulseStride*sizeof(float)); 
 		}
 	}
-#endif
 	//	send rcv'd data to destination port: !send from receive buffer, use its length: 
-#ifndef WINSOCK2_TEST // turn OFF for winsock2 test until rx works
 	sendBufLen = sendChannel[rcvChan]._DataSocket->writeBlock((char *)rcvChannel[rcvChan]._SocketBuf, readBufLen, sendChannel[rcvChan]._sendqHost, sendChannel[rcvChan]._port);
-#endif
 }
 
 
@@ -209,10 +203,28 @@ QtDSP::dataReceiveSocketActivatedSlot1(int socket)	//	socket not used ... pass ?
 	//	temp send 
 	static	int sendBufLen, lastsendBufLen;
 
-	rcvChannel[rcvChan]._packetCount++;
-	readBufLen = rcvChannel[rcvChan]._DataSocket->readBlock((char *)rcvChannel[rcvChan]._SocketBuf, sizeof(short)*1000000);
+		//	!test PNs sequential: from here ...
+	int hit = 0;		//	index into N-hit packet
+	int	r_c;	//	return_code
+	//	define p: pointer to packet data
+	float* p = ((float*)(rcvChannel[rcvChan]._SocketBuf)) + _pulseStride*hit + (sizeof(PACKETHEADER)/sizeof(float));	//	
+	uint8* PNptr = (uint8*)((char *)(rcvChannel[rcvChan]._SocketBuf) + 32 + 28 + 32);	//	
+	static	uint8	PN, lastPN;
+//	... to here
+	rcvChannel[rcvChan]._packetCount++; 
+
+	readBufLen = rcvChannel[rcvChan]._DataSocket->readBlock((char *)rcvChannel[rcvChan]._SocketBuf, sizeof(short)*5000000);
 	if	(lastreadBufLen != readBufLen)	{	//	packet length varies: log it
-		sprintf(m_statusLogBuf, "%d: rBL %d lrBL %d", rcvChannel[rcvChan]._packetCount, readBufLen, lastreadBufLen); statusLog->append( m_statusLogBuf ); 
+		sprintf(m_statusLogBuf, "len error %d: rBL %d lrBL %d", rcvChannel[rcvChan]._packetCount, readBufLen, lastreadBufLen); statusLog->append( m_statusLogBuf ); 
+	}
+	else	{	//	get piraqx parameters
+		if	(!_parametersSet)	{	//	piraqx parameters need to be initialized from received data
+			r_c = getParameters( rcvChannel[rcvChan]._SocketBuf );	//	 
+			if	(r_c == 1)	{		//	success
+				_parametersSet = 1; 
+				sprintf(m_statusLogBuf, "_parametersSet"); statusLog->append( m_statusLogBuf ); 
+			}
+		}
 	}
 
 	lastreadBufLen = readBufLen;
@@ -221,8 +233,23 @@ QtDSP::dataReceiveSocketActivatedSlot1(int socket)	//	socket not used ... pass ?
 			sprintf(m_statusLogBuf, "socket %d: rBL %d lrBL %d pkts %d", socket, readBufLen, lastreadBufLen, rcvChannel[rcvChan]._packetCount); statusLog->append( m_statusLogBuf );
 		}
 	}
+	//	test PNs sequential; log if not:
+	//	p is set to 1st pulse in packet
+	if	(_parametersSet)	{	//	operating parameters set, test PNs sequential
+		for	(hit = 0; hit < _Nhits; hit++)	{	//	all hits in packet
+			PN	= *PNptr;
+			//	maintain p, detect full set, break
+			p += _pulseStride; 
+			if	(PN != lastPN + 1)	{	
+				errcount++;	
+				sprintf(m_statusLogBuf, "hit%d: lastPN = %I64d PN = %I64d errors = %d", hit, lastPN, PN, errcount); statusLog->append( m_statusLogBuf );
+			}	//	we'll always get 1 at begin
+			lastPN = PN; 
+			PNptr = (uint8 *)((char *)PNptr + _pulseStride*sizeof(float)); 
+		}
+	}
 	//	send rcv'd data to destination port: !send from receive buffer, use its length: 
-	sendBufLen = sendChannel[rcvChan]._DataSocket->writeBlock((char *)rcvChannel[rcvChan]._SocketBuf, readBufLen, sendChannel[0]._sendqHost, sendChannel[rcvChan]._port);
+	sendBufLen = sendChannel[rcvChan]._DataSocket->writeBlock((char *)rcvChannel[rcvChan]._SocketBuf, readBufLen, sendChannel[rcvChan]._sendqHost, sendChannel[rcvChan]._port);
 
 }
 
@@ -236,10 +263,28 @@ QtDSP::dataReceiveSocketActivatedSlot2(int socket)
 	//	temp send 
 	static	int sendBufLen, lastsendBufLen;
 
-	rcvChannel[rcvChan]._packetCount++;
-	readBufLen = rcvChannel[rcvChan]._DataSocket->readBlock((char *)rcvChannel[rcvChan]._SocketBuf, sizeof(short)*1000000);
+		//	!test PNs sequential: from here ...
+	int hit = 0;		//	index into N-hit packet
+	int	r_c;	//	return_code
+	//	define p: pointer to packet data
+	float* p = ((float*)(rcvChannel[rcvChan]._SocketBuf)) + _pulseStride*hit + (sizeof(PACKETHEADER)/sizeof(float));	//	
+	uint8* PNptr = (uint8*)((char *)(rcvChannel[rcvChan]._SocketBuf) + 32 + 28 + 32);	//	
+	static	uint8	PN, lastPN;
+//	... to here
+	rcvChannel[rcvChan]._packetCount++; 
+
+	readBufLen = rcvChannel[rcvChan]._DataSocket->readBlock((char *)rcvChannel[rcvChan]._SocketBuf, sizeof(short)*5000000);
 	if	(lastreadBufLen != readBufLen)	{	//	packet length varies: log it
-		sprintf(m_statusLogBuf, "%d: rBL %d lrBL %d", rcvChannel[rcvChan]._packetCount, readBufLen, lastreadBufLen); statusLog->append( m_statusLogBuf ); 
+		sprintf(m_statusLogBuf, "len error %d: rBL %d lrBL %d", rcvChannel[rcvChan]._packetCount, readBufLen, lastreadBufLen); statusLog->append( m_statusLogBuf ); 
+	}
+	else	{	//	get piraqx parameters
+		if	(!_parametersSet)	{	//	piraqx parameters need to be initialized from received data
+			r_c = getParameters( rcvChannel[rcvChan]._SocketBuf );	//	 
+			if	(r_c == 1)	{		//	success
+				_parametersSet = 1; 
+				sprintf(m_statusLogBuf, "_parametersSet"); statusLog->append( m_statusLogBuf ); 
+			}
+		}
 	}
 
 	lastreadBufLen = readBufLen;
@@ -248,8 +293,23 @@ QtDSP::dataReceiveSocketActivatedSlot2(int socket)
 			sprintf(m_statusLogBuf, "socket %d: rBL %d lrBL %d pkts %d", socket, readBufLen, lastreadBufLen, rcvChannel[rcvChan]._packetCount); statusLog->append( m_statusLogBuf );
 		}
 	}
+	//	test PNs sequential; log if not:
+	//	p is set to 1st pulse in packet
+	if	(_parametersSet)	{	//	operating parameters set, test PNs sequential
+		for	(hit = 0; hit < _Nhits; hit++)	{	//	all hits in packet
+			PN	= *PNptr;
+			//	maintain p, detect full set, break
+			p += _pulseStride; 
+			if	(PN != lastPN + 1)	{	
+				errcount++;	
+				sprintf(m_statusLogBuf, "hit%d: lastPN = %I64d PN = %I64d errors = %d", hit, lastPN, PN, errcount); statusLog->append( m_statusLogBuf );
+			}	//	we'll always get 1 at begin
+			lastPN = PN; 
+			PNptr = (uint8 *)((char *)PNptr + _pulseStride*sizeof(float)); 
+		}
+	}
 	//	send rcv'd data to destination port: !send from receive buffer, use its length: 
-//	sendBufLen = sendChannel[rcvChan]._DataSocket->writeBlock((char *)rcvChannel[rcvChan]._SocketBuf, readBufLen, sendChannel[rcvChan]._sendqHost, sendChannel[rcvChan]._port);
+	sendBufLen = sendChannel[rcvChan]._DataSocket->writeBlock((char *)rcvChannel[rcvChan]._SocketBuf, readBufLen, sendChannel[rcvChan]._sendqHost, sendChannel[rcvChan]._port);
 
 }
 
@@ -289,7 +349,9 @@ QtDSP::initializeReceiveSocket(receiveChannel * rcvChannel)	{	//	receiveChannel 
 
 	std::string myIPname = nameBuf;
 	std::string myIPaddress = inet_ntoa(*(struct in_addr*)pHostEnt->h_addr_list[0]);
-	std::cout << "ip name: " << myIPname.c_str() << ", id address  " << myIPaddress.c_str() << std::endl;
+	std::cout << "ip name: " << myIPname.c_str() << ", ip address  " << myIPaddress.c_str() << std::endl;
+	sprintf(m_statusLogBuf, "ip name %s ip address %s", myIPname.c_str(), myIPaddress.c_str());
+	statusLog->append( m_statusLogBuf );
 
 	qHost.setAddress(myIPaddress.c_str());
 	m_receivePacketCount = 0; 
@@ -301,9 +363,7 @@ QtDSP::initializeReceiveSocket(receiveChannel * rcvChannel)	{	//	receiveChannel 
 		statusLog->append( m_statusLogBuf );
 		exit(1); 
 	}
-//	int sockbufsize = 1000000;
 	int sockbufsize = 20000000;
-//	int sockbufsize = UDPSENDSIZE;
 
 	int result = setsockopt (rcvChannel->_DataSocket->socket(),
 		SOL_SOCKET,
@@ -330,39 +390,33 @@ QtDSP::initializeReceiveSocket(receiveChannel * rcvChannel)	{	//	receiveChannel 
 }
 
 void
-QtDSP::initializeSendSocket(transmitChannel * sendChannel)	{	//	?pass port#, socket struct w/pointers to new objects? 
+QtDSP::initializeSendSocket(transmitChannel * sendChannel)	{	//	 
 	sendChannel->_DataSocket = new QSocketDevice(QSocketDevice::Datagram);
-	QHostAddress qHost;
 
 	char nameBuf[1000];
+	strcpy(nameBuf,m_destinationHostname.ascii());
 	if (gethostname(nameBuf, sizeof(nameBuf))) {
 		statusLog->append("gethostname failed");
-		exit(1);
+		//!add socket active/inactive to struct; set inactive. disallow sends at runtime to inactive socket. 
+		//exit(1);
 	}
 
 	struct hostent* pHostEnt = gethostbyname(nameBuf);
 	if (!pHostEnt) {
 		statusLog->append("gethostbyname failed");
-		exit(1);
+		//exit(1);
 	}
+	sprintf(m_statusLogBuf, "Destination Hostname %s", m_destinationHostname.ascii());
+	statusLog->append( m_statusLogBuf );
+
 	sendChannel->_SocketBuf = new CP2_PIRAQ_DATA_TYPE[1000000];
+	std::string destIPname = m_destinationHostname.ascii();
+	std::string destIPaddress = inet_ntoa(*(struct in_addr*)pHostEnt->h_addr_list[0]);
+	std::cout << "ip name: " << destIPname.c_str() << ", ip address  " << destIPaddress.c_str() << std::endl;
 
-	std::string myIPname = nameBuf;
-	std::string myIPaddress = inet_ntoa(*(struct in_addr*)pHostEnt->h_addr_list[0]);
-	std::cout << "ip name: " << myIPname.c_str() << ", id address  " << myIPaddress.c_str() << std::endl;
-
-	qHost.setAddress(myIPaddress.c_str());
-	_sendqHost.setAddress(myIPaddress.c_str()); // works
-	sendChannel[0]._sendqHost.setAddress(myIPaddress.c_str()); //?
-	std::cout << "qHost:" << qHost.toString() << std::endl;
+	_sendqHost.setAddress(destIPaddress.c_str()); // works
+	sendChannel[0]._sendqHost.setAddress(destIPaddress.c_str()); //?
 	std::cout << "opened datagram port:" << sendChannel->_port << std::endl;
-#if 0	//?if bind CP2Scope does not receive
-	if (!sendChannel->_DataSocket->bind(qHost, sendChannel->_port)) {
-		sprintf(m_statusLogBuf, "Unable to bind to %s:%d", qHost.toString().ascii(), sendChannel->_port);
-		statusLog->append( m_statusLogBuf );
-		exit(1); 
-	}
-#endif
 	int sockbufsize = 1000000;
 
 	int result = setsockopt (sendChannel->_DataSocket->socket(),
@@ -374,15 +428,7 @@ QtDSP::initializeSendSocket(transmitChannel * sendChannel)	{	//	?pass port#, soc
 		statusLog->append("Set send buffer size for socket failed");
 		exit(1); 
 	}
-//?need this?
-#if 0	//?
-	sendChannel->_DataSocketNotifier = new QSocketNotifier(sendChannel->_DataSocket->socket(), QSocketNotifier::Write);
-	sprintf(m_statusLogBuf, "init send port %d", sendChannel->_port); 
-	statusLog->append( m_statusLogBuf );
-#endif
-
 }
-
 
 void 
 QtDSP::terminateReceiveSocket( receiveChannel * rcvChannel )	{	//	?pass port#
