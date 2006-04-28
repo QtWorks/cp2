@@ -10,20 +10,11 @@ timingmode      0      ;0 = continuous, 1 = triggered, 2 = sync,
 delay           1    ; (no effect in mode 0) delay to first sample (special case: timingmode 2)
 ;number of range gates:  
 ;gates           150  ; CP2: LOTS of hits per PCI Bus transfer
-;gates           1200  ;MAX for CP2?
-gates           1000  ;
-;gates           800  ;
-;gates           600  ;
-;gates           500
-;gates           400  ;MAX for simple PRT, dataformat=16
-;gates           300
-;gates           200  ;
-;gates           100  ;
-;gates           800
-;gates          1000
-;gates           300   ; TOTALSIZE = 7936
-;gates           400   ; TOTALSIZE = 10336
-;gates           392   ; TOTALSIZE = 10144
+;gates           1900  ;MAX for CP2?
+gates            980  ;
+;gates           800  ; 
+;gates           660  ; CP2: gets 10 hits/packet -- easy network diagnosis
+;gates           500  ;
 ;these dwells work at prf=3200Hz:
 ;hits           45  ;pulse pair integration (hits per dwell)
 ;hits            64  ;pulse pair integration (hits per dwell)
@@ -66,6 +57,7 @@ hits              10   ; 100b/s @ 1KHz
 ;hits            200   ; low b/s
 ; pulsewidths entered in 6MHz counts ... compute gate length accordingly. 
 ;rcvr_pulsewidth 12    ;2000ns pulses (300m)
+;rcvr_pulsewidth   6     ;1000ns pulses (150m)
 rcvr_pulsewidth   2     ;333ns pulses (50m)
 ;rcvr_pulsewidth  1    ;167ns pulses (25m)
 ; !note: xmit_pulsewidth is currently set in config.rdr
@@ -76,8 +68,11 @@ xmit_pulsewidth  6     ;1us pulses (150m) ;
 ;prt		1875	;3200 hz prf
 ;prt		2000	;3000 Hz
 ;prt		3000	;2000 Hz 
-;prt		6000	;1000 Hz 
-prt		10000	;600 Hz 
+prt		6000	;1000 Hz 
+;prt		5000	;1200Hz
+;prt		12000	;500 Hz 
+;prt		60000	;100 Hz 
+;prt		10000	;600 Hz 
 ;prt2		2000	;3000 Hz
 ;prt		7500	;800 Hz 
 ;prt2		5000	;1200 Hz
