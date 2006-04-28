@@ -36,6 +36,18 @@
 #define CP2_TESTING		// switch ON test code for CP2 
 //#define UDPTESTLOCAL	// test broadcast functions on a local system; else use Ethernet. 
 
+// CP2: PIRAQ test-action definitions
+//		!note: same set is defined in piraq.h
+// 3 modes of data transfer from PIRAQ to host: first 2 are diagnostic
+#define	SEND_CHA		0		// send CHA
+#define	SEND_CHB		1		// send CHB
+#define	SEND_COMBINED	2		// execute dynamic-range extension algorithm; send resulting combined data
+// 4 PIRAQ test-sinusoid adjustments
+#define	INCREMENT_TEST_SINUSIOD_COARSE	4
+#define	INCREMENT_TEST_SINUSIOD_FINE	8
+#define	DECREMENT_TEST_SINUSIOD_COARSE	12
+#define	DECREMENT_TEST_SINUSIOD_FINE	16
+
 /* digitalrcv.c */
 #define	CHANGE_NOCHANGE	-1
 #define	CHANGE_NOTHING	0
@@ -527,11 +539,12 @@ struct synth { /* array of structures containing SynthAngle output for all chann
 #define	ABPSIZE			(sizeof(float) * 12 * MAXGATES)
 #define	DATASIZE(a)		(a->data.info.gates * a->data.info.bytespergate)
 #define	RECORDLEN(a)		(sizeof(INFOHEADER) + (DATASIZE(a)))
-#define	TOTALSIZE(a)		(sizeof(COMMAND) + (RECORDLEN(a)))
-//???:#define	TOTALSIZE(a)		(sizeof(UDPHEADER) + sizeof(COMMAND) + (RECORDLEN(a)))
+#define	TOTALSIZE(a)		(sizeof(UDPHEADER) + sizeof(COMMAND) + (RECORDLEN(a)))
 
 // CP2: 
 #define BUFFER_EPSILON	0	// CP2 space between hits in buffer and within N-hit PCI packet
+#define	UDPSENDSIZE	(unsigned int)65536	//	size of N-hit packets in system: PIRAQ through Qt applications
+#define	noSTREAM_SOCKET		//	socket device Stream
 
 #define	SET(t,b)			(t |= (b))
 #define	CLR(t,b)			(t &= ~(b))
@@ -731,7 +744,11 @@ int fifo_exhist(char *name);
 void *fifo_get_header_address(FIFO *fifo);
    
 /* udpsock.c */
+#ifdef	STREAM_SOCKET		//	socket device Stream
+void open_udp_out(char *name);	//	void now, SOCKET later
+#else						//	socket device Datagram
 int open_udp_out(char *name);
+#endif
 unsigned int send_udp_packet(int sock, int port, unsigned int sequence_num, UDPHEADER *udp);
 int receive_udp_packet(int sock, UDPHEADER *udp, int maxbufsize);
 int open_udp_in(int port);
