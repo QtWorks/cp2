@@ -88,7 +88,7 @@
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="3"
 				PrecompiledHeaderThrough="stdafx.h"
-				PrecompiledHeaderFile=".\Debug/CP2exec.pch"
+				PrecompiledHeaderFile="./Debug/CP2exec.pch"
 				AssemblerListingLocation=".\Debug/"
 				ObjectFile=".\Debug/"
 				ProgramDataBaseFileName=".\Debug/"
@@ -100,10 +100,13 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib win32lib.lib"
+				AdditionalDependencies="ws2_32.lib"
 				OutputFile=".\Debug/CP2exec.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories=""
+				IgnoreAllDefaultLibraries="FALSE"
+				IgnoreDefaultLibraryNames="mfcs71.lib"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile=".\Debug/CP2exec.pdb"
 				GenerateMapFile="TRUE"
@@ -119,7 +122,8 @@
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCPreLinkEventTool"
+				ExcludedFromBuild="FALSE"/>
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
@@ -390,9 +394,12 @@
 			RelativePath="..\..\..\Program Files\TVicSoft\TVicHW50\MSVC\TVicHW32.lib">
 		</File>
 		<File
-			RelativePath="..\win32lib\Release\win32lib.lib">
+			RelativePath="..\win32lib\Debug\win32lib.lib">
 		</File>
 	</Files>
 	<Globals>
+		<Global
+			Name="QtVersion"
+			Value="Qt3.3.5"/>
 	</Globals>
 </VisualStudioProject>
