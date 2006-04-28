@@ -5,10 +5,6 @@
 #include        <stdio.h>
 #include        <string.h>
 #include        <errno.h>
-//?old iostream functions bringing in msvcirt.lib?	#include		<fstream.h>
-//#include        <iosfwd>
-//#include        "../include/dpram.h"
-
 
 /* define GLOBAL to define status register 1 global variable */
 #define         GLOBAL
@@ -244,7 +240,7 @@ void readconfig(char *fname, CONFIG *config)
    if(config->gatesa % 2)
       {
       printf("\ngates = %d: even # gates required.\n", config->gatesa);
-      exit(0);
+//      exit(0);
    }
    if((!config->prt2) || (config->dataformat != PIRAQ_ABPDATA_STAGGER_PRT)) {
 	   // prt2 not specified, or not used 
