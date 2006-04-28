@@ -50,6 +50,8 @@ void shortmembit(unsigned short addr[],int size);
 void shortdatabit(unsigned short which,int size);
 void printbits(int num);
 
+#define		TEST_COMM	//	test multiple-channel communication w/QtDSP
+#define		CP2_LAN		//	LAN with static IP 
 #define			DSPNUM		1
 
 #define			GG_DEBUG	1		// Set to non-zero to activate last gate printout
@@ -98,7 +100,7 @@ using namespace std;
 // extra PIRAQ used as 48MHz piraq timing source; requires 10MHz reference input 
 //#define TIMER_PIRAQ
 //#ifndef NCAR_DRX	// REMOVE: NCAR DRX now has a timer card
-//OFF: #define TIMER_CARD
+//OFF: #define TIMER_CARD	// ON
 //#endif
 
 PIRAQ        *piraq;  // allocate pointers for object instantiation
@@ -147,9 +149,9 @@ double fpRadarSystemCorrection;
 __int64 RadarMillisec; 
 __int64 SystemMillisec; 
 
-// set/compute #hits combined by piraq: equal in both piraq executable (CP2_DCCS3_1.out) and CP2.exe 
-//unsigned int Nhits = 4;
+// set/compute #hits combined by piraq: equal in both piraq executable (CP2_DCCS3_1.out) and CP2exec.exe 
 unsigned int Nhits; 
+unsigned int packets = 0; 
 
 int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 {
@@ -225,7 +227,8 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 	__int64 lastbeamnumber = 0;
 	__int64 lastbeamnumber1, lastbeamnumber2, lastbeamnumber3;
 	lastbeamnumber1 = lastbeamnumber2 = lastbeamnumber3 = 0;
-
+	int  PNerrors1, PNerrors2, PNerrors3; 
+	PNerrors1 = PNerrors2 = PNerrors3 = 0; 
 	float scale, scale1, scale2, scale3; 
 	unsigned int hits, hits1, hits2, hits3; 
 	unsigned int gates, gates1, gates2, gates3; 
@@ -269,7 +272,7 @@ DWORD PMACDevice;
 db_fp = fopen("debug.dat","w");
 fprintf(db_fp,"CP2exec.exe results:\n");  
 
-    printf("CP2exec: usage -- \n"); 
+	printf("CP2exec: usage -- \n"); 
     printf("         default output localhost\n"); 
     printf("         default outport 3100\n"); 
     printf("         parameters --\n"); 
@@ -336,14 +339,63 @@ fprintf(db_fp,"CP2exec.exe results:\n");
 		          // (right board most significant bit). 
 		// use defaults: outport = 3100 outsock opens "localhost"
 		outport = 3100; 
+//outport = 21010; //!CP2Scope direct!
 		iError = 0; WSASetLastError(iError);
 iError = WSAGetLastError ();
 printf("set/get iError = %d\n",iError);
-	    if((outsock = open_udp_out("localhost")) ==  ERROR)			/* open one socket */
-		    {printf("%s: Could not open output socket\n",name); exit(0);}
-	    printf("%d: udp socket opens; outsock = %d\n", testnum, outsock); testnum++; 
+//as it was:	if((outsock = open_udp_out("localhost")) ==  ERROR)			/* open one socket */
+	int	send_one = 1;
+#ifdef	_TEST_COMM	//	multiport comm: IP address atd-milan 
+#ifdef	STREAM_SOCKET
+	open_udp_out("128.117.85.189");
+#else
+	if((outsock1 = open_udp_out("128.117.85.189")) ==  ERROR)			/* open one socket */
+	    {printf("%s: Could not open output socket 1\n",name); exit(0);}
+ 	printf("udp socket opens; outsock1 = %d\n", outsock1); 
+	if((outsock2 = open_udp_out("128.117.85.189")) ==  ERROR)			/* open second socket */
+	    {printf("%s: Could not open output socket 2\n",name); exit(0);}
+ 	printf("udp socket opens; outsock2 = %d\n", outsock2); 
+	if((outsock3 = open_udp_out("128.117.85.189")) ==  ERROR)			/* open second socket */
+	    {printf("%s: Could not open output socket 3\n",name); exit(0);}
+ 	printf("udp socket opens; outsock3 = %d\n", outsock3);
+#endif
+#endif
+#ifdef	__TEST_COMM	//	multiport comm: IP address NCAR Radar DRX 
+    if((outsock1 = open_udp_out("128.117.47.118")) ==  ERROR)			/* open one socket */
+	    {printf("%s: Could not open output socket 1\n",name); exit(0);}
+ 	printf("udp socket opens; outsock1 = %d\n", outsock1); 
+	if((outsock2 = open_udp_out("128.117.47.118")) ==  ERROR)			/* open second socket */
+	    {printf("%s: Could not open output socket 2\n",name); exit(0);}
+ 	printf("udp socket opens; outsock2 = %d\n", outsock2); 
+	if((outsock3 = open_udp_out("128.117.47.118")) ==  ERROR)			/* open second socket */
+	    {printf("%s: Could not open output socket 3\n",name); exit(0);}
+ 	printf("udp socket opens; outsock3 = %d\n", outsock3); 
+#endif
+#ifdef	_CP2_LAN	//	send to static IP Address NCAR Radar DRX
+    if((outsock1 = open_udp_out("192.168.3.5")) ==  ERROR)			/* open one socket */
+	    {printf("%s: Could not open output socket 1\n",name); exit(0);}
+ 	printf("udp socket opens; outsock1 = %d\n", outsock1); 
+	if((outsock2 = open_udp_out("192.168.3.5")) ==  ERROR)			/* open second socket */
+	    {printf("%s: Could not open output socket 2\n",name); exit(0);}
+ 	printf("udp socket opens; outsock2 = %d\n", outsock2); 
+	if((outsock3 = open_udp_out("192.168.3.5")) ==  ERROR)			/* open second socket */
+	    {printf("%s: Could not open output socket 3\n",name); exit(0);}
+ 	printf("udp socket opens; outsock3 = %d\n", outsock3); 
+#endif
+#ifdef	CP2_LAN	//	send to static IP Address atd-milan
+    if((outsock1 = open_udp_out("192.168.3.4")) ==  ERROR)			/* open one socket */
+	    {printf("%s: Could not open output socket 1\n",name); exit(0);}
+ 	printf("udp socket opens; outsock1 = %d\n", outsock1); 
+	if((outsock2 = open_udp_out("192.168.3.4")) ==  ERROR)			/* open second socket */
+	    {printf("%s: Could not open output socket 2\n",name); exit(0);}
+ 	printf("udp socket opens; outsock2 = %d\n", outsock2); 
+	if((outsock3 = open_udp_out("192.168.3.4")) ==  ERROR)			/* open second socket */
+	    {printf("%s: Could not open output socket 3\n",name); exit(0);}
+ 	printf("udp socket opens; outsock3 = %d\n", outsock3); 
+#endif
 iError = WSAGetLastError ();
 printf("open_udp_out(): iError = %d\n",iError);
+printf("set/get iError = %d\n",iError);
 
 eof_start_over: 
 #ifdef TIMER_CARD
@@ -407,7 +459,7 @@ printf("Get PMACDPRAM = 0x%x\n", PMACDPRAM);
 			piraq_fifo_init(fifo1,"/PRQDATA", HEADERSIZE, HEADERSIZE+ABPSIZE, PIRAQ_FIFO_NUM); 
 #else		// CP2: data packets sized at runtime.  + BUFFER_EPSILON
 			piraq_fifo_init(fifo1,"/PRQDATA", HEADERSIZE, Nhits * (HEADERSIZE + (config->gatesa * bytespergate) + BUFFER_EPSILON), PIRAQ_FIFO_NUM); 
-			printf("hit size = %d computed Nhits = %d\n", (HEADERSIZE + (config->gatesa * bytespergate) + BUFFER_EPSILON), 65536 / (HEADERSIZE + (config->gatesa * bytespergate) + BUFFER_EPSILON)); 
+			printf("hit size = %d computed Nhits = %d\n", (HEADERSIZE + (config->gatesa * bytespergate) + BUFFER_EPSILON), (unsigned int)65536 / (HEADERSIZE + (config->gatesa * bytespergate) + BUFFER_EPSILON)); 
 #endif
 			if (!fifo1) { printf("piraq1 fifo_create failed\n"); exit(0);
 			}
@@ -808,7 +860,7 @@ RadarEpochMillisec = (__int64)(fpRadarMillisec + fpRadarSystemCorrection);
 				// take CYCLE_HITS beams from piraq:
 				while(((cur_fifo1_hits = fifo_hit(fifo1)) > 0) && (cycle_fifo1_hits < CYCLE_HITS)) { // fifo1 hits ready: save #hits pending 
 //if ((cur_fifo1_hits % 5) == 0) { printf("b0: hits1 = %d\n", cur_fifo1_hits); } // print often enough ... NCAR-Radar-DRX
-if (((cur_fifo1_hits % 2) == 0) || (cur_fifo1_hits < 2)) { printf("b0: hits1 = %d\n", cur_fifo1_hits); } // print often enough ... on atd-milan
+//if (((cur_fifo1_hits % 2) == 0) || (cur_fifo1_hits < 2)) { printf("b0: hits1 = %d\n", cur_fifo1_hits); } // print often enough ... on atd-milan
 					cycle_fifo1_hits++; 
 					fifopiraq1 = (PACKET *)fifo_get_read_address(fifo1,0); 
 					if (fakeangles == FALSE) {
@@ -986,10 +1038,13 @@ if (((cur_fifo1_hits % 2) == 0) || (cur_fifo1_hits < 2)) { printf("b0: hits1 = %
 					k = *uint_ptr; 
 					fsrc2 = (float *)((char *)fifopiraq1->data.data + i*((HEADERSIZE + (config->gatesa * bytespergate) + BUFFER_EPSILON)));
 					fsrc2 += 0; // look at THIS datum
+//if (i == 1) { printf("[0]=%+8.3e [1]=%+8.3e [2]=%+8.3e [3]=%+8.3e\n",fsrc2[0],fsrc2[1],fsrc2[2],fsrc2[3]); }
+//if (i == 1) { printf("[0]=%+8.3e\n",*fsrc2); }
 					if (lastpulsenumber1 != pulsenum - 1) { // PNs not sequential
-						printf("hit%d: lastPN = %I64d PN = %I64d\n", i+1, lastpulsenumber1, pulsenum); 
+						printf("hit%d: lastPN = %I64d PN = %I64d\n", i+1, lastpulsenumber1, pulsenum);  PNerrors1++; 
 						fprintf(db_fp, "%d:hit%d: lastPN = %I64d PN = %I64d\n", fifopiraq1->data.info.channel, i+1, lastpulsenumber1, pulsenum); 
-					} 
+					}
+//if ((testnum % 100) == 0) *__int64_ptr2++; //	!test flub the pulsenumber
 				// test beamnumbers sequential
 //				if (beamnum != pulsenum / j) { // BN != PN/hits
 //					printf("hit%d: computed BN1 = %I64d BN1 = %I64d PN1 = %I64d\n", i+1, pulsenum / j, beamnum, pulsenum); 
@@ -1041,10 +1096,15 @@ if (((cur_fifo1_hits % 2) == 0) || (cur_fifo1_hits < 2)) { printf("b0: hits1 = %
 					fifopiraq1->udp.totalsize = TOTALSIZE(fifopiraq1); // ordinary operation
 #else	// increase udp-send totalsize to Nhits
 					int test_totalsize1 = Nhits*(TOTALSIZE(fifopiraq1) + BUFFER_EPSILON); 
+//works ... int test_totalsize1 = Nhits*(TOTALSIZE(fifopiraq1) + BUFFER_EPSILON) + 6*sizeof(UDPHEADER); // add Nhits-1 udpsend adds 1 more ... fuckinay, man
 					fifopiraq1->udp.totalsize = test_totalsize1; // CP2 throughput testing
-//printf("0:udpTOTALSIZE = %d\n", test_totalsize1); 
+					packets++; 
+					if	(packets == 10)	{printf("packet totalsize1 %d\n", test_totalsize1);}
+					if	((packets % 100) == 0)	{printf("sent %d\n", packets);}
 #endif
-#if 1	// CP2: data packets sized at runtime; test w/smaller packet first
+#ifdef	TEST_COMM	// CP2: send each PIRAQ's data on unique port: separate receive channels for QtDSP
+					seq1 = send_udp_packet(outsock1, outport, seq1, udp1); 
+#else
 					seq1 = send_udp_packet(outsock, outport, seq1, udp1); 
 #endif
 					fifo_increment_tail(fifo1);
@@ -1207,7 +1267,7 @@ if ((cur_fifo2_hits % 5) == 0) { printf("b1: hits2 = %d\n", cur_fifo2_hits); } /
 					fsrc2 = (float *)((char *)fifopiraq2->data.data + i*((HEADERSIZE + (config->gatesa * bytespergate) + BUFFER_EPSILON)));
 					fsrc2 += 0; // look at THIS datum
 					if (lastpulsenumber2 != pulsenum - 1) { // PNs not sequential
-						printf("hit%d: lastPN = %I64d PN = %I64d\n", i+1, lastpulsenumber2, pulsenum); 
+						printf("hit%d: lastPN = %I64d PN = %I64d\n", i+1, lastpulsenumber2, pulsenum);  PNerrors2++; 
 						fprintf(db_fp, "%d:hit%d: lastPN = %I64d PN = %I64d\n", fifopiraq2->data.info.channel, i+1, lastpulsenumber2, pulsenum); 
 					} 
 					lastpulsenumber2 = pulsenum; 
@@ -1251,7 +1311,9 @@ if ((cur_fifo2_hits % 5) == 0) { printf("b1: hits2 = %d\n", cur_fifo2_hits); } /
 					fifopiraq2->udp.totalsize = test_totalsize2; // CP2 throughput testing
 #endif
 
-#if 1	// CP2: data packets sized at runtime; test w/smaller packet first
+#ifdef	TEST_COMM	// CP2: send each PIRAQ's data on unique port: separate receive channels for QtDSP
+					seq2 = send_udp_packet(outsock2, outport + 1, seq2, udp2);  
+#else
 					seq2 = send_udp_packet(outsock, outport, seq2, udp2);  
 #endif
 					fifo_increment_tail(fifo2);
@@ -1409,8 +1471,6 @@ exit(0);
 #if 1	// test N-hit packet: 0: reduce printing
 				__int64 * __int64_ptr, * __int64_ptr2; unsigned int * uint_ptr; float * fsrc2; 
 				for (i = 0; i < Nhits; i++) { // all hits in the packet 
-//				for (i = 0; i < Nhits-6; i++) { // first few hits in the packet 
-//				for (i = 0; i < 4; i++) { // first few hits in the packet 
 					// compute pointer to datum in an individual hit, dereference and print. 
 					// CP2 PCI Bus transfer size: Nhits * (HEADERSIZE + (config->gatesa * bytespergate) + BUFFER_EPSILON)
 					__int64_ptr = (__int64 *)((char *)&fifopiraq3->data.info.beam_num + i*((HEADERSIZE + (config->gatesa * bytespergate) + BUFFER_EPSILON))); 
@@ -1424,7 +1484,7 @@ exit(0);
 					fsrc2 = (float *)((char *)fifopiraq3->data.data + i*((HEADERSIZE + (config->gatesa * bytespergate) + BUFFER_EPSILON)));
 					fsrc2 += 0; // look at THIS datum
 					if (lastpulsenumber3 != pulsenum - 1) { // PNs not sequential
-						printf("hit%d: lastPN = %I64d PN = %I64d\n", i+1, lastpulsenumber3, pulsenum); 
+						printf("hit%d: lastPN = %I64d PN = %I64d\n", i+1, lastpulsenumber3, pulsenum); PNerrors3++; 
 						fprintf(db_fp, "%d:hit%d: lastPN = %I64d PN = %I64d\n", fifopiraq3->data.info.channel, i+1, lastpulsenumber3, pulsenum); 
 					} 
 					lastpulsenumber3 = pulsenum; // previous hit PN
@@ -1465,10 +1525,10 @@ exit(0);
 #else	// increase udp-send totalsize to Nhits
 					int test_totalsize3 = Nhits*(TOTALSIZE(fifopiraq3) + BUFFER_EPSILON); 
 					fifopiraq3->udp.totalsize = test_totalsize3; // CP2 throughput testing
-					if ((testnum % 100) == 0) {printf("test_totalsize3 = %d TOTALSIZE = %d\n", test_totalsize3, TOTALSIZE(fifopiraq3)); } 
 #endif
-//fifopiraq3->udp.totalsize = TOTALSIZE(fifopiraq3); // ordinary operation
-#if 1	// CP2: data packets sized at runtime; test w/smaller packet first
+#ifdef	TEST_COMM	// CP2: send each PIRAQ's data on unique port: separate receive channels for QtDSP
+					seq3 = send_udp_packet(outsock3, outport + 2, seq3, udp3);  
+#else
 					seq3 = send_udp_packet(outsock, outport, seq3, udp3);  
 #endif
 					fifo_increment_tail(fifo3);
@@ -1497,8 +1557,13 @@ exit(0);
 //				if(c == '+')		TimerStartCorrection += (__int64)ExactmSecperBeam; 
 //				if(c == '-')		TimerStartCorrection -= (__int64)ExactmSecperBeam; 
 #ifndef TESTING_TIMESERIES
-				if(c == '+')		TimerStartCorrection += (__int64)mSecperBeam; 
-				if(c == '-')		TimerStartCorrection -= (__int64)mSecperBeam; 
+//				if(c == '+')		TimerStartCorrection += (__int64)mSecperBeam; 
+//				if(c == '-')		TimerStartCorrection -= (__int64)mSecperBeam; 
+				//	adjust test data freq. up/down fine/coarse
+				if(c == '+')		piraq1->SetCP2PIRAQTestAction(INCREMENT_TEST_SINUSIOD_FINE);	
+				if(c == '-')		piraq1->SetCP2PIRAQTestAction(DECREMENT_TEST_SINUSIOD_FINE);
+				if(c == 'U')		piraq1->SetCP2PIRAQTestAction(INCREMENT_TEST_SINUSIOD_COARSE);	 
+				if(c == 'D')		piraq1->SetCP2PIRAQTestAction(DECREMENT_TEST_SINUSIOD_COARSE);	
 #else
 				// adjust test timeseries power: !note requires NOT TESTING_TIMESERIES_RANGE. 
 				if(c == 'U')		test_ts_power *= sqrt(10.0); 
@@ -1508,12 +1573,25 @@ exit(0);
 				if(c == '-')		test_ts_adjust -= 2; 
 #endif
 
-				if(c == 'S')		send ^= 1;
-				if(c == 'Q' || c == 27)   {printf("\nUser terminated:\n");	break;}
+				if(c == 'S')		send ^= 1;	
+				//	temporarily use keystrokes '0'-'8' to switch PIRAQ channel mode on 3 boards
+				if((c >= '0') && (c <= '8'))	{	// '0'-'2' piraq1, etc.
+					if (c == '0')		piraq1->SetCP2PIRAQTestAction(SEND_CHA);	//	send CHA
+					else if (c == '1')	piraq1->SetCP2PIRAQTestAction(SEND_CHB);	//	send CHB 
+					else if (c == '2')	piraq1->SetCP2PIRAQTestAction(SEND_COMBINED);	//	send combined data
+					else if (c == '3')	piraq2->SetCP2PIRAQTestAction(SEND_CHA);	//	send CHA
+					else if (c == '4')	piraq2->SetCP2PIRAQTestAction(SEND_CHB);	//	send CHB 
+					else if (c == '5')	piraq2->SetCP2PIRAQTestAction(SEND_COMBINED);	//	send combined data
+					else if (c == '6')	piraq3->SetCP2PIRAQTestAction(SEND_CHA);	//	send CHA
+					else if (c == '7')	piraq3->SetCP2PIRAQTestAction(SEND_CHB);	//	send CHB 
+					else if (c == '8')	piraq3->SetCP2PIRAQTestAction(SEND_COMBINED);	//	send combined data
+				}
+				if(c == 'Q' || c == 27)   {printf("sent %d packets, total errors 0:%d 1:%d 2:%d\n", packets, PNerrors1, PNerrors2, PNerrors3 ); printf("\nUser terminated:\n");	break;}
 			} // end if (kbhit())  
 		} // end	while(1)
 
-// exit NOW:		printf("\npress a key to stop piraqs and exit\n"); while(!keyvalid()) ; 
+// exit NOW:
+		printf("\npress a key to stop piraqs and exit\n"); while(!keyvalid()) ; 
 		printf("piraqs stopped.\nexit.\n\n"); 
 leave: 
 		if (piraqs & 0x01) { // slot 1 active
