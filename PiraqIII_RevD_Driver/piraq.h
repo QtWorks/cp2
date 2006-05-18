@@ -44,12 +44,16 @@
 #define	SEND_CHA		0		// send CHA
 #define	SEND_CHB		1		// send CHB
 #define	SEND_COMBINED	2		// execute dynamic-range extension algorithm; send resulting combined data
-// PIRAQ test-sinusoid adjustments
-// 4 PIRAQ test-sinusoid adjustments
+// PIRAQ test-sinusoid frequency adjustments
 #define	INCREMENT_TEST_SINUSIOD_COARSE	4
 #define	INCREMENT_TEST_SINUSIOD_FINE	8
-#define	DECREMENT_TEST_SINUSIOD_COARSE	12
-#define	DECREMENT_TEST_SINUSIOD_FINE	16
+#define	DECREMENT_TEST_SINUSIOD_COARSE	0x0c
+#define	DECREMENT_TEST_SINUSIOD_FINE	0x10
+// PIRAQ test-sinusoid amplitude adjustments
+#define	INCREMENT_TEST_AMPLITUDE_COARSE	0x20
+#define	INCREMENT_TEST_AMPLITUDE_FINE	0x40
+#define	DECREMENT_TEST_AMPLITUDE_COARSE	0x60
+#define	DECREMENT_TEST_AMPLITUDE_FINE	0x80
 
 #define export __declspec(dllexport)
 
