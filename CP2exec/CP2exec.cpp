@@ -74,12 +74,7 @@ void printbits(int num);
 //#define TESTING_TIMESERIES_RANGE	// test dynamic reassignment of timeseries start, end gate using 'U','D'
 #define	RUNTIME_PACKET_SIZING	// CP2: data packets sized at runtime.
 
-#ifdef		DRX_PACKET_TESTING	// define to activate data packet resizing for CP2 throughput testing. 		
 #define PIRAQ3D_SCALE	1.0/pow(2,31)	// normalize 2^31 data to 1.0 full scale using multiplication
-#else
-#define PIRAQ3D_SCALE	pow(2,31)	// normalize 2^31 data to 1.0 full scale
-#endif
-// old-timey stuff to help get work done ... 
 
 FILE * db_fp; // debug data file 
 
@@ -236,6 +231,9 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 	unsigned int errors = 0; 
 	unsigned int errors1, errors2, errors3; 
 	errors1 = errors2 = errors3 = 0;
+
+	int	PIRAQadjustAmplitude = 0; 
+	int	PIRAQadjustFrequency = 1; 
 
 	// external timer card:
 	TIMER ext_timer; // structure defining external timer parameters 
@@ -1037,9 +1035,6 @@ RadarEpochMillisec = (__int64)(fpRadarMillisec + fpRadarSystemCorrection);
 					uint_ptr = (unsigned int *)((char *)&fifopiraq1->data.info.channel + i*((HEADERSIZE + (config->gatesa * bytespergate) + BUFFER_EPSILON))); 
 					k = *uint_ptr; 
 					fsrc2 = (float *)((char *)fifopiraq1->data.data + i*((HEADERSIZE + (config->gatesa * bytespergate) + BUFFER_EPSILON)));
-					fsrc2 += 0; // look at THIS datum
-//if (i == 1) { printf("[0]=%+8.3e [1]=%+8.3e [2]=%+8.3e [3]=%+8.3e\n",fsrc2[0],fsrc2[1],fsrc2[2],fsrc2[3]); }
-//if (i == 1) { printf("[0]=%+8.3e\n",*fsrc2); }
 					if (lastpulsenumber1 != pulsenum - 1) { // PNs not sequential
 						printf("hit%d: lastPN = %I64d PN = %I64d\n", i+1, lastpulsenumber1, pulsenum);  PNerrors1++; 
 						fprintf(db_fp, "%d:hit%d: lastPN = %I64d PN = %I64d\n", fifopiraq1->data.info.channel, i+1, lastpulsenumber1, pulsenum); 
@@ -1558,12 +1553,25 @@ exit(0);
 //				if(c == '-')		TimerStartCorrection -= (__int64)ExactmSecperBeam; 
 #ifndef TESTING_TIMESERIES
 //				if(c == '+')		TimerStartCorrection += (__int64)mSecperBeam; 
-//				if(c == '-')		TimerStartCorrection -= (__int64)mSecperBeam; 
+//				if(c == '-')		TimerStartCorrection -= (__int64)mSecperBeam;
+				if(c == 'A')		{ PIRAQadjustAmplitude = 1; PIRAQadjustFrequency = 0; printf("'U','D','+','-' adjust test waveform amplitude\n"); }
+				if(c == 'W')		{ PIRAQadjustAmplitude = 0; PIRAQadjustFrequency = 1; printf("'U','D','+','-' adjust test waveform frequency\n"); }
 				//	adjust test data freq. up/down fine/coarse
-				if(c == '+')		piraq1->SetCP2PIRAQTestAction(INCREMENT_TEST_SINUSIOD_FINE);	
-				if(c == '-')		piraq1->SetCP2PIRAQTestAction(DECREMENT_TEST_SINUSIOD_FINE);
-				if(c == 'U')		piraq1->SetCP2PIRAQTestAction(INCREMENT_TEST_SINUSIOD_COARSE);	 
-				if(c == 'D')		piraq1->SetCP2PIRAQTestAction(DECREMENT_TEST_SINUSIOD_COARSE);	
+				if(PIRAQadjustFrequency)	{	//	use these keys to adjust the test sine frequency
+					if(c == '+')		piraq1->SetCP2PIRAQTestAction(INCREMENT_TEST_SINUSIOD_FINE);	
+					if(c == '-')		piraq1->SetCP2PIRAQTestAction(DECREMENT_TEST_SINUSIOD_FINE);
+					if(c == 'U')		piraq1->SetCP2PIRAQTestAction(INCREMENT_TEST_SINUSIOD_COARSE);	 
+					if(c == 'D')		piraq1->SetCP2PIRAQTestAction(DECREMENT_TEST_SINUSIOD_COARSE);	
+				}
+				//	adjust test data amplitude: up/down fine/coarse
+#if 1
+				if(PIRAQadjustAmplitude)	{	//	use these keys to adjust the test sine amplitude
+					if(c == '+')		piraq1->SetCP2PIRAQTestAction(INCREMENT_TEST_AMPLITUDE_FINE);	
+					if(c == '-')		piraq1->SetCP2PIRAQTestAction(DECREMENT_TEST_AMPLITUDE_FINE);
+					if(c == 'U')		piraq1->SetCP2PIRAQTestAction(INCREMENT_TEST_AMPLITUDE_COARSE);	 
+					if(c == 'D')		piraq1->SetCP2PIRAQTestAction(DECREMENT_TEST_AMPLITUDE_COARSE);	
+				}
+#endif
 #else
 				// adjust test timeseries power: !note requires NOT TESTING_TIMESERIES_RANGE. 
 				if(c == 'U')		test_ts_power *= sqrt(10.0); 
