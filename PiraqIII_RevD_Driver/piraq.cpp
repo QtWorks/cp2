@@ -1027,11 +1027,15 @@ unsigned short * PIRAQ::GetPMACAntennaDPRAMAddress()
 //			SEND_CHB				// send CHB
 //			SEND_COMBINED			// execute dynamic-range extension algorithm; send resulting  
 //									   combined data
-//			//	PIRAQ DATA TEST-SINUSOID ADJUSTMENTS:
+//			//	PIRAQ DATA TEST-SINUSOID ADJUSTMENTS: step frequency or amplitude
 //			INCREMENT_TEST_SINUSIOD_COARSE
 //			INCREMENT_TEST_SINUSIOD_FINE
 //			DECREMENT_TEST_SINUSIOD_COARSE
 //			DECREMENT_TEST_SINUSIOD_FINE
+//			INCREMENT_TEST_AMPLITUDE_COARSE
+//			INCREMENT_TEST_AMPLITUDE_FINE
+//			DECREMENT_TEST_AMPLITUDE_COARSE
+//			DECREMENT_TEST_AMPLITUDE_FINE
 //			Definitions are in proto.h also for time being. 
 //
 // INPUT PARAMETER(s): 
