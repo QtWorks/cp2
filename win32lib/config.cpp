@@ -244,7 +244,7 @@ void readconfig(char *fname, CONFIG *config)
    }
    if((!config->prt2) || (config->dataformat != PIRAQ_ABPDATA_STAGGER_PRT)) {
 	   // prt2 not specified, or not used 
-      config->prt2 = config->prt;
+      config->prt2 = config->prt; 
    } 
    if(config->dataformat == PIRAQ_ABPDATA_STAGGER_PRT) { // Staggered PRT: no clutterfilter
       config->clutterfilter = 0;
