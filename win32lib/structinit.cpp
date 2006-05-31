@@ -31,7 +31,6 @@ void struct_init(INFOHEADER *h, char *fname)
    readradar(fname,radar);	/* read in the config.rdr file */   
 
    channel = h->channel * 2; /* here h->channel = board#; = channel# in channel-separated data */ 
-   printf("struct_init(): h->channel = %d h->gates = %d\n", h->channel, h->gates); // 
    strncpy(h->desc,"DWLX",4);
    h->one = 1;			/* one, per JVA request (endian flag: LITTLE_ENDIAN) */ 
    h->byte_offset_to_data = sizeof(INFOHEADER);	/*   */
@@ -44,7 +43,6 @@ void struct_init(INFOHEADER *h, char *fname)
    h->rcvr_pulsewidth	= (float)config->rcvr_pulsewidth * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
    h->prt[0]			= (float)config->prt * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
    h->prt[1]			= (float)config->prt2 * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
-   printf("struct_init(): h->rcvr_pulsewidth = %+8.3e config->rcvr_pulsewidth = %+8.3e h->prt[0] = %+8.3e h->prt[1] = %+8.3e\n", h->rcvr_pulsewidth, config->rcvr_pulsewidth, h->prt[0], h->prt[1]); 
 //   if prt2 not specified in config file, set to prt:    if (h->prt[0] != h->prt[1]) 
 //   h->delay				= config->delay * 100e-9; // ?corresponding allocation 
 
