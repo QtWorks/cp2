@@ -31,7 +31,6 @@ void struct_init(INFOHEADER *h, char *fname)
    readradar(fname,radar);	/* read in the config.rdr file */   
 
    channel = h->channel * 2; /* here h->channel = board#; = channel# in channel-separated data */ 
-   strncpy(h->desc,"DWLX",4);
    h->one = 1;			/* one, per JVA request (endian flag: LITTLE_ENDIAN) */ 
    h->byte_offset_to_data = sizeof(INFOHEADER);	/*   */
    h->typeof_compression = 0; // NO_COMPRESSION;			/* none */ 
@@ -44,7 +43,7 @@ void struct_init(INFOHEADER *h, char *fname)
    h->prt[0]			= (float)config->prt * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
    h->prt[1]			= (float)config->prt2 * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
 //   if prt2 not specified in config file, set to prt:    if (h->prt[0] != h->prt[1]) 
-//   h->delay				= config->delay * 100e-9; // ?corresponding allocation 
+//   h->delay				= config->delay * 100e-9; //  
 
    config->clutterfilter ? SET(h->ctrlflags,CTRL_CLUTTERFILTER) : CLR(h->ctrlflags,CTRL_CLUTTERFILTER);
    config->timeseries ? SET(h->ctrlflags,CTRL_TIMESERIES) : CLR(h->ctrlflags,CTRL_TIMESERIES);
@@ -88,13 +87,14 @@ void struct_init(INFOHEADER *h, char *fname)
    h->packetflag	= 0;	// clear: set to -1 by piraq on hardware EOF detect 
 
    h->dacv				= radar->frequency;
-   h->rev				= radar->rev; //???see below
+   h->rev				= radar->rev; 
    h->year				= radar->year;
    strncpy(h->radar_name,radar->radar_name,PX_MAX_RADAR_NAME);
    strncpy(h->channel_name,radar->channel_name,PX_MAX_CHANNEL_NAME);
    strncpy(h->project_name,radar->project_name,PX_MAX_PROJECT_NAME);
    strncpy(h->operator_name,radar->operator_name,PX_MAX_OPERATOR_NAME);
    strncpy(h->site_name,radar->site_name,PX_MAX_SITE_NAME);
+   strncpy(h->desc,radar->desc,PX_MAX_RADAR_DESC);
    strncpy(h->comment,radar->text,PX_SZ_COMMENT);
    h->polarization		= 1;
    h->test_pulse_pwr	= radar->test_pulse_pwr;
@@ -102,16 +102,19 @@ void struct_init(INFOHEADER *h, char *fname)
    h->test_pulse_frq	= radar->test_pulse_frq;
    h->frequency		= radar->frequency;
    h->xmit_power	= radar->peak_power;
+   h->vxmit_power	= radar->peak_power;
+   h->peak_power	= radar->peak_power;
+
    h->noise_figure	= radar->noise_figure;
 
-   // initalize channel-specific parameters; 'v' parms piraq CHB.
-   h->receiver_gain	= radar->receiver_gain[channel];
-   h->vreceiver_gain	= radar->receiver_gain[channel + 1];
-   h->noise_power	= radar->noise_power[channel];
-   h->vnoise_power	= radar->noise_power[channel + 1];
+   h->receiver_gain	= radar->receiver_gain[0];
+   h->vreceiver_gain	= radar->receiver_gain[1];
+   h->noise_power	= radar->noise_power[0];
+   h->vnoise_power	= radar->noise_power[1];
 
    h->data_sys_sat	= radar->data_sys_sat;
    h->antenna_gain	= radar->antenna_gain;	
+   h->vantenna_gain	= radar->vantenna_gain;	
 
    h->H_beam_width = radar->horz_beam_width;
    h->V_beam_width = radar->vert_beam_width;	
@@ -130,6 +133,9 @@ void struct_init(INFOHEADER *h, char *fname)
 
    h->i_offset	= radar->i_offset;		// I dc offset 
    h->q_offset	= radar->q_offset;		// Q dc offset 
+   h->zdr_bias	= radar->zdr_bias;		//  
+   //  noise immunity for velocity estimation: "ph_off" in products
+   h->noise_phase_offset	= radar->noise_phase_offset;	
 
 // unitialized parameters: set to obviously untrue values 
    h->prt[2] =    h->prt[3]		= 9999.9; // [0],[1] set above
@@ -177,7 +183,7 @@ void struct_init(INFOHEADER *h, char *fname)
    for (i = 0; i < 4; i++) { 
 		h->stokes[i] = 9999.9; 
    } 
-   for (i = 0; i < 16; i++) {   
+   for (i = 0; i < 2; i++) {   
 		h->spare[i] = 9999.9; 
    } 
    free(config);
