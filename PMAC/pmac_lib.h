@@ -156,6 +156,9 @@ extern CHAR PMAC_ErrorString[];
 // get base address of PMAC: w/VB AControl app changing offset, this is address of azimuth. 
 unsigned long *PMAC_GetBasePtr(PMAC_HANDLE hPMAC,PMAC_ADDR addrSpace);
 
+// get physical base address of PMAC: w/VB AControl app changing offset, this is address of azimuth. 
+unsigned long *PMAC_GetBasePtrPhysical(PMAC_HANDLE hPMAC,PMAC_ADDR addrSpace);
+
 #ifdef __cplusplus
 }
 #endif
