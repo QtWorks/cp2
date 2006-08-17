@@ -2,6 +2,7 @@
 ; receiver gains minus LNA 
 ; !note: many default values pertain to RapidDOW
 
+description             SVH 
 radar_name              SPol
 polarization            H
 test_pulse_power        0     ;dbm
@@ -59,8 +60,7 @@ receiver_gain4       15.8    ;dB Gain from Horizontal coupler to sampler card
 receiver_gain5       16.8    ;dB Gain from Horizontal coupler to sampler card
 ;vreceiver_gain      0.0    ;dB Gain from Vertical coupler to sampler card
 
-;piraq_saturation_power  5.1    ;dBm !as it was
-piraq_saturation_power  10.0    ;dBm
+piraq_saturation_power  6.5    ;dBm
 
 ;these are really system gains
 antenna_gain            45.66  ;New Feed estimate 10/7/99
