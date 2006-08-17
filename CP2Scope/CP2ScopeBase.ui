@@ -8,166 +8,13 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>992</width>
-            <height>795</height>
+            <width>993</width>
+            <height>803</height>
         </rect>
     </property>
     <property name="caption">
         <string>CP2Scope</string>
     </property>
-    <widget class="ScopePlot">
-        <property name="name">
-            <cstring>_scopePlot</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>12</x>
-                <y>70</y>
-                <width>770</width>
-                <height>650</height>
-            </rect>
-        </property>
-        <property name="sizePolicy">
-            <sizepolicy>
-                <hsizetype>3</hsizetype>
-                <vsizetype>3</vsizetype>
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-            </sizepolicy>
-        </property>
-    </widget>
-    <widget class="QLayoutWidget">
-        <property name="name">
-            <cstring>layout18</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>11</x>
-                <y>727</y>
-                <width>780</width>
-                <height>57</height>
-            </rect>
-        </property>
-        <vbox>
-            <property name="name">
-                <cstring>unnamed</cstring>
-            </property>
-            <widget class="QLayoutWidget">
-                <property name="name">
-                    <cstring>layout17</cstring>
-                </property>
-                <hbox>
-                    <property name="name">
-                        <cstring>unnamed</cstring>
-                    </property>
-                    <widget class="QLayoutWidget">
-                        <property name="name">
-                            <cstring>layout16</cstring>
-                        </property>
-                        <hbox>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <widget class="QLabel">
-                                <property name="name">
-                                    <cstring>datagramPort</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>Datagram Port</string>
-                                </property>
-                            </widget>
-                            <widget class="QSpinBox">
-                                <property name="name">
-                                    <cstring>m_pSpinBoxPort</cstring>
-                                </property>
-                                <property name="maxValue">
-                                    <number>32767</number>
-                                </property>
-                                <property name="value">
-                                    <number>21010</number>
-                                </property>
-                            </widget>
-                        </hbox>
-                    </widget>
-                    <widget class="QLabel">
-                        <property name="name">
-                            <cstring>packetCountLabel</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Packet Count</string>
-                        </property>
-                    </widget>
-                    <widget class="QLabel">
-                        <property name="name">
-                            <cstring>_packetCount</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Packet Count</string>
-                        </property>
-                    </widget>
-                </hbox>
-            </widget>
-            <widget class="QLayoutWidget">
-                <property name="name">
-                    <cstring>layout7</cstring>
-                </property>
-                <hbox>
-                    <property name="name">
-                        <cstring>unnamed</cstring>
-                    </property>
-                    <widget class="QLayoutWidget">
-                        <property name="name">
-                            <cstring>layout5</cstring>
-                        </property>
-                        <hbox>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <widget class="QLabel">
-                                <property name="name">
-                                    <cstring>PN_errors</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>PN errors</string>
-                                </property>
-                            </widget>
-                            <widget class="QLCDNumber">
-                                <property name="name">
-                                    <cstring>_PNerrors</cstring>
-                                </property>
-                            </widget>
-                        </hbox>
-                    </widget>
-                    <widget class="QLayoutWidget">
-                        <property name="name">
-                            <cstring>layout6</cstring>
-                        </property>
-                        <hbox>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <widget class="QLabel">
-                                <property name="name">
-                                    <cstring>m_pTextIPname</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>IP Name</string>
-                                </property>
-                            </widget>
-                            <widget class="QLabel">
-                                <property name="name">
-                                    <cstring>m_pTextIPaddress</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>IP Address</string>
-                                </property>
-                            </widget>
-                        </hbox>
-                    </widget>
-                </hbox>
-            </widget>
-        </vbox>
-    </widget>
     <widget class="Knob">
         <property name="name">
             <cstring>yScaleKnob</cstring>
@@ -175,9 +22,9 @@
         <property name="geometry">
             <rect>
                 <x>791</x>
-                <y>71</y>
+                <y>91</y>
                 <width>188</width>
-                <height>170</height>
+                <height>180</height>
             </rect>
         </property>
         <property name="sizePolicy">
@@ -192,15 +39,204 @@
             <string>use mouse: drag then scroll for fine adjust. rescales by 10 at extremes.</string>
         </property>
     </widget>
-    <widget class="QLayoutWidget">
+    <widget class="QLabel">
         <property name="name">
-            <cstring>layout46</cstring>
+            <cstring>textlabel6</cstring>
         </property>
         <property name="geometry">
             <rect>
-                <x>11</x>
-                <y>11</y>
-                <width>750</width>
+                <x>789</x>
+                <y>690</y>
+                <width>60</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>x-axis scale</string>
+        </property>
+    </widget>
+    <widget class="QSpinBox">
+        <property name="name">
+            <cstring>xFullScale</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>850</x>
+                <y>690</y>
+                <width>60</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property name="maxValue">
+            <number>100000</number>
+        </property>
+        <property name="minValue">
+            <number>-100000</number>
+        </property>
+        <property name="value">
+            <number>250</number>
+        </property>
+    </widget>
+    <widget class="QLayoutWidget">
+        <property name="name">
+            <cstring>layout11</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>15</x>
+                <y>720</y>
+                <width>264</width>
+                <height>40</height>
+            </rect>
+        </property>
+        <hbox>
+            <property name="name">
+                <cstring>unnamed</cstring>
+            </property>
+            <widget class="QLayoutWidget">
+                <property name="name">
+                    <cstring>layout16</cstring>
+                </property>
+                <hbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <widget class="QLabel">
+                        <property name="name">
+                            <cstring>datagramPort</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Data Channel</string>
+                        </property>
+                    </widget>
+                </hbox>
+            </widget>
+            <widget class="QSpinBox">
+                <property name="name">
+                    <cstring>SpinBoxDataChannel</cstring>
+                </property>
+                <property name="maxValue">
+                    <number>3</number>
+                </property>
+                <property name="minValue">
+                    <number>1</number>
+                </property>
+            </widget>
+            <widget class="QLabel">
+                <property name="name">
+                    <cstring>packetCountLabel</cstring>
+                </property>
+                <property name="text">
+                    <string>Packet Count</string>
+                </property>
+            </widget>
+            <widget class="QLabel">
+                <property name="name">
+                    <cstring>_packetCount</cstring>
+                </property>
+                <property name="text">
+                    <string>Packet Count</string>
+                </property>
+            </widget>
+        </hbox>
+    </widget>
+    <widget class="QLayoutWidget">
+        <property name="name">
+            <cstring>layout7</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>12</x>
+                <y>763</y>
+                <width>778</width>
+                <height>40</height>
+            </rect>
+        </property>
+        <hbox>
+            <property name="name">
+                <cstring>unnamed</cstring>
+            </property>
+            <widget class="QLayoutWidget">
+                <property name="name">
+                    <cstring>layout5</cstring>
+                </property>
+                <hbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <widget class="QLabel">
+                        <property name="name">
+                            <cstring>PN_errors</cstring>
+                        </property>
+                        <property name="text">
+                            <string>PN errors</string>
+                        </property>
+                    </widget>
+                    <widget class="QLCDNumber">
+                        <property name="name">
+                            <cstring>_PNerrors</cstring>
+                        </property>
+                    </widget>
+                </hbox>
+            </widget>
+            <widget class="QLayoutWidget">
+                <property name="name">
+                    <cstring>layout6</cstring>
+                </property>
+                <hbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <widget class="QLabel">
+                        <property name="name">
+                            <cstring>m_pTextIPname</cstring>
+                        </property>
+                        <property name="text">
+                            <string>IP Name</string>
+                        </property>
+                    </widget>
+                    <widget class="QLabel">
+                        <property name="name">
+                            <cstring>m_pTextIPaddress</cstring>
+                        </property>
+                        <property name="text">
+                            <string>IP Address</string>
+                        </property>
+                    </widget>
+                </hbox>
+            </widget>
+        </hbox>
+    </widget>
+    <widget class="ScopePlot">
+        <property name="name">
+            <cstring>_scopePlot</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>12</x>
+                <y>70</y>
+                <width>650</width>
+                <height>650</height>
+            </rect>
+        </property>
+        <property name="sizePolicy">
+            <sizepolicy>
+                <hsizetype>3</hsizetype>
+                <vsizetype>3</vsizetype>
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+            </sizepolicy>
+        </property>
+    </widget>
+    <widget class="QLayoutWidget">
+        <property name="name">
+            <cstring>layout8</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>13</x>
+                <y>4</y>
+                <width>514</width>
                 <height>60</height>
             </rect>
         </property>
@@ -220,7 +256,7 @@
                 </property>
                 <property name="sizeHint">
                     <size>
-                        <width>37</width>
+                        <width>30</width>
                         <height>20</height>
                     </size>
                 </property>
@@ -269,7 +305,7 @@
                 </property>
                 <property name="sizeHint">
                     <size>
-                        <width>35</width>
+                        <width>20</width>
                         <height>20</height>
                     </size>
                 </property>
@@ -297,81 +333,7 @@
                 </property>
                 <property name="sizeHint">
                     <size>
-                        <width>35</width>
-                        <height>20</height>
-                    </size>
-                </property>
-            </spacer>
-            <widget class="QButtonGroup">
-                <property name="name">
-                    <cstring>buttonGroup</cstring>
-                </property>
-                <property name="sizePolicy">
-                    <sizepolicy>
-                        <hsizetype>5</hsizetype>
-                        <vsizetype>1</vsizetype>
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                    </sizepolicy>
-                </property>
-                <property name="title">
-                    <string>Plot Type</string>
-                </property>
-                <hbox>
-                    <property name="name">
-                        <cstring>unnamed</cstring>
-                    </property>
-                    <widget class="QRadioButton">
-                        <property name="name">
-                            <cstring>tsButton</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Time Series</string>
-                        </property>
-                        <property name="checked">
-                            <bool>true</bool>
-                        </property>
-                        <property name="buttonGroupId">
-                            <number>0</number>
-                        </property>
-                    </widget>
-                    <widget class="QRadioButton">
-                        <property name="name">
-                            <cstring>xyButton</cstring>
-                        </property>
-                        <property name="text">
-                            <string>I vs Q</string>
-                        </property>
-                        <property name="buttonGroupId">
-                            <number>1</number>
-                        </property>
-                    </widget>
-                    <widget class="QRadioButton">
-                        <property name="name">
-                            <cstring>specButton</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Power</string>
-                        </property>
-                        <property name="buttonGroupId">
-                            <number>2</number>
-                        </property>
-                    </widget>
-                </hbox>
-            </widget>
-            <spacer>
-                <property name="name">
-                    <cstring>spacer6</cstring>
-                </property>
-                <property name="orientation">
-                    <enum>Horizontal</enum>
-                </property>
-                <property name="sizeType">
-                    <enum>Expanding</enum>
-                </property>
-                <property name="sizeHint">
-                    <size>
-                        <width>20</width>
+                        <width>30</width>
                         <height>20</height>
                     </size>
                 </property>
@@ -447,10 +409,183 @@
             </widget>
         </hbox>
     </widget>
+    <widget class="QButtonGroup">
+        <property name="name">
+            <cstring>buttonGroup</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>790</x>
+                <y>310</y>
+                <width>141</width>
+                <height>325</height>
+            </rect>
+        </property>
+        <property name="sizePolicy">
+            <sizepolicy>
+                <hsizetype>5</hsizetype>
+                <vsizetype>1</vsizetype>
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+            </sizepolicy>
+        </property>
+        <property name="title">
+            <string>Plot</string>
+        </property>
+        <vbox>
+            <property name="name">
+                <cstring>unnamed</cstring>
+            </property>
+            <widget class="QRadioButton">
+                <property name="name">
+                    <cstring>tsButton</cstring>
+                </property>
+                <property name="text">
+                    <string>Time Series</string>
+                </property>
+                <property name="checked">
+                    <bool>true</bool>
+                </property>
+                <property name="buttonGroupId">
+                    <number>0</number>
+                </property>
+            </widget>
+            <widget class="QRadioButton">
+                <property name="name">
+                    <cstring>xyButton</cstring>
+                </property>
+                <property name="text">
+                    <string>I vs Q</string>
+                </property>
+                <property name="buttonGroupId">
+                    <number>1</number>
+                </property>
+            </widget>
+            <widget class="QRadioButton">
+                <property name="name">
+                    <cstring>specButton</cstring>
+                </property>
+                <property name="text">
+                    <string>Power Spectrum</string>
+                </property>
+                <property name="buttonGroupId">
+                    <number>2</number>
+                </property>
+            </widget>
+            <widget class="QRadioButton">
+                <property name="name">
+                    <cstring>VdBmButton</cstring>
+                </property>
+                <property name="text">
+                    <string>V Power(dBm)</string>
+                </property>
+            </widget>
+            <widget class="QRadioButton">
+                <property name="name">
+                    <cstring>HdBmButton</cstring>
+                </property>
+                <property name="text">
+                    <string>H Power(dBm)</string>
+                </property>
+            </widget>
+            <widget class="QRadioButton">
+                <property name="name">
+                    <cstring>velocityButton</cstring>
+                </property>
+                <property name="text">
+                    <string>Velocity(m/s)</string>
+                </property>
+            </widget>
+            <widget class="QRadioButton">
+                <property name="name">
+                    <cstring>NCPButton</cstring>
+                </property>
+                <property name="text">
+                    <string>NCP</string>
+                </property>
+            </widget>
+            <widget class="QRadioButton">
+                <property name="name">
+                    <cstring>SpectralWidthButton</cstring>
+                </property>
+                <property name="text">
+                    <string>Spectral Width(m/s)</string>
+                </property>
+            </widget>
+            <widget class="QRadioButton">
+                <property name="name">
+                    <cstring>phidpButton</cstring>
+                </property>
+                <property name="text">
+                    <string>phidp</string>
+                </property>
+            </widget>
+            <widget class="QRadioButton">
+                <property name="name">
+                    <cstring>VReflectivityButton</cstring>
+                </property>
+                <property name="text">
+                    <string>V Reflectivity</string>
+                </property>
+            </widget>
+            <widget class="QRadioButton">
+                <property name="name">
+                    <cstring>HReflectivityButton</cstring>
+                </property>
+                <property name="text">
+                    <string>H Reflectivity</string>
+                </property>
+            </widget>
+            <widget class="QRadioButton">
+                <property name="name">
+                    <cstring>ZdrButton</cstring>
+                </property>
+                <property name="text">
+                    <string>Zdr</string>
+                </property>
+            </widget>
+        </vbox>
+    </widget>
 </widget>
 <connections>
     <connection>
-        <sender>tsButton</sender>
+        <sender>xFullScale</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>CP2ScopeBase</receiver>
+        <slot>xFullScaleBox_valueChanged(int)</slot>
+    </connection>
+    <connection>
+        <sender>VdBmButton</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>CP2ScopeBase</receiver>
+        <slot>plotTypeSlot(bool)</slot>
+    </connection>
+    <connection>
+        <sender>SpinBoxGate</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>CP2ScopeBase</receiver>
+        <slot>DataSetGateSpinBox_valueChanged(int)</slot>
+    </connection>
+    <connection>
+        <sender>dataSetGate</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>CP2ScopeBase</receiver>
+        <slot>dataSetSlot(bool)</slot>
+    </connection>
+    <connection>
+        <sender>dataSetPulse</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>CP2ScopeBase</receiver>
+        <slot>dataSetSlot(bool)</slot>
+    </connection>
+    <connection>
+        <sender>yScaleKnob</sender>
+        <signal>valueChanged(double)</signal>
+        <receiver>CP2ScopeBase</receiver>
+        <slot>yScaleKnob_valueChanged(double)</slot>
+    </connection>
+    <connection>
+        <sender>specButton</sender>
         <signal>toggled(bool)</signal>
         <receiver>CP2ScopeBase</receiver>
         <slot>plotTypeSlot(bool)</slot>
@@ -462,40 +597,64 @@
         <slot>plotTypeSlot(bool)</slot>
     </connection>
     <connection>
-        <sender>specButton</sender>
+        <sender>tsButton</sender>
         <signal>toggled(bool)</signal>
         <receiver>CP2ScopeBase</receiver>
         <slot>plotTypeSlot(bool)</slot>
     </connection>
     <connection>
-        <sender>yScaleKnob</sender>
-        <signal>valueChanged(double)</signal>
-        <receiver>CP2ScopeBase</receiver>
-        <slot>yScaleKnob_valueChanged(double)</slot>
-    </connection>
-    <connection>
-        <sender>m_pSpinBoxPort</sender>
+        <sender>SpinBoxDataChannel</sender>
         <signal>valueChanged(int)</signal>
         <receiver>CP2ScopeBase</receiver>
-        <slot>DatagramPortSpinBox_valueChanged(int)</slot>
+        <slot>DataChannelSpinBox_valueChanged(int)</slot>
     </connection>
     <connection>
-        <sender>dataSetPulse</sender>
+        <sender>HdBmButton</sender>
         <signal>toggled(bool)</signal>
         <receiver>CP2ScopeBase</receiver>
-        <slot>dataSetSlot(bool)</slot>
+        <slot>plotTypeSlot(bool)</slot>
     </connection>
     <connection>
-        <sender>dataSetGate</sender>
+        <sender>velocityButton</sender>
         <signal>toggled(bool)</signal>
         <receiver>CP2ScopeBase</receiver>
-        <slot>dataSetSlot(bool)</slot>
+        <slot>plotTypeSlot(bool)</slot>
     </connection>
     <connection>
-        <sender>SpinBoxGate</sender>
-        <signal>valueChanged(int)</signal>
+        <sender>NCPButton</sender>
+        <signal>toggled(bool)</signal>
         <receiver>CP2ScopeBase</receiver>
-        <slot>DataSetGateSpinBox_valueChanged(int)</slot>
+        <slot>plotTypeSlot(bool)</slot>
+    </connection>
+    <connection>
+        <sender>SpectralWidthButton</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>CP2ScopeBase</receiver>
+        <slot>plotTypeSlot(bool)</slot>
+    </connection>
+    <connection>
+        <sender>phidpButton</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>CP2ScopeBase</receiver>
+        <slot>plotTypeSlot(bool)</slot>
+    </connection>
+    <connection>
+        <sender>VReflectivityButton</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>CP2ScopeBase</receiver>
+        <slot>plotTypeSlot(bool)</slot>
+    </connection>
+    <connection>
+        <sender>HReflectivityButton</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>CP2ScopeBase</receiver>
+        <slot>plotTypeSlot(bool)</slot>
+    </connection>
+    <connection>
+        <sender>ZdrButton</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>CP2ScopeBase</receiver>
+        <slot>plotTypeSlot(bool)</slot>
     </connection>
 </connections>
 <includes>
@@ -506,14 +665,15 @@
     <slot>dataSocketActivatedSlot( int )</slot>
     <slot>yScaleKnob_valueChanged( double )</slot>
     <slot>dataSetSlot( bool )</slot>
-    <slot>DatagramPortSpinBox_valueChanged( int )</slot>
     <slot>DataSetGateSpinBox_valueChanged( int )</slot>
+    <slot>xFullScaleBox_valueChanged( int )</slot>
+    <slot>DataChannelSpinBox_valueChanged( int )</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 <includehints>
-    <includehint>ScopePlot/ScopePlot.h</includehint>
-    <includehint>qwt_plot.h</includehint>
     <includehint>Knob/Knob.h</includehint>
     <includehint>qwt_knob.h</includehint>
+    <includehint>ScopePlot/ScopePlot.h</includehint>
+    <includehint>qwt_plot.h</includehint>
 </includehints>
 </UI>
