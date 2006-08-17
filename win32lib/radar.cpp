@@ -37,9 +37,9 @@ static char *parms[] = {
 				"vnoise_power","zdr_fudge_factor","missmatch_loss",
 				"e_plane_angle","h_plane_angle","antenna_rotation_angle",
 				"latitude","longitude","altitude",
-				"i_offset","q_offset","channel_name",
+				"i_offset","q_offset","zdr_bias","noise_phase_offset","channel_name",
 				"project_name",	"operator_name","site_name",
-				""};
+				"description",""};
 
 /* if fname is NULL string, default file will be loaded. */
 /* all characters following text keyword are read-in as ascii */
@@ -63,16 +63,17 @@ void readradar(char *fname, RADAR *radar)
 	= radar->xmit_pulsewidth = radar->vert_beam_width = 0.0;
 	radar->vantenna_gain = radar->missmatch_loss = /*radar->vnoise_power = */0.0;
 	radar->latitude = 40.0; radar->longitude = -105.0; radar->altitude = 1700.0; 
-//!!!defaults?	radar->e_plane_angle = 0.0; radar->h_plane_angle = 0.0;
-//!!!defaults?	radar->antenna_rotation_angle = 0.0; 
 	for (i = 0; i++; i < CHANNELS) { // all system channels
 		radar->receiver_gain[i] = 0.0; 
 		radar->noise_power[i] = 0.0; 
 	} 
-   if(strcmp(fname,""))        
+	if(strcmp(fname,""))        
       {
-      for(i=0; fname[i] && fname[i] != '.'; i++)  filename[i] = fname[i];
-      strcpy(&filename[i],".rdr");
+      // config file in .exe parent directory: 
+	  strcpy(&filename[0],"../"); 
+	  for(i=0; fname[i] && fname[i] != '.'; i++)  
+		  filename[i+3] = fname[i];
+	  strcpy(&filename[i+3],".rdr");
       fp = fopen(filename,"r");
       if(!fp)
 	 {
@@ -220,18 +221,27 @@ void readradar(char *fname, RADAR *radar)
 	 case 39:        /* Q dc offset */
 			set(value,"%f",&radar->q_offset,keyword,linenum,filename);
 			break;
+	 case 40:        /* zdr bias */
+			set(value,"%f",&radar->zdr_bias,keyword,linenum,filename);
+			break;
+	 case 41:        /* noise phase offset: cushion for noise immunity in velocity estimation */
+			set(value,"%f",&radar->noise_phase_offset,keyword,linenum,filename);
+			break;
 			// !note: keep these strncpy initializations LAST; add new parameters imm. above
-	 case 40:       /* channel name */
+	 case 42:       /* channel name */
 			strncpy(radar->channel_name,value,PX_MAX_CHANNEL_NAME);
 			break;
-	 case 41:       /* project name */
+	 case 43:       /* project name */
 			strncpy(radar->project_name,value,PX_MAX_PROJECT_NAME);
 			break;
-	 case 42:       /* operator name */
+	 case 44:       /* operator name */
 			strncpy(radar->operator_name,value,PX_MAX_OPERATOR_NAME);
 			break;
-	 case 43:       /* site name */
+	 case 45:       /* site name */
 			strncpy(radar->site_name,value,PX_MAX_SITE_NAME);
+			break;
+	 case 46:       /* description: SVH, XH, XV */
+			strncpy(radar->desc,value,PX_MAX_RADAR_DESC);
 			break;
 	 default:
 		printf("unrecognized keyword \"%s\" in line %d of %s\n",keyword,linenum,filename);
@@ -247,11 +257,6 @@ void readradar(char *fname, RADAR *radar)
 	   radar->text[i] = '\0'; // !note: PX_SZ_COMMENT = 64
 	 }
    fclose(fp);
-
-   radar->desc[0] = 'R';
-   radar->desc[1] = 'H';
-   radar->desc[2] = 'D';
-   radar->desc[3] = 'R';
 
    radar->recordlen = sizeof(RADAR);   
 
@@ -316,15 +321,20 @@ void readradar(char *fname, RADAR *radar)
       printf("%-28s %f\n",parms[37],radar->altitude);
       printf("%-28s %f\n",parms[38],radar->i_offset);
       printf("%-28s %f\n",parms[39],radar->q_offset);
+      printf("%-28s %f\n",parms[40],radar->zdr_bias);
+	  printf("%-28s %f\n",parms[41],radar->noise_phase_offset);
+
 //      printf("text:\n%s\n",radar->text);
       strncpy(line,radar->channel_name,PX_MAX_CHANNEL_NAME);  line[PX_MAX_CHANNEL_NAME] = 0;
-      printf("%-28s %s\n",parms[40],line);
-      strncpy(line,radar->project_name,PX_MAX_PROJECT_NAME);  line[PX_MAX_PROJECT_NAME] = 0;
-      printf("%-28s %s\n",parms[41],line);
-      strncpy(line,radar->operator_name,PX_MAX_OPERATOR_NAME);  line[PX_MAX_OPERATOR_NAME] = 0;
       printf("%-28s %s\n",parms[42],line);
-      strncpy(line,radar->site_name,PX_MAX_SITE_NAME);  line[PX_MAX_SITE_NAME] = 0;
+      strncpy(line,radar->project_name,PX_MAX_PROJECT_NAME);  line[PX_MAX_PROJECT_NAME] = 0;
       printf("%-28s %s\n",parms[43],line);
+      strncpy(line,radar->operator_name,PX_MAX_OPERATOR_NAME);  line[PX_MAX_OPERATOR_NAME] = 0;
+      printf("%-28s %s\n",parms[44],line);
+      strncpy(line,radar->site_name,PX_MAX_SITE_NAME);  line[PX_MAX_SITE_NAME] = 0;
+      printf("%-28s %s\n",parms[45],line);
+      strncpy(line,radar->desc,PX_MAX_SITE_NAME);  line[PX_MAX_RADAR_DESC] = 0;
+      printf("%-28s %s\n",parms[46],line);
       printf("text:\n%s\n",radar->text);
       exit(0);
       }
