@@ -338,7 +338,6 @@ printf("*pPLX_DMPBAM = 0x%x\n", *pPLX_DMPBAM);
 	// Set default PIRAQ Data Mode in MAILBOX5: SEND_COMBINED, execute the dynamic range extension algorithm 
 	unsigned long * pPLX_PIRAQ_MAILBOX5 = (unsigned long *)((unsigned char*)m_pPLX_BaseAddress + PIRAQ_MAILBOX5);
 	*pPLX_PIRAQ_MAILBOX5 = (unsigned long)SEND_COMBINED;
-//*pPLX_PIRAQ_MAILBOX5 = (unsigned long)SEND_CHB;
 
 	return 0;
 }
@@ -966,7 +965,7 @@ long  PIRAQ::SemaWait(int iSemaphore, int iTimeOutInMiliSeconds)
 // DESCRIPTION: Set PMAC Dual-Port RAM base address in PIRAQ Mailbox 4.
 //
 // INPUT PARAMETER(s): 
-// unsigned short * PMACAntennaDPRAMAddress
+// unsigned int * PMACAntennaDPRAMAddress
 //
 // OUTPUT PARAMETER(s): None
 //
@@ -978,7 +977,7 @@ long  PIRAQ::SemaWait(int iSemaphore, int iTimeOutInMiliSeconds)
 //
 /////////////////////////////////////////////////////////////////////////////////////////
  
-void  PIRAQ::SetPMACAntennaDPRAMAddress(unsigned short * PMACAntennaDPRAMAddress)
+void  PIRAQ::SetPMACAntennaDPRAMAddress(unsigned int * PMACAntennaDPRAMAddress)
 {	
 	
     // Compute pointer to  PIRAQ mailbox 4; put passed address there 
@@ -997,7 +996,7 @@ void  PIRAQ::SetPMACAntennaDPRAMAddress(unsigned short * PMACAntennaDPRAMAddress
 // INPUT PARAMETER(s): None
 //
 // OUTPUT PARAMETER(s): None
-// unsigned short * PMACAntennaDPRAMAddress
+// unsigned int * PMACAntennaDPRAMAddress
 //
 // RETURN: none.         
 //
@@ -1007,12 +1006,12 @@ void  PIRAQ::SetPMACAntennaDPRAMAddress(unsigned short * PMACAntennaDPRAMAddress
 //
 /////////////////////////////////////////////////////////////////////////////////////////
  
-unsigned short * PIRAQ::GetPMACAntennaDPRAMAddress()
+unsigned int * PIRAQ::GetPMACAntennaDPRAMAddress()
 {	
 	
     // Compute pointer to  PIRAQ mailbox 4; get PMAC DPRAM address stored there for PIRAQ use
 	unsigned long * pPLX_PIRAQ_MAILBOX4 = (unsigned long *)((unsigned char*)(GetRegisterBase()) + PIRAQ_MAILBOX4);
-	unsigned short * PIRAQ_PMACDPRAM = (unsigned short *)*pPLX_PIRAQ_MAILBOX4; 
+	unsigned int * PIRAQ_PMACDPRAM = (unsigned int *)*pPLX_PIRAQ_MAILBOX4; 
 	return(PIRAQ_PMACDPRAM); 
 
 }
