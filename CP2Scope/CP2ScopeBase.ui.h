@@ -41,13 +41,20 @@ void CP2ScopeBase::dataSetSlot( bool )
 
 
 
-void CP2ScopeBase::DatagramPortSpinBox_valueChanged( int )
+
+void CP2ScopeBase::DataSetGateSpinBox_valueChanged( int )
 {
 
 }
 
 
-void CP2ScopeBase::DataSetGateSpinBox_valueChanged( int )
+void CP2ScopeBase::xFullScaleBox_valueChanged( int )
+{
+
+}
+
+
+void CP2ScopeBase::DataChannelSpinBox_valueChanged( int )
 {
 
 }
