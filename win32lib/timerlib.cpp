@@ -319,7 +319,7 @@ void timer_set(TIMER *timer)
    timer->base[(0xD8 + 6) ] = 0;					//div;
    timer->base[(0xD8 + 7) ] = 0;					//spare;
    
-   timer->base[(0xD8 +  8) ] = timer->sync.byte.lo;		// s	ynclo;
+   timer->base[(0xD8 +  8) ] = timer->sync.byte.lo;		// synclo;
    timer->base[(0xD8 +  9) ] = timer->sync.byte.hi;		// synchi;
    timer->base[(0xD8 + 10) ] = timer->seqdelay.byte.lo;	// sequence delay lo
    timer->base[(0xD8 + 11) ] = timer->seqdelay.byte.hi;	// sequence delay hi
@@ -608,6 +608,7 @@ int timer_config(TIMER *timer, INFOHEADER *info)
    if(prt[0].hilo < 1 || prt[0].hilo > 65535)	{printf("TIMER_CONFIG: invalid PRT1 %d\n",prt[0].hilo); return(0);}
    if(prt[1].hilo < 1 || prt[1].hilo > 65535)	{printf("TIMER_CONFIG: invalid PRT2 %d\n",prt[1].hilo); return(0);}
    dualprt = (prt[0].hilo == prt[1].hilo) ? 1 : 2;
+printf("dualprt = %d\n", dualprt); 
 
    len = timer->seqlen * dualprt;
    cycles = 1;
@@ -633,8 +634,16 @@ int timer_config(TIMER *timer, INFOHEADER *info)
    timer->seqlen *= dualprt * cycles;		/* double if in dual prt mode */
          
    timer->seqdelay.hilo = OFFSET;
+// CP2:	set timingmode 1 for external triggering of EOL Timing Board. 
+//		set a nonzero value of sync. 
+// eventually these parameters should read from config.tmr
+#if 0	//	as it was
    timer->timingmode = 0;
-   
+#else	//	CP2
+   timer->timingmode = 1;
+   timer->sync.byte.lo = 1;		// synclo;  
+   timer->sync.byte.hi = 0;		// synchi;  
+#endif
    timer->clockfreq = SYSTEM_CLOCK;
    timer->reffreq = 10.0E6;
    timer->phasefreq = 50.0E3;
