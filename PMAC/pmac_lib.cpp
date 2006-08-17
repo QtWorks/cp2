@@ -665,3 +665,13 @@ unsigned long *PMAC_GetBasePtr(PMAC_HANDLE hPMAC,PMAC_ADDR addrSpace)
 {
 	return((unsigned long *)hPMAC->cardReg.Card.Item[hPMAC->addrDesc[addrSpace].index].I.Mem.dwUserDirectAddr);
 }
+
+// Returns a pointer to the PMAC physical base address
+unsigned long *PMAC_GetBasePtrPhysical(PMAC_HANDLE hPMAC,PMAC_ADDR addrSpace)
+{
+//	test using physical address: dwCpuPhysicalAddr
+//	return((unsigned long *)hPMAC->cardReg.Card.Item[hPMAC->addrDesc[addrSpace].index].I.Mem.dwCpuPhysicalAddr);
+//	test using physical address: dwPhysicalAddr
+	return((unsigned long *)hPMAC->cardReg.Card.Item[hPMAC->addrDesc[addrSpace].index].I.Mem.dwPhysicalAddr);
+	//	returned addresses equal in both cases. 
+}
