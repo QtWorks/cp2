@@ -69,8 +69,11 @@ void readconfig(char *fname, CONFIG *config)
    /* default file is ..\config.dsp */ 
    if(strcmp(fname,""))        
       {
-      for(i=0; fname[i] && fname[i] != '.'; i++)  filename[i] = fname[i];
-      strcpy(&filename[i],".dsp");
+      // config file in .exe parent directory: 
+	  strcpy(&filename[0],"../"); 
+	  for(i=0; fname[i] && fname[i] != '.'; i++)  
+		  filename[i+3] = fname[i];
+	  strcpy(&filename[i+3],".dsp");
       fp = fopen(filename,"r");
       if(!fp)
 	 {
