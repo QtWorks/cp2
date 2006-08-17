@@ -13,11 +13,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "win32lib", "win32lib\win32l
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinDSP", "WinDSP\WinDSP.vcproj", "{E030ED2E-4558-4306-8A69-2F936D661BB9}"
-	ProjectSection(ProjectDependencies) = postProject
-		{92308F9A-E019-4D5E-8CCD-B20842731F8D} = {92308F9A-E019-4D5E-8CCD-B20842731F8D}
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "QtDSP", "QtDSP\QtDSP.vcproj", "{93DB0A81-1BF5-48A0-A895-E1AD7C9ADA47}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
@@ -44,10 +39,6 @@ Global
 		{92308F9A-E019-4D5E-8CCD-B20842731F8D}.Debug.Build.0 = Debug|Win32
 		{92308F9A-E019-4D5E-8CCD-B20842731F8D}.Release.ActiveCfg = Release|Win32
 		{92308F9A-E019-4D5E-8CCD-B20842731F8D}.Release.Build.0 = Release|Win32
-		{E030ED2E-4558-4306-8A69-2F936D661BB9}.Debug.ActiveCfg = Debug|Win32
-		{E030ED2E-4558-4306-8A69-2F936D661BB9}.Debug.Build.0 = Debug|Win32
-		{E030ED2E-4558-4306-8A69-2F936D661BB9}.Release.ActiveCfg = Release|Win32
-		{E030ED2E-4558-4306-8A69-2F936D661BB9}.Release.Build.0 = Release|Win32
 		{93DB0A81-1BF5-48A0-A895-E1AD7C9ADA47}.Debug.ActiveCfg = Debug|Win32
 		{93DB0A81-1BF5-48A0-A895-E1AD7C9ADA47}.Debug.Build.0 = Debug|Win32
 		{93DB0A81-1BF5-48A0-A895-E1AD7C9ADA47}.Release.ActiveCfg = Release|Win32
