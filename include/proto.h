@@ -310,6 +310,7 @@ typedef struct
          * character arrays that are a multiple of 4
          * are welcome
          */
+#define	PX_MAX_RADAR_DESC	4
     char desc[4];			/* "DWLX" */
     uint4 recordlen;        /* total length of record - must be the second field */
     uint4 channel;          /* e.g., RapidDOW range 0-5 */
@@ -475,20 +476,31 @@ at the epoch. beamnumber = pulsenumber / hits.
     float4 q_compand;
     float4 transform_matrix[2][2][2];
     float4 stokes[4]; 
+
+	float4 vxmit_power;
+    float4 vtest_pulse_pwr; //
+    float4 vnoise_power;
+    float4 vreceiver_gain;
+    float4 vantenna_gain;
+    float4 h_rconst;
+    float4 v_rconst;
+    float4 peak_power;            /* added by JVA -  needed for
+                                     v/h_channel_radar_const */
+    // additional floats for magnetron parameters: 
+    float4 mag_current;         // magnetron curent from ASE transmitter status 
+    float4 xmtr_enclosure_temp; // 
+    float4 mag_est_freq;        // runtime estimated transmitter frequency 
+    float4 receiver_freq;       // runtime computed transmitter frequency 
+	//	conformal w/piraqx.xls containing EOL standard piraqx definitions to here
     
-    
-    float4 i_offset;  /* dc offset, one for each channel? */
+	float4 zdr_bias;	//	added 7-25-06; required for S-band zdr calculation
+	float4 noise_phase_offset;	//	added 8-1-06; used for S-band velocity, phidp calculations
+    float4 i_offset;  /* dc offsets, for each channel */
     float4 q_offset;
     float4 vi_offset; 
     float4 vq_offset;
 
-    float4 vnoise_power;	/* 'v' second piraq channel */ 
-    float4 vreceiver_gain;
-    float4 vaz_off_ref;      /* SynthAngle output for 'v' channel */
-    float4 vel_off_ref;
-    float4 vfrequency;
-//    float4 spare[20];
-    float4 spare[11];
+	float4 spare[2];
 
     /*
     // always append new items so the alignment of legacy variables
@@ -548,7 +560,7 @@ struct synth { /* array of structures containing SynthAngle output for all chann
 
 // CP2: 
 #define BUFFER_EPSILON	0	// CP2 space between hits in buffer and within N-hit PCI packet
-#define	UDPSENDSIZE	(unsigned int)65536	//	size of N-hit packets in system: PIRAQ through Qt applications
+#define	UDPSENDSIZEMAX	(unsigned int)65536	//	size of N-hit packets in system: PIRAQ through Qt applications
 #define	noSTREAM_SOCKET		//	socket device Stream
 
 #define	SET(t,b)			(t |= (b))
@@ -687,9 +699,11 @@ typedef struct  {
 		float	latitude; 
 		float	longitude;
 		float	altitude;
+		float	zdr_bias;
+		float	noise_phase_offset;
 		float	i_offset;		/* dc offset to remove from I data; currently stored in data.info.spare[0] for use py piraq */ 
 		float	q_offset;		/* dc offset to remove from Q data; currently stored in data.info.spare[0] for use py piraq */ 
-		float   misc[3];        /* 3 more misc floats */
+		float   misc[2];        /* 2 more misc floats */
 		char	channel_name[PX_MAX_CHANNEL_NAME];
 	    char	project_name[PX_MAX_PROJECT_NAME];
 		char	operator_name[PX_MAX_OPERATOR_NAME];
