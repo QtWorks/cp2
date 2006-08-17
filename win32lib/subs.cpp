@@ -45,7 +45,7 @@ int timerset(CONFIG *config, PIRAQ *piraq)
 
    rcvr_pulsewidth = config->rcvr_pulsewidth*4; 
 
-#if 1 // use local rcvr_pulsewidth instead of config->rcvr_pulsewidth; local (and code below) assumes 24/32 MHz timebase. 
+// use local rcvr_pulsewidth instead of config->rcvr_pulsewidth; local (and code below) assumes 24/32 MHz timebase. 
    /* check for mode within bounds */
    if(config->timingmode < 0 || config->timingmode > 2)
 	{printf("TIMERSET: invalid mode %d\n",config->timingmode); return(0);}
@@ -176,7 +176,6 @@ printf("tpdelay = %d\n**********************************************************
 	      {
               timer(1,5,config->delay + config->tpdelay,piraq->timer); /* delay from trig to tp */
               timer(2,5,-config->tpdelay,piraq->timer); /* delay from tp to gate0 */
-printf(" HI MILAN!!!!!!!!!!!!!!!\n");
 	      }
 	   else
 	      {
@@ -254,7 +253,7 @@ printf("glen = %d rcvr_pulsewidth = %d\n",glen,rcvr_pulsewidth);
    piraq->GetControl()->SetValue_StatusRegister1(spare23);
 
    pll(10e6,SYSTEM_CLOCK,50e3,piraq);
-//delay(20);
+   Sleep(STOPDELAY);   //	??I,Q unequal amplitude on first powerup: 6-22-06 mp
 //!!!note this is from orphan code\SUBS_gaussian.c, from QNX. the pll was programmed w/
 //   pll(10e6,config->stalofreq,REF,piraq);
 
@@ -265,227 +264,6 @@ printf("glen = %d rcvr_pulsewidth = %d\n",glen,rcvr_pulsewidth);
    // !investigate I,Q asymmetry in diagnostic timeseries: 2-12-04
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!   is this the right value to pgm FIR filter width!!!!!!
    return(1);
-#else
-   /* check for mode within bounds */
-   if(config->timingmode < 0 || config->timingmode > 2)
-	{printf("TIMERSET: invalid mode %d\n",config->timingmode); return(0);}
-   
-   /* check for gate0mode within bounds */
-   if(config->gate0mode < 0 || config->gate0mode > 1)
-	{printf("TIMERSET: invalid gate0mode %d\n",config->gate0mode); return(0);}
-
-   /* check for receiver pulsewidth within bounds */
-   /* the pulsewidth defines the FIFO clock rate in 32MHz counts (or 24MHz) */
-   if(config->rcvr_pulsewidth == 0)
-	{printf("TIMERSET: invalid receiver pulsewidth count: %d\n",config->rcvr_pulsewidth); return(0);}
-   if(config->rcvr_pulsewidth >= 32 && config->rcvr_pulsewidth < 64 && (config->rcvr_pulsewidth & 1))
-	{printf("TIMERSET: invalid receiver pulsewidth count: %d\n",config->rcvr_pulsewidth);
-     printf("            If receiver pulse width greater than 32, it must be even\n",config->rcvr_pulsewidth);	 return(0);}
-   if(config->rcvr_pulsewidth >= 64 && (config->rcvr_pulsewidth & 3))
-	{printf("TIMERSET: invalid receiver pulsewidth count: %d\n",config->rcvr_pulsewidth);
-     printf("            If pulse width greater than 64, it must be divisible by four\n",config->rcvr_pulsewidth);	 return(0);}
-   if((config->gatesa * config->rcvr_pulsewidth)<12)
-	{printf("TIMERSET: number of Channel A gates X receiver pulsewidth must be 12 or greater\n"); return(0);}
-   if((config->gatesb * config->rcvr_pulsewidth)<12)
-	{printf("TIMERSET: number of Channel B gates X receiver pulsewidth must be 12 or greater\n"); return(0);}
-
-   /* check for numbergates within bounds */
-   if(config->gatesa == 0)
-	{printf("TIMERSET: invalid number of gates for channel A: %d\n",config->gatesa); return(0);}
-
-   /* check for numbergates within bounds */
-   if(config->gatesb == 0)
-	{printf("TIMERSET: invalid number of gates for channel B: %d\n",config->gatesb); return(0);}
-
-   /* check to see that the sampling interval can be measured in 8 MHz counts */
-   if((config->gatesa * config->rcvr_pulsewidth) & 3)
-    {printf("TIMERSET: Invalid number of gates/receiver pulsewidth combination %d %d for Channel A\n",config->gatesa,config->rcvr_pulsewidth);
-     printf("            number of gates X pulsewidth should be a multiple of 4\n");
-     return(0);}
-    
-   if((config->gatesb * config->rcvr_pulsewidth) & 3)
-    {printf("TIMERSET: Invalid number of gates/receiver pulsewidth combination %d %d for Channel B\n",config->gatesb,config->rcvr_pulsewidth);
-     printf("            number of gates X pulsewidth should be a multiple of 4\n");
-     return(0);}
-
-   /* check for sync timecounts within bounds */
-   if((config->sync == 0 || config->sync > 65535) && config->timingmode != 2)
-	{printf("TIMERSET: invalid sync delay %d\n",config->sync); return(0);}
-
-   /* check for delay timecounts within bounds */
-   if((config->delay == 0 || config->delay > 65535) && config->timingmode != 2)
-	{printf("TIMERSET: invalid delay %d\n",config->delay); return(0);}
-
-   /* check for tpdelay timecounts within bounds */
-   if(config->tpdelay >= 65536 || config->tpdelay <= -65536)
-       {printf("TIMERSET: invalid testpulse delay %d\n",config->tpdelay); return(0);}
-
-   /* check for prt timecounts within bounds */
-   if(config->prt == 0 || config->prt > 65535)
-	{printf("TIMERSET: invalid prt %d\n",config->prt); return(0);}
-
-   /* check for prt2 timecounts within bounds */
-   if(config->prt2 == 0 || config->prt2 > 65535)
-	{printf("TIMERSET: invalid prt %d\n",config->prt2); return(0);}
-
-   /* make sure prt is even multiple of .5uS */
-//   if(config->prt % 10 || config->prt2 % 10)
-//        {printf("TIMERSET: prt and prt2 must be a multiple of 10\n"); return(0);}
-
-   /* double check that all the gates and the delay fit into a prt */
-   if(config->prt <= config->rcvr_pulsewidth * (config->gatesa + 1) / 4.0)
-	{
-	printf("TIMERSET: Gates, Delay, and EOF do not fit in PRT of %8.2f uS\n",config->prt/10.0); 
-	printf("          Delay is %8.2f uS (%d 10 MHz counts)\n",config->delay/10.0,config->delay);
-	printf("          %d gates at %8.2f uS (%7.1f m) + EOF = %8.2f uS\n"
-	,config->gatesa
-	,config->rcvr_pulsewidth/10.0
-	,1e-6*C*.5*config->rcvr_pulsewidth/10.0
-	,(config->gatesa + 1) * config->rcvr_pulsewidth / 10.0);
-	return(0);
-	}
-
-   /* stop the timer */
-   //STATCLR0(piraq,STAT0_TRESET |STAT0_TMODE);
-   //piraq->GetControl()->UnSetBit_StatusRegister0((STAT0_TRESET | STAT0_TMODE));
-	piraq->GetControl()->StopTimers();
-   
-
-   //STATCLR1(piraq,STAT1_EXTTRIGEN);
-	piraq->GetControl()->UnSetBit_StatusRegister1(STAT1_EXTTRIGEN);	
-
-   Sleep(STOPDELAY);       /* wait for all timers to time-out */
-
-   /* program all the timers */
-	//piraq->GetControl()->InitTimers();
-   /* the three timers of chip 0 */
-   switch(config->timingmode)
-      {
-      case 0:   /* software free running mode */
-		  // !!!
-printf("TIMERSET: config->prt = %d config->prt2 = %d config->rcvr_pulsewidth = %d\n",config->prt, config->prt2, config->rcvr_pulsewidth); 
-           timer(0,5,config->prt-2                    ,piraq->timer);   /* even - odd prt */
-           timer(1,5,config->prt2-2   ,piraq->timer); /* even prt (1) */
-
-printf("tpdelay = %d\n***********************************************************\n",config->tpdelay);
-     if(config->tpdelay >= 0) /* handle the zero case here */
-	      {
-	      if(config->tpdelay > 0)
-                 timer(2,5,config->tpdelay,piraq->timer); /* delay from gate0 to tp */
-	      else
-                 timer(2,5,1,piraq->timer); /* delay from gate0 to tp */
-	      }
-	   else
-	      {
-              timer(2,5,-config->tpdelay,piraq->timer); /* delay from tp to gate0 */
-	      }
-	   break;
-      case 1:   /* external trigger mode */
-        timer(0,5,config->prt-2,piraq->timer);   /* even - odd prt */
-	if(config->tpdelay >= 0)        /* handle the 0 case here */
-	   {
-           timer(1,5,config->delay  ,piraq->timer); /* delay from trig to gate0 */
-	   if(config->tpdelay == 0)
-              timer(2,5,config->tpdelay+1,piraq->timer); /* delay from gate0 to tp */
-	   else
-              timer(2,5,config->tpdelay  ,piraq->timer); /* delay from gate0 to tp */
-	   }
-	else   /* if tp comes before gate0 */
-	   {
-	   if(config->delay + config->tpdelay > 0)
-	      {
-              timer(1,5,config->delay + config->tpdelay,piraq->timer); /* delay from trig to tp */
-              timer(2,5,-config->tpdelay,piraq->timer); /* delay from tp to gate0 */
-printf(" HI MILAN!!!!!!!!!!!!!!!\n");
-	      }
-	   else
-	      {
-	      if(config->delay > 1)
-		 {
-                 timer(1,5,1,piraq->timer); /* delay from trig to tp */
-                 timer(2,5,config->delay-1,piraq->timer); /* delay from tp to gate0 */
-		 }
-	      else
-		 {
-                 timer(1,5,1,piraq->timer); /* delay from trig to tp */
-                 timer(2,5,1,piraq->timer); /* delay from tp to gate0 */
-		 }
-	      }
-	   }
-	   break;
-      case 2:   /* external sync free running mode */
-           timer(0,5,config->prt-2,piraq->timer);   /* even - odd prt */
-           timer(1,5,config->sync,piraq->timer); /* even prt (1) */
-	   if(config->tpdelay >= 0) /* handle the zero case here */
-	      {
-	      if(config->tpdelay > 0)
-                 timer(2,5,config->tpdelay,piraq->timer); /* delay from gate0 to tp */
-	      else
-                 timer(2,5,1,piraq->timer); /* delay from gate0 to tp */
-	      }
-	   else
-	      {
-              timer(2,5,-config->tpdelay,piraq->timer); /* delay from tp to gate0 */
-	      }
-	   break;
-      }
-
-   /* the three timers of chip 1 */
-   timer(0,1,config->tpwidth,piraq->timer + 8);   /* test pulse width */
-   timer(1,5,(config->gatesa * config->rcvr_pulsewidth)/4-2 ,piraq->timer + 8);   /* number of A gates */
-   timer(2,5,(config->gatesb * config->rcvr_pulsewidth)/4-2 ,piraq->timer + 8);   /* number of B gates */
-
-   /* gate length control */
-   /* depending on the gate length, the FIR is either in /1 , /2 or /4 mode */
-//!!!   if(config->pulsewidth < 32) 
-   if(config->rcvr_pulsewidth < SYSTEM_CLOCK/2.0e6) // < 1uSec: divisor timebase counts/uSec
-      {
-      glen = ((config->rcvr_pulsewidth & 0x1F)-1) << 9; //???how to compute this? before bound was 
-	  // < 32, same as mask 0x1F, but if SYSTEM_CLOCK/2.0e6 = 24, this seems like it would be 
-	  // a problem ... mp 12-20-02. 
-      spare23 = 0x000;
-      }
-//!!!   else if(config->pulsewidth < 64) 
-   else if(config->rcvr_pulsewidth < 2*(SYSTEM_CLOCK/2.0e6)) // < 2uSec 
-      {
-      glen = ((config->rcvr_pulsewidth & 0x3E)-2) << 8;
-      spare23 = 0x400;
-      }
-   else
-      {
-      glen = ((config->rcvr_pulsewidth & 0x7C)-4) << 7;
-      spare23 = 0x800;
-      }
-printf("glen = %d config->rcvr_pulsewidth = %d\n",glen,config->rcvr_pulsewidth);
- 
-   /* set up all PIRAQ registers */ //???
-   piraq->GetControl()->SetValue_StatusRegister0(
-     glen | (config->testpulse << 6)   |	 /* odd and even testpulse bits */
-	 (config->trigger << 4)              |  /* odd and even trigger bits */
-	 ((config->timingmode == 1) ? STAT0_TMODE : 0) |  /* tmode timing mode */
-//	 ((config->timingmode == 2) ? STAT0_TRIGSEL : 0) |  /* if sync mode, then choose 1PPS input */
-//         ((config->gate0mode == 1) ? (STAT0_GATE0MODE /* | STAT0_SWCTRL */) : 0) |
-//	 ((config->gate0mode == 1) ? (STAT0_GATE0MODE | STAT0_SWCTRL) : 0) |
-	 ((config->tpdelay >= 0) ? STAT0_DELAY_SIGN : 0) | (STAT0_SW_RESET) // !TURN RESET OFF! mp 10-18-02 see singlepiraq ongoing
-//         STAT0_SWSEL | STAT0_SWCTRL       /* set to channel B (top channel) */
-	 );   /* start from scratch */
-
-   //STATUS1(piraq,spare23);
-   piraq->GetControl()->SetValue_StatusRegister1(spare23);
-
-   pll(10e6,SYSTEM_CLOCK,50e3,piraq);
-//delay(20);
-//!!!note this is from orphan code\SUBS_gaussian.c, from QNX. the pll was programmed w/
-//   pll(10e6,config->stalofreq,REF,piraq);
-
-//   FIR_gaussian(config, piraq, 0.734, config->pulsewidth * 1e-6 / 32.0); translates to: 
-// which is temporarily resident in this module
-
-   FIR_gaussian(config, piraq, 1.04/*0.734*/, config->rcvr_pulsewidth * 1e-6 / (SYSTEM_CLOCK/8.0e6));
-   // !investigate I,Q asymmetry in diagnostic timeseries: 2-12-04
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!   is this the right value to pgm FIR filter width!!!!!!
-   return(1);
-#endif
 }
 
 void timer(int timernum,int timermode,int count,unsigned short *iobase)
