@@ -60,6 +60,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="c:\Projects\qwt\include,..\..\QtToolbox,$(QTDIR)\include,.,C:\Qt\3.3.5\mkspecs\win32-msvc.net,C:\Projects\fftw3.1"
 				PreprocessorDefinitions="_WINDOWS,UNICODE,WIN32,QT_DLL,QT_THREAD_SUPPORT"
 				MinimalRebuild="TRUE"
@@ -112,6 +113,9 @@
 			Filter="cpp;cxx;c;def"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
+				RelativePath="..\CP2Classes\fifo.cpp">
+			</File>
+			<File
 				RelativePath=".\main.cpp">
 			</File>
 			<File
@@ -130,6 +134,9 @@
 			</File>
 			<File
 				RelativePath="..\include\dd_types.h">
+			</File>
+			<File
+				RelativePath="..\CP2Classes\fifo.h">
 			</File>
 			<File
 				RelativePath="..\include\piraqx.h">
