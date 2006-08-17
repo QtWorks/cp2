@@ -124,8 +124,8 @@ void	LoadFIRParameters(float sp_fFrequencyHz, long sp_lTransmitPulseWidthNs, lon
 		void	StopDsp();
 		long	SemaSet(int iSemaphore);
 		long	SemaWait(int iSemaphore, int iTimeOutInMiliSeconds);
-		void	SetPMACAntennaDPRAMAddress(unsigned short * PMACAntennaDPRAMAddress); 
-		unsigned short *	GetPMACAntennaDPRAMAddress(void); 
+		void	SetPMACAntennaDPRAMAddress(unsigned int * PMACAntennaDPRAMAddress); 
+		unsigned int *	GetPMACAntennaDPRAMAddress(void); 
 		void	SetCP2PIRAQTestAction(unsigned short PIRAQTestAction); 
 		class CONTROL *GetControl(){ return((class CONTROL *)m_pControl);}
 		class HPIB *GetHPIB(){ return((class HPIB *)m_pHpib);}
