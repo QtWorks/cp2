@@ -62,7 +62,8 @@ typedef struct
          * character arrays that are a multiple of 4
          * are welcome
          */
-    char desc[4];			/* "DWLX" */
+#define	PX_MAX_RADAR_DESC	4
+    char desc[4];			/* "SVH ", "XH", "XV" */
     uint4 recordlen;        /* total length of record - must be the second field */
     uint4 channel;          /* e.g., RapidDOW range 0-5 */
     uint4 rev;		        /* format revision #-from RADAR structure */
@@ -227,8 +228,31 @@ at the epoch. beamnumber = pulsenumber / hits.
     float4 q_compand;
     float4 transform_matrix[2][2][2];
     float4 stokes[4]; 
-    
-    
+#if 1
+	float4 vxmit_power;
+    float4 vtest_pulse_pwr; //
+    float4 vnoise_power;
+    float4 vreceiver_gain;
+    float4 vantenna_gain;
+    float4 h_rconst;
+    float4 v_rconst;
+    float4 peak_power;            /* added by JVA -  needed for
+                                     v/h_channel_radar_const */
+    // additional floats for magnetron parameters: 
+    float4 mag_current;         // magnetron current from ASE transmitter status 
+    float4 xmtr_enclosure_temp; // 
+    float4 mag_est_freq;        // runtime estimated transmitter frequency 
+    float4 receiver_freq;       // runtime computed transmitter frequency 
+	//	conformal w/piraqx.xls containing EOL standard piraqx definitions to here
+
+	float4 zdr_bias;	//	added 7-25-06; required for S-band zdr calculation
+	float4 noise_phase_offset;	//	added 8-1-06; used for S-band velocity, phidp calculations
+    float4 i_offset;	/*	dc offsets, for each channel */
+    float4 q_offset;
+    float4 vi_offset; 
+    float4 vq_offset;
+	float4 spare[2];
+#else    
     float4 i_offset;  /* dc offset, one for each channel? */
     float4 q_offset;
     float4 vi_offset; 
@@ -241,7 +265,7 @@ at the epoch. beamnumber = pulsenumber / hits.
     float4 vfrequency;
 //    float4 spare[20];
     float4 spare[11];
-
+#endif
     /*
     // always append new items so the alignment of legacy variables
     // won't change
