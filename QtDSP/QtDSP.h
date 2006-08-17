@@ -1,8 +1,7 @@
 #ifndef QTDSP_H
 #define QTDSP_H
 
-//#include <winsock.h>		//	no redefinition errors if before Qt includes
-#include <winsock2.h>		//	no redefinition errors if before Qt includes
+#include <winsock2.h>		//	no redefinition errors result if before Qt includes
 #include <qsocketdevice.h> 
 #include <qsocketnotifier.h>
 #include <qevent.h>
@@ -14,19 +13,19 @@
 #include "../include/piraqx.h"		//	CP2-piraqx Definitions
 #include "../include/dd_types.h"	//	CP2-piraqx data types
 
+#include "..\CP2Classes\fifo.h"		//	!
+
 #include <vector>
 
-//	QtDSP-specific definitions:
-enum	{	QTDSP_RECEIVE_CHANNEL, QRC_UNUSED1, QRC_UNUSED2, QRC_UNUSED3, QTDSP_RECEIVE_CHANNELS	};	//	4 receive channels 
-//enum	{	QTDSP_RECEIVE_CHANNEL, QTDSP_RECEIVE_CHANNELS	};	//	receive all data on one channel
-enum	{	QTDSP_SEND_CHANNEL, QSC_UNUSED1, QSC_UNUSED2, QSC_UNUSED3, QTDSP_SEND_CHANNELS	};	//	4 send channels 
-//enum	{	QTDSP_SEND_CHANNEL, QTDSP_SEND_CHANNELS	};	//	send all data on one channel 
-#define	QTDSP_DISPLAY_REFRESH_INTERVAL	1000	//	mSec display refresh 
+//	QtDSP-specific definitions: 
+//	3 IQ receive channels: 
+enum	{	QTDSP_RECEIVE_SBAND, QTDSP_RECEIVE_XBANDH, QTDSP_RECEIVE_XBANDV, QTDSP_RECEIVE_CHANNELS	};	
+//	3 IQ, 3 ABP send channels.  
+enum	{	QTDSP_SEND_SBAND_IQ, QTDSP_SEND_XBANDH_IQ, QTDSP_SEND_XBANDV_IQ, QTDSP_SEND_SBAND_ABP, QTDSP_SEND_XBANDH_ABP, QTDSP_SEND_XBANDV_ABP, QTDSP_SEND_CHANNELS	};	
 
-#define	noMULTIPORT	//	switch multiple--port functions
-#define	noSTREAM_SOCKET		//	socket device Stream
-
-class QGroupBox;
+#define	QTDSP_MONITOR_INTERVAL		1000	//	mSec monitor interval to activate/deactivate data channels 
+#define	QTDSP_MONITOR_RECEIVE_SECS	5		//	seconds before receive channel deemed "silent"
+#define	DATA_CHANNELS				3		//	# data channels in system
 
 class QtDSP : public QtDSPBase {
 	Q_OBJECT		// per Qt documentation: "strongly recommended"
@@ -34,21 +33,19 @@ public:
 	QtDSP();
 	~QtDSP();
 
-	int	getParameters( CP2_PIRAQ_DATA_TYPE[] );		//	get program operating parameters from piraqx (or other) "housekeeping" header structure
+	int	getParameters( CP2_PIRAQ_DATA_TYPE[], int rcvChan);	//	get program operating parameters from piraqx (or other) "housekeeping" header structure
+	void setABPParameters( char * ABPPacket, uint4 recordlen, uint4 dataformat );	//	set parameters in ABP "housekeeping" header structure
+	void SABPgen(int rcvChan);	//	generate S-band ABPs on rcvChan data  
+	void XHABPgen(int rcvChan); 
+	void XVABPgen(int rcvChan); 
 
 public slots:
 	void startStopReceiveSlot();	
 
 	//	one SIGNAL/SLOT pair for each receive channel: 
-	void dataReceiveSocketActivatedSlot0(
-		int socket         // File descriptor of the data socket
-		);
-	void dataReceiveSocketActivatedSlot1(
-		int socket         // File descriptor of the data socket
-		);
-	void dataReceiveSocketActivatedSlot2(
-		int socket         // File descriptor of the data socket
-		);
+	void dataReceiveSocketActivatedSlot0( int socket );	// File descriptor of the data socket
+	void dataReceiveSocketActivatedSlot1( int socket );
+	void dataReceiveSocketActivatedSlot2( int socket );
 
 protected:
 	//	objects, etc. for 1 comm channel: 
@@ -64,18 +61,20 @@ protected:
 	double			m_yScaleMin, m_yScaleMax;	//	y-scale min, max
 
 	QString m_destinationHostname;		//	lineedit input strings 
-	QString m_destinationPortNumber; 
+	QString m_IQdestinationPortNumber; 
+	QString m_ABPdestinationPortNumber; 
 	QString m_receivePortNumber; 
-	int	m_destinationPort;				//	program values from user input
+	int	m_IQdestinationPort;				//	program values from user input
+	int	m_ABPdestinationPort;	
 	int	m_receivePort; 
 
-	//	generalize to all channels: 
-	int				_parametersSet;	//	set when piraqx parameters successfully initialized from received data
-	//	operating parameters from piraqx (or other header) for use by program: data types per piraqx.h
-	uint4			_gates;
-	//	operating parameters derived from piraqx and N-hit implementation:	
 	int				_pulseStride;	//	length in bytes of 1 pulse: header + data
-	int				_Nhits;			//	
+	int				_Nhits;			//	pulses combined into one packet by PIRAQ
+	unsigned int	_PNOffset;		//	offset in bytes to pulsenumber from begin of CP2exec-generated packet
+	unsigned int	_IQdataOffset;	//	offset to begin of data in (piraqx) packet
+
+	uint8			_SABPgenBeginPN;	//	1st PN in beam to compute pulsepairs
+
 
 	//	define structure array of receive channels: 
 	struct	receiveChannel {
@@ -87,6 +86,19 @@ protected:
 		CP2_PIRAQ_DATA_TYPE*   _SocketBuf;
 		int	_packetCount;
 		int	_packetCountErrors;
+		int _parametersSet;		//	set if operating parameters obtained from incoming data
+		unsigned int _secsSilent;	//	seconds receive channel silent
+		uint8 _PN;				//	most-recent received pulsenumber
+		//	parameters related to this channel and its radar description: 
+		//	operating parameters from piraqx (or other header) "housekeeping" for use by program: data types per piraqx.h
+		uint4			_gates;
+		uint4			_hits;
+		//	operating parameters derived from piraqx and N-hit implementation:	
+		uint4			_radarType;		//	set by field "desc", describing the radar function
+
+		unsigned int	_pulsesToProcess;	//	pulses to process, this channel
+		FIFO * rxFIFO;		//	FIFO for received data
+
 	} rcvChannel[QTDSP_RECEIVE_CHANNELS];
 
 	//	define structure array of send channels: 
@@ -102,14 +114,17 @@ protected:
 		int	_packetCountErrors;
 	} sendChannel[QTDSP_SEND_CHANNELS];
 
-	/// The IQ data packet: rename for clarity 
-	std::vector<double> IQ;	//	single-pulse timeseries arrays; names need decoration throughout
-	void timerEvent(QTimerEvent *e);
+	//	define FIFOs for received IQ data from S- and X-band
+	FIFO * FIFO1;	//	rx data store for data channel 1, 2, and 3
+	FIFO * FIFO2;	//	
+	FIFO * FIFO3;	//	
 
 	void initializeReceiveSocket(receiveChannel * rcvChannel);	//	pointer to struct containing udp receive socket parameters
 	void initializeSendSocket(transmitChannel * sendChannel);	//	ditto for udp send socket 
 	void terminateReceiveSocket(receiveChannel * rcvChannel);	//	!generalize 
-	void connectDataRcv();
+	void connectUp();
+	void timerEvent(QTimerEvent *e);
+
 };
 
 #endif
