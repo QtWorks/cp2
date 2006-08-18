@@ -54,11 +54,12 @@ void printbits(int num);
 
 #define		TEST_COMM	//	test multiple-channel communication w/QtDSP
 //OFF: #define TIMER_CARD	// ON
-//	LAN with static IP 
+//	LAN with static IP: define only one of set below to set destination IP address
 #define		CP2_LAN	//	send to static IP Address 192.168.3.4 atd-milan
 //#define		_CP2_LAN	//	send to static IP Address 192.168.3.5 ncar-radar-drx
 //#define		__CP2_LAN	//	send to static IP Address 192.168.3.7 cp2-radar-drx
 //#define		___CP2_LAN	//	send to static IP Address 192.168.3.6 atd-cp2-display
+//#define		CP2_LAN_BROADCAST	//	send to static IP Address 192.168.3.255 LAN broadcast
 
 //#define			TIME_TESTING		// define to activate millisecond printout for time of events. 
 #ifdef CP2_TESTING		// switch ON test code for CP2 
@@ -69,8 +70,8 @@ void printbits(int num);
 //#define			EOF_DETECT	// enable packet-level EOF testing. stop/restart data acquisition
 //#define PMAC_DLL				// access PMAC via DeltaTau DLL
 //#define PMAC_WD6				// access PMAC via Windriver6 -- switch not implemented at present.   
-//#define			CYCLE_HITS	10	// #hits to take from piraq before rotating to next board: RapidDOW 
-#define			CYCLE_HITS	20	// #fifo hits to take from piraq before rotating to next board: CP2
+//#define			CYCLE_HITS	10	// #hits to take from piraq-host shared memory before rotating to next board: RapidDOW 
+#define			CYCLE_HITS	20	// #fifo hits to take from piraq-host shared memory before rotating to next board: CP2
 //#define NO_INTEGER_BEAMS // for staggered PRT testing, etc., defeat angle interpolation, etc. 
 
 //#define TIMER_CARD_TESTING // special executable to program timer board, then exit. 
@@ -401,6 +402,17 @@ printf("set/get iError = %d\n",iError);
 	    {printf("%s: Could not open output socket 2\n",name); exit(0);}
  	printf("udp socket opens; outsock2 = %d\n", outsock2); 
 	if((outsock3 = open_udp_out("192.168.3.4")) ==  ERROR)			/* open second socket */
+	    {printf("%s: Could not open output socket 3\n",name); exit(0);}
+ 	printf("udp socket opens; outsock3 = %d\n", outsock3); 
+#endif
+#ifdef	CP2_LAN_BROADCAST	//	broadcast 
+    if((outsock1 = open_udp_out("192.168.3.255")) ==  ERROR)			/* open one socket */
+	    {printf("%s: Could not open output socket 1\n",name); exit(0);}
+ 	printf("udp socket opens; outsock1 = %d\n", outsock1); 
+	if((outsock2 = open_udp_out("192.168.3.255")) ==  ERROR)			/* open second socket */
+	    {printf("%s: Could not open output socket 2\n",name); exit(0);}
+ 	printf("udp socket opens; outsock2 = %d\n", outsock2); 
+	if((outsock3 = open_udp_out("192.168.3.255")) ==  ERROR)			/* open second socket */
 	    {printf("%s: Could not open output socket 3\n",name); exit(0);}
  	printf("udp socket opens; outsock3 = %d\n", outsock3); 
 #endif
