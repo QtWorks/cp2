@@ -1,16 +1,33 @@
-TEMPLATE	= app
+TEMPLATE	= vcapp
 LANGUAGE	= C++
 
-CONFIG	+= qt warn_on release
+CONFIG	+= debug
 
-FORMS	= QtDSPBase.ui \
-	.\QtDSPBase.ui
+INCLUDEPATH	+= ../
 
-unix {
-  UI_DIR = .ui
-  MOC_DIR = .moc
-  OBJECTS_DIR = .obj
+HEADERS	+= QtDSP.h
+
+SOURCES	+= main.cpp
+SOURCES	+= ../CP2Classes/fifo.cpp
+
+FORMS	= QtDSPBase.ui
+
+INCLUDEPATH += ../../
+INCLUDEPATH += ../../Qttoolbox
+INCLUDEPATH += ../CP2Classes
+
+SOURCES += QtDSP.cpp
+
+
+win32 {
+   LIBS       += opengl32.lib
+   LIBS       += glu32.lib
 }
+
+CONFIG += qt 
+CONFIG += thread
+CONFIG += warn_on 
+CONFIG += exceptions
 
 
 
