@@ -14,9 +14,9 @@
 #include <iostream>
 
 CP2Scope::CP2Scope():
-m_pDataSocket(0),    
-m_pDataSocketNotifier(0),
-m_pSocketBuf(0),	
+//m_pDataSocket(0),    
+//m_pDataSocketNotifier(0),
+//m_pSocketBuf(0),	
 _plotType(ScopePlot::TIMESERIES)
 {
 	m_dataGramPort	= QTDSP_BASE_PORT;
@@ -630,7 +630,7 @@ CP2Scope::displayData()
 						ProductData[j] = sqrt(A2*A2 + B2*B2) / (Pv + Ph);
 						SVHData += SVABP_STRIDE;	//	index next gate
 					}
-					_scopePlot->Product(ProductData, _productType, 0.0, 2.0, m_xFullScale, "Gate", "NCP"); 
+					_scopePlot->Product(ProductData, _productType, 0.0, 1.0, m_xFullScale, "Gate", "NCP"); 
 					break;
 				case SWIDTH:
 				//	compute S-band spectral width 
@@ -645,7 +645,7 @@ CP2Scope::displayData()
 						ProductData[j] = widthconst * sqrt(-log(NCP));
 						SVHData += SVABP_STRIDE;	//	index next gate
 					}
-					_scopePlot->Product(ProductData, _productType, 0.0, 30.0, m_xFullScale, "Gate", "Spectral Width"); 
+					_scopePlot->Product(ProductData, _productType, 0.0, 30.0, m_xFullScale, "Gate", "Spectral Width (m/s)"); 
 					break;			
 				case SPHIDP:
 				//	compute S-band phidp 
