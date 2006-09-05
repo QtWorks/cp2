@@ -563,11 +563,11 @@ QtDSP::SABPgen(int rcvChan) {	//	generate S-band ABPs on rcvChan data
 	//	initialize the beam w/header from 1st pulse of beam: 
 	memmove(SABP, PulseReadPtr,sizeof(PACKETHEADER)); 
 	SABPData = SABP + _IQdataOffset/sizeof(float); 
-	for	(i = 0; i < SVABP_STRIDE*rcvChannel[rcvChan]._gates; i++)	{	//	all data in beam packet
+	for	(i = 0; i < SVHABP_STRIDE*rcvChannel[rcvChan]._gates; i++)	{	//	all data in beam packet
 		*SABPData++ = 0.0;				//	clear it 
 	}
 	//	compute SABP packet length for send
-	SABPLen = sizeof(PACKETHEADER) + SVABP_STRIDE*(sizeof(CP2_PIRAQ_DATA_TYPE))*rcvChannel[rcvChan]._gates;
+	SABPLen = sizeof(PACKETHEADER) + SVHABP_STRIDE*(sizeof(CP2_PIRAQ_DATA_TYPE))*rcvChannel[rcvChan]._gates;
 	//	compute the pulsepairs: 
 	SABPgenPN = _SABPgenBeginPN; 
 	SABPData = SABP + _IQdataOffset/sizeof(float); 
@@ -619,7 +619,7 @@ QtDSP::SABPgen(int rcvChan) {	//	generate S-band ABPs on rcvChan data
 			VPtr = V1; HPtr = H1; VlagPtr = V2; HlagPtr = H2; 
 		}
 	}	//	end for all hits
-	for	(j = 0; j < SVABP_STRIDE*rcvChannel[rcvChan]._gates; j++)	{	//	all data, each gate 
+	for	(j = 0; j < SVHABP_STRIDE*rcvChannel[rcvChan]._gates; j++)	{	//	all data, each gate 
 		*SABPData++ /= ABPscale;		//	scale the data 
 	}
 	SABPData = SABP + _IQdataOffset/sizeof(float);	//	start again at Gate 0
