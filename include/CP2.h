@@ -31,6 +31,8 @@ enum	{	SVHVP,	SVHHP,	SVEL,	SNCP,	SWIDTH,	SPHIDP,	VREFL,	HREFL,	ZDR	};
 #define RECORDSIZE_MAX	16384	//	~< 2000 gates in CP2
 #define RECORDNUM_MAX	1000	//	~2 sec data in CP2 at 1KHz
 
+#define	NUM_SBANDPRODUCTS	9
+
 #define	SVHABP_STRIDE	8		//	#data in 1 gate SVH ABP
 
 #endif
