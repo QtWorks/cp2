@@ -539,7 +539,7 @@ CP2Scope::displayData()
 						else
 							ProductData[j] = (double)(10.0*log10(*SVHData) + OffsetTo_dBm);	//	scale result to dBm 
 #endif
-						SVHData += SVABP_STRIDE;	//	index next gate
+						SVHData += SVHABP_STRIDE;	//	index next gate
 					}
 					_scopePlot->Product(ProductData, _productType, -80, 20.0, m_xFullScale, "Gate", "S V Power (dBm)"); 
 					break;
@@ -554,7 +554,7 @@ CP2Scope::displayData()
 						if	(ProductData[j] <= 0.0)		//	corrected to negative value
 							ProductData[j] = pow(10.0,((NOISE_FLOOR - OffsetTo_dBm) / 10.0)); // put in something small: gets NOISE_LIMIT dBm
 						ProductData[j] = (double)(10.0*log10(*SVHData) + OffsetTo_dBm);	//	scale result to dBm 
-						SVHData += SVABP_STRIDE;	//	index next gate
+						SVHData += SVHABP_STRIDE;	//	index next gate
 					}
 					_scopePlot->Product(ProductData, _productType, -80, 20.0, m_xFullScale, "Gate", "S H Power (dBm)"); 
 					break;
@@ -578,7 +578,7 @@ CP2Scope::displayData()
 
 						/* velocity in m/s */
 						ProductData[j] = phivelocity * angle_to_velocity_scale_factor; 
-						SVHData += SVABP_STRIDE;	//	index next gate
+						SVHData += SVHABP_STRIDE;	//	index next gate
 					}
 #else				//	Mitch method: 
 					//	+1 offset to V pulse B
@@ -616,7 +616,7 @@ CP2Scope::displayData()
 							v -= 2.0 * M_PI;
 						/* velocity in m/s */
 						ProductData[j] = v * angle_to_velocity_scale_factor; 
-						SVHData += SVABP_STRIDE;	//	index next gate
+						SVHData += SVHABP_STRIDE;	//	index next gate
 					}
 #endif
 					//	compute velocity limits from prt, frequency: 
@@ -628,7 +628,7 @@ CP2Scope::displayData()
 						//	calculate S-band NCP:
 						A2 = *(SVHData + 6); B2 = *(SVHData + 7); Pv = *(SVHData + 2); Ph = *(SVHData + 5);	//	
 						ProductData[j] = sqrt(A2*A2 + B2*B2) / (Pv + Ph);
-						SVHData += SVABP_STRIDE;	//	index next gate
+						SVHData += SVHABP_STRIDE;	//	index next gate
 					}
 					_scopePlot->Product(ProductData, _productType, 0.0, 1.0, m_xFullScale, "Gate", "NCP"); 
 					break;
@@ -643,7 +643,7 @@ CP2Scope::displayData()
 						if	(log(NCP) > 0.0)
 							NCP = 1.0; 
 						ProductData[j] = widthconst * sqrt(-log(NCP));
-						SVHData += SVABP_STRIDE;	//	index next gate
+						SVHData += SVHABP_STRIDE;	//	index next gate
 					}
 					_scopePlot->Product(ProductData, _productType, 0.0, 30.0, m_xFullScale, "Gate", "Spectral Width (m/s)"); 
 					break;			
@@ -666,7 +666,7 @@ CP2Scope::displayData()
 						/* note: dp cannot be greater than +160, range is +/- 90 */        
 						//	calculate S-band phidp in degrees:
 						ProductData[j] = dp * 180.0 / M_PI;
-						SVHData += SVABP_STRIDE;	//	index next gate
+						SVHData += SVHABP_STRIDE;	//	index next gate
 					}
 					_scopePlot->Product(ProductData, _productType, -180.0, 180.0, m_xFullScale, "Gate", "phidp degrees"); 
 					break;			
@@ -689,7 +689,7 @@ CP2Scope::displayData()
 							*SVHData = pow(10.0,((NOISE_FLOOR - OffsetTo_dBm) / 10.0)); // put in something small: gets NOISE_LIMIT dBm
 //						else
 							ProductData[j] = (double)(10.0*log10(*SVHData) + OffsetTo_dBm) + v_channel_radar_constant + range_correction;	//	 
-						SVHData += SVABP_STRIDE;	//	index next gate
+						SVHData += SVHABP_STRIDE;	//	index next gate
 					}
 					_scopePlot->Product(ProductData, _productType, -100.0, 100.0, m_xFullScale, "Gate", "V Reflectivity"); 
 					break;			
@@ -710,7 +710,7 @@ CP2Scope::displayData()
 							*SVHData = pow(10.0,((NOISE_FLOOR - OffsetTo_dBm) / 10.0)); // put in something small: gets NOISE_LIMIT dBm
 						else
 							ProductData[j] = (double)(10.0*log10(*SVHData) + OffsetTo_dBm) + h_channel_radar_constant + range_correction;	//	 
-						SVHData += SVABP_STRIDE;	//	index next gate
+						SVHData += SVHABP_STRIDE;	//	index next gate
 					}
 					_scopePlot->Product(ProductData, _productType, -100.0, 100.0, m_xFullScale, "Gate", "H Reflectivity"); 
 					break;			
@@ -746,7 +746,7 @@ CP2Scope::displayData()
 							SVZ = (double)(10.0*log10(*SVHDataV) + VOffsetTo_dBm) + v_channel_radar_constant + range_correction;	//	 
 						//	compute Zdr
 						ProductData[j] = SHZ - SVZ + _zdr_fudge_factor + _zdr_bias;
-						SVHDataH += SVABP_STRIDE; SVHDataV += SVABP_STRIDE;	//	index next gate
+						SVHDataH += SVHABP_STRIDE; SVHDataV += SVHABP_STRIDE;	//	index next gate
 					}
 					_scopePlot->Product(ProductData, _productType, -10.0, 10.0, m_xFullScale, "Gate", "Zdr"); 
 					break;			
