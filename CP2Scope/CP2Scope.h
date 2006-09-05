@@ -28,9 +28,6 @@
 #endif
 
 enum	{	DATA_SET_PULSE,	DATA_SET_GATE,	DATA_SETS	}; 
-//	product types:
-enum	{	SVHVP,	SVHHP,	SVEL,	SNCP,	SWIDTH,	SPHIDP,	VREFL,	HREFL,	ZDR	}; 
-
 
 class CP2Scope : public CP2ScopeBase {
 	Q_OBJECT		// per Qt documentation: "strongly recommended"
