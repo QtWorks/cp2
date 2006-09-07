@@ -1,0 +1,289 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>CP2PPIBase</class>
+<widget class="QMainWindow">
+    <property name="name">
+        <cstring>CP2PPIBase</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>775</width>
+            <height>562</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>CP2PPI</string>
+    </property>
+    <widget class="QGroupBox">
+        <property name="name">
+            <cstring>groupBox1</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>30</x>
+                <y>440</y>
+                <width>570</width>
+                <height>110</height>
+            </rect>
+        </property>
+        <property name="title">
+            <string>Control/Status</string>
+        </property>
+        <widget class="QPushButton">
+            <property name="name">
+                <cstring>_startButton</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>11</x>
+                    <y>20</y>
+                    <width>130</width>
+                    <height>23</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>Start/Stop Display</string>
+            </property>
+        </widget>
+        <widget class="QPushButton">
+            <property name="name">
+                <cstring>_zoomOutButton</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>80</y>
+                    <width>80</width>
+                    <height>23</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>Zoom out</string>
+            </property>
+        </widget>
+        <widget class="QPushButton">
+            <property name="name">
+                <cstring>_zoomInButton</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>50</y>
+                    <width>80</width>
+                    <height>23</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>Zoom in</string>
+            </property>
+        </widget>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>textLabel1</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>107</x>
+                    <y>69</y>
+                    <width>50</width>
+                    <height>20</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>Zoom:</string>
+            </property>
+        </widget>
+        <widget class="QLCDNumber">
+            <property name="name">
+                <cstring>ZoomFactor</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>150</x>
+                    <y>64</y>
+                    <width>70</width>
+                    <height>30</height>
+                </rect>
+            </property>
+            <property name="segmentStyle">
+                <enum>Flat</enum>
+            </property>
+        </widget>
+        <widget class="QButtonGroup">
+            <property name="name">
+                <cstring>_dataSourceButtons</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>150</x>
+                    <y>10</y>
+                    <width>130</width>
+                    <height>50</height>
+                </rect>
+            </property>
+            <property name="title">
+                <string>Data Source</string>
+            </property>
+            <property name="selectedId" stdset="0">
+                <number>-1</number>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QRadioButton">
+                    <property name="name">
+                        <cstring>_dataSourceRadarButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Radar</string>
+                    </property>
+                </widget>
+                <widget class="QRadioButton">
+                    <property name="name">
+                        <cstring>_dataSourceTestButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Test</string>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+    </widget>
+    <widget class="QLayoutWidget">
+        <property name="name">
+            <cstring>layout5</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>20</x>
+                <y>10</y>
+                <width>614</width>
+                <height>410</height>
+            </rect>
+        </property>
+        <hbox>
+            <property name="name">
+                <cstring>unnamed</cstring>
+            </property>
+            <widget class="PPI">
+                <property name="name">
+                    <cstring>_ppi</cstring>
+                </property>
+                <property name="sizePolicy">
+                    <sizepolicy>
+                        <hsizetype>3</hsizetype>
+                        <vsizetype>3</vsizetype>
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                    </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                    <size>
+                        <width>400</width>
+                        <height>400</height>
+                    </size>
+                </property>
+            </widget>
+            <widget class="QFrame">
+                <property name="name">
+                    <cstring>frameColorBar</cstring>
+                </property>
+                <property name="sizePolicy">
+                    <sizepolicy>
+                        <hsizetype>1</hsizetype>
+                        <vsizetype>1</vsizetype>
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                    </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                    <size>
+                        <width>40</width>
+                        <height>400</height>
+                    </size>
+                </property>
+                <property name="maximumSize">
+                    <size>
+                        <width>40</width>
+                        <height>32767</height>
+                    </size>
+                </property>
+                <property name="frameShape">
+                    <enum>StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                    <enum>Raised</enum>
+                </property>
+            </widget>
+            <widget class="QButtonGroup">
+                <property name="name">
+                    <cstring>_productButtons</cstring>
+                </property>
+                <property name="sizePolicy">
+                    <sizepolicy>
+                        <hsizetype>3</hsizetype>
+                        <vsizetype>3</vsizetype>
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                    </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                    <size>
+                        <width>160</width>
+                        <height>400</height>
+                    </size>
+                </property>
+                <property name="title">
+                    <string>Product</string>
+                </property>
+            </widget>
+        </hbox>
+    </widget>
+</widget>
+<toolbars>
+</toolbars>
+<connections>
+    <connection>
+        <sender>_dataSourceRadarButton</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>CP2PPIBase</receiver>
+        <slot>dataSourceSlot()</slot>
+    </connection>
+    <connection>
+        <sender>_dataSourceTestButton</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>CP2PPIBase</receiver>
+        <slot>dataSourceSlot()</slot>
+    </connection>
+    <connection>
+        <sender>_zoomInButton</sender>
+        <signal>clicked()</signal>
+        <receiver>CP2PPIBase</receiver>
+        <slot>zoomInSlot()</slot>
+    </connection>
+    <connection>
+        <sender>_zoomOutButton</sender>
+        <signal>clicked()</signal>
+        <receiver>CP2PPIBase</receiver>
+        <slot>zoomOutSlot()</slot>
+    </connection>
+    <connection>
+        <sender>_startButton</sender>
+        <signal>clicked()</signal>
+        <receiver>CP2PPIBase</receiver>
+        <slot>startStopDisplaySlot()</slot>
+    </connection>
+</connections>
+<slots>
+    <slot>startStopDisplaySlot()</slot>
+    <slot>dataSourceSlot()</slot>
+    <slot>zoomInSlot()</slot>
+    <slot>zoomOutSlot()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
+<includehints>
+    <includehint>PPI/PPI.h</includehint>
+</includehints>
+</UI>
