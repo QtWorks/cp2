@@ -13,7 +13,7 @@
 #include "../include/piraqx.h"		//	CP2-piraqx Definitions
 #include "../include/dd_types.h"	//	CP2-piraqx data types
 
-#include "..\CP2Classes\fifo.h"		//	!
+#include "Fifo.h"		//	std::vector-based implementation 
 
 #include <vector>
 
@@ -75,7 +75,6 @@ protected:
 
 	uint8			_SABPgenBeginPN;	//	1st PN in beam to compute pulsepairs
 
-
 	//	define structure array of receive channels: 
 	struct	receiveChannel {
 		int	_rcvChannel;	//	index
@@ -97,7 +96,8 @@ protected:
 		uint4			_radarType;		//	set by field "desc", describing the radar function
 
 		unsigned int	_pulsesToProcess;	//	pulses to process, this channel
-		FIFO * rxFIFO;		//	FIFO for received data
+		Fifo*			_fifo;		//	std::vector implementation 
+		uint4			_fifo_hits;	//	timeseries hits: fifo "size"
 
 	} rcvChannel[QTDSP_RECEIVE_CHANNELS];
 
@@ -114,10 +114,9 @@ protected:
 		int	_packetCountErrors;
 	} sendChannel[QTDSP_SEND_CHANNELS];
 
-	//	define FIFOs for received IQ data from S- and X-band
-	FIFO * FIFO1;	//	rx data store for data channel 1, 2, and 3
-	FIFO * FIFO2;	//	
-	FIFO * FIFO3;	//	
+	Fifo * _fifo1;	//	std::vector implementation 
+	Fifo * _fifo2;	
+	Fifo * _fifo3;	
 
 	void initializeReceiveSocket(receiveChannel * rcvChannel);	//	pointer to struct containing udp receive socket parameters
 	void initializeSendSocket(transmitChannel * sendChannel);	//	ditto for udp send socket 
