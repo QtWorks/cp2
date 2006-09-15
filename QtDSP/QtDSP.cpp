@@ -8,12 +8,15 @@
 
 #include <iostream>
 
-#include "..\CP2Classes\fifo.h"	//	!include path
+#include "Fifo.h"	//	
 
 QtDSP::QtDSP():
 m_pDataSocket(0),    
 m_pDataSocketNotifier(0),
-m_pSocketBuf(0)
+m_pSocketBuf(0),
+_fifo1(0),	//	std::vector, float datatype
+_fifo2(0),
+_fifo3(0)
 {
 	m_receiving		= 0;		//	receive-data state
 	m_receivePacketCount	= 0; 
@@ -45,11 +48,16 @@ m_pSocketBuf(0)
 	m_dataDisplayTimer = startTimer(QTDSP_MONITOR_INTERVAL);
 
 	//	create FIFOs for 3 PIRAQs 
-	FIFO1 = new FIFO ();	//	channel 1, 2, 3
-	FIFO2 = new FIFO ();	
-	FIFO3 = new FIFO ();	
-	sprintf(m_statusLogBuf, "FIFOs created for data channels 1, 2, 3: size %d bytes", RECORDSIZE_MAX * RECORDNUM_MAX ); 
-
+	sprintf(m_statusLogBuf, "FIFOs created for data channels 1, 2, 3: std::vector implementation"); 
+	_fifo1 = new Fifo(0);
+	_fifo2 = new Fifo(0);
+	_fifo3 = new Fifo(0);
+	rcvChannel[0]._fifo = _fifo1;
+	rcvChannel[1]._fifo = _fifo2;
+	rcvChannel[2]._fifo = _fifo3;
+	rcvChannel[0]._fifo_hits = 0;
+	rcvChannel[1]._fifo_hits = 0;
+	rcvChannel[2]._fifo_hits = 0;
 }
 
 QtDSP::~QtDSP() {
@@ -59,7 +67,7 @@ QtDSP::~QtDSP() {
 		    terminateReceiveSocket(&rcvChannel[i]);
 		}
 	}
-	delete FIFO1; delete FIFO2; delete FIFO3; 
+	delete _fifo1; delete _fifo2; delete _fifo3; 
 }
 
 int
@@ -138,13 +146,11 @@ QtDSP::connectUp()	//	connect processing signals to slots:
 
 }
 
-#if 1
 void 
 QtDSP::timerEvent(QTimerEvent *e) {	//	monitor receive-data functioning
 	static int secs = 0;
 	static uint8 PN; 
 
-return;	
 	if	((!m_receiving) || (rcvChannel[0]._PN == 0))	//	not receiving data
 		return;			//	no channels to monitor
 	if	(PN == rcvChannel[0]._PN)	{	//	no data received on channel (0)
@@ -157,41 +163,17 @@ return;
 	if	(secs >= 5)	{	//
 		rcvChannel[0]._parametersSet = 0;
 		statusLog->append( "Not Receiving" ); 
-//clear active FIFOs		SFIFO->clearData();		//	start over with data collection 
-//_SpulsesToProcess = 0;	//	clear hits-to-process totals 
-_SABPgenBeginPN = 0;	//	1st PN in beam to compute pulsepairs
-rcvChannel[0]._PN = 0;
-secs = 0;
-//		statusLog->append( "SFIFO->clearData()" ); 
+		sprintf(m_statusLogBuf, "_fifo hits remaining %d", rcvChannel[0]._fifo_hits); statusLog->append( m_statusLogBuf ); 
+		//	clear receive channel fifo ...	start over with data collection:
+//!this crashes QtDSP on restart, not here: if not executed, data receive restarts without a problem. 
+//		while(rcvChannel[0]._fifo_hits-- > 5)	//	could use size()
+//			rcvChannel[0]._fifo->pop_fpfront();
+		_SABPgenBeginPN = 0;	//	tell SABPGen to re-sync to compute pulsepairs
+		rcvChannel[0]._PN = 0;
+		statusLog->append( "timerEvent 5 secs" ); 
 	}
 }
 
-#else
-void 
-QtDSP::timerEvent(QTimerEvent *e) {	//	monitor receive-data functioning
-//	static int secs = 0;
-	static uint8 PN; 
-
-	if	((!m_receiving) || (rcvChannel[0]._PN == 0))	//	QtDSP not receiving data, or channel silent 
-		return;			//	no channels to monitor
-	if	(PN == rcvChannel[0]._PN)	{	//	no data received on channel (0)
-		rcvChannel[0]._secsSilent++; 
-	}
-	else				//	PN moved: data received
-		rcvChannel[0]._secsSilent = 0;		//	restart interval measurement
-
-	PN = rcvChannel[0]._PN;	//	maintain local copy most-recent received PN
-	if	(rcvChannel[0]._secsSilent >= 5)	{	//
-		rcvChannel[0]._parametersSet = 0;
-		statusLog->append( "Not Receiving" ); 
-//		SFIFO->clearData();		//	start over with data collection 
-//_SpulsesToProcess = 0;	//	clear hits-to-process totals 
-_SABPgenBeginPN = 0;	//	1st PN in beam to compute pulsepairs
-rcvChannel[0]._PN = 0;
-//		statusLog->append( "SFIFO->clearData()" ); 
-	}
-}
-#endif
 
 void
 QtDSP::startStopReceiveSlot()	//	activated on either lostFocus or returnPressed
@@ -202,13 +184,14 @@ QtDSP::startStopReceiveSlot()	//	activated on either lostFocus or returnPressed
 		}
 		m_receiving = !m_receiving; 
 		statusLog->append( "Not Receiving" ); 
+#if 0	//	replace w/std::vector equivalent
 		FIFO1->clearData();		//	start over with data collection 
 		statusLog->append( "FIFO1->clearData()" ); 
 		FIFO2->clearData();		 
 		statusLog->append( "FIFO2->clearData()" ); 
 		FIFO3->clearData();		 
 		statusLog->append( "FIFO3->clearData()" ); 
-		//	add 2, 3
+#endif
 		return;
 	}
 	//	toggle start/stop
@@ -237,7 +220,7 @@ QtDSP::startStopReceiveSlot()	//	activated on either lostFocus or returnPressed
 		rcvChannel[i]._port = m_receivePort + i;		//	define ports from base value 
 		rcvChannel[i]._packetCount = rcvChannel[i]._packetCountErrors = 0; 
 		rcvChannel[i]._sockBufSize = 1000000;	//	default buffer size; customize as necessary
-		rcvChannel[i]._parametersSet = 0;		//	piraqx parameters not yet initialized from received data
+		rcvChannel[i]._parametersSet = 0;		//	piraqx parameters initialized from received data (0 = not yet)
 		rcvChannel[i]._PN = 0;		//	most-recent pulsenumber received
 		rcvChannel[0]._secsSilent = 0;	//	seconds receive channel is silent
 		//	piraqx parameters used by this channel:
@@ -248,8 +231,6 @@ QtDSP::startStopReceiveSlot()	//	activated on either lostFocus or returnPressed
 		rcvChannel[i]._pulsesToProcess = 0;	
 		initializeReceiveSocket(&rcvChannel[i]); //	initialize receive socket
 	}
-	//	initialize pointers to receive-data FIFOs
-	rcvChannel[0].rxFIFO = FIFO1; rcvChannel[1].rxFIFO = FIFO2; rcvChannel[2].rxFIFO = FIFO3;
 	//	send sockets for timeseries, ABP data: 
 	for (int i = 0; i < QTDSP_SEND_CHANNELS; i++)	{	//	MULTIPORT: all send channels
 		sendChannel[i]._sendChannel = i;	//	enum'd channel name
@@ -259,33 +240,26 @@ QtDSP::startStopReceiveSlot()	//	activated on either lostFocus or returnPressed
 		initializeSendSocket(&sendChannel[i]); //	initialize send socket
 	}
 	//	initialize counts, etc., used to compute APBs 
-	//	!move inside rx struct, remove type-stuff from names: 
+	//	!move inside rx struct, remove type-stuff from name: 
 	_SABPgenBeginPN = 0;	//	1st PN in beam to compute pulsepairs
 
 	connectUp(); 
 	statusLog->append( "Receiving" ); 
 }
 
+//	std::vector Fifo implementation:
 void 
-QtDSP::dataReceiveSocketActivatedSlot0(int socket)	//	socket not used ... pass ? for MULTIPORT implementation
+QtDSP::dataReceiveSocketActivatedSlot0(int socket)	//	
 {
 	static	int errcount = 0;
 	static	int readBufLen, lastreadBufLen;
 	static	int rcvChan = 0;	//	receive channel 
-	//	temp send 
-	static	int sendBufLen, lastsendBufLen;
+	static	int sendBufLen;
+	int		r_c;			//	return_code
+	int		hit = 0;		//	index into N-hit packet
+	float * _fifo1src;
 
-	//	!test PNs sequential: from here ...
-	int hit = 0;		//	index into N-hit packet
-	int	gates;
-	int	r_c;	//	return_code
-	//	define p: pointer to packet data 
-	float* p = ((float*)(rcvChannel[rcvChan]._SocketBuf)) + _pulseStride*hit + (sizeof(PACKETHEADER)/sizeof(float));	//	
-	uint8* PNptr = (uint8*)((char *)(rcvChannel[rcvChan]._SocketBuf) + 32 + 28 + 32);	//	32 + 28 + 32 = _PNOffset in piraqx
-	static	uint8	PN, lastPN;
-//	... to here
 	rcvChannel[rcvChan]._packetCount++; 
-
 	readBufLen = rcvChannel[rcvChan]._DataSocket->readBlock((char *)rcvChannel[rcvChan]._SocketBuf, sizeof(short)*100000);
 	if	(lastreadBufLen != readBufLen)	{	//	packet length varies: log it
 		sprintf(m_statusLogBuf, "len error %d: rBL %d lrBL %d", rcvChannel[rcvChan]._packetCount, readBufLen, lastreadBufLen); statusLog->append( m_statusLogBuf ); 
@@ -297,42 +271,28 @@ QtDSP::dataReceiveSocketActivatedSlot0(int socket)	//	socket not used ... pass ?
 				rcvChannel[rcvChan]._parametersSet = 1; 
 				sprintf(m_statusLogBuf, "_parametersSet"); statusLog->append( m_statusLogBuf ); 
 				sprintf(m_statusLogBuf, "_pulseStride  %d", _pulseStride); statusLog->append( m_statusLogBuf ); 
-				//	set FIFO1 parameters: 
-				rcvChannel[rcvChan].rxFIFO->set_recordNum( 1000 );	//	FIFO number of records 
-				rcvChannel[rcvChan].rxFIFO->set_sequenceOffset( _PNOffset );	//	FIFO record offset to sequence number (here PN)in bytes
+				//	using received-data parameters, set FIFO record size: 
+				rcvChannel[rcvChan]._fifo->_chunkSize = _pulseStride;	//	set size of Fifo records from rx data, in floats -- CP2 datatype
 			}
 		}
 	}
-
 	lastreadBufLen = readBufLen;
-#if 0	//	report packet count
-	if (!(rcvChannel[rcvChan]._packetCount % 100))	{
+	//	report packet count
+	if (!(rcvChannel[rcvChan]._packetCount % 200))	{
 		if(readBufLen > 0) {
-			sprintf(m_statusLogBuf, "socket %d: pkts %d", socket, rcvChannel[rcvChan]._packetCount); statusLog->append( m_statusLogBuf );
+			sprintf(m_statusLogBuf, "rcvChan %d: pkts %d", rcvChan, rcvChannel[rcvChan]._packetCount); statusLog->append( m_statusLogBuf );
 		}
 	}
-#endif
-	//	test PNs sequential; log if not:
-	//	p is set to 1st pulse in packet
-	const void * testReqSNReadPtr;
 	if	(rcvChannel[rcvChan]._parametersSet)	{	//	operating parameters set, test PNs sequential
 		for	(hit = 0; hit < _Nhits; hit++)	{	//	all hits in packet
-			PN	= *PNptr;
-			//	maintain p, detect full set, break
-			p += _pulseStride; 
-			if	(PN != lastPN + 1)	{	//	we'll always get 1 at begin
-				errcount++;	
-				sprintf(m_statusLogBuf, "hit%d: lastPN = %I64d PN = %I64d errors = %d", hit, lastPN, PN, errcount); statusLog->append( m_statusLogBuf );
-			}	
-			//	move pulse data to FIFO. _pulseStride = length of move in floats ... rebase this to length in chars
-			rcvChannel[rcvChan].rxFIFO->writeRecord( _pulseStride*sizeof(float), (char *)rcvChannel[rcvChan]._SocketBuf + (hit*_pulseStride*sizeof(float))); 
-			lastPN = PN; 
-			rcvChannel[rcvChan]._PN = lastPN;	//	make most-recent PN visible
-			PNptr = (uint8 *)((char *)PNptr + _pulseStride*sizeof(float)); 
-			p = ((float*)(rcvChannel[rcvChan]._SocketBuf)) + _pulseStride*hit + (sizeof(PACKETHEADER)/sizeof(float));	//	point to data
+			//	std::vector FIFO implementation: 
+			_fifo1src = (float *)rcvChannel[rcvChan]._SocketBuf + (hit*_pulseStride); 
+			rcvChannel[rcvChan]._fifo->push_back(_fifo1src);	//	push pulse 
+			rcvChannel[rcvChan]._fifo_hits++;
 			if	(rcvChannel[rcvChan]._pulsesToProcess > 3*rcvChannel[rcvChan]._hits)	{	//	some timeseries data has accumulated
-				if	(rcvChannel[rcvChan]._radarType == SVH)	//	SVH timeseries data
-					SABPgen(rcvChan); 
+				if	(rcvChannel[rcvChan]._radarType == SVH)	{	//	SVH timeseries data
+					SABPgen(rcvChan);	
+				}
 				//	XV, XH here
 			}
 		}
@@ -344,25 +304,17 @@ QtDSP::dataReceiveSocketActivatedSlot0(int socket)	//	socket not used ... pass ?
 }
 
 void 
-QtDSP::dataReceiveSocketActivatedSlot1(int socket)	//	socket not used ... pass ? for MULTIPORT implementation
+QtDSP::dataReceiveSocketActivatedSlot1(int socket)	//	
 {
 	static	int errcount = 0;
 	static	int readBufLen, lastreadBufLen;
 	static	int rcvChan = 1;	//	receive channel 
-	//	temp send 
-	static	int sendBufLen, lastsendBufLen;
+	static	int sendBufLen;
+	int		r_c;			//	return_code
+	int		hit = 0;		//	index into N-hit packet
+	float * _fifo2src;
 
-	//	!test PNs sequential: from here ...
-	int hit = 0;		//	index into N-hit packet
-	int	gates;
-	int	r_c;	//	return_code
-	//	define p: pointer to packet data 
-	float* p = ((float*)(rcvChannel[rcvChan]._SocketBuf)) + _pulseStride*hit + (sizeof(PACKETHEADER)/sizeof(float));	//	
-	uint8* PNptr = (uint8*)((char *)(rcvChannel[rcvChan]._SocketBuf) + 32 + 28 + 32);	//	32 + 28 + 32 = _PNOffset in piraqx
-	static	uint8	PN, lastPN;
-//	... to here
 	rcvChannel[rcvChan]._packetCount++; 
-
 	readBufLen = rcvChannel[rcvChan]._DataSocket->readBlock((char *)rcvChannel[rcvChan]._SocketBuf, sizeof(short)*100000);
 	if	(lastreadBufLen != readBufLen)	{	//	packet length varies: log it
 		sprintf(m_statusLogBuf, "len error %d: rBL %d lrBL %d", rcvChannel[rcvChan]._packetCount, readBufLen, lastreadBufLen); statusLog->append( m_statusLogBuf ); 
@@ -374,42 +326,28 @@ QtDSP::dataReceiveSocketActivatedSlot1(int socket)	//	socket not used ... pass ?
 				rcvChannel[rcvChan]._parametersSet = 1; 
 				sprintf(m_statusLogBuf, "_parametersSet"); statusLog->append( m_statusLogBuf ); 
 				sprintf(m_statusLogBuf, "_pulseStride  %d", _pulseStride); statusLog->append( m_statusLogBuf ); 
-				//	set FIFO2 parameters: 
-				rcvChannel[rcvChan].rxFIFO->set_recordNum( 1000 );	//	FIFO number of records 
-				rcvChannel[rcvChan].rxFIFO->set_sequenceOffset( _PNOffset );	//	FIFO record offset to sequence number (here PN)in bytes
+				//	using received-data parameters, set FIFO record size: 
+				rcvChannel[rcvChan]._fifo->_chunkSize = _pulseStride;	//	set size of Fifo records from rx data, in floats -- CP2 datatype
 			}
 		}
 	}
-
 	lastreadBufLen = readBufLen;
-#if 1
-	if (!(rcvChannel[rcvChan]._packetCount % 100))	{
+	//	report packet count
+	if (!(rcvChannel[rcvChan]._packetCount % 200))	{
 		if(readBufLen > 0) {
-			sprintf(m_statusLogBuf, "socket %d: rBL %d lrBL %d pkts %d", socket, readBufLen, lastreadBufLen, rcvChannel[rcvChan]._packetCount); statusLog->append( m_statusLogBuf );
+			sprintf(m_statusLogBuf, "rcvChan %d: pkts %d", rcvChan, rcvChannel[rcvChan]._packetCount); statusLog->append( m_statusLogBuf );
 		}
 	}
-#endif
-	//	test PNs sequential; log if not:
-	//	p is set to 1st pulse in packet
-	const void * testReqSNReadPtr;
 	if	(rcvChannel[rcvChan]._parametersSet)	{	//	operating parameters set, test PNs sequential
 		for	(hit = 0; hit < _Nhits; hit++)	{	//	all hits in packet
-			PN	= *PNptr;
-			//	maintain p, detect full set, break
-			p += _pulseStride; 
-			if	(PN != lastPN + 1)	{	//	we'll always get 1 at begin
-				errcount++;	
-				sprintf(m_statusLogBuf, "hit%d: lastPN = %I64d PN = %I64d errors = %d", hit, lastPN, PN, errcount); statusLog->append( m_statusLogBuf );
-			}	
-			//	move pulse data to FIFO. _pulseStride = length of move in floats ... rebase this to length in chars
-			rcvChannel[rcvChan].rxFIFO->writeRecord( _pulseStride*sizeof(float), (char *)rcvChannel[rcvChan]._SocketBuf + (hit*_pulseStride*sizeof(float))); 
-			lastPN = PN; 
-			rcvChannel[rcvChan]._PN = lastPN;	//	make most-recent PN visible
-			PNptr = (uint8 *)((char *)PNptr + _pulseStride*sizeof(float)); 
-			p = ((float*)(rcvChannel[rcvChan]._SocketBuf)) + _pulseStride*hit + (sizeof(PACKETHEADER)/sizeof(float));	//	point to data
+			//	std::vector FIFO implementation: 
+			_fifo2src = (float *)rcvChannel[rcvChan]._SocketBuf + (hit*_pulseStride); 
+			rcvChannel[rcvChan]._fifo->push_back(_fifo2src);
+			rcvChannel[rcvChan]._fifo_hits++;
 			if	(rcvChannel[rcvChan]._pulsesToProcess > 3*rcvChannel[rcvChan]._hits)	{	//	some timeseries data has accumulated
-				if	(rcvChannel[rcvChan]._radarType == SVH)	//	SVH timeseries data
-					SABPgen(rcvChan); 
+				if	(rcvChannel[rcvChan]._radarType == SVH)	{	//	SVH timeseries data
+					SABPgen(rcvChan);	
+				}
 				//	XV, XH here
 			}
 		}
@@ -421,25 +359,17 @@ QtDSP::dataReceiveSocketActivatedSlot1(int socket)	//	socket not used ... pass ?
 }
 
 void 
-QtDSP::dataReceiveSocketActivatedSlot2(int socket)	//	socket not used ... pass ? for MULTIPORT implementation
+QtDSP::dataReceiveSocketActivatedSlot2(int socket)	//	
 {
 	static	int errcount = 0;
 	static	int readBufLen, lastreadBufLen;
 	static	int rcvChan = 2;	//	receive channel 
-	//	temp send 
-	static	int sendBufLen, lastsendBufLen;
+	static	int sendBufLen;
+	int		r_c;			//	return_code
+	int		hit = 0;		//	index into N-hit packet
+	float * _fifo3src;
 
-	//	!test PNs sequential: from here ...
-	int hit = 0;		//	index into N-hit packet
-	int	gates;
-	int	r_c;	//	return_code
-	//	define p: pointer to packet data 
-	float* p = ((float*)(rcvChannel[rcvChan]._SocketBuf)) + _pulseStride*hit + (sizeof(PACKETHEADER)/sizeof(float));	//	
-	uint8* PNptr = (uint8*)((char *)(rcvChannel[rcvChan]._SocketBuf) + 32 + 28 + 32);	//	32 + 28 + 32 = _PNOffset in piraqx
-	static	uint8	PN, lastPN;
-//	... to here
 	rcvChannel[rcvChan]._packetCount++; 
-
 	readBufLen = rcvChannel[rcvChan]._DataSocket->readBlock((char *)rcvChannel[rcvChan]._SocketBuf, sizeof(short)*100000);
 	if	(lastreadBufLen != readBufLen)	{	//	packet length varies: log it
 		sprintf(m_statusLogBuf, "len error %d: rBL %d lrBL %d", rcvChannel[rcvChan]._packetCount, readBufLen, lastreadBufLen); statusLog->append( m_statusLogBuf ); 
@@ -451,42 +381,28 @@ QtDSP::dataReceiveSocketActivatedSlot2(int socket)	//	socket not used ... pass ?
 				rcvChannel[rcvChan]._parametersSet = 1; 
 				sprintf(m_statusLogBuf, "_parametersSet"); statusLog->append( m_statusLogBuf ); 
 				sprintf(m_statusLogBuf, "_pulseStride  %d", _pulseStride); statusLog->append( m_statusLogBuf ); 
-				//	set FIFO3 parameters: 
-				rcvChannel[rcvChan].rxFIFO->set_recordNum( 1000 );	//	FIFO number of records 
-				rcvChannel[rcvChan].rxFIFO->set_sequenceOffset( _PNOffset );	//	FIFO record offset to sequence number (here PN)in bytes
+				//	using received-data parameters, set FIFO record size: 
+				rcvChannel[rcvChan]._fifo->_chunkSize = _pulseStride;	//	set size of Fifo records from rx data, in floats -- CP2 datatype
 			}
 		}
 	}
-
 	lastreadBufLen = readBufLen;
-#if 0	//	print packet count
-	if (!(rcvChannel[rcvChan]._packetCount % 100))	{
+	//	report packet count
+	if (!(rcvChannel[rcvChan]._packetCount % 200))	{
 		if(readBufLen > 0) {
-			sprintf(m_statusLogBuf, "socket %d: pkts %d", socket, rcvChannel[rcvChan]._packetCount); statusLog->append( m_statusLogBuf );
+			sprintf(m_statusLogBuf, "rcvChan %d: pkts %d", rcvChan, rcvChannel[rcvChan]._packetCount); statusLog->append( m_statusLogBuf );
 		}
 	}
-#endif
-	//	test PNs sequential; log if not:
-	//	p is set to 1st pulse in packet
-	const void * testReqSNReadPtr;
 	if	(rcvChannel[rcvChan]._parametersSet)	{	//	operating parameters set, test PNs sequential
 		for	(hit = 0; hit < _Nhits; hit++)	{	//	all hits in packet
-			PN	= *PNptr;
-			//	maintain p, detect full set, break
-			p += _pulseStride; 
-			if	(PN != lastPN + 1)	{	//	we'll always get 1 at begin
-				errcount++;	
-				sprintf(m_statusLogBuf, "hit%d: lastPN = %I64d PN = %I64d errors = %d", hit, lastPN, PN, errcount); statusLog->append( m_statusLogBuf );
-			}	
-			//	move pulse data to FIFO. _pulseStride = length of move in floats ... rebase this to length in chars
-			rcvChannel[rcvChan].rxFIFO->writeRecord( _pulseStride*sizeof(float), (char *)rcvChannel[rcvChan]._SocketBuf + (hit*_pulseStride*sizeof(float))); 
-			lastPN = PN; 
-			rcvChannel[rcvChan]._PN = lastPN;	//	make most-recent PN visible
-			PNptr = (uint8 *)((char *)PNptr + _pulseStride*sizeof(float)); 
-			p = ((float*)(rcvChannel[rcvChan]._SocketBuf)) + _pulseStride*hit + (sizeof(PACKETHEADER)/sizeof(float));	//	point to data
+			//	std::vector FIFO implementation: 
+			_fifo3src = (float *)rcvChannel[rcvChan]._SocketBuf + (hit*_pulseStride); 
+			rcvChannel[rcvChan]._fifo->push_back(_fifo3src);
+			rcvChannel[rcvChan]._fifo_hits++;
 			if	(rcvChannel[rcvChan]._pulsesToProcess > 3*rcvChannel[rcvChan]._hits)	{	//	some timeseries data has accumulated
-				if	(rcvChannel[rcvChan]._radarType == SVH)	//	SVH timeseries data
-					SABPgen(rcvChan); 
+				if	(rcvChannel[rcvChan]._radarType == SVH)	{	//	SVH timeseries data
+					SABPgen(rcvChan);	
+				}
 				//	XV, XH here
 			}
 		}
@@ -497,8 +413,9 @@ QtDSP::dataReceiveSocketActivatedSlot2(int socket)	//	socket not used ... pass ?
 	sendBufLen = sendChannel[rcvChan]._DataSocket->writeBlock((char *)rcvChannel[rcvChan]._SocketBuf, readBufLen, sendChannel[rcvChan]._sendqHost, sendChannel[rcvChan]._port);
 }
 
+
 //	compute S-band APBs over 1 beam 
-//	global allocations: move inside QtDSP or ABPgen: 
+//	global allocations: move inside ABPgen class: 
 #if 1
 //	allocate 4 record buffers for 4 sequential pulses
 	CP2_PIRAQ_DATA_TYPE * V1 = new CP2_PIRAQ_DATA_TYPE[10000];	 //	replace throughout w/CP2_DATA_TYPE
@@ -507,8 +424,6 @@ QtDSP::dataReceiveSocketActivatedSlot2(int socket)	//	socket not used ... pass ?
 	float * H2 = new CP2_PIRAQ_DATA_TYPE[10000];	
 	//	allocate storage for 1 beam
 	float * SABP = new CP2_PIRAQ_DATA_TYPE[65536]; 
-#endif
-#if 1
 	//	pointers to pulse buffers, by function, for calculating ABPs: 
 	//	initialize ONCE; after this, lagging-leading designation of these pointers on entry depends on operating #hits
 	float * VlagPtr = V1; 
@@ -517,11 +432,10 @@ QtDSP::dataReceiveSocketActivatedSlot2(int socket)	//	socket not used ... pass ?
 	float * HPtr = H2; 
 #endif
 
+//	std::vector FIFO implementation 
 void 
 QtDSP::SABPgen(int rcvChan) {	//	generate S-band ABPs on rcvChan data
 	uint8 SABPgenPN;
-	//	pointers to pulse buffers, by function, for calculating ABPs: 
-//!	float * VlagPtr, * HlagPtr, * VPtr, * HPtr; 
 	//	pointers to I and Q in each record, for calculating ABPs: 
 	float * VlagDataI, * HlagDataI, * VDataI, * HDataI;
 	float * VlagDataQ, * HlagDataQ, * VDataQ, * HDataQ;
@@ -531,37 +445,41 @@ QtDSP::SABPgen(int rcvChan) {	//	generate S-band ABPs on rcvChan data
 	float	ABPscale = (float)pow(2,31)*(float)pow(2,31)*(rcvChannel[rcvChan]._hits/2);	//	hits/2 = #sums performed per beam. 
 	//	temp send 
 	static	int sendBufLen, lastsendBufLen, SABPLen;
-
+	static	int errcount = 0;	//	PNs out of sequence
+	static	uint8	PN, lastPN;
+	static	uint8* PNptr;	//	32 + 28 + 32 = _PNOffset in piraqx
+	float * buf;	//	pointer to 1 PACKET pop'd from front of FIFO
 	int i, j;
 
-	if	(!_SABPgenBeginPN)	{	//	first time: get a suitable PN to begin beam calculations
-		_SABPgenBeginPN = rcvChannel[rcvChan].rxFIFO->leastSequenceNumber();
-		sprintf(m_statusLogBuf, "leastSequenceNumber = %I64d", _SABPgenBeginPN); statusLog->append( m_statusLogBuf );
-		_SABPgenBeginPN -= (_SABPgenBeginPN % rcvChannel[rcvChan]._hits); 
-		_SABPgenBeginPN +=  2*rcvChannel[rcvChan]._hits; 
-		sprintf(m_statusLogBuf, "_SABPgenBeginPN = %I64d", _SABPgenBeginPN); statusLog->append( m_statusLogBuf );
+	if	(!_SABPgenBeginPN)	{	//	first time: get a suitable PN to begin beam calculations (need BN-2 so two lags are correct)
+		while(1)	{	//	until  PN = (BN * _hits) - 2 is found
+			buf = &(rcvChannel[rcvChan]._fifo->fpfront()[0]);	//	refer to oldest FIFO entry
+			PNptr = (uint8*)((char *)(&buf[0]) + _PNOffset);	//	compute PN offset in it
+			lastPN = PN;	PN = *PNptr; 
+			if	((PN % rcvChannel[rcvChan]._hits) == (rcvChannel[rcvChan]._hits - 2))	{	//	found it: keep it in Vlag
+				_SABPgenBeginPN = PN; 
+				sprintf(m_statusLogBuf, "_SABPgenBeginPN = %I64d", _SABPgenBeginPN); statusLog->append( m_statusLogBuf );
+				//	get Vlag
+				memmove(VlagPtr, buf, _pulseStride*(sizeof(float)));	
+				break;	
+			}
+			rcvChannel[rcvChan]._fifo->pop_fpfront();		//	drop the FIFO entry
+			rcvChannel[rcvChan]._fifo_hits--;				//	maintain size
+		}
+		rcvChannel[rcvChan]._fifo->pop_fpfront();		//	drop Vlag FIFO entry
+		rcvChannel[rcvChan]._fifo_hits--;	
+		//	get Hlag
+		buf = &(rcvChannel[rcvChan]._fifo->fpfront()[0]);	//	
+		memmove(HlagPtr, buf, _pulseStride*(sizeof(float)));	
+		PNptr = (uint8*)((char *)(&buf[0]) + _PNOffset);	//	compute PN offset in it
+		lastPN = PN;	PN = *PNptr; 
+		rcvChannel[rcvChan]._fifo->pop_fpfront();		//	drop Hlag FIFO entry
+		rcvChannel[rcvChan]._fifo_hits--;	
 	}
-	//	have suitable start Pn; set record pointers: 
-//!	VlagPtr = V1; HlagPtr = H1; VPtr = V2; HPtr = H2; 
-	//	get first 2 pulses: BeginPN-2, -1: "lags"
-	//	get Vlag:
-	PulseReadPtr = rcvChannel[rcvChan].rxFIFO->getRecordPtr(_SABPgenBeginPN - 2);
-	if	(PulseReadPtr == NULL)	{	//	FIFO did not find requested PN
-		sprintf(m_statusLogBuf, "FIFO: NULL PulseReadPtr"); statusLog->append( m_statusLogBuf ); 
-		//	dump the beam altogether: 
-	}
-	memmove(VlagPtr, PulseReadPtr, _pulseStride*(sizeof(float)));	//	getParameters(): define a record size
-
-	//	get Hlag:
-	PulseReadPtr = rcvChannel[rcvChan].rxFIFO->getRecordPtr(_SABPgenBeginPN - 1);
-	if	(PulseReadPtr == NULL)	{	
-		sprintf(m_statusLogBuf, "FIFO: NULL PulseReadPtr"); statusLog->append( m_statusLogBuf ); 
-		//	dump the beam altogether
-	}
-	memmove(HlagPtr, PulseReadPtr, _pulseStride*(sizeof(float)));	
-
-	//	initialize the beam w/header from 1st pulse of beam: 
-	memmove(SABP, PulseReadPtr,sizeof(PACKETHEADER)); 
+	//	get pointer to 1st pulse of beam BN:
+	buf = &(rcvChannel[rcvChan]._fifo->fpfront()[0]);	//	
+	//	first initialize the beam w/header 
+	memmove(SABP, buf, _pulseStride*(sizeof(float)));	
 	SABPData = SABP + _IQdataOffset/sizeof(float); 
 	for	(i = 0; i < SVHABP_STRIDE*rcvChannel[rcvChan]._gates; i++)	{	//	all data in beam packet
 		*SABPData++ = 0.0;				//	clear it 
@@ -574,21 +492,31 @@ QtDSP::SABPgen(int rcvChan) {	//	generate S-band ABPs on rcvChan data
 
 	for	(i = 0; i < rcvChannel[rcvChan]._hits/2; i++)	{	//	all hits in the beam taken 2 at a time
 		//	get V: 
-		PulseReadPtr = rcvChannel[rcvChan].rxFIFO->getRecordPtr(SABPgenPN); SABPgenPN++; 
-		if	(PulseReadPtr == NULL)	{	
-			sprintf(m_statusLogBuf, "FIFO: NULL PulseReadPtr"); statusLog->append( m_statusLogBuf ); 
+		buf = &(rcvChannel[rcvChan]._fifo->fpfront()[0]);	//	
+		PNptr = (uint8*)((char *)(&buf[0]) + _PNOffset);	//	compute PN offset in it
+		lastPN = PN;	PN = *PNptr;	
+		rcvChannel[rcvChan]._PN = PN;	//	retain most-recent PN received
+		if	(lastPN != PN - 1)	{	//	PNs not in sequence; ABP calculation not possible
+			sprintf(m_statusLogBuf, "PNs not in sequence; SVHABP beam calc aborted"); statusLog->append( m_statusLogBuf ); 
 			//	dump the beam altogether
 		}
-		memmove(VPtr, PulseReadPtr, _pulseStride*(sizeof(float)));
+		memmove(VPtr, buf, _pulseStride*(sizeof(float)));
 		VDataI = VPtr + _IQdataOffset/sizeof(float); VDataQ = VDataI + 1;	//	set pointers to data; _IQdataOffset in bytes
+		rcvChannel[rcvChan]._fifo->pop_fpfront();		//	drop FIFO entry
+		rcvChannel[rcvChan]._fifo_hits--;	
 		//	get H:
-		PulseReadPtr = rcvChannel[rcvChan].rxFIFO->getRecordPtr(SABPgenPN); SABPgenPN++;  
-		if	(PulseReadPtr == NULL)	{	
-			sprintf(m_statusLogBuf, "FIFO: NULL PulseReadPtr"); statusLog->append( m_statusLogBuf ); 
+		buf = &(rcvChannel[rcvChan]._fifo->fpfront()[0]);	//	
+		PNptr = (uint8*)((char *)(&buf[0]) + _PNOffset);	//	compute PN offset in it
+		lastPN = PN;	PN = *PNptr; 
+		rcvChannel[rcvChan]._PN = PN;	//	retain most-recent PN received
+		if	(lastPN != PN - 1)	{	//	PNs not in sequence; ABP calculation not possible
+			sprintf(m_statusLogBuf, "PNs not in sequence; SVHABP beam calc aborted"); statusLog->append( m_statusLogBuf ); 
 			//	dump the beam altogether
 		}
-		memmove(HPtr, PulseReadPtr, _pulseStride*(sizeof(float)));	
+		memmove(HPtr, buf, _pulseStride*(sizeof(float)));	
 		HDataI = HPtr + _IQdataOffset/sizeof(float); HDataQ = HDataI + 1;	//	set pointers to data; _IQdataOffset in bytes
+		rcvChannel[rcvChan]._fifo->pop_fpfront();		//	drop IFO entry
+		rcvChannel[rcvChan]._fifo_hits--;	
 		//	set Vlag, Hlag data pointers: 
 		VlagDataI = VlagPtr + _IQdataOffset/sizeof(float); VlagDataQ = VlagDataI + 1;	//	point to V1 I,Q data; offset in bytes
 		HlagDataI = HlagPtr + _IQdataOffset/sizeof(float); HlagDataQ = HlagDataI + 1;	//	offset in bytes
@@ -623,15 +551,12 @@ QtDSP::SABPgen(int rcvChan) {	//	generate S-band ABPs on rcvChan data
 		*SABPData++ /= ABPscale;		//	scale the data 
 	}
 	SABPData = SABP + _IQdataOffset/sizeof(float);	//	start again at Gate 0
-#if 1
 	//	print data for gate 0: 
-	if	((_SABPgenBeginPN % 400) == 0) {	//	less than always -- test print beam header, data, etc.. 
+	if	((rcvChannel[rcvChan]._packetCount % 100) == 0) {	//	less than always -- test print beam header, data, etc.. 
 		SABPData = SABP + (_IQdataOffset/sizeof(float) + 0);	//	compute pointer to a gate 
-//		sprintf(m_statusLogBuf, "ABPH-V0: %+8.3e %+8.3e %+8.3e %4.3f", *(SABPData+0), *(SABPData+1), *(SABPData+2), 10.0*log10(*(SABPData+2))); statusLog->append( m_statusLogBuf ); 
 		sprintf(m_statusLogBuf, "ABPV-H0: %+8.3e %+8.3e %+8.3e %4.3f", *(SABPData+3), *(SABPData+4), *(SABPData+5), 10.0*log10(*(SABPData+5))); statusLog->append( m_statusLogBuf ); 
 		sprintf(m_statusLogBuf, "ABH2V20: %+8.3e %+8.3e", *(SABPData+6), *(SABPData+7)); statusLog->append( m_statusLogBuf ); 
 	}
-#endif	
 	SABPData = SABP + _IQdataOffset/sizeof(float);	//	start again at Gate 0
 	//	et voila! a beam!
 	rcvChannel[rcvChan]._pulsesToProcess -= rcvChannel[rcvChan]._hits; 
