@@ -8,13 +8,12 @@ INCLUDEPATH	+= ../
 HEADERS	+= QtDSP.h
 
 SOURCES	+= main.cpp
-SOURCES	+= ../CP2Classes/fifo.cpp
+SOURCES	+= fifo.cc
 
 FORMS	= QtDSPBase.ui
 
 INCLUDEPATH += ../../
 INCLUDEPATH += ../../Qttoolbox
-INCLUDEPATH += ../CP2Classes
 
 SOURCES += QtDSP.cpp
 
