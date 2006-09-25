@@ -164,10 +164,6 @@ QtDSP::timerEvent(QTimerEvent *e) {	//	monitor receive-data functioning
 		rcvChannel[0]._parametersSet = 0;
 		statusLog->append( "Not Receiving" ); 
 		sprintf(m_statusLogBuf, "_fifo hits remaining %d", rcvChannel[0]._fifo_hits); statusLog->append( m_statusLogBuf ); 
-		//	clear receive channel fifo ...	start over with data collection:
-//!this crashes QtDSP on restart, not here: if not executed, data receive restarts without a problem. 
-//		while(rcvChannel[0]._fifo_hits-- > 5)	//	could use size()
-//			rcvChannel[0]._fifo->pop_fpfront();
 		_SABPgenBeginPN = 0;	//	tell SABPGen to re-sync to compute pulsepairs
 		rcvChannel[0]._PN = 0;
 		statusLog->append( "timerEvent 5 secs" ); 
@@ -184,14 +180,6 @@ QtDSP::startStopReceiveSlot()	//	activated on either lostFocus or returnPressed
 		}
 		m_receiving = !m_receiving; 
 		statusLog->append( "Not Receiving" ); 
-#if 0	//	replace w/std::vector equivalent
-		FIFO1->clearData();		//	start over with data collection 
-		statusLog->append( "FIFO1->clearData()" ); 
-		FIFO2->clearData();		 
-		statusLog->append( "FIFO2->clearData()" ); 
-		FIFO3->clearData();		 
-		statusLog->append( "FIFO3->clearData()" ); 
-#endif
 		return;
 	}
 	//	toggle start/stop
@@ -209,7 +197,6 @@ QtDSP::startStopReceiveSlot()	//	activated on either lostFocus or returnPressed
 
 	sprintf(m_statusLogBuf, "startStopReceiveSlot(): m_destinationHostname %s", m_destinationHostname.ascii()); 
 	statusLog->append( m_statusLogBuf );
-	//does not work:	m_destinationPort = atoi(_destinationPort->text()); 
 	m_IQdestinationPort = atoi(m_IQdestinationPortNumber); 
 	m_receivePort = atoi(m_receivePortNumber); 
 
@@ -296,7 +283,6 @@ QtDSP::dataReceiveSocketActivatedSlot0(int socket)	//
 				//	XV, XH here
 			}
 		}
-
 		rcvChannel[rcvChan]._pulsesToProcess += _Nhits;	//	maintain 
 	}
 	//	send rcv'd data to destination port: !send from receive buffer, use its length: 
@@ -351,10 +337,9 @@ QtDSP::dataReceiveSocketActivatedSlot1(int socket)	//
 				//	XV, XH here
 			}
 		}
-
 		rcvChannel[rcvChan]._pulsesToProcess += _Nhits;	//	maintain 
 	}
-	//	send rcv'd data to destination port: !send from receive buffer, use its length: 
+	//	send rcv'd data to destination port: send from receive buffer, use its length: 
 	sendBufLen = sendChannel[rcvChan]._DataSocket->writeBlock((char *)rcvChannel[rcvChan]._SocketBuf, readBufLen, sendChannel[rcvChan]._sendqHost, sendChannel[rcvChan]._port);
 }
 
@@ -406,7 +391,6 @@ QtDSP::dataReceiveSocketActivatedSlot2(int socket)	//
 				//	XV, XH here
 			}
 		}
-
 		rcvChannel[rcvChan]._pulsesToProcess += _Nhits;	//	maintain 
 	}
 	//	send rcv'd data to destination port: !send from receive buffer, use its length: 
@@ -588,14 +572,12 @@ QtDSP::initializeReceiveSocket(receiveChannel * rcvChannel)	{	//	receiveChannel 
 	rcvChannel->_DataSocket = new QSocketDevice(QSocketDevice::Datagram);
 	QHostAddress qHost;
 
-//#ifdef WINSOCK2_TEST //udpsock.cpp winsock2 stuff: TRY THIS INDEPENDENTLY
-//	confirm winsock2 available: this works -- no exit
+	//	confirm winsock2 available: this works -- no exit
 	WSADATA w;
 	// Must be done at the beginning of every WinSock program
 	int error = WSAStartup (0x0202, &w);   // Fill in w
 	if (error) exit(0); 
 	if (w.wVersion != 0x0202)  exit(0); 
-//#endif
 	char nameBuf[1000];
 	if (gethostname(nameBuf, sizeof(nameBuf))) {
 		statusLog->append("gethostname failed");
@@ -659,7 +641,6 @@ QtDSP::initializeSendSocket(transmitChannel * sendChannel)	{	//
 	strcpy(nameBuf,m_destinationHostname.ascii());
 	if (gethostname(nameBuf, sizeof(nameBuf))) {
 		statusLog->append("gethostname failed");
-		//!add socket active/inactive to struct; set inactive. disallow sends at runtime to inactive socket. 
 		//exit(1);
 	}
 
@@ -693,7 +674,7 @@ QtDSP::initializeSendSocket(transmitChannel * sendChannel)	{	//
 }
 
 void 
-QtDSP::terminateReceiveSocket( receiveChannel * rcvChannel )	{	//	?pass port#
+QtDSP::terminateReceiveSocket( receiveChannel * rcvChannel )	{	//	
 	if (rcvChannel->_DataSocketNotifier)
 		delete rcvChannel->_DataSocketNotifier;
 
