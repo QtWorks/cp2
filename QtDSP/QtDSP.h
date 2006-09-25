@@ -120,7 +120,7 @@ protected:
 
 	void initializeReceiveSocket(receiveChannel * rcvChannel);	//	pointer to struct containing udp receive socket parameters
 	void initializeSendSocket(transmitChannel * sendChannel);	//	ditto for udp send socket 
-	void terminateReceiveSocket(receiveChannel * rcvChannel);	//	!generalize 
+	void terminateReceiveSocket(receiveChannel * rcvChannel);	//	
 	void connectUp();
 	void timerEvent(QTimerEvent *e);
 
