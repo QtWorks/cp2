@@ -14,9 +14,9 @@
 #include <iostream>
 
 CP2Scope::CP2Scope():
-//m_pDataSocket(0),    
-//m_pDataSocketNotifier(0),
-//m_pSocketBuf(0),	
+m_pDataSocket(0),    
+m_pDataSocketNotifier(0),
+m_pSocketBuf(0),	
 _plotType(ScopePlot::TIMESERIES)
 {
 	m_dataGramPort	= QTDSP_BASE_PORT;
@@ -483,6 +483,11 @@ CP2Scope::displayData()
 	//	locals for calculating velocity
 	double v1a, v2a, v, theta, dp, ph_off; 
 	double angle_to_velocity_scale_factor;
+	//	Hubbert method: 
+	double	a, b, c, d; 
+	double	alpha, beta; 
+	double	phidp; 
+	double	phivelocity;
 	//	locals for calculating NCP, spectral width
 	double A2, B2;	//	lag2 A, B 
 	double Pv, Ph; 
@@ -539,7 +544,7 @@ CP2Scope::displayData()
 						else
 							ProductData[j] = (double)(10.0*log10(*SVHData) + OffsetTo_dBm);	//	scale result to dBm 
 #endif
-						SVHData += SVHABP_STRIDE;	//	index next gate
+						SVHData += SVABP_STRIDE;	//	index next gate
 					}
 					_scopePlot->Product(ProductData, _productType, -80, 20.0, m_xFullScale, "Gate", "S V Power (dBm)"); 
 					break;
@@ -554,7 +559,7 @@ CP2Scope::displayData()
 						if	(ProductData[j] <= 0.0)		//	corrected to negative value
 							ProductData[j] = pow(10.0,((NOISE_FLOOR - OffsetTo_dBm) / 10.0)); // put in something small: gets NOISE_LIMIT dBm
 						ProductData[j] = (double)(10.0*log10(*SVHData) + OffsetTo_dBm);	//	scale result to dBm 
-						SVHData += SVHABP_STRIDE;	//	index next gate
+						SVHData += SVABP_STRIDE;	//	index next gate
 					}
 					_scopePlot->Product(ProductData, _productType, -80, 20.0, m_xFullScale, "Gate", "S H Power (dBm)"); 
 					break;
@@ -562,27 +567,22 @@ CP2Scope::displayData()
 					angle_to_velocity_scale_factor = C / (2.0 * _frequency * 2.0 * M_PI * _prt);
 					ph_off = _noise_phase_offset * M_PI / 180.0;	//	SPol sets this phase offset to 20 deg 
 					SVHData = SABP + _IQdataOffset/sizeof(float);	//	point to data
-#if 0				//	Hubbert method: 
-					double	a, b, c, d; 
-					double	alpha, beta; 
-					double	phidp; 
-					double	phivelocity;
-
-					//	+1 offset to V-H pulse B, 0 to A, +4, +3 H-V pulse B, A
+					//	+1 offset to V pulse B
 					for (j = 0; j < m_xFullScale; j++)	{	//	all gates to display
 						//	Hubbert method: 
 						a = *(SVHData + 3); b = *(SVHData + 4); c = *(SVHData + 0); d = *(SVHData + 1);
-						phidp = atan2( (b*c - a*d), (a*c + b*d)) / 2.0; 
+						phidp = atan2( (-(a*d) + b*c), (a*c + b*d)) / 2.0; 
 						alpha = cos(phidp); beta = sin(phidp); 
 						phivelocity = atan2( (b*alpha - (a*beta)), (a*alpha + b*beta)); 
 
 						/* velocity in m/s */
 						ProductData[j] = phivelocity * angle_to_velocity_scale_factor; 
-						SVHData += SVHABP_STRIDE;	//	index next gate
+						SVHData += SVABP_STRIDE;	//	index next gate
 					}
-#else				//	Mitch method: 
+#if 0
 					//	+1 offset to V pulse B
 					for (j = 0; j < m_xFullScale; j++)	{	//	all gates to display
+						//	Mitch method: 
 						/* subtract out the system phase from v1a */
 						v1a = atan2(*(SVHData + 1),*(SVHData + 0));	//	S-band H-V B,A
 						v2a = atan2(*(SVHData + 4),*(SVHData + 3));	//	S-band V-H B,A
@@ -616,7 +616,7 @@ CP2Scope::displayData()
 							v -= 2.0 * M_PI;
 						/* velocity in m/s */
 						ProductData[j] = v * angle_to_velocity_scale_factor; 
-						SVHData += SVHABP_STRIDE;	//	index next gate
+						SVHData += SVABP_STRIDE;	//	index next gate
 					}
 #endif
 					//	compute velocity limits from prt, frequency: 
@@ -628,9 +628,9 @@ CP2Scope::displayData()
 						//	calculate S-band NCP:
 						A2 = *(SVHData + 6); B2 = *(SVHData + 7); Pv = *(SVHData + 2); Ph = *(SVHData + 5);	//	
 						ProductData[j] = sqrt(A2*A2 + B2*B2) / (Pv + Ph);
-						SVHData += SVHABP_STRIDE;	//	index next gate
+						SVHData += SVABP_STRIDE;	//	index next gate
 					}
-					_scopePlot->Product(ProductData, _productType, 0.0, 1.0, m_xFullScale, "Gate", "NCP"); 
+					_scopePlot->Product(ProductData, _productType, 0.0, 2.0, m_xFullScale, "Gate", "NCP"); 
 					break;
 				case SWIDTH:
 				//	compute S-band spectral width 
@@ -643,14 +643,25 @@ CP2Scope::displayData()
 						if	(log(NCP) > 0.0)
 							NCP = 1.0; 
 						ProductData[j] = widthconst * sqrt(-log(NCP));
-						SVHData += SVHABP_STRIDE;	//	index next gate
+						SVHData += SVABP_STRIDE;	//	index next gate
 					}
-					_scopePlot->Product(ProductData, _productType, 0.0, 30.0, m_xFullScale, "Gate", "Spectral Width (m/s)"); 
+					_scopePlot->Product(ProductData, _productType, 0.0, 30.0, m_xFullScale, "Gate", "Spectral Width"); 
 					break;			
 				case SPHIDP:
 				//	compute S-band phidp 
 					SVHData = SABP + _IQdataOffset/sizeof(float);	//	point to data
-					ph_off = _noise_phase_offset * M_PI / 180.0;	//	SPol sets this phase offset to be 20 deg */
+					ph_off = _noise_phase_offset * M_PI / 180.0;	//	SPol sets phase offset to be 20 deg */
+					//	+1 offset to V pulse B
+					for (j = 0; j < m_xFullScale; j++)	{	//	all gates to display
+						//	Hubbert method: 
+						a = *(SVHData + 3); b = *(SVHData + 4); c = *(SVHData + 0); d = *(SVHData + 1);
+						phidp = atan2( (-(a*d) + b*c), (a*c + b*d)) / 2.0; 
+						alpha = cos(phidp); beta = sin(phidp); 
+						/* phidp in degrees */
+						ProductData[j] = phidp * 180.0 / M_PI;; 
+						SVHData += SVABP_STRIDE;	//	index next gate
+					}
+#if 0
 					for (j = 0; j < m_xFullScale; j++)	{	//	all gates to display
 						v1a = atan2(*(SVHData + 1),*(SVHData + 0));	//	S-band H-V B,A
 						v2a = atan2(*(SVHData + 4),*(SVHData + 3));	//	S-band V-H B,A
@@ -666,8 +677,9 @@ CP2Scope::displayData()
 						/* note: dp cannot be greater than +160, range is +/- 90 */        
 						//	calculate S-band phidp in degrees:
 						ProductData[j] = dp * 180.0 / M_PI;
-						SVHData += SVHABP_STRIDE;	//	index next gate
+						SVHData += SVABP_STRIDE;	//	index next gate
 					}
+#endif
 					_scopePlot->Product(ProductData, _productType, -180.0, 180.0, m_xFullScale, "Gate", "phidp degrees"); 
 					break;			
 				case VREFL:
@@ -689,7 +701,7 @@ CP2Scope::displayData()
 							*SVHData = pow(10.0,((NOISE_FLOOR - OffsetTo_dBm) / 10.0)); // put in something small: gets NOISE_LIMIT dBm
 //						else
 							ProductData[j] = (double)(10.0*log10(*SVHData) + OffsetTo_dBm) + v_channel_radar_constant + range_correction;	//	 
-						SVHData += SVHABP_STRIDE;	//	index next gate
+						SVHData += SVABP_STRIDE;	//	index next gate
 					}
 					_scopePlot->Product(ProductData, _productType, -100.0, 100.0, m_xFullScale, "Gate", "V Reflectivity"); 
 					break;			
@@ -710,7 +722,7 @@ CP2Scope::displayData()
 							*SVHData = pow(10.0,((NOISE_FLOOR - OffsetTo_dBm) / 10.0)); // put in something small: gets NOISE_LIMIT dBm
 						else
 							ProductData[j] = (double)(10.0*log10(*SVHData) + OffsetTo_dBm) + h_channel_radar_constant + range_correction;	//	 
-						SVHData += SVHABP_STRIDE;	//	index next gate
+						SVHData += SVABP_STRIDE;	//	index next gate
 					}
 					_scopePlot->Product(ProductData, _productType, -100.0, 100.0, m_xFullScale, "Gate", "H Reflectivity"); 
 					break;			
@@ -746,7 +758,7 @@ CP2Scope::displayData()
 							SVZ = (double)(10.0*log10(*SVHDataV) + VOffsetTo_dBm) + v_channel_radar_constant + range_correction;	//	 
 						//	compute Zdr
 						ProductData[j] = SHZ - SVZ + _zdr_fudge_factor + _zdr_bias;
-						SVHDataH += SVHABP_STRIDE; SVHDataV += SVHABP_STRIDE;	//	index next gate
+						SVHDataH += SVABP_STRIDE; SVHDataV += SVABP_STRIDE;	//	index next gate
 					}
 					_scopePlot->Product(ProductData, _productType, -10.0, 10.0, m_xFullScale, "Gate", "Zdr"); 
 					break;			
