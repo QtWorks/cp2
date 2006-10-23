@@ -6,9 +6,10 @@ CONFIG	+= debug
 INCLUDEPATH	+= ../
 
 HEADERS	+= QtDSP.h
+HEADERS	+= Fifo.h
 
 SOURCES	+= main.cpp
-SOURCES	+= fifo.cc
+SOURCES	+= Fifo.cc
 
 FORMS	= QtDSPBase.ui
 

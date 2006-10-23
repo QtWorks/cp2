@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.10"
 	Name="QtDSP"
-	ProjectGUID="{93DB0A81-1BF5-48A0-A895-E1AD7C9ADA47}">
+	ProjectGUID="{48AEF047-D4E6-367A-8F4D-4C68EDF66798}">
 	<Platforms>
 		<Platform
 			Name="Win32"/>
@@ -11,28 +11,47 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1">
+			OutputDirectory="."
+			IntermediateDirectory="Release\"
+			ConfigurationType="1"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories=".\GeneratedFiles; $(QTDIR)\include; .\GeneratedFiles\Release; .\tmp\moc; ; "
-				PreprocessorDefinitions="UNICODE,WIN32,QT_NO_DEBUG,NDEBUG"
-				RuntimeLibrary="2"
-				DebugInformationFormat="0"/>
+				AdditionalOptions="-Zm200 -GX -GX -w34100 -w34189"
+				Optimization="1"
+				AdditionalIncludeDirectories="..,..\..,..\..\Qttoolbox,$(QTDIR)\include,.,c:\Qt\3.3.4\mkspecs\win32-msvc.net"
+				PreprocessorDefinitions="_WINDOWS,UNICODE,WIN32,QT_DLL,QT_THREAD_SUPPORT,NDEBUG,QT_NO_DEBUG"
+				GeneratePreprocessedFile="0"
+				MinimalRebuild="TRUE"
+				ExceptionHandling="TRUE"
+				RuntimeLibrary="3"
+				BufferSecurityCheck="FALSE"
+				RuntimeTypeInfo="TRUE"
+				AssemblerListingLocation="Release\"
+				ObjectFile="Release\"
+				ProgramDataBaseFileName=".\"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				DebugInformationFormat="3"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="TRUE"
-				AdditionalDependencies="qt-mt335.lib qtmain.lib c:\Projects\lib\qwt500.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib imm32.lib winmm.lib ws2_32.lib winspool.lib delayimp.lib"
-				OutputFile="$(OutDir)\$(ProjectName).exe"
+				AdditionalDependencies="qt-mt334.lib qtmain.lib opengl32.lib glu32.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib imm32.lib winmm.lib wsock32.lib winspool.lib delayimp.lib"
+				OutputFile="Release\\QtDSP.exe"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="$(QTDIR)\lib"
+				DelayLoadDLLs="comdlg32.dll,oleaut32.dll,winmm.dll,wsock32.dll,winspool.dll"
 				GenerateDebugInformation="FALSE"
+				ProgramDatabaseFile=""
 				SubSystem="2"/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCMIDLTool"
+				WarningLevel="0"
+				DefaultCharType="0"
+				EnableErrorChecks="1"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -40,7 +59,8 @@
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -56,35 +76,44 @@
 			Name="Debug|Win32"
 			OutputDirectory="."
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1">
+			ConfigurationType="1"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
-				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="c:\Projects\qwt\include,..\..\QtToolbox,$(QTDIR)\include,.,C:\Qt\3.3.5\mkspecs\win32-msvc.net,C:\Projects\fftw3.1"
+				AdditionalOptions="-Zm200 -GX -GX -w34100 -w34189"
+				Optimization="4"
+				AdditionalIncludeDirectories="..,..\..,..\..\Qttoolbox,$(QTDIR)\include,.,c:\Qt\3.3.4\mkspecs\win32-msvc.net"
 				PreprocessorDefinitions="_WINDOWS,UNICODE,WIN32,QT_DLL,QT_THREAD_SUPPORT"
+				GeneratePreprocessedFile="0"
 				MinimalRebuild="TRUE"
+				ExceptionHandling="TRUE"
 				RuntimeLibrary="3"
 				BufferSecurityCheck="FALSE"
+				RuntimeTypeInfo="TRUE"
 				AssemblerListingLocation=".\"
 				ObjectFile=".\"
 				ProgramDataBaseFileName=".\"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
 				DebugInformationFormat="3"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="TRUE"
-				AdditionalDependencies="qt-mt335.lib qtmain.lib c:\Projects\lib\qwt500.lib ..\..\QtToolbox\ScopePlot\ScopePlot.lib ..\..\QtToolbox\Knob\Knob.lib C:\Projects\fftw3.1\libfftw3-3.lib C:\Projects\fftw3.1\libfftw3f-3.lib C:\Projects\fftw3.1\libfftw3l-3.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib imm32.lib winmm.lib ws2_32.lib winspool.lib delayimp.lib"
+				AdditionalDependencies="qt-mt334.lib qtmain.lib opengl32.lib glu32.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib imm32.lib winmm.lib wsock32.lib winspool.lib delayimp.lib"
 				OutputFile=".\QtDSP.exe"
-				LinkIncremental="0"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="$(QTDIR)\lib"
-				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="TRUE"
+				ProgramDatabaseFile=""
 				SubSystem="2"/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCMIDLTool"
+				WarningLevel="0"
+				DefaultCharType="0"
+				EnableErrorChecks="1"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -92,7 +121,8 @@
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -110,130 +140,99 @@
 	<Files>
 		<Filter
 			Name="Source Files"
-			Filter="cpp;cxx;c;def"
-			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
+			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
 			<File
-				RelativePath="..\CP2Classes\fifo.cpp">
+				RelativePath="Fifo.cc">
 			</File>
 			<File
-				RelativePath=".\main.cpp">
+				RelativePath="main.cpp">
 			</File>
 			<File
-				RelativePath=".\QtDSP.cpp">
+				RelativePath="QtDSP.cpp">
 			</File>
 			<File
-				RelativePath=".\QtDSPBase.ui.h">
+				RelativePath="QtDSPBase.ui.h">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
-			Filter="h"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			Filter="h;hpp;hxx;hm;inl">
 			<File
-				RelativePath="..\include\CP2.h">
+				RelativePath="Fifo.h">
 			</File>
 			<File
-				RelativePath="..\include\dd_types.h">
-			</File>
-			<File
-				RelativePath="..\CP2Classes\fifo.h">
-			</File>
-			<File
-				RelativePath="..\include\piraqx.h">
-			</File>
-			<File
-				RelativePath=".\QtDSP.h">
+				RelativePath="QtDSP.h">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Moc&apos;ing QtDSP.h..."
-						CommandLine="$(QTDIR)\bin\moc.exe .\QtDSP.h -o tmp\moc\moc_QtDSP.cpp
+						CommandLine="$(QTDIR)\bin\moc.exe QtDSP.h -o moc_QtDSP.cpp
 "
-						AdditionalDependencies="$(QTDIR)\bin\moc.exe;.\QtDSP.h"
-						Outputs="tmp\moc\moc_QtDSP.cpp"/>
+						AdditionalDependencies="$(QTDIR)\bin\moc.exe"
+						Outputs="moc_QtDSP.cpp"/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Moc&apos;ing QtDSP.h..."
-						CommandLine="$(QTDIR)\bin\moc.exe .\QtDSP.h -o tmp\moc\moc_QtDSP.cpp
+						CommandLine="$(QTDIR)\bin\moc.exe QtDSP.h -o moc_QtDSP.cpp
 "
-						AdditionalDependencies="$(QTDIR)\bin\moc.exe;.\QtDSP.h"
-						Outputs="tmp\moc\moc_QtDSP.cpp"/>
-				</FileConfiguration>
-			</File>
-		</Filter>
-		<Filter
-			Name="Form Files"
-			Filter="ui"
-			UniqueIdentifier="{99349809-55BA-4b9d-BF79-8FDBB0286EB3}">
-			<File
-				RelativePath=".\QtDSPBase.ui">
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="Uic&apos;ing QtDSPBase.ui..."
-						CommandLine="$(QTDIR)\bin\uic.exe &quot;.\QtDSPBase.ui&quot; -o &quot;.\QtDSPBase.h&quot; &amp;&amp; $(QTDIR)\bin\uic.exe &quot;.\QtDSPBase.ui&quot; -i &quot;.\QtDSPBase.h&quot; -o &quot;.\QtDSPBase.cpp&quot; &amp;&amp; $(QTDIR)\bin\moc.exe &quot;.\QtDSPBase.h&quot; -o &quot;tmp\moc\moc_QtDSPBase.cpp&quot;
-"
-						AdditionalDependencies="$(QTDIR)\bin\moc.exe;$(QTDIR)\bin\uic.exe;.\QtDSPBase.ui"
-						Outputs="&quot;.\QtDSPBase.h&quot;;&quot;.\QtDSPBase.cpp&quot;;&quot;tmp\moc\moc_QtDSPBase.cpp&quot;"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="Uic&apos;ing QtDSPBase.ui..."
-						CommandLine="$(QTDIR)\bin\uic.exe &quot;.\QtDSPBase.ui&quot; -o &quot;.\QtDSPBase.h&quot; &amp;&amp; $(QTDIR)\bin\uic.exe &quot;.\QtDSPBase.ui&quot; -i &quot;.\QtDSPBase.h&quot; -o &quot;.\QtDSPBase.cpp&quot; &amp;&amp; $(QTDIR)\bin\moc.exe &quot;.\QtDSPBase.h&quot; -o &quot;tmp\moc\moc_QtDSPBase.cpp&quot;
-"
-						AdditionalDependencies="$(QTDIR)\bin\moc.exe;$(QTDIR)\bin\uic.exe;.\QtDSPBase.ui"
-						Outputs="&quot;.\QtDSPBase.h&quot;;&quot;.\QtDSPBase.cpp&quot;;&quot;tmp\moc\moc_QtDSPBase.cpp&quot;"/>
+						AdditionalDependencies="$(QTDIR)\bin\moc.exe"
+						Outputs="moc_QtDSP.cpp"/>
 				</FileConfiguration>
 			</File>
 		</Filter>
 		<Filter
 			Name="Generated MOC Files"
-			Filter="moc;cpp"
-			UniqueIdentifier="{fe6e9830-be46-497d-995d-44b99b58e215}"
-			ParseFiles="FALSE">
+			Filter="cpp;c;cxx;moc">
 			<File
-				RelativePath=".\tmp\moc\moc_QtDSP.cpp">
+				RelativePath="moc_QtDSP.cpp">
 			</File>
 			<File
-				RelativePath=".\tmp\moc\moc_QtDSPBase.cpp">
+				RelativePath="moc_QtDSPBase.cpp">
 			</File>
 		</Filter>
 		<Filter
-			Name="Generated UI Files"
-			Filter="h;cpp"
-			UniqueIdentifier="{1055a0e6-65c3-41af-a074-17d15cb3fa32}"
-			ParseFiles="FALSE">
+			Name="Generated Form Files"
+			Filter="cpp;c;cxx;h;hpp;hxx;">
 			<File
-				RelativePath=".\QtDSPBase.cpp">
+				RelativePath="QtDSPBase.cpp">
 			</File>
 			<File
-				RelativePath=".\QtDSPBase.h">
+				RelativePath="QtDSPBase.h">
+			</File>
+		</Filter>
+		<Filter
+			Name="Forms"
+			Filter="ui"
+			ParseFiles="FALSE">
+			<File
+				RelativePath="QtDSPBase.ui">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
 						Name="VCCustomBuildTool"
-						Description="Moc&apos;ing QtDSPBase.h..."
-						CommandLine="$(QTDIR)\bin\moc.exe .\QtDSPBase.h -o tmp\moc\moc_QtDSPBase.cpp
+						Description="Uic&apos;ing QtDSPBase.ui..."
+						CommandLine="$(QTDIR)\bin\uic.exe QtDSPBase.ui -o .\QtDSPBase.h
+$(QTDIR)\bin\uic.exe QtDSPBase.ui -i QtDSPBase.h -o .\QtDSPBase.cpp
+$(QTDIR)\bin\moc.exe .\QtDSPBase.h -o .\moc_QtDSPBase.cpp
 "
-						AdditionalDependencies="$(QTDIR)\bin\moc.exe;.\QtDSPBase.h"
-						Outputs="tmp\moc\moc_QtDSPBase.cpp"/>
+						AdditionalDependencies="$(QTDIR)\bin\moc.exe;$(QTDIR)\bin\uic.exe"
+						Outputs=".\QtDSPBase.h;.\QtDSPBase.cpp;.\moc_QtDSPBase.cpp"/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
 						Name="VCCustomBuildTool"
-						Description="Moc&apos;ing QtDSPBase.h..."
-						CommandLine="$(QTDIR)\bin\moc.exe .\QtDSPBase.h -o tmp\moc\moc_QtDSPBase.cpp
+						Description="Uic&apos;ing QtDSPBase.ui..."
+						CommandLine="$(QTDIR)\bin\uic.exe QtDSPBase.ui -o .\QtDSPBase.h
+$(QTDIR)\bin\uic.exe QtDSPBase.ui -i QtDSPBase.h -o .\QtDSPBase.cpp
+$(QTDIR)\bin\moc.exe .\QtDSPBase.h -o .\moc_QtDSPBase.cpp
 "
-						AdditionalDependencies="$(QTDIR)\bin\moc.exe;.\QtDSPBase.h"
-						Outputs="tmp\moc\moc_QtDSPBase.cpp"/>
+						AdditionalDependencies="$(QTDIR)\bin\moc.exe;$(QTDIR)\bin\uic.exe"
+						Outputs=".\QtDSPBase.h;.\QtDSPBase.cpp;.\moc_QtDSPBase.cpp"/>
 				</FileConfiguration>
 			</File>
 		</Filter>
