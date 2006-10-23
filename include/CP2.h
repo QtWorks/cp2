@@ -19,9 +19,6 @@
 enum	CP2DataChannels	{	SBAND_H,	SBAND_V,	XBAND_H,	XBAND_V,	CP2DATA_CHANNELS	};	//	rename this
 enum	CP2RadarTypes	{	SVH,		XH,			XV,			CP2RADARTYPES	};	//	CP2 Radar Types
 
-//	S-band product types:
-enum	{	SVHVP,	SVHHP,	SVEL,	SNCP,	SWIDTH,	SPHIDP,	VREFL,	HREFL,	ZDR,	NUM_SBANDPRODUCTS	}; 
-
 //	CP2 data format definitions
 #define	PIRAQ_CP2_TIMESERIES	18	/* Simple timeseries: CP2 project */
 #define	PIRAQ_CP2_SVHABP		19	/* S-band VH ABP: CP2 project */
@@ -31,6 +28,6 @@ enum	{	SVHVP,	SVHHP,	SVEL,	SNCP,	SWIDTH,	SPHIDP,	VREFL,	HREFL,	ZDR,	NUM_SBANDPRO
 #define RECORDSIZE_MAX	16384	//	~< 2000 gates in CP2
 #define RECORDNUM_MAX	1000	//	~2 sec data in CP2 at 1KHz
 
-#define	SVHABP_STRIDE	8		//	#data in 1 gate SVH ABP
+#define	SVABP_STRIDE	8		//	#data in 1 gate SVH ABP
 
 #endif
