@@ -53,13 +53,14 @@ void shortdatabit(unsigned short which,int size);
 void printbits(int num);
 
 #define		TEST_COMM	//	test multiple-channel communication w/QtDSP
-//OFF: #define TIMER_CARD	// ON
+//OFF: 
+#define TIMER_CARD	// ON
 //	LAN with static IP: define only one of set below to set destination IP address
-#define		CP2_LAN	//	send to static IP Address 192.168.3.4 atd-milan
+//#define		CP2_LAN	//	send to static IP Address 192.168.3.4 atd-milan
 //#define		_CP2_LAN	//	send to static IP Address 192.168.3.5 ncar-radar-drx
 //#define		__CP2_LAN	//	send to static IP Address 192.168.3.7 cp2-radar-drx
 //#define		___CP2_LAN	//	send to static IP Address 192.168.3.6 atd-cp2-display
-//#define		CP2_LAN_BROADCAST	//	send to static IP Address 192.168.3.255 LAN broadcast
+#define		CP2_LAN_BROADCAST	//	send to static IP Address 192.168.3.255 LAN broadcast
 
 //#define			TIME_TESTING		// define to activate millisecond printout for time of events. 
 #ifdef CP2_TESTING		// switch ON test code for CP2 
