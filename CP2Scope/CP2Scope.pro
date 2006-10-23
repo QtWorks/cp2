@@ -1,9 +1,23 @@
-TEMPLATE	= app
+TEMPLATE	= vcapp
 LANGUAGE	= C++
 
-CONFIG	+= qt warn_on release
+CONFIG += qt 
+CONFIG += thread
+CONFIG += warn_on 
+CONFIG += exceptions
+CONFIG += debug
 
 FORMS	= .\CP2ScopeBase.ui
+
+SOURCES += CP2Scope.cpp
+SOURCES += main.cpp
+
+HEADERS += CP2Scope.h
+
+INCLUDEPATH += ../../
+INCLUDEPATH += ../../QtToolbox
+INCLUDEPATH += ../../fftw3.1
+INCLUDEPATH += ../../qwt/include
 
 IMAGES	= images/editcopy \
 	images/editcut \
@@ -16,10 +30,9 @@ IMAGES	= images/editcopy \
 	images/searchfind \
 	images/undo
 
-unix {
-  UI_DIR = .ui
-  MOC_DIR = .moc
-  OBJECTS_DIR = .obj
+win32 {
+   LIBS       += ../../Qttoolbox/ScopePlot/ScopePlot.lib
+   LIBS       += ../../Qttoolbox/Knob/Knob.lib
+   LIBS       += ../../fftw3.1/libfftw3-3.lib
 }
-
 
