@@ -30,9 +30,6 @@ IMAGES	= images/editcopy \
 	images/searchfind \
 	images/undo
 
-win32 {
-   LIBS       += ../../Qttoolbox/ScopePlot/ScopePlot.lib
-   LIBS       += ../../Qttoolbox/Knob/Knob.lib
-   LIBS       += ../../fftw3.1/libfftw3-3.lib
-}
-
+LIBS       += ../../Qttoolbox/ScopePlot/Debug/ScopePlot.lib
+LIBS       += ../../Qttoolbox/Knob/Debug/Knob.lib
+LIBS       += ../../fftw3.1/libfftw3-3.lib
