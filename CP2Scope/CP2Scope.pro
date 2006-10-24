@@ -19,6 +19,8 @@ INCLUDEPATH += ../../QtToolbox
 INCLUDEPATH += ../../fftw3.1
 INCLUDEPATH += ../../qwt/include
 
+DESTDIR = Debug
+
 IMAGES	= images/editcopy \
 	images/editcut \
 	images/editpaste \
