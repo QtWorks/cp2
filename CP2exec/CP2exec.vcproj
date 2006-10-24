@@ -102,11 +102,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib"
+				AdditionalDependencies="ws2_32.lib plxapi.lib TVicHW32.lib"
 				OutputFile=".\Debug/CP2exec.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories=""
+				AdditionalLibraryDirectories="C:\Plx\PciSdk\Win32\Api\Debug;&quot;C:\Program Files\TVicSoft\TVicHW50\MSVC&quot;"
 				IgnoreAllDefaultLibraries="FALSE"
 				IgnoreDefaultLibraryNames="mfcs71.lib"
 				GenerateDebugInformation="TRUE"
@@ -380,21 +380,6 @@
 			Name="Resource Files"
 			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
 		</Filter>
-		<File
-			RelativePath="debug\config.dsp">
-		</File>
-		<File
-			RelativePath="..\PiraqIII_RevD_Driver\Release\PiraqIII_RevD_Driver.lib">
-		</File>
-		<File
-			RelativePath="..\..\..\Plx\PciSdk\Win32\Api\Release\PlxApi.lib">
-		</File>
-		<File
-			RelativePath="..\..\..\Program Files\TVicSoft\TVicHW50\MSVC\TVicHW32.lib">
-		</File>
-		<File
-			RelativePath="..\win32lib\Debug\win32lib.lib">
-		</File>
 	</Files>
 	<Globals>
 		<Global
