@@ -28,6 +28,6 @@ enum	CP2RadarTypes	{	SVH,		XH,			XV,			CP2RADARTYPES	};	//	CP2 Radar Types
 #define RECORDSIZE_MAX	16384	//	~< 2000 gates in CP2
 #define RECORDNUM_MAX	1000	//	~2 sec data in CP2 at 1KHz
 
-#define	SVABP_STRIDE	8		//	#data in 1 gate SVH ABP
+#define	SVHABP_STRIDE	8		//	#data in 1 gate SVH ABP
 
 #endif
