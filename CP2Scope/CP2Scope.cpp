@@ -45,8 +45,6 @@ _plotType(ScopePlot::TIMESERIES)
 				 FFTW_FORWARD, FFTW_ESTIMATE);
 	//	power correction factor applied to (uncorrected) powerSpectrum() output:
 	_powerCorrection = 0.0;	//	use for power correction to dBm
-	//	make the LCD more visible: 
-	_PNerrors->setSegmentStyle(QLCDNumber::Flat);
 	//	allocate S-band APB packet storage
 	SABP = new CP2_PIRAQ_DATA_TYPE[16384]; 
 
@@ -415,7 +413,7 @@ CP2Scope::dataSocketActivatedSlot(int socket)
 				j += 2; 
 				if	(PN != lastPN + 1)	{	
 					errcount++;	
-					_PNerrors->display(errcount);	//	display accumulated PN errors
+					_PNerrors->setNum(errcount);	//	display accumulated PN errors
 				}	//	we'll always get 1 
 				lastPN = PN; 
 				PNptr = (uint8 *)((char *)PNptr + _pulseStride*sizeof(float)); 
