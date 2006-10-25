@@ -55,12 +55,6 @@ void printbits(int num);
 #define		TEST_COMM	//	test multiple-channel communication w/QtDSP
 //OFF: 
 #define TIMER_CARD	// ON
-//	LAN with static IP: define only one of set below to set destination IP address
-//#define		CP2_LAN	//	send to static IP Address 192.168.3.4 atd-milan
-//#define		_CP2_LAN	//	send to static IP Address 192.168.3.5 ncar-radar-drx
-//#define		__CP2_LAN	//	send to static IP Address 192.168.3.7 cp2-radar-drx
-//#define		___CP2_LAN	//	send to static IP Address 192.168.3.6 atd-cp2-display
-#define		CP2_LAN_BROADCAST	//	send to static IP Address 192.168.3.255 LAN broadcast
 
 //#define			TIME_TESTING		// define to activate millisecond printout for time of events. 
 #ifdef CP2_TESTING		// switch ON test code for CP2 
@@ -343,76 +337,27 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 		printf("set/get iError = %d\n",iError);
 		//as it was:	if((outsock = open_udp_out("localhost")) ==  ERROR)			/* open one socket */
 		int	send_one = 1;
-#ifdef	_TEST_COMM	//	multiport comm: IP address atd-milan 
-#ifdef	STREAM_SOCKET
-		open_udp_out("128.117.85.189");
-#else
-		if((outsock1 = open_udp_out("128.117.85.189")) ==  ERROR)			/* open one socket */
-		{printf("%s: Could not open output socket 1\n",name); exit(0);}
-		printf("udp socket opens; outsock1 = %d\n", outsock1); 
-		if((outsock2 = open_udp_out("128.117.85.189")) ==  ERROR)			/* open second socket */
-		{printf("%s: Could not open output socket 2\n",name); exit(0);}
-		printf("udp socket opens; outsock2 = %d\n", outsock2); 
-		if((outsock3 = open_udp_out("128.117.85.189")) ==  ERROR)			/* open second socket */
-		{printf("%s: Could not open output socket 3\n",name); exit(0);}
-		printf("udp socket opens; outsock3 = %d\n", outsock3);
-#endif
-#endif
-#ifdef	___CP2_LAN	//	send to static IP Address atd-cp2-display
-		if((outsock1 = open_udp_out("192.168.3.6")) ==  ERROR)			/* open one socket */
-		{printf("%s: Could not open output socket 1\n",name); exit(0);}
-		printf("udp socket opens; outsock1 = %d\n", outsock1); 
-		if((outsock2 = open_udp_out("192.168.3.6")) ==  ERROR)			/* open second socket */
-		{printf("%s: Could not open output socket 2\n",name); exit(0);}
-		printf("udp socket opens; outsock2 = %d\n", outsock2); 
-		if((outsock3 = open_udp_out("192.168.3.6")) ==  ERROR)			/* open second socket */
-		{printf("%s: Could not open output socket 3\n",name); exit(0);}
-		printf("udp socket opens; outsock3 = %d\n", outsock3); 
-#endif
-#ifdef	__CP2_LAN	//	send to static IP Address cp2-radar-drx
-		if((outsock1 = open_udp_out("192.168.3.7")) ==  ERROR)			/* open one socket */
-		{printf("%s: Could not open output socket 1\n",name); exit(0);}
-		printf("udp socket opens; outsock1 = %d\n", outsock1); 
-		if((outsock2 = open_udp_out("192.168.3.7")) ==  ERROR)			/* open second socket */
-		{printf("%s: Could not open output socket 2\n",name); exit(0);}
-		printf("udp socket opens; outsock2 = %d\n", outsock2); 
-		if((outsock3 = open_udp_out("192.168.3.7")) ==  ERROR)			/* open second socket */
-		{printf("%s: Could not open output socket 3\n",name); exit(0);}
-		printf("udp socket opens; outsock3 = %d\n", outsock3); 
-#endif
-#ifdef	_CP2_LAN	//	send to static IP Address ncar-radar-drx
-		if((outsock1 = open_udp_out("192.168.3.5")) ==  ERROR)			/* open one socket */
-		{printf("%s: Could not open output socket 1\n",name); exit(0);}
-		printf("udp socket opens; outsock1 = %d\n", outsock1); 
-		if((outsock2 = open_udp_out("192.168.3.5")) ==  ERROR)			/* open second socket */
-		{printf("%s: Could not open output socket 2\n",name); exit(0);}
-		printf("udp socket opens; outsock2 = %d\n", outsock2); 
-		if((outsock3 = open_udp_out("192.168.3.5")) ==  ERROR)			/* open second socket */
-		{printf("%s: Could not open output socket 3\n",name); exit(0);}
-		printf("udp socket opens; outsock3 = %d\n", outsock3); 
-#endif
-#ifdef	CP2_LAN	//	send to static IP Address atd-milan
-		if((outsock1 = open_udp_out("192.168.3.4")) ==  ERROR)			/* open one socket */
-		{printf("%s: Could not open output socket 1\n",name); exit(0);}
-		printf("udp socket opens; outsock1 = %d\n", outsock1); 
-		if((outsock2 = open_udp_out("192.168.3.4")) ==  ERROR)			/* open second socket */
-		{printf("%s: Could not open output socket 2\n",name); exit(0);}
-		printf("udp socket opens; outsock2 = %d\n", outsock2); 
-		if((outsock3 = open_udp_out("192.168.3.4")) ==  ERROR)			/* open second socket */
-		{printf("%s: Could not open output socket 3\n",name); exit(0);}
-		printf("udp socket opens; outsock3 = %d\n", outsock3); 
-#endif
-#ifdef	CP2_LAN_BROADCAST	//	broadcast 
+
+// open sockets
 		if((outsock1 = open_udp_out("192.168.3.255")) ==  ERROR)			/* open one socket */
-		{printf("%s: Could not open output socket 1\n",name); exit(0);}
+		{
+			printf("%s: Could not open output socket 1\n",name); 
+			exit(0);
+		}
 		printf("udp socket opens; outsock1 = %d\n", outsock1); 
 		if((outsock2 = open_udp_out("192.168.3.255")) ==  ERROR)			/* open second socket */
-		{printf("%s: Could not open output socket 2\n",name); exit(0);}
+		{
+			printf("%s: Could not open output socket 2\n",name); 
+			exit(0);
+		}
 		printf("udp socket opens; outsock2 = %d\n", outsock2); 
 		if((outsock3 = open_udp_out("192.168.3.255")) ==  ERROR)			/* open second socket */
-		{printf("%s: Could not open output socket 3\n",name); exit(0);}
+		{
+			printf("%s: Could not open output socket 3\n",name); 
+			exit(0);
+		}
 		printf("udp socket opens; outsock3 = %d\n", outsock3); 
-#endif
+
 		iError = WSAGetLastError ();
 		printf("open_udp_out(): iError = %d\n",iError);
 		printf("set/get iError = %d\n",iError);
