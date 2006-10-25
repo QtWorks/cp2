@@ -16,8 +16,6 @@
 
 #include "get_julian_day.h"
 
-#include "../PMAC/pmac_lib.h"  
-
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -30,18 +28,11 @@ static	char *FIFONAME = "/PRQDATA";
 
 #define	FIFOADDRESS  0xA00000
 
-int  pmac_WD6_acquire(PMAC_HANDLE pmac, PACKET * pkt, int interpolate);
-
 //#define			TIME_TESTING		// define to activate millisecond printout for time of events. 
 #ifdef CP2_TESTING		// switch ON test code for CP2 
 // test drx data throughput limits by varying data packet size w/o changing DSP computational load:  
 #define			DRX_PACKET_TESTING	// define to activate data packet resizing for CP2 throughput testing. 
 #endif
-//#define			PMAC_SEARCH	// enable search for PMAC physical base address
-//#define			EOF_DETECT	// enable packet-level EOF testing. stop/restart data acquisition
-//#define PMAC_DLL				// access PMAC via DeltaTau DLL
-//#define PMAC_WD6				// access PMAC via Windriver6 -- switch not implemented at present.   
-//#define			CYCLE_HITS	10	// #hits to take from piraq-host shared memory before rotating to next board: RapidDOW 
 #define			CYCLE_HITS	20	// #fifo hits to take from piraq-host shared memory before rotating to next board: CP2
 //#define NO_INTEGER_BEAMS // for staggered PRT testing, etc., defeat angle interpolation, etc. 
 
@@ -87,12 +78,7 @@ unsigned short * firch2_q;
 struct _timeb timebuffer;
 char *timeline;
 
-// PMAC allocations
-static PMAC_HANDLE pmac; 
-static unsigned short * PMACDPRAM = 0;			// for host reading PMAC 
-static unsigned int * PMACDPRAMPhysical = 0;	// for PIRAQ reading PMAC 
 static unsigned short last_millisec, delta_millisec; 
-static unsigned short PMAC_acquire_times = 0; 
 
 /**
 unsigned int BeamsperSec; 
@@ -192,16 +178,6 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 	// getsockopt parameters, initialization: 
 	int iError;
 
-	// PMAC: 
-	//HINSTANCE hLib_open;
-	//DWORD PMACDevice;
-	//DWORD PMACDPRAMoffset; 
-	//#define COUNTS_PER_DEGREE 182.04444
-	//unsigned short PMACReceivedData;
-	//unsigned short PMACReceivedData1, PMACReceivedData2, PMACReceivedData3, PMACReceivedData4, PMACReceivedData5;
-	//float PMAC_az, PMAC_el; 
-	//unsigned short PMAC_scan_type, PMAC_sweep, PMAC_volume; 
-
 	// initialize MFC and print and error on failure
 	if (!AfxWinInit(::GetModuleHandle(NULL), NULL, ::GetCommandLine(), 0))
 	{
@@ -251,20 +227,6 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 		strcpy(fname1, "config1");	printf(" config1 filename %s will be used\n", fname1); 
 		strcpy(fname2, "config2");	printf(" config2 filename %s will be used\n", fname2); 
 		strcpy(fname3, "config3");	printf(" config3 filename %s will be used\n", fname3); 
-	}
-
-	// Open the PMAC using Windriver6 functions: 
-	if (!pmac)
-		PMAC_Open(&pmac,PMAC_DEFAULT_VENDOR_ID,PMAC_DEFAULT_DEVICE_ID,0);
-	if (pmac)	{	// PMAC Motion Controller found
-		PMACDPRAM = (unsigned short *)PMAC_GetBasePtr(pmac, 0);
-		PMACDPRAMPhysical = (unsigned int *)PMAC_GetBasePtrPhysical(pmac, 0);
-		PMAC_WriteWord(pmac,0,0,0x12);	//	write something unique to PMAC DPRAM before PIRAQ starts 
-		PMAC_WriteWord(pmac,0,2,0x14);	//	write something unique to PMAC DPRAM before PIRAQ starts 
-
-		printf("PMAC_HANDLE pmac = 0x%x\n", pmac); 
-		printf("PMACDPRAM = 0x%x\n", PMACDPRAM); 
-		printf("PMACDPRAMPhysical = 0x%x\n", PMACDPRAMPhysical); 
 	}
 
 	printf("\n\nTURN TRANSMITTER OFF for piraq dc offset measurement.\nPress any key to continue.\n"); 
@@ -334,10 +296,7 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 			piraq1->GetErrorString(errmsg); printf("error: %s\n", errmsg); 
 			piraqs &= ~0x0001; goto nop1; 
 		}
-		printf("Set PMACDPRAMPhysical = 0x%x\n", PMACDPRAMPhysical); 
-		piraq1->SetPMACAntennaDPRAMAddress(PMACDPRAMPhysical); 
-		PMACDPRAMPhysical = piraq1->GetPMACAntennaDPRAMAddress(); 
-		printf("Get PMACDPRAMPhysical = 0x%x\n", PMACDPRAMPhysical); 
+
 		/* put the DSP into a known state where HPI reads/writes will work */
 		piraq1->ResetPiraq(); // !!!redundant? 
 		piraq1->GetControl()->UnSetBit_StatusRegister0(STAT0_SW_RESET);
@@ -394,10 +353,6 @@ nop1:
 			piraq2->GetErrorString(errmsg); printf("error: %s\n", errmsg); 
 			piraqs &= ~0x0002; goto nop2; 
 		} 
-		printf("Set PMACDPRAMPhysical = 0x%x\n", PMACDPRAMPhysical); 
-		piraq2->SetPMACAntennaDPRAMAddress(PMACDPRAMPhysical); 
-		PMACDPRAMPhysical = piraq2->GetPMACAntennaDPRAMAddress(); 
-		printf("Get PMACDPRAMPhysical = 0x%x\n", PMACDPRAMPhysical); 
 		piraq2->ResetPiraq(); 
 		piraq2->GetControl()->UnSetBit_StatusRegister0(STAT0_SW_RESET);
 		Sleep(1);
@@ -453,10 +408,6 @@ nop2:
 			piraq3->GetErrorString(errmsg); printf("error: %s\n", errmsg); 
 			piraqs &= ~0x0004; goto nop3; 
 		} 
-		printf("Set PMACDPRAMPhysical = 0x%x\n", PMACDPRAMPhysical); 
-		piraq3->SetPMACAntennaDPRAMAddress(PMACDPRAMPhysical); 
-		PMACDPRAMPhysical = piraq3->GetPMACAntennaDPRAMAddress(); 
-		printf("Get PMACDPRAMPhysical = 0x%x\n", PMACDPRAMPhysical); 
 		/* put the DSP into a known state where HPI reads/writes will work */
 		piraq3->ResetPiraq(); // !!!redundant? 
 		piraq3->GetControl()->UnSetBit_StatusRegister0(STAT0_SW_RESET);
@@ -834,7 +785,6 @@ nop3:
 						fifopiraq1->udp.totalsize = test_totalsize1; // CP2 throughput testing
 						packets++; 
 						if	(packets == 10)	{printf("packet totalsize1 %d\n", test_totalsize1);}
-						if	((packets % 100) == 0)	{	printf("sent %d\n", packets); printf("PMAC DPRAM Base Address = 0x%x, contents = 0x%x\n", fifopiraq1->data.info.clutter_start[0], fifopiraq1->data.info.clutter_start[1]);}
 #endif
 
 						seq1 = send_udp_packet(outsock1, outport, seq1, udp1); 
@@ -1057,7 +1007,6 @@ nop3:
 						fifopiraq3->data.info.scan_num = scan3;
 						fifopiraq3->data.info.vol_num = volume3; 
 						// ... to here 
-						//						printf("3: az = %8.2f el = %8.2f scan_type = %d sweep = %d volume = %d\n",PMAC_az, PMAC_el, PMAC_scan_type, PMAC_sweep, PMAC_volume); 
 #ifdef TIME_TESTING	
 						// for mSec-resolution time tests: 
 						_ftime( &timebuffer );
