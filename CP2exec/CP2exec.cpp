@@ -44,7 +44,6 @@ static	char *FIFONAME = "/PRQDATA";
 #define	FIFOADDRESS  0xA00000
 
 FIFO *open_piraq_fifo(char *name, int headersize, int recordsize, int recordnum);
-void convert(PACKET *pkt); 
 
 int  pmac_WD6_acquire(PACKET * pkt, int interpolate);
 
@@ -1574,45 +1573,6 @@ interpolate:
 	//printf("PMACDPRAMData: sweep=%d volume=%d\n", PMACDPRAMData[FirstPMACDPRAMInterpidx].sweep, PMACDPRAMData[FirstPMACDPRAMInterpidx].volume); 
 	return(TRUE);
 }
-
-/* perform conversion and correction to short I's and Q's */
-char   PHASE;
-void convert(PACKET *pkt)
-{
-	int		i,gates4;
-	short		*sptr;
-	float		*fptr;
-
-	sptr = (short *)pkt->data.data;
-	// create test sinusoid w/constantly rotating PHASE. 
-#if 0
-	PHASE++;
-	sptr[0] = 32768.0 * 0.5 * sin(2 * M_PI * PHASE / 256.0);
-	sptr[1] = 32768.0 * 0.5 * cos(2 * M_PI * PHASE / 256.0);
-	sptr[2] = 32768.0 * 0.25 * sin(2 * M_PI * PHASE / 256.0);
-	sptr[3] = 32768.0 * 0.25 * cos(2 * M_PI * PHASE / 256.0);
-	sptr[4] = 32768.0 * 0.5 * sin(2 * M_PI * PHASE / 256.0);
-	sptr[5] = 32768.0 * 0.5 * cos(2 * M_PI * PHASE / 256.0);
-	sptr[6] = 32768.0 * 0.25 * sin(2 * M_PI * PHASE / 256.0);
-	sptr[7] = 32768.0 * 0.25 * cos(2 * M_PI * PHASE / 256.0);
-#endif
-#if 0
-	sptr[0] = 0x7001; // easily visible test data marking begin of datablock
-	sptr[1] = 0x6002;
-	sptr[2] = 0x5003;
-	sptr[3] = 0x4004;
-	sptr[4] = 0x5003;
-	sptr[5] = 0x4004;
-#endif
-	//   gates4 = pkt->data.info.numgates * 4;
-
-	//   sptr = (short *)pkt->data.data;
-	//   fptr = (float *)pkt->data.data;
-	//   for(i=0; i<gates4; i++)
-	//      *sptr++ = *fptr++ * 32768.0;
-
-}
-
 
 FIFO *open_piraq_fifo(char *name, int headersize, int recordsize, int recordnum)
 {
