@@ -43,8 +43,6 @@ static	char *FIFONAME = "/PRQDATA";
 
 #define	FIFOADDRESS  0xA00000
 
-FIFO *open_piraq_fifo(char *name, int headersize, int recordsize, int recordnum);
-
 int  pmac_WD6_acquire(PACKET * pkt, int interpolate);
 
 //#define			TIME_TESTING		// define to activate millisecond printout for time of events. 
@@ -1574,22 +1572,3 @@ interpolate:
 	return(TRUE);
 }
 
-FIFO *open_piraq_fifo(char *name, int headersize, int recordsize, int recordnum)
-{
-	int		loop=0;
-	FIFO	*fifo;
-
-	printf("Opening FIFO %s......",name); 
-	//   fifo = fifo_create(name,headersize,recordsize,recordnum,0);
-	fifo = fifo_create(name,headersize,recordsize,recordnum); 
-	if(!fifo)	{printf("\nCannot open %s FIFO buffer\n",name); exit(-1);}
-	printf("   done.\n");
-	while(fifo->magic != MAGIC) /* if created by another task, wait for initialization */
-	{
-		loop = 1;
-		printf("Waiting for %s FIFO to be initialized by parent task\r",name); 
-	}
-	if(loop)   printf("\n");		/* finish off the print statement from loop */
-
-	return(fifo);
-}
