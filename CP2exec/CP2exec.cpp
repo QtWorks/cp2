@@ -52,8 +52,6 @@ void shortmembit(unsigned short addr[],int size);
 void shortdatabit(unsigned short which,int size);
 void printbits(int num);
 
-#define		TEST_COMM	//	test multiple-channel communication w/QtDSP
-
 //#define			TIME_TESTING		// define to activate millisecond printout for time of events. 
 #ifdef CP2_TESTING		// switch ON test code for CP2 
 // test drx data throughput limits by varying data packet size w/o changing DSP computational load:  
@@ -890,11 +888,8 @@ no_int_beams:
 						if	(packets == 10)	{printf("packet totalsize1 %d\n", test_totalsize1);}
 						if	((packets % 100) == 0)	{	printf("sent %d\n", packets); printf("PMAC DPRAM Base Address = 0x%x, contents = 0x%x\n", fifopiraq1->data.info.clutter_start[0], fifopiraq1->data.info.clutter_start[1]);}
 #endif
-#ifdef	TEST_COMM	// CP2: send each PIRAQ's data on unique port: separate receive channels for QtDSP
+
 						seq1 = send_udp_packet(outsock1, outport, seq1, udp1); 
-#else
-						seq1 = send_udp_packet(outsock, outport, seq1, udp1); 
-#endif
 						fifo_increment_tail(fifo1);
 					} // end	while(fifo_hit()
 					cycle_fifo1_hits = 0; // clear cycle counter 
@@ -1045,11 +1040,7 @@ select2:
 						fifopiraq2->udp.totalsize = test_totalsize2; // CP2 throughput testing
 #endif
 
-#ifdef	TEST_COMM	// CP2: send each PIRAQ's data on unique port: separate receive channels for QtDSP
 						seq2 = send_udp_packet(outsock2, outport + 1, seq2, udp2);  
-#else
-						seq2 = send_udp_packet(outsock, outport, seq2, udp2);  
-#endif
 						fifo_increment_tail(fifo2);
 					} // end	while(fifo_hit()
 					cycle_fifo2_hits = 0; 
@@ -1204,11 +1195,7 @@ select3:
 						int test_totalsize3 = Nhits*(TOTALSIZE(fifopiraq3) + BUFFER_EPSILON); 
 						fifopiraq3->udp.totalsize = test_totalsize3; // CP2 throughput testing
 #endif
-#ifdef	TEST_COMM	// CP2: send each PIRAQ's data on unique port: separate receive channels for QtDSP
 						seq3 = send_udp_packet(outsock3, outport + 2, seq3, udp3);  
-#else
-						seq3 = send_udp_packet(outsock, outport, seq3, udp3);  
-#endif
 						fifo_increment_tail(fifo3);
 					} // end	while(fifo_hit()
 					cycle_fifo3_hits = 0; 
