@@ -1638,53 +1638,6 @@ FIFO *open_piraq_fifo(char *name, int headersize, int recordsize, int recordnum)
 	return(fifo);
 }
 
-#if 0 // not used 
-void shortdatabit(unsigned short which,int size)
-{
-	int  i,temp,stuckhi,stucklo,unreliable;
-
-	stuckhi = size - 1;
-	stucklo = size - 1;
-	unreliable = 0x0000;
-
-	for(i=0; i<size; i++)
-	{
-		//*addr = i;
-		if(which == 0) 
-		{
-			piraq->GetControl()->SetValue_StatusRegister0(i);
-			temp = piraq->GetControl()->GetValue_StatusRegister0() & (size-1);
-		}
-		else
-		{
-			piraq->GetControl()->SetValue_StatusRegister1(i);
-			temp = piraq->GetControl()->GetValue_StatusRegister1() & (size-1);
-		}
-		//temp = *(volatile unsigned short *)addr & (size - 1);
-		stuckhi &=  temp;
-		stucklo &= ~temp;
-		unreliable |= i ^ temp;
-	}
-
-	/* ignore certain bits */
-	//   stuckhi    &= ~0x0E04;
-	//   stucklo    &= ~0x0E04;
-	//   unreliable &= ~0x0E04;
-
-	if(stuckhi)
-	{printf("Bits stuck high: "); printbits(stuckhi);}
-
-	if(stucklo)
-	{printf("Bits stuck low: "); printbits(stucklo);}
-
-	if(unreliable)
-	{printf("Unreliable Bits: "); printbits(unreliable);}
-
-	if(!stuckhi && !stucklo && !unreliable)
-		printf("Passes\n");
-}
-#endif
-
 void printbits(int num)
 {
 	int  i;
