@@ -48,10 +48,6 @@ void convert(PACKET *pkt);
 
 int  pmac_WD6_acquire(PACKET * pkt, int interpolate);
 
-void shortmembit(unsigned short addr[],int size);
-void shortdatabit(unsigned short which,int size);
-void printbits(int num);
-
 //#define			TIME_TESTING		// define to activate millisecond printout for time of events. 
 #ifdef CP2_TESTING		// switch ON test code for CP2 
 // test drx data throughput limits by varying data packet size w/o changing DSP computational load:  
@@ -1636,47 +1632,4 @@ FIFO *open_piraq_fifo(char *name, int headersize, int recordsize, int recordnum)
 	if(loop)   printf("\n");		/* finish off the print statement from loop */
 
 	return(fifo);
-}
-
-void printbits(int num)
-{
-	int  i;
-
-	for(i=0; i<32; i++)
-		if((num >> i) & 1)
-			printf("%d ",i);
-	printf("\n");
-}
-
-void shortmembit(unsigned short addr[],int size)
-/* size = number of shorts */
-{
-	int  i,temp,stuckhi,stucklo,unreliable;
-
-	stuckhi = size - 1;
-	stucklo = size - 1;
-	unreliable = 0x0000;
-
-	for(i=0; i<size; i++)
-		addr[i] = size - i;
-
-	for(i=0; i<size; i++)
-	{
-		temp = addr[i] & 0xFFFF;
-		stuckhi &=  temp;
-		stucklo &= ~temp;
-		unreliable |= (size - i) ^ temp;
-	}
-
-	if(stuckhi)
-	{printf("Bits stuck high: "); printbits(stuckhi);}
-
-	if(stucklo)
-	{printf("Bits stuck low: "); printbits(stucklo);}
-
-	if(unreliable)
-	{printf("Unreliable Bits: "); printbits(unreliable);}
-
-	if(!stuckhi && !stucklo && !unreliable)
-		printf("Passes\n");
 }
