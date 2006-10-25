@@ -80,23 +80,6 @@ char *timeline;
 
 static unsigned short last_millisec, delta_millisec; 
 
-/**
-unsigned int BeamsperSec; 
-unsigned int mSecperBeam; 
-float ExactmSecperBeam; 
-__int64 RadarEpochMillisec; 
-__int64 SystemEpochMillisec; 
-__int64 TimerStartCorrection; // runtime measurement of timer card startup interval in mSec to apply to REMSEc
-// fp: 
-double fpExactmSecperBeam; 
-double fpRadarMillisec; 
-double fpSystemMillisec; 
-double fpRadarSystemCorrection;
-__int64 RadarMillisec; 
-__int64 SystemMillisec; 
-**/
-
-
 // set/compute #hits combined by piraq: equal in both piraq executable (CP2_DCCS3_1.out) and CP2exec.exe 
 unsigned int Nhits; 
 unsigned int packets = 0; 
@@ -104,7 +87,6 @@ unsigned int packets = 0;
 int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 {
 	int i,j,k,y,outport;
-	int idx_tts = 0; // index for test timeseries data
 	int cmd1_notifysock, cmd2_notifysock, cmd3_notifysock; 
 	int val1, val2, val3; 
 	unsigned __int64 temp1, temp2, temp3; 
@@ -118,32 +100,24 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 	fd_set rfd1, rfd2, rfd3;
 	PACKET *fifopiraq1, *fifopiraq2, *fifopiraq3;
 	PACKET *pkt1, *pkt2, *pkt3, *pn_pkt; 
-	config  = new CONFIG;
+
 	config1	= new CONFIG; 
 	config2	= new CONFIG; 
 	config3	= new CONFIG; 
 	char fname1[10]; char fname2[10]; char fname3[10]; // configuration filenames
 
-	float		az = 0, el = 0, pcorrect;
-	unsigned int scan = 0, volume = 0; 
+	float pcorrect;
 	float		az1 = 0, az2 = 0, az3 = 0, el1 = 0, el2 = 0, el3 = 0;
-	float		test_ts_power = 0.1f; // multiplier for test timeseries data 
 	unsigned int scan1 = 0, scan2 = 0, scan3 = 0, volume1 = 0, volume2 = 0, volume3 = 0; 
-	int			test_ts_adjust = 2; // note if 0 test timeseries single frequency gets flat data! 
-	unsigned __int64	oldbnum=0; 
-	int			send=0;
 
 	int nRetCode = 0; // used by MFC 
 	int testnum = 1;  // console output sequential test number 
 	int r_c; // return code 
-	int nodefault = FALSE; 
 	int piraqs = 0;   // board count -- default to single board operation 
 	int fifo1_hits, fifo2_hits, fifo3_hits; // cumulative hits per board 
 	int cur_fifo1_hits, cur_fifo2_hits, cur_fifo3_hits; // current hits per board 
 	int cycle_fifo1_hits, cycle_fifo2_hits, cycle_fifo3_hits; // current hits per cycle 
 	cycle_fifo1_hits = cycle_fifo2_hits = cycle_fifo3_hits = 0; // clear hits per cycle     
-	int x = 0; 
-	unsigned int FIRCount = 32; 
 	float *fsrc, *diagiqsrc;
 	FILE * dspEXEC; 
 	int cmdline_filename = FALSE; 
@@ -152,14 +126,15 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 	unsigned int seq1, seq2, seq3; 
 	unsigned int bytespergate; 
 
-	__int64 lastpulsenumber = 0;
 	__int64 lastpulsenumber1, lastpulsenumber2, lastpulsenumber3;
 	lastpulsenumber1 = lastpulsenumber2 = lastpulsenumber3 = 0;
-	__int64 lastbeamnumber = 0;
+
 	__int64 lastbeamnumber1, lastbeamnumber2, lastbeamnumber3;
 	lastbeamnumber1 = lastbeamnumber2 = lastbeamnumber3 = 0;
+
 	int  PNerrors1, PNerrors2, PNerrors3; 
 	PNerrors1 = PNerrors2 = PNerrors3 = 0; 
+
 	float scale1, scale2, scale3; 
 	unsigned int hits, hits1, hits2, hits3; 
 	unsigned int gates1, gates2, gates3; 
@@ -570,64 +545,17 @@ nop3:
 		printf("pri = %d\n", pri+1); 
 		printf("pulsenum=%I64d\n", pulsenum); 
 		printf("beamnum=%I64d\n", beamnum); 
-		// set pulsenum, beamnum computed from PPS-edge second in all boards requested and started;  
-#if 0	// 1: restore previous method
-		if (piraqs & 0x01) { // piraq1 selected 
-			pkt1->data.info.pulse_num = pulsenum;	// set UNIX epoch pulsenum just before starting
-			pkt1->data.info.beam_num = beamnum; 
-			pkt1->data.info.packetflag = 1;			// set to piraq: get header! 
-			pkt1->data.info.channel = 0;			// set BOARD number
-		} 
-		if (piraqs & 0x02) { // piraq2 selected 
-			pkt2->data.info.pulse_num = pulsenum; // set UNIX epoch pulsenum just before starting
-			pkt2->data.info.beam_num = beamnum; 
-			pkt2->data.info.packetflag = 1;			// set to piraq: get header! 
-			pkt2->data.info.channel = 1;			// set BOARD number
-		} 
-		if (piraqs & 0x04) { // piraq3 selected 
-			pkt3->data.info.pulse_num = pulsenum; // set UNIX epoch pulsenum just before starting
-			pkt3->data.info.beam_num = beamnum; 
-			pkt3->data.info.packetflag = 1;			// set to piraq: get header! 
-			pkt3->data.info.channel = 2;			// set BOARD number
-		}
-#endif
+
 		// time-related parameters initialized -- wait for new second then start timer card and 
 		// data acquisition. 
 		printf("now=%d: ... still waiting for this second (now) to expire ... then timer will start\n\n", now);  
 		while(now == now_was) // current second persists 
 			now = time(&now); 
 		printf("now=%d: ... now_was=%d\n", now, now_was);  
+
 		// start timer board immediately:
-		// !note: operator must synchronize system clock w/Epsilon so PPS edge happens on second change. 
-		// !clarify: ? start timer card BEFORE ? does PPS edge require start_timer_card already executed?
-		/**
-		_ftime( &timebuffer );
-		timeline = ctime( & ( timebuffer.time ) );
-		printf( "mSec=%hu\n", timebuffer.millitm );
 		start_timer_card(&ext_timer, &pn_pkt->data.info); // pn_pkt = PACKET pointer to a live piraq 
 
-		_ftime( &timebuffer );
-		timeline = ctime( & ( timebuffer.time ) );
-		printf( "timer start correction mSec=%hu\n", timebuffer.millitm );
-		TimerStartCorrection = timebuffer.millitm;
-
-		_ftime( &timebuffer );
-		SystemEpochMillisec = (timebuffer.time * (__int64)1000) + (__int64)timebuffer.millitm;
-		RadarEpochMillisec = mSecperBeam * pn_pkt->data.info.beam_num; // pn_pkt: access a live packet
-		//!!!LATER:RadarEpochMillisec = (__int64)(ExactmSecperBeam * ((float)(pn_pkt->data.info.beam_num))); // pn_pkt: access a live packet; (double)?
-
-		_ftime( &timebuffer );
-		printf("1:\nRadarEpochMillisec  = %I64d \nSystemEpochMillisec = %I64d\n", RadarEpochMillisec, SystemEpochMillisec); 
-
-		fpSystemMillisec = ((double)timebuffer.time * 1000.0) + (double)timebuffer.millitm;
-		fpRadarMillisec = fpExactmSecperBeam * (double)pn_pkt->data.info.beam_num; // pn_pkt: access a live packet
-		printf("1:\nfpRadarMillisec          = %+8.12e\n", fpRadarMillisec); 
-		printf("1:\nfpSystemMillisec         = %+8.12e\n", fpSystemMillisec); 
-		fpRadarSystemCorrection = (fpSystemMillisec - (double)TimerStartCorrection) - fpRadarMillisec; 
-		printf("1:\nfpRadarSystemCorrection  = %+8.5e\n", fpRadarSystemCorrection); 
-		printf("1:\nfpRadarMillisecCorrected = %+8.12e\n", fpRadarMillisec + fpRadarSystemCorrection); 
-		RadarEpochMillisec = (__int64)(fpRadarMillisec + fpRadarSystemCorrection); 
-		**/
 		// all running -- get data!
 		testnum = 0;  fifo1_hits = 0; fifo2_hits = 0; fifo3_hits = 0; // 
 		seq1 = seq2 = seq3 = 0; // initialize sequence# for each channel 
@@ -1119,7 +1047,6 @@ nop3:
 				if(c == '-')		test_ts_adjust -= 2; 
 #endif
 
-				if(c == 'S')		send ^= 1;	
 				//	temporarily use keystrokes '0'-'8' to switch PIRAQ channel mode on 3 boards
 				if((c >= '0') && (c <= '8'))	{	// '0'-'2' piraq1, etc.
 					if (c == '0')		{	piraq1->SetCP2PIRAQTestAction(SEND_CHA);	//	send CHA
