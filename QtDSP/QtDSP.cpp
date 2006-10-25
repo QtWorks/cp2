@@ -507,20 +507,28 @@ QtDSP::SABPgen(int rcvChan) {	//	generate S-band ABPs on rcvChan data
 		for	(j = 0; j < rcvChannel[rcvChan]._gates; j++)	{	//	all gates, this pair of hits
 			//	order calculations to produce same as SPol ABP set: 
 			//	compute H-V AB plus Pv
+         // 1.
 			*SABPData += *HlagDataI * *VDataI + *HlagDataQ * *VDataQ; SABPData++; 
 //			*SABPData += *HlagDataI * *VDataQ - *HlagDataQ * *VDataI; SABPData++; 
+         // 2.
 			*SABPData += -(*HlagDataI * *VDataQ - *HlagDataQ * *VDataI); SABPData++;	//	sign change gets correct velocity...
-			*SABPData += *VDataI * *VDataI + *VDataQ * *VDataQ; SABPData++; 
+			// 3.
+         *SABPData += *VDataI * *VDataI + *VDataQ * *VDataQ; SABPData++; 
 			//	compute V-H AB plus Ph
-			*SABPData += *VDataI * *HDataI + *VDataQ * *HDataQ; SABPData++; 
+			// 4.
+         *SABPData += *VDataI * *HDataI + *VDataQ * *HDataQ; SABPData++; 
 //			*SABPData += *VDataI * *HDataQ - *VDataQ * *HDataI; SABPData++; 
-			*SABPData += -(*VDataI * *HDataQ - *VDataQ * *HDataI); SABPData++;	//	sign change gets correct velocity...
-			*SABPData += *HDataI * *HDataI + *HDataQ * *HDataQ; SABPData++; 
+			// 5.
+         *SABPData += -(*VDataI * *HDataQ - *VDataQ * *HDataI); SABPData++;	//	sign change gets correct velocity...
+			// 6.
+         *SABPData += *HDataI * *HDataI + *HDataQ * *HDataQ; SABPData++; 
 			//	compute "ab of second lag"
-			*SABPData += (*HlagDataI * *HDataI + *HlagDataQ * *HDataQ) + (*VlagDataI * *VDataI + *VlagDataQ * *VDataQ); SABPData++; 
-			*SABPData += (*HlagDataI * *HDataQ - *HlagDataQ * *HDataI) + (*VlagDataI * *VDataQ - *VlagDataQ * *VDataI); SABPData++; 
+			// 7.
+         *SABPData += (*HlagDataI * *HDataI + *HlagDataQ * *HDataQ) + (*VlagDataI * *VDataI + *VlagDataQ * *VDataQ); SABPData++; 
+			// 8.
+         *SABPData += (*HlagDataI * *HDataQ - *HlagDataQ * *HDataI) + (*VlagDataI * *VDataQ - *VlagDataQ * *VDataI); SABPData++; 
 			//	advance IQ data pointers by 1 gate
-			VDataI += 2; VDataQ += 2; HDataI += 2; HDataQ += 2; VlagDataI += 2; VlagDataQ += 2; HlagDataI += 2; HlagDataQ += 2; 
+         VDataI += 2; VDataQ += 2; HDataI += 2; HDataQ += 2; VlagDataI += 2; VlagDataQ += 2; HlagDataI += 2; HlagDataQ += 2; 
 		}	//	end for all gates
 		SABPData = SABP + _IQdataOffset/sizeof(float);	//	start again at Gate 0
 		//	rotate pointers to process next two hits: alternate buffer new hits stored to -- once leading, now lagging
