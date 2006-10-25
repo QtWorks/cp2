@@ -87,16 +87,12 @@ FILE * db_fp; // debug data file
 
 int keyvalid() 
 {
-	while(!kbhit()) { } // no keystroke 
+	while(!_kbhit()) { } // no keystroke 
 	getch();    // get it
 	return 1;
 }
 
 /////////////////////////////////////////////////////////////////////////////
-// The one and only application object
-
-CWinApp theApp;
-
 using namespace std;
 
 PIRAQ        *piraq;  // allocate pointers for object instantiation
