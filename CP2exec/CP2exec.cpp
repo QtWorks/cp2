@@ -53,8 +53,6 @@ void shortdatabit(unsigned short which,int size);
 void printbits(int num);
 
 #define		TEST_COMM	//	test multiple-channel communication w/QtDSP
-//OFF: 
-#define TIMER_CARD	// ON
 
 //#define			TIME_TESTING		// define to activate millisecond printout for time of events. 
 #ifdef CP2_TESTING		// switch ON test code for CP2 
@@ -69,11 +67,8 @@ void printbits(int num);
 #define			CYCLE_HITS	20	// #fifo hits to take from piraq-host shared memory before rotating to next board: CP2
 //#define NO_INTEGER_BEAMS // for staggered PRT testing, etc., defeat angle interpolation, etc. 
 
-//#define TIMER_CARD_TESTING // special executable to program timer board, then exit. 
-//#define DC_OFFSET_TESTING    // switch off transmitter OFF/ON messages for dc offset testing
 //#define TESTING_TIMESERIES // compute test diagnostic timeseries data in one of two piraq channels: 
 //#define TESTING_TIMESERIES_RANGE	// test dynamic reassignment of timeseries start, end gate using 'U','D'
-#define	RUNTIME_PACKET_SIZING	// CP2: data packets sized at runtime.
 
 #define PIRAQ3D_SCALE	1.0/pow(2,31)	// normalize 2^31 data to 1.0 full scale using multiplication
 
@@ -178,7 +173,7 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 	float		az = 0, el = 0, pcorrect;
 	unsigned int scan = 0, volume = 0; 
 	float		az1 = 0, az2 = 0, az3 = 0, el1 = 0, el2 = 0, el3 = 0;
-	float		test_ts_power = 0.1; // multiplier for test timeseries data 
+	float		test_ts_power = 0.1f; // multiplier for test timeseries data 
 	unsigned int scan1 = 0, scan2 = 0, scan3 = 0, volume1 = 0, volume2 = 0, volume3 = 0; 
 	int			test_ts_adjust = 2; // note if 0 test timeseries single frequency gets flat data! 
 	int			cnt;
@@ -313,18 +308,15 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 		PMACDPRAMPhysical = (unsigned int *)PMAC_GetBasePtrPhysical(pmac, 0);
 		PMAC_WriteWord(pmac,0,0,0x12);	//	write something unique to PMAC DPRAM before PIRAQ starts 
 		PMAC_WriteWord(pmac,0,2,0x14);	//	write something unique to PMAC DPRAM before PIRAQ starts 
-	}
-	printf("PMAC_HANDLE pmac = 0x%x\n", pmac); 
-	printf("PMACDPRAM = 0x%x\n", PMACDPRAM); 
-	printf("PMACDPRAMPhysical = 0x%x\n", PMACDPRAMPhysical); 
 
-#ifndef DC_OFFSET_TESTING  // remove transmitter control: temporary test if introduction produced errors
-#ifndef TIMER_CARD_TESTING // turn the transmitter OFF here so first hit measures dc offset correctly
+		printf("PMAC_HANDLE pmac = 0x%x\n", pmac); 
+		printf("PMACDPRAM = 0x%x\n", PMACDPRAM); 
+		printf("PMACDPRAMPhysical = 0x%x\n", PMACDPRAMPhysical); 
+	}
+
 	printf("\n\nTURN TRANSMITTER OFF for piraq dc offset measurement.\nPress any key to continue.\n"); 
 	while(!kbhit())	;
 	c = toupper(getch()); // get the character
-#endif
-#endif
 
 	// this if/else wraps around the entire main: else {...} contains single-board operation. 
 	if (piraqs) { // entered slot pattern: bit set runs board, right-to-left 
@@ -363,9 +355,7 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 		printf("set/get iError = %d\n",iError);
 
 eof_start_over: 
-#ifdef TIMER_CARD
 		timer_stop(&ext_timer); // stop timer card 
-#endif
 		//		config1 = new CONFIG; config2 = new CONFIG; config3 = new CONFIG; 
 
 		piraq1 = new PIRAQ;
@@ -413,13 +403,11 @@ eof_start_over:
 			piraq1->SetCP2PIRAQTestAction(SEND_CHA);	//	send CHA by default; SEND_COMBINED after dynamic-range extension implemented 
 			stop_piraq(config1, piraq1);
 			fifo1 = (FIFO *)piraq1->GetBuffer(); 
-			//original: 			piraq_fifo_init(fifo1,"/PRQDATA", HEADERSIZE, HEADERSIZE+IQSIZE, PIRAQ_FIFO_NUM);
-#ifndef	RUNTIME_PACKET_SIZING	// source project: data packets sized at build time.
-			piraq_fifo_init(fifo1,"/PRQDATA", HEADERSIZE, HEADERSIZE+ABPSIZE, PIRAQ_FIFO_NUM); 
-#else		// CP2: data packets sized at runtime.  + BUFFER_EPSILON
+
+			// CP2: data packets sized at runtime.  + BUFFER_EPSILON
 			piraq_fifo_init(fifo1,"/PRQDATA", HEADERSIZE, Nhits * (HEADERSIZE + (config1->gatesa * bytespergate) + BUFFER_EPSILON), PIRAQ_FIFO_NUM); 
 			printf("hit size = %d computed Nhits = %d\n", (HEADERSIZE + (config1->gatesa * bytespergate) + BUFFER_EPSILON), Nhits); 
-#endif
+
 			if (!fifo1) { printf("piraq1 fifo_create failed\n"); exit(0);
 			}
 			printf("fifo1 = %p, recordsize = %d\n", fifo1, fifo1->record_size); 
@@ -472,12 +460,10 @@ nop1:
 		if (piraqs & 0x02) { // turn on slot 2
 			stop_piraq(config2, piraq2);
 			fifo2 = (FIFO *)piraq2->GetBuffer(); 
-			//original:			piraq_fifo_init(fifo2,"/PRQDATA", HEADERSIZE, HEADERSIZE+IQSIZE, PIRAQ_FIFO_NUM); // replaces fifo_create()
-#ifndef	RUNTIME_PACKET_SIZING	// source project: data packets sized at build time.
-			piraq_fifo_init(fifo2,"/PRQDATA", HEADERSIZE, HEADERSIZE+ABPSIZE, PIRAQ_FIFO_NUM); // replaces fifo_create()
-#else		// CP2: data packets sized at runtime. 
+
+			// CP2: data packets sized at runtime. 
 			piraq_fifo_init(fifo2,"/PRQDATA", HEADERSIZE, Nhits * (HEADERSIZE + (config2->gatesa * bytespergate) + BUFFER_EPSILON), PIRAQ_FIFO_NUM); 
-#endif
+
 			if (!fifo2)	{
 				printf("piraq2 fifo_create failed\n");      exit(0);
 			}
@@ -534,12 +520,8 @@ nop2:
 		if (piraqs & 0x04) { // turn on slot 3
 			stop_piraq(config3, piraq3);
 			fifo3 = (FIFO *)piraq3->GetBuffer(); 
-			//original:			piraq_fifo_init(fifo3,"/PRQDATA", HEADERSIZE, HEADERSIZE+IQSIZE, PIRAQ_FIFO_NUM); // replaces fifo_create()
-#ifndef	RUNTIME_PACKET_SIZING	// source project: data packets sized at build time.
-			piraq_fifo_init(fifo3,"/PRQDATA", HEADERSIZE, HEADERSIZE+ABPSIZE, PIRAQ_FIFO_NUM); // replaces fifo_create()
-#else		// CP2: data packets sized at runtime. 
+			// CP2: data packets sized at runtime. 
 			piraq_fifo_init(fifo3,"/PRQDATA", HEADERSIZE, Nhits * (HEADERSIZE + (config3->gatesa * bytespergate) + BUFFER_EPSILON), PIRAQ_FIFO_NUM); 
-#endif
 			if (!fifo3) {
 				printf("piraq3 fifo_create failed\n");      exit(0);
 			}
@@ -718,9 +700,7 @@ no_int_beams:
 		_ftime( &timebuffer );
 		timeline = ctime( & ( timebuffer.time ) );
 		printf( "mSec=%hu\n", timebuffer.millitm );
-#ifdef TIMER_CARD
 		start_timer_card(&ext_timer, &pn_pkt->data.info); // pn_pkt = PACKET pointer to a live piraq 
-#endif
 
 		_ftime( &timebuffer );
 		timeline = ctime( & ( timebuffer.time ) );
@@ -743,12 +723,6 @@ no_int_beams:
 		printf("1:\nfpRadarSystemCorrection  = %+8.5e\n", fpRadarSystemCorrection); 
 		printf("1:\nfpRadarMillisecCorrected = %+8.12e\n", fpRadarMillisec + fpRadarSystemCorrection); 
 		RadarEpochMillisec = (__int64)(fpRadarMillisec + fpRadarSystemCorrection); 
-
-#ifndef DC_OFFSET_TESTING // remove transmitter control: temporary test if introduction produced errors
-		//	printf("\n\nTURN TRANSMITTER ON. Data acquisition started. \nPress any key to continue.\n"); 
-		//	while(!kbhit())	;
-		//	c = toupper(getch()); // get the character
-#endif
 
 		// all running -- get data!
 		testnum = 0;  fifo1_hits = 0; fifo2_hits = 0; fifo3_hits = 0; // 
@@ -794,9 +768,7 @@ no_int_beams:
 								stop_piraq(config3, piraq3); 
 							} 
 							printf("\n\npiraqs stopped\n"); 
-#ifdef TIMER_CARD
 							timer_stop(&ext_timer); 
-#endif
 							delete piraq1; delete piraq2; delete piraq3; 
 							printf("\n\ngoing to eof_start_over\n"); 
 							goto eof_start_over; 
@@ -970,9 +942,7 @@ select2:
 								stop_piraq(config3, piraq3); 
 							} 
 							printf("\n\npiraqs stopped\n"); 
-#ifdef TIMER_CARD
 							timer_stop(&ext_timer); 
-#endif
 							delete piraq1; delete piraq2; delete piraq3; 
 							printf("\n\ngoing to eof_start_over\n"); 
 							goto eof_start_over; 
@@ -1133,9 +1103,7 @@ select3:
 								stop_piraq(config3, piraq3); 
 							} 
 							printf("\n\npiraqs stopped\n"); 
-#ifdef TIMER_CARD
 							timer_stop(&ext_timer); 
-#endif
 							delete piraq1; delete piraq2; delete piraq3; 
 							printf("\n\ngoing to eof_start_over\n"); 
 							goto eof_start_over; 
@@ -1327,10 +1295,8 @@ leave:
 		if (piraqs & 0x04) { // slot 3 active
 			stop_piraq(config3, piraq3); 
 		} 
-#ifdef TIMER_CARD
 		// remove for lab testing: keep transmitter pulses active w/o go.exe running. 12-9-04
 		timer_stop(&ext_timer); 
-#endif
 		delete piraq1; 
 		delete piraq2; 
 		delete piraq3;
@@ -1341,9 +1307,7 @@ leave:
 	} // end if (piraqs)
 leave_now: 
 	stop_piraq(config1, piraq);	//?
-#ifdef TIMER_CARD
 	timer_stop(&ext_timer); 
-#endif
 	delete piraq; 
 	printf("\n%d: fifo_hits = %d\n", testnum, testnum); 
 	exit(0); 
