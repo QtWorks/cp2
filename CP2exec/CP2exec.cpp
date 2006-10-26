@@ -462,14 +462,12 @@ nop3:
 		printf("prt2 = %8.3e\n", pn_pkt->data.info.prt[1]); 
 		//!board-specific for 2,3
 		hits = config1->hits; 
-#if 1
 		printf("hits = %d\n", hits); 
 		float suppm; suppm = prf/(float)hits; 
 		printf("ceil(prf/hits) = %4.5f, prf/hits = %4.5f\n", ceil(prf/(float)hits), suppm); 
 		//		if (ceil(prf/hits) != suppm) {
 		//			printf("integral beams/sec required\n"); exit(0); 
 		//		} 
-#endif
 #ifdef NO_INTEGER_BEAMS
 		goto no_int_beams; 
 #endif
@@ -499,35 +497,29 @@ nop3:
 		printf("beamnum=%I64d\n", beamnum); 
 		// start the piraqs, waiting for each to indicate functionality: 
 		if (piraqs & 0x01) { // turn on slot 1
-#if 1	// 0: restore previous beamnum method
 			pkt1->data.info.pulse_num = pulsenum;	// set UNIX epoch pulsenum just before starting
 			pkt1->data.info.beam_num = beamnum; 
 			pkt1->data.info.packetflag = 1;			// set to piraq: get header! 
 			printf("board%d: receiver_gain = %4.2f vreceiver_gain = %4.2f \n", pkt1->data.info.channel, pkt1->data.info.receiver_gain, pkt1->data.info.vreceiver_gain); 
 			printf("board%d: noise_power = %4.2f vnoise_power = %4.2f \n", pkt1->data.info.channel, pkt1->data.info.noise_power, pkt1->data.info.vnoise_power); 
-#endif
 			if (!start(config1,piraq1,pkt1)) 		  /* start the PIRAQ: also points the piraq to the fifo structure */ 
 			{printf("\npiraq1 DSP program not ready: pkt1->cmd.flag != TRUE (1)\n"); exit(-1);}
 		} 
 		if (piraqs & 0x02) { // turn on slot 2
-#if 1	// 0: restore previous beamnum method
 			pkt2->data.info.pulse_num = pulsenum;	// set UNIX epoch pulsenum just before starting
 			pkt2->data.info.beam_num = beamnum; 
 			pkt2->data.info.packetflag = 1;			// set to piraq: get header! 
 			printf("board%d: receiver_gain = %4.2f vreceiver_gain = %4.2f \n", pkt2->data.info.channel, pkt2->data.info.receiver_gain, pkt2->data.info.vreceiver_gain); 
 			printf("board%d: noise_power = %4.2f vnoise_power = %4.2f \n", pkt2->data.info.channel, pkt2->data.info.noise_power, pkt2->data.info.vnoise_power); 
-#endif
 			if (!start(config2,piraq2,pkt2)) 		  /* start the PIRAQ: also points the piraq to the fifo structure */ 
 			{printf("\npiraq2 DSP program not ready: pkt2->cmd.flag != TRUE (1)\n"); exit(-1);}
 		} 
 		if (piraqs & 0x04) { // turn on slot 3
-#if 1	// 0: restore previous beamnum method
 			pkt3->data.info.pulse_num = pulsenum;	// set UNIX epoch pulsenum just before starting
 			pkt3->data.info.beam_num = beamnum; 
 			pkt3->data.info.packetflag = 1;			// set to piraq: get header! 
 			printf("board%d: receiver_gain = %4.2f vreceiver_gain = %4.2f \n", pkt3->data.info.channel, pkt3->data.info.receiver_gain, pkt3->data.info.vreceiver_gain); 
 			printf("board%d: noise_power = %4.2f vnoise_power = %4.2f \n", pkt3->data.info.channel, pkt3->data.info.noise_power, pkt3->data.info.vnoise_power); 
-#endif
 			if (!start(config3,piraq3,pkt3)) 		  /* start the PIRAQ: also points the piraq to the fifo structure */ 
 			{printf("\npiraq3 DSP program not ready: pkt3->cmd.flag != TRUE (1)\n"); exit(-1);}
 		} 
@@ -647,7 +639,6 @@ nop3:
 						// scale data -- offload from piraq: 
 						fsrc = (float *)fifopiraq1->data.data; 
 
-#if 1	// test N-hit packet: 0: reduce printing
 						__int64 * __int64_ptr, * __int64_ptr2; unsigned int * uint_ptr; float * fsrc2; 
 						for (i = 0; i < Nhits; i++) { // all hits in the packet 
 							// compute pointer to datum in an individual hit, dereference and print. 
@@ -672,38 +663,15 @@ nop3:
 								printf("hit%d: lastPN = %I64d PN = %I64d\n", i+1, lastpulsenumber1, pulsenum);  PNerrors1++; 
 								fprintf(db_fp, "%d:hit%d: lastPN = %I64d PN = %I64d\n", fifopiraq1->data.info.channel, i+1, lastpulsenumber1, pulsenum); 
 							}
-							//if ((testnum % 100) == 0) *__int64_ptr2++; //	!test flub the pulsenumber
-							// test beamnumbers sequential
-							//				if (beamnum != pulsenum / j) { // BN != PN/hits
-							//					printf("hit%d: computed BN1 = %I64d BN1 = %I64d PN1 = %I64d\n", i+1, pulsenum / j, beamnum, pulsenum); 
-							//				} 
-							// print data once per fifo hit -- per N-hit packet: 
-							//				if (i == 0) { // 
-							//					printf("hit%d: BN = %I64d PN = %I64d hits = %d gates = %d fsrc2[0] = %+8.3f\n", i+1, beamnum, pulsenum, j, k, *fsrc2); 
-							//				} 
 							lastpulsenumber1 = pulsenum; // previous hit PN
-							//					printf("hit%d: BN = %I64d PN = %I64d hits = %d gates = %d fsrc2[6] = %+8.3f\n", i+1, beamnum, pulsenum, j, k, *fsrc2); 
-							//					printf("%d: hit%02d: BN = %I64d PN = %I64d fsrc2[0] = %+8.3f fsrc2[1] = %+8.3f fsrc2[2] = %+8.3f fsrc2[end] = %+8.3f\n", k, i+1, beamnum, pulsenum, *fsrc2, fsrc2[1], fsrc2[2], fsrc2[(2*fifopiraq1->data.info.gates)-1]); 
 						}
-						//				printf("\n"); 
-#endif
 						if ((testnum % dspl_hits) == 0) { // done dspl_hit cycles
 							if (dspl_format == 'F') { // display short data
 								pcorrect = 1.0; //(float)fifopiraq1->data.info.hits; //pow(10., 0.1*fifopiraq1->data.info.data_sys_sat);
 								fsrc = (float *)fifopiraq1->data.data;
 								gates_gg = (int)fifopiraq1->data.info.gates*6-6;
-								//printf("0:TOTALSIZE = %d fsrc[0] = %+8.3f fsrc[1] = %+8.3f fsrc[2] = %+8.3f fsrc[%d] = %+8.3f testnum = %d\n", TOTALSIZE(fifopiraq1), fsrc[0], fsrc[1], fsrc[2], (2*fifopiraq1->data.info.gates)-1, fsrc[(2*fifopiraq1->data.info.gates)-1], testnum); 
-								//printf("\n"); 
-								//printf("fsrc2[5] = %+8.3f\n", *fsrc2); 
-								//printf("0:TOTALSIZE = %d CurPkt hits = %d CurPkt channel = %d testnum = %d\n", TOTALSIZE(fifopiraq1), fifopiraq1->data.info.clutter_start[0], fifopiraq1->data.info.clutter_end[0], testnum); 
-								//printf("                 ts_start = %d ts_end = %d\n", fifopiraq1->data.info.ts_start_gate, fifopiraq1->data.info.ts_end_gate); 
-								//printf("                 az = %4.3f el = %4.3f\n",fifopiraq1->data.info.az,fifopiraq1->data.info.el); 
-								//							printf("Saturation %8.2f, Pcorrect %8.3f\n", fifopiraq1->data.info.data_sys_sat, pcorrect);
-								//							printf("Gate %04d:A0 = %+8.3e B0 = %+8.3e P0 = %+8.3e \n          A1 = %+8.3e B1 = %+8.3e P1 = %+8.3e\n",
-								//			  		  0, fsrc[0], fsrc[1], fsrc[2]*pcorrect, fsrc[3], fsrc[4], fsrc[5]*pcorrect); 
 							}
 						} // end	if ((testnum % ...
-						//!!!					printf("fifo1_hits = %d\n",fifo1_hits); 
 						testnum++; fifo1_hits++;   
 #ifndef DRX_PACKET_TESTING	// define activates data packet resizing for CP2 throughput testing. 
 						fifopiraq1->udp.totalsize = TOTALSIZE(fifopiraq1); // ordinary operation
@@ -733,7 +701,6 @@ nop3:
 				{perror( "select" );  continue;}
 
 				else if(val2 == 0) { /* use time out for polling */
-					//printf("1:cur_fifo2_hits = %d\n", cur_fifo2_hits); 
 					// PIRAQ2:
 					// take CYCLE_HITS beams from piraq:
 					while(((cur_fifo2_hits = fifo_hit(fifo2)) > 0) && (cycle_fifo2_hits < CYCLE_HITS)) { // fifo1 hits ready: save #hits pending 
@@ -804,11 +771,8 @@ nop3:
 #endif
 
 						fsrc = (float *)fifopiraq2->data.data; 
-#if 1	// test N-hit packet data: test sequential PNs 
 						__int64 * __int64_ptr, * __int64_ptr2; unsigned int * uint_ptr; float * fsrc2; 
 						for (i = 0; i < Nhits; i++) { // all hits in the packet 
-							//				for (i = 0; i < Nhits+1; i++) { // all hits in the packet + 1
-							//				for (i = 0; i < 1; i++) { // first few hits in the packet 
 							// compute pointer to datum in an individual hit, dereference and print. 
 							// CP2 PCI Bus transfer size: Nhits * (HEADERSIZE + (config2->gatesa * bytespergate) + BUFFER_EPSILON)
 							__int64_ptr = (__int64 *)((char *)&fifopiraq2->data.info.beam_num + i*((HEADERSIZE + (config2->gatesa * bytespergate) + BUFFER_EPSILON))); 
@@ -830,7 +794,6 @@ nop3:
 							//					printf("%d: hit%02d: BN = %I64d PN = %I64d fsrc2[0] = %+8.3f fsrc2[1] = %+8.3f fsrc2[2] = %+8.3f fsrc2[end] = %+8.3f\n", k, i+1, beamnum, pulsenum, *fsrc2, fsrc2[1], fsrc2[2], fsrc2[(2*fifopiraq2->data.info.gates)-1]); 
 						}
 						//				printf("\n"); 
-#endif
 						if ((testnum % dspl_hits) == 0) { // done dspl_hit cycles
 							if (dspl_format == 'F') { // display short data 
 								fsrc = (float *)fifopiraq2->data.data;
@@ -838,15 +801,9 @@ nop3:
 
 								if (config2->ts_start_gate >= 0) { 
 									diagiqsrc = (float *)(((unsigned char *)fifopiraq2->data.data) + fifopiraq2->data.info.gates*fifopiraq2->data.info.bytespergate*sizeof(float));  
-									//								printf("cmd.arg[0..4] 0x%08X 0x%08X 0x%08X 0x%08X 0x%08X\n",
-									//										fifopiraq2->cmd.arg[0], fifopiraq2->cmd.arg[1], fifopiraq2->cmd.arg[2],
-									//										fifopiraq2->cmd.arg[3], fifopiraq2->cmd.arg[4]);
-									//								printf("testiqsrc0= 0x%x testiqsrc1= 0x%x testiqsrc2= 0x%x \ntestiqsrc3= 0x%x testiqsrc4= 0x%x testiqsrc5= 0x%x\n",
-									//						      		  testiqsrc[0], testiqsrc[1], testiqsrc[2], testiqsrc[3], testiqsrc[4], testiqsrc[5]); 
 								}
 							} 
 						} // end	if ((testnum % ...
-						//!!!					printf("fifo2_hits = %d\n",fifo2_hits); 
 						testnum++; fifo2_hits++;  
 #ifndef DRX_PACKET_TESTING	// define activates data packet resizing for CP2 throughput testing. 
 						fifopiraq2->udp.totalsize = TOTALSIZE(fifopiraq2); // ordinary operation
@@ -878,13 +835,6 @@ nop3:
 					while(((cur_fifo3_hits = fifo_hit(fifo3)) > 0) && (cycle_fifo3_hits < CYCLE_HITS)) { // fifo1 hits ready: save #hits pending 
 						if ((cur_fifo3_hits % 5) == 0) { printf("b2: hits3 = %d\n", cur_fifo3_hits); } // print often enough ... 
 						cycle_fifo3_hits++; 
-#if 0
-						printf("piraq3:\n"); piraq3->ReadEPROM(EPROM3);
-						for(y = 0; y < 16; y++) {
-							printf("%08lX %08lX %08lX %08lX\n",EPROM3[y*4],EPROM3[y*4+1],EPROM3[y*4+2],EPROM3[y*4+3]); 
-						}
-						exit(0); 
-#endif
 						fifopiraq3 = (PACKET *)fifo_get_read_address(fifo3,0);
 #ifdef EOF_DETECT
 						if ((int)fifopiraq3->data.info.packetflag == -1) { // piraq detected a hardware out-of-sync condition "EOF" 
@@ -951,7 +901,6 @@ nop3:
 
 						//!					fifopiraq3->data.info.recordlen = RECORDLEN(fifopiraq3); /* this after numgates corrected */
 						fsrc = (float *)fifopiraq3->data.data; 
-#if 1	// test N-hit packet: 0: reduce printing
 						__int64 * __int64_ptr, * __int64_ptr2; unsigned int * uint_ptr; float * fsrc2; 
 						for (i = 0; i < Nhits; i++) { // all hits in the packet 
 							// compute pointer to datum in an individual hit, dereference and print. 
@@ -971,12 +920,8 @@ nop3:
 								fprintf(db_fp, "%d:hit%d: lastPN = %I64d PN = %I64d\n", fifopiraq3->data.info.channel, i+1, lastpulsenumber3, pulsenum); 
 							} 
 							lastpulsenumber3 = pulsenum; // previous hit PN
-							//					printf("hit%d: BN = %I64d PN = %I64d hits = %d gates = %d fsrc2[6] = %+8.3f\n", i+1, beamnum, pulsenum, j, k, *fsrc2); 
-							//					printf("%d: hit%02d: BN = %I64d PN = %I64d fsrc2[0] = %+8.3f fsrc2[1] = %+8.3f fsrc2[2] = %+8.3f fsrc2[end] = %+8.3f\n", k, i+1, beamnum, pulsenum, *fsrc2, fsrc2[1], fsrc2[2], fsrc2[(2*fifopiraq3->data.info.gates)-1]); 
-							//					printf("hit%d: &BN = 0x%x\n", i+1, __int64_ptr); 
 						}
 						//				printf("\n"); 
-#endif
 						if ((testnum % dspl_hits) == 0) { // done dspl_hit cycles
 							if (dspl_format == 'F') { // display short data 
 								fsrc = (float *)fifopiraq3->data.data;
