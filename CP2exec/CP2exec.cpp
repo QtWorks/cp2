@@ -84,7 +84,110 @@ static unsigned short last_millisec, delta_millisec;
 unsigned int Nhits; 
 unsigned int packets = 0; 
 
-int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
+/////////////////////////////////////////////////////////////////////////////
+int
+init_piraq(PIRAQ* &pPiraq, FIFO* &pCmd, char* cmdFifoName, FIFO* &pFifo, CONFIG* pConfig, 
+		   PACKET* &pPkt, int &cmd_notifysock, int bytespergate, char* configFname, char* dspObjFname) 
+{
+
+	int r_c;   // generic return code
+	int y;
+
+	// create a new PIRAQ
+	pPiraq = new PIRAQ;
+
+	r_c = pPiraq->Init(PIRAQ_VENDOR_ID,PIRAQ_DEVICE_ID); 
+	printf("pPiraq->Init() r_c = %d\n", r_c); 
+
+	if (r_c == -1) { // how to use GetErrorString() 
+		char errmsg[256]; 
+		pPiraq->GetErrorString(errmsg); printf("error: %s\n", errmsg); 
+		return -1; 
+	}
+
+	/* put the DSP into a known state where HPI reads/writes will work */
+	pPiraq->ResetPiraq(); // !!!redundant? 
+	pPiraq->GetControl()->UnSetBit_StatusRegister0(STAT0_SW_RESET);
+	Sleep(1);
+	pPiraq->GetControl()->SetBit_StatusRegister0(STAT0_SW_RESET);
+	Sleep(1);
+	printf("pPiraq reset\n"); 
+	unsigned int EPROM1[128]; 
+	pPiraq->ReadEPROM(EPROM1);
+	for(y = 0; y < 16; y++) {
+		printf("%08lX %08lX %08lX %08lX\n",EPROM1[y*4],EPROM1[y*4+1],EPROM1[y*4+2],EPROM1[y*4+3]); 
+	}
+
+	pPiraq->SetCP2PIRAQTestAction(SEND_CHA);	//	send CHA by default; SEND_COMBINED after dynamic-range extension implemented 
+	stop_piraq(pConfig, pPiraq);
+
+	// create the data fifo.
+	pFifo = (FIFO *)pPiraq->GetBuffer(); 
+
+	// CP2: data packets sized at runtime.  + BUFFER_EPSILON
+	piraq_fifo_init(
+		pFifo,"/PRQDATA", 
+		HEADERSIZE, 
+		Nhits * (HEADERSIZE + (config1->gatesa * bytespergate) + BUFFER_EPSILON), 
+		PIRAQ_FIFO_NUM); 
+	printf("hit size = %d computed Nhits = %d\n", (HEADERSIZE + (config1->gatesa * bytespergate) + BUFFER_EPSILON), Nhits); 
+
+	if (!pFifo) { 
+		printf("pPiraq fifo_create failed\n"); exit(0);
+	}
+	printf("pFifo = %p, recordsize = %d\n", pFifo, pFifo->record_size); 
+
+	pPkt = (PACKET *)fifo_get_header_address(pFifo); 
+
+	pPkt->cmd.flag = 0; // Preset the flags just in case
+	pPkt->data.info.channel = 0;			// set BOARD number
+	struct_init(&pPkt->data.info, configFname);   /* initialize the info structure */
+	r_c = pPiraq->LoadDspCode(dspObjFname); // load entered DSP executable filename
+	printf("loading %s: pPiraq->LoadDspCode returns %d\n", dspObjFname, r_c);  
+	timerset(config1, pPiraq); // !note: also programs pll and FIR filter. 
+	printf("Opening FIFO %s", cmdFifoName); 
+	pCmd = fifo_create(cmdFifoName,0,HEADERSIZE,CMD_FIFO_NUM);
+	if(!pCmd)	{
+		printf("\nCannot open %s FIFO buffer\n", cmdFifoName); 
+		exit(-1);
+	}
+	pCmd->port = CMD_RING_PORT+1;
+	/* make sure command socket is last file descriptor opened */
+	if((cmd_notifysock = open_udp_in(pCmd->port)) == ERROR) { /* open the input socket on port where data will come from */
+		printf("Could not open piraq notification socket\n"); 
+		exit(-1);
+	}
+	printf("cmd_notifysock = %d \n", cmd_notifysock); 
+	pPiraq->SetCP2PIRAQTestAction(SEND_CHA);	//	send CHA by default; SEND_COMBINED after dynamic-range extension implemented 
+	return 0;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+int 
+start_piraq(PIRAQ* pPiraq, CONFIG* pConfig, PACKET* pPkt, __int64 pulsenum, __int64 beamnum) 
+{
+	pPkt->data.info.pulse_num = pulsenum;	// set UNIX epoch pulsenum just before starting
+	pPkt->data.info.beam_num = beamnum; 
+	pPkt->data.info.packetflag = 1;			// set to piraq: get header! 
+	printf("board%d: receiver_gain = %4.2f vreceiver_gain = %4.2f \n", 
+		pPkt->data.info.channel, 
+		pPkt->data.info.receiver_gain, 
+		pPkt->data.info.vreceiver_gain); 
+	printf("board%d: noise_power = %4.2f vnoise_power = %4.2f \n", 
+		pPkt->data.info.channel, 
+		pPkt->data.info.noise_power, 
+		pPkt->data.info.vnoise_power); 
+	// start the PIRAQ: also points the piraq to the fifo structure 
+	if (!start(pConfig,pPiraq,pPkt))
+	{
+		printf("Piraq DSP program not ready: pkt->cmd.flag != TRUE (1)\n");
+		return -1;
+	}
+	return 0;
+}
+/////////////////////////////////////////////////////////////////////////////
+int 
+_tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 {
 	int i,j,k,y,outport;
 	int cmd1_notifysock, cmd2_notifysock, cmd3_notifysock; 
@@ -246,13 +349,12 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 
 		//eof_start_over: 
 		timer_stop(&ext_timer); // stop timer card 
-		//		config1 = new CONFIG; config2 = new CONFIG; config3 = new CONFIG; 
 
-		piraq1 = new PIRAQ;
-
-		readconfig(fname1,config1);   /* read in fname.dsp, or use configX.dsp if NULL passed. set up all parameters */ 
+		// read in fname.dsp, or use configX.dsp if NULL passed. set up all parameters
+		readconfig(fname1,config1);    
 		readconfig(fname2,config2);    
 		readconfig(fname3,config3);   
+
 		if (config1->dataformat == 18) { // CP2 Timeseries 
 			bytespergate = 2 * sizeof(float); 
 			// CP2: compute #hits combined into one PCI Bus transfer
@@ -261,171 +363,45 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 				Nhits--;	//	make it even
 		}
 		else	{	//	no other dataformats supported
-			printf("dataformat != 18 not supported\n"); exit(0); 
+			printf("dataformat != 18 not supported\n"); 
+			exit(0); 
 		}
 
-		r_c = piraq1->Init(PIRAQ_VENDOR_ID,PIRAQ_DEVICE_ID); 
-		printf("piraq1->Init() r_c = %d\n", r_c); 
-		if (r_c == -1) { // how to use GetErrorString() 
-			char errmsg[256]; 
-			piraq1->GetErrorString(errmsg); printf("error: %s\n", errmsg); 
-			piraqs &= ~0x0001; goto nop1; 
+		///////////////////////////////////////////////////////////////////////////
+		//
+		//    Initialize piraqs
+
+		if (piraqs & 1) {
+			piraq1 = new PIRAQ;
+			if (init_piraq(piraq1, cmd1, "/CMD1", fifo1, config1, pkt1, 
+				cmd1_notifysock, bytespergate, fname1, argv[1]))
+				piraqs &= ~1;
+			else 
+				pn_pkt = pkt1;
 		}
 
-		/* put the DSP into a known state where HPI reads/writes will work */
-		piraq1->ResetPiraq(); // !!!redundant? 
-		piraq1->GetControl()->UnSetBit_StatusRegister0(STAT0_SW_RESET);
-		Sleep(1);
-		piraq1->GetControl()->SetBit_StatusRegister0(STAT0_SW_RESET);
-		Sleep(1);
-		printf("piraq1 reset\n"); 
-		unsigned int EPROM1[128]; 
-		piraq1->ReadEPROM(EPROM1);
-		for(y = 0; y < 16; y++) {
-			printf("%08lX %08lX %08lX %08lX\n",EPROM1[y*4],EPROM1[y*4+1],EPROM1[y*4+2],EPROM1[y*4+3]); 
+		if (piraqs & 2) {
+			piraq2 = new PIRAQ;
+			if (init_piraq(piraq2, cmd2, "/CMD2", fifo2, config2, pkt2, 
+				cmd2_notifysock, bytespergate, fname2, argv[1]))
+				piraqs &= ~2;
+			else 
+				pn_pkt = pkt2;
 		}
 
-		// if board 1 selected: 
-		if (piraqs & 0x01) { // turn on slot 1
-			piraq1->SetCP2PIRAQTestAction(SEND_CHA);	//	send CHA by default; SEND_COMBINED after dynamic-range extension implemented 
-			stop_piraq(config1, piraq1);
-			fifo1 = (FIFO *)piraq1->GetBuffer(); 
-
-			// CP2: data packets sized at runtime.  + BUFFER_EPSILON
-			piraq_fifo_init(fifo1,"/PRQDATA", HEADERSIZE, Nhits * (HEADERSIZE + (config1->gatesa * bytespergate) + BUFFER_EPSILON), PIRAQ_FIFO_NUM); 
-			printf("hit size = %d computed Nhits = %d\n", (HEADERSIZE + (config1->gatesa * bytespergate) + BUFFER_EPSILON), Nhits); 
-
-			if (!fifo1) { printf("piraq1 fifo_create failed\n"); exit(0);
-			}
-			printf("fifo1 = %p, recordsize = %d\n", fifo1, fifo1->record_size); 
-			pkt1 = (PACKET *)fifo_get_header_address(fifo1); 
-			pkt1->cmd.flag = 0; // Preset the flags just in case
-			pn_pkt = pkt1; // set live packet pointer for subsequent UNIX-epoch pulsenumber calculation
-			pkt1->data.info.channel = 0;			// set BOARD number
-			struct_init(&pkt1->data.info, fname1);   /* initialize the info structure */
-			r_c = piraq1->LoadDspCode(argv[1]); // load entered DSP executable filename
-			printf("loading %s: piraq1->LoadDspCode returns %d\n", argv[1], r_c);  
-			timerset(config1, piraq1); // !note: also programs pll and FIR filter. 
-			printf("Opening FIFO /CMD1......"); 
-			cmd1 = fifo_create("/CMD1",0,HEADERSIZE,CMD_FIFO_NUM);
-			if(!cmd1)	{printf("\nCannot open /CMD1 FIFO buffer\n"); exit(-1);}
-			cmd1->port = CMD_RING_PORT+1;
-			printf("   done.\n");
-			/* make sure command socket is last file descriptor opened */
-			if((cmd1_notifysock = open_udp_in(cmd1->port)) == ERROR) { /* open the input socket on port where data will come from */
-				printf("%s: Could not open piraq1 notification socket\n",argv[0]); exit(-1);
-			}
-			printf("cmd1_notifysock = %d \n", cmd1_notifysock); 
-			piraq1->SetCP2PIRAQTestAction(SEND_CHA);	//	send CHA by default; SEND_COMBINED after dynamic-range extension implemented 
-		} // end if board 1 selected: 
-nop1:
-		piraq2 = new PIRAQ;
-
-		r_c = piraq2->Init(PIRAQ_VENDOR_ID,PIRAQ_DEVICE_ID);
-		printf("piraq2->Init() r_c = %d\n", r_c);
-		if (r_c == -1) { 
-			char errmsg[256]; 
-			piraq2->GetErrorString(errmsg); printf("error: %s\n", errmsg); 
-			piraqs &= ~0x0002; goto nop2; 
-		} 
-		piraq2->ResetPiraq(); 
-		piraq2->GetControl()->UnSetBit_StatusRegister0(STAT0_SW_RESET);
-		Sleep(1);
-		piraq2->GetControl()->SetBit_StatusRegister0(STAT0_SW_RESET);
-		Sleep(1);
-		printf("piraq2 reset\n"); 
-		unsigned int EPROM2[128]; 
-		piraq2->ReadEPROM(EPROM2);
-		for(y = 0; y < 16; y++) {
-			printf("%08lX %08lX %08lX %08lX\n",EPROM2[y*4],EPROM2[y*4+1],EPROM2[y*4+2],EPROM2[y*4+3]); 
+		if (piraqs & 4) {
+			piraq3 = new PIRAQ;
+			if (init_piraq(piraq3, cmd3, "/CMD2", fifo3, config3, pkt3, 
+				cmd3_notifysock, bytespergate, fname3, argv[1]))
+				piraqs &= ~4;
+			else 
+				pn_pkt = pkt3;
 		}
-		// if board 2 selected: 
-		if (piraqs & 0x02) { // turn on slot 2
-			stop_piraq(config2, piraq2);
-			fifo2 = (FIFO *)piraq2->GetBuffer(); 
 
-			// CP2: data packets sized at runtime. 
-			piraq_fifo_init(fifo2,"/PRQDATA", HEADERSIZE, Nhits * (HEADERSIZE + (config2->gatesa * bytespergate) + BUFFER_EPSILON), PIRAQ_FIFO_NUM); 
+		///////////////////////////////////////////////////////////////////////////
+		//
+		//      Don't know what the following stuff is all about
 
-			if (!fifo2)	{
-				printf("piraq2 fifo_create failed\n");      exit(0);
-			}
-			printf("fifo2 = %p, recordsize = %d\n", fifo2, HEADERSIZE + (config2->gatesa * bytespergate) + BUFFER_EPSILON); 
-			pkt2 = (PACKET *)fifo_get_header_address(fifo2);
-			pkt2->cmd.flag = 0; // Preset the flags just in case
-			pn_pkt = pkt2; // set live packet pointer for subsequent UNIX-epoch pulsenumber calculation
-			pkt2->data.info.channel = 1;			// set BOARD number
-			struct_init(&pkt2->data.info, fname2);   /* initialize the info structure */
-			r_c = piraq2->LoadDspCode(argv[1]); // load entered DSP executable filename
-			printf("loading %s: piraq2->LoadDspCode returns %d\n", argv[1], r_c);  
-			timerset(config2, piraq2); // !note: also programs pll and FIR filter. 
-			printf("Opening FIFO /CMD2......"); 
-			cmd2 = fifo_create("/CMD2",0,HEADERSIZE,CMD_FIFO_NUM);
-			if(!cmd2) {
-				printf("\nCannot open /CMD2 FIFO buffer\n"); exit(-1);
-			}
-			cmd2->port = CMD_RING_PORT+2;
-			printf("   done.\n");
-			/* make sure command socket is last file descriptor opened */
-			if((cmd2_notifysock = open_udp_in(cmd2->port)) == ERROR) {	/* open the input socket on port where data will come from */
-				printf("%s: Could not open piraq2 notification socket\n",argv[0]); exit(-1);
-			}
-			printf("cmd2_notifysock = %d \n", cmd2_notifysock); 
-			piraq2->SetCP2PIRAQTestAction(SEND_CHA);	//	send CHA by default; SEND_COMBINED after dynamic-range extension implemented 
-		} // end if board 2 selected: 
-nop2: 
-		piraq3 = new PIRAQ;
-
-		r_c = piraq3->Init(PIRAQ_VENDOR_ID,PIRAQ_DEVICE_ID);
-		printf("piraq3->Init() r_c = %d\n", r_c); 
-		if (r_c == -1) { // how to use GetErrorString() 
-			char errmsg[256]; 
-			piraq3->GetErrorString(errmsg); printf("error: %s\n", errmsg); 
-			piraqs &= ~0x0004; goto nop3; 
-		} 
-		/* put the DSP into a known state where HPI reads/writes will work */
-		piraq3->ResetPiraq(); // !!!redundant? 
-		piraq3->GetControl()->UnSetBit_StatusRegister0(STAT0_SW_RESET);
-		Sleep(1);
-		piraq3->GetControl()->SetBit_StatusRegister0(STAT0_SW_RESET);
-		Sleep(1);
-		printf("piraq3 reset\n"); 
-		unsigned int EPROM3[128]; 
-		piraq3->ReadEPROM(EPROM3);
-		for(y = 0; y < 16; y++) {
-			printf("%08lX %08lX %08lX %08lX\n",EPROM3[y*4],EPROM3[y*4+1],EPROM3[y*4+2],EPROM3[y*4+3]); 
-		}
-		// if board 3 selected: 
-		if (piraqs & 0x04) { // turn on slot 3
-			stop_piraq(config3, piraq3);
-			fifo3 = (FIFO *)piraq3->GetBuffer(); 
-			// CP2: data packets sized at runtime. 
-			piraq_fifo_init(fifo3,"/PRQDATA", HEADERSIZE, Nhits * (HEADERSIZE + (config3->gatesa * bytespergate) + BUFFER_EPSILON), PIRAQ_FIFO_NUM); 
-			if (!fifo3) {
-				printf("piraq3 fifo_create failed\n");      exit(0);
-			}
-			printf("fifo3 = %p, recordsize = %d\n", fifo3, HEADERSIZE + (config3->gatesa * bytespergate) + BUFFER_EPSILON); 
-			pkt3 = (PACKET *)fifo_get_header_address(fifo3);
-			pkt3->cmd.flag = 0; // Preset the flags just in case
-			pn_pkt = pkt3; // set live packet pointer for subsequent UNIX-epoch pulsenumber calculation
-			pkt3->data.info.channel = 2;			// set BOARD number
-			struct_init(&pkt3->data.info, fname3);   /* initialize the info structure */
-			r_c = piraq3->LoadDspCode(argv[1]); // load entered DSP executable filename
-			printf("loading %s: piraq3->LoadDspCode returns %d\n", argv[1], r_c);  
-			timerset(config3, piraq3); // !note: also programs pll and FIR filter. 
-			printf("Opening FIFO /CMD3......"); 
-			cmd3 = fifo_create("/CMD3",0,HEADERSIZE,CMD_FIFO_NUM);
-			if(!cmd3)	{printf("\nCannot open /CMD3 FIFO buffer\n"); exit(-1);}
-			cmd3->port = CMD_RING_PORT+3;
-			printf("   done.\n");
-			/* make sure command socket is last file descriptor opened */
-			if((cmd3_notifysock = open_udp_in(cmd3->port)) == ERROR)	/* open the input socket on port where data will come from */
-			{printf("%s: Could not open piraq3 notification socket\n",argv[0]); exit(-1);
-			}
-			printf("cmd3_notifysock = %d \n", cmd3_notifysock); 
-			piraq3->SetCP2PIRAQTestAction(SEND_CHA);	//	send CHA by default; SEND_COMBINED after dynamic-range extension implemented 
-		} // end if board 3 selected
-nop3:
 		// next section waits for PPS edge and then starts external timer card
 		// get time, then wait for new second
 		time_t now, now_was; 
@@ -471,58 +447,37 @@ nop3:
 #ifdef NO_INTEGER_BEAMS
 		goto no_int_beams; 
 #endif
-		//		BeamsperSec = (unsigned int)prf/hits; 
-		//		mSecperBeam = 1000/BeamsperSec; 
-		//		ExactmSecperBeam = 1000.0/suppm; 
-		//		printf("ExactmSecperBeam = %4.3f\n", ExactmSecperBeam); 
-		//	use integer implementation until full f.p. method is designed: 2-7-05 mp. 
-		//		printf("current implementation requires integer #beams/sec\n"); 
-		//		if (ceil(ExactmSecperBeam) != mSecperBeam) {
-		//			printf("integral milliseconds per beam required\n"); exit(0); 
-		//		} 
-		//		printf("BeamsperSec = %d mSecperBeam = %d\n", BeamsperSec, mSecperBeam); 
+
 		// get current second and wait for it to pass; 
 		now = time(&now); now_was = now;
 		while(now == now_was) // current second persists 
 			now = time(&now);	//  
 		now = time(&now); now_was = now;
-		//		_ftime( &timebuffer );
-		//		SystemEpochMillisec = (timebuffer.time * (__int64)1000) + (__int64)timebuffer.millitm;
-		//		printf("before piraq start():\nSystemEpochMillisec = %I64d\n", SystemEpochMillisec); 
 		printf("now WILL BE %I64d\n", timebuffer.time + (__int64)2); 
 		pulsenum = ((((__int64)(now+2)) * (__int64)COUNTFREQ) / pri) + 1; 
 		beamnum = pulsenum / hits;
 		//beamnum += (__int64)(TimerStartCorrection/mSecperBeam); // cannot do this here ... do at interpolation time
 		printf("pulsenum=%I64d\n", pulsenum); 
 		printf("beamnum=%I64d\n", beamnum); 
-		// start the piraqs, waiting for each to indicate functionality: 
+
+
+		///////////////////////////////////////////////////////////////////////////
+		//
+		//      start the piraqs, waiting for each to indicate functionality
+
 		if (piraqs & 0x01) { // turn on slot 1
-			pkt1->data.info.pulse_num = pulsenum;	// set UNIX epoch pulsenum just before starting
-			pkt1->data.info.beam_num = beamnum; 
-			pkt1->data.info.packetflag = 1;			// set to piraq: get header! 
-			printf("board%d: receiver_gain = %4.2f vreceiver_gain = %4.2f \n", pkt1->data.info.channel, pkt1->data.info.receiver_gain, pkt1->data.info.vreceiver_gain); 
-			printf("board%d: noise_power = %4.2f vnoise_power = %4.2f \n", pkt1->data.info.channel, pkt1->data.info.noise_power, pkt1->data.info.vnoise_power); 
-			if (!start(config1,piraq1,pkt1)) 		  /* start the PIRAQ: also points the piraq to the fifo structure */ 
-			{printf("\npiraq1 DSP program not ready: pkt1->cmd.flag != TRUE (1)\n"); exit(-1);}
+			if (start_piraq(piraq1, config1, pkt1, pulsenum, beamnum)) 
+				exit(-1);
 		} 
 		if (piraqs & 0x02) { // turn on slot 2
-			pkt2->data.info.pulse_num = pulsenum;	// set UNIX epoch pulsenum just before starting
-			pkt2->data.info.beam_num = beamnum; 
-			pkt2->data.info.packetflag = 1;			// set to piraq: get header! 
-			printf("board%d: receiver_gain = %4.2f vreceiver_gain = %4.2f \n", pkt2->data.info.channel, pkt2->data.info.receiver_gain, pkt2->data.info.vreceiver_gain); 
-			printf("board%d: noise_power = %4.2f vnoise_power = %4.2f \n", pkt2->data.info.channel, pkt2->data.info.noise_power, pkt2->data.info.vnoise_power); 
-			if (!start(config2,piraq2,pkt2)) 		  /* start the PIRAQ: also points the piraq to the fifo structure */ 
-			{printf("\npiraq2 DSP program not ready: pkt2->cmd.flag != TRUE (1)\n"); exit(-1);}
+			if (start_piraq(piraq2, config2, pkt2, pulsenum, beamnum)) 
+				exit(-1);
 		} 
 		if (piraqs & 0x04) { // turn on slot 3
-			pkt3->data.info.pulse_num = pulsenum;	// set UNIX epoch pulsenum just before starting
-			pkt3->data.info.beam_num = beamnum; 
-			pkt3->data.info.packetflag = 1;			// set to piraq: get header! 
-			printf("board%d: receiver_gain = %4.2f vreceiver_gain = %4.2f \n", pkt3->data.info.channel, pkt3->data.info.receiver_gain, pkt3->data.info.vreceiver_gain); 
-			printf("board%d: noise_power = %4.2f vnoise_power = %4.2f \n", pkt3->data.info.channel, pkt3->data.info.noise_power, pkt3->data.info.vnoise_power); 
-			if (!start(config3,piraq3,pkt3)) 		  /* start the PIRAQ: also points the piraq to the fifo structure */ 
-			{printf("\npiraq3 DSP program not ready: pkt3->cmd.flag != TRUE (1)\n"); exit(-1);}
+			if (start_piraq(piraq3, config3, pkt3, pulsenum, beamnum)) 
+				exit(-1);
 		} 
+
 		// get current second and wait for it to pass; 
 		now = time(&now); now_was = now;
 		while(now == now_was) // current second persists 
