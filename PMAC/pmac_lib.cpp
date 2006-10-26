@@ -12,7 +12,11 @@
 #include	<stdafx.h>  
 #include "../CP2Exec/stdafx.h"
 
+#include <time.h>
+#include <sys/types.h>
+#include <sys/timeb.h>
 #include "pmac_lib.h"
+
 #include "c:/windriver6/include/windrvr_int_thread.h"
 #include "c:/windriver6/include/windrvr_events.h"
 #include "c:/windriver6/include/status_strings.h"
@@ -675,3 +679,284 @@ unsigned long *PMAC_GetBasePtrPhysical(PMAC_HANDLE hPMAC,PMAC_ADDR addrSpace)
 	return((unsigned long *)hPMAC->cardReg.Card.Item[hPMAC->addrDesc[addrSpace].index].I.Mem.dwPhysicalAddr);
 	//	returned addresses equal in both cases. 
 }
+
+// array of structures containing PMAC DPRAM data and associated quantities required to interpolate angle 
+// from packet beamnumber
+#define PMACDPRAMDataSize 2048
+struct {
+	__int64  acquire_time; // time at end of acquisition interval 
+	float az_avg; // average azimuth, this interval 
+	float el_avg; // average elevation
+	unsigned short scan_type; 
+	unsigned short sweep; 
+	unsigned short volume; 
+	unsigned short whatsit; 
+	unsigned short transition; 
+	unsigned short points; // #samples this average
+	float avg_az_sweep_rate; // sweep rate, over previous ~200mSec 
+	float avg_el_sweep_rate; // sweep rate, over previous ~200mSec 
+} PMACDPRAMData[PMACDPRAMDataSize]; 
+
+// PMAC stuff 
+#define INTERP_START_LATENCY	250		// milliseconds before angle data sufficient to begin interpolation 
+#define LATENCY_SWEEP_RATE		0.001	// very small
+//#define ANGLE_AVERAGE_MSEC		200		// interval for computing average sweep rate for az, el 
+#define SWEEP_AVERAGE_MSEC		 70		// interval for computing average sweep rate for az, el 
+#define FIRST_INTERP_STEP		12		// step back in PMAC timeseries buffer to get 1st interpolation data point 
+static  unsigned short    *Dpram=0;       // for reading PMAC 
+static PMAC_HANDLE pmac_handl; 
+static float az, el;
+static float last_az, delta_az; 
+static float az_sum, az_avg, az_interp; 
+static float delta_el; 
+static float el_sum, el_avg, el_interp; 
+static float last_ai, last_ei; // previous interpolated angles and diffs
+static float daI, deI; 
+static unsigned int angle_samples = 0; // total samples taken
+static _int64 BeginEpochMillisec; // start of PMAC data acquisition 
+static _int64 SearchEpochMillisec; // start of PMAC data acquisition 
+static unsigned int PMACDPRAMDataidx = 0; 
+static int PMACDPRAMDataFirstTime = TRUE; 
+static int SearchPMACDPRAMDataidx = 0; // search forward from previous find; begin at zero 
+static int SearchPMACDPRAMDataacqidx; 
+static int FirstPMACDPRAMInterpidx, SecondPMACDPRAMInterpidx; // begin, end entries for interpolation 
+static int firstInterpolation = FALSE; 
+static unsigned short millisec; 
+
+unsigned int test_az = 0;	//	test data to place in az
+
+struct _timeb PMACtimebuffer;
+int b0 = 0; // diagnostic beam accumulations; printed and cleared once per second. 
+int b1 = 0; 
+int b2 = 0; 
+// !note: if interpolate == FALSE, pkt not valid so do not use it. 
+int pmac_WD6_acquire(PMAC_HANDLE pmac, PACKET * pkt, int interpolate) { 
+	int  size;
+	unsigned short * bp_data;
+	unsigned short scan_type, sweep, volume, transition; 
+	static int i =0;
+	static int n =0;
+
+	// method using pointer to PMAC DPRAM from WD6, set in PIRAQ mailbox3: 
+	//az = (*(PMACDPRAM)) * 360/65536.0; 
+	//printf("PIRAQ pointer az = %5.2f\n",az);
+
+	// method using Windriver6:    
+	//    Open the PMAC: 
+	//    if(!pmac_handl)
+	//		PMAC_Open(&pmac_handl,PMAC_DEFAULT_VENDOR_ID,PMAC_DEFAULT_DEVICE_ID,0);
+
+	//   dwell->header.az = (PMAC_ReadWord(pmac,0,0)) * 360/65536.0;//i++%360;//Dpram[0] * 360.0 / 65536.0;
+	//   dwell->header.el = (PMAC_ReadWord(pmac,0,2)) * 360/65536.0;//i++%360;//Dpram[1] * 360.0 / 65536.0;
+
+	//   az = (PMAC_ReadWord(pmac,0,0)) * 360/65536.0; 
+	//printf("PMAC_ReadWord az = %5.2f\n",az);
+
+	if (PMACDPRAMDataFirstTime == TRUE) { // first PMAC DPRAM data acquisition
+		_ftime( &PMACtimebuffer ); millisec = PMACtimebuffer.millitm; 
+		BeginEpochMillisec = (PMACtimebuffer.time * (__int64)1000) + (__int64)PMACtimebuffer.millitm; 
+		printf("BeginEpochMillisec =  %I64d\n", BeginEpochMillisec); 
+		PMACDPRAMDataFirstTime = FALSE; 
+	}
+#if 1 // turn on to get az displayed direct from PMAC
+	bp_data = (unsigned short *)PMAC_GetBasePtr(pmac, 0); // az offset 0
+	PMAC_WriteWord(pmac,0,0,test_az);	//	write something unique each pass to scan_type offset: 
+	test_az++;
+	az = bp_data[0] * (360/65536.0); 
+	printf("bp_data az = %5.2f\n",az);
+
+	az = (PMAC_ReadWord(pmac,0,0)) * 360/65536.0;  
+	//printf("PMAC = 0x%x az = %5.2f laz = %5.2f\n", PMAC_ReadWord(pmac,0,0), az, last_az);
+	//printf("n = %d after 1 PMAC_ReadWord(pmac,0,0)\n", n); n++; 
+	el = (PMAC_ReadWord(pmac,0,2)) * 360/65536.0;
+	//printf("n = %d\n", n); n++; 
+#endif
+	scan_type = PMAC_ReadWord(pmac,0,4);
+	sweep = PMAC_ReadWord(pmac,0,6);
+	volume = PMAC_ReadWord(pmac,0,8);
+	size = PMAC_ReadWord(pmac,0,10);
+	transition = PMAC_ReadWord(pmac,0,12);
+	// for mSec-resolution time tests: 
+	_ftime( &PMACtimebuffer ); millisec = PMACtimebuffer.millitm; 
+	if (interpolate == TRUE) {
+		RadarEpochMillisec = (__int64)(fpExactmSecperBeam * ((double)pkt->data.info.beam_num) + fpRadarSystemCorrection); // time packet acquired, by beamnumber 
+		//!!!		RadarEpochMillisec = ((__int64)mSecperBeam) * pkt->data.info.beam_num; // time packet acquired, by beamnumber 
+		//printf("n = %d interpolate == TRUE\n", n); n++; 
+		RadarEpochMillisec += (__int64)(TimerStartCorrection); // compensate for timer board startup interval
+		if (pkt->data.info.channel == 0) // accumulate beam count for each board 
+			b0++; 
+		else if (pkt->data.info.channel == 1) 
+			b1++; 
+		else if (pkt->data.info.channel == 2)
+			b2++; 
+		//printf("n = %d interpolate == TRUE\n", n); n++; 
+	}  
+	//printf("RadarEpochMillisec = %I64d \nSystemEpochMillisec = %I64d\n", RadarEpochMillisec, SystemEpochMillisec); 
+	//	timeline = ctime( & ( timebuffer.time ) );
+	//	if (((az - last_az) > 90.0) || ((az - last_az) < -90.0))
+	//		printf("az = %4.3f last_az = %4.3f\n", az, last_az); 
+
+	// print board# here: 
+	//printf( "b=%d:\nS=%I64d mSec=%hu last_mSec=%hu d_mSec=%d az_avg=%4.3f el_avg=%4.3f n=%d idx=%d\nR=%I64d BN=%I64d\n", pkt->data.info.channel, SystemEpochMillisec, timebuffer.millitm, last_millisec, delta_millisec, az_avg, el_avg, PMAC_acquire_times, PMACDPRAMDataidx, RadarEpochMillisec, pkt->data.info.beam_num); 
+	// print board# above: 
+	//printf( "S=%I64d mSec=%hu last_mSec=%hu d_mSec=%d az_avg=%4.3f el_avg=%4.3f n=%d idx=%d\nR=%I64d BN=%I64d\n", SystemEpochMillisec, timebuffer.millitm, last_millisec, delta_millisec, az_avg, el_avg, PMAC_acquire_times, PMACDPRAMDataidx, RadarEpochMillisec, pkt->data.info.beam_num); 
+
+	if (last_millisec != millisec) { 
+		//printf("n = %d last_millisec != millisec\n", n); n++; 
+		//		printf( "az = %5.2f el = %5.2f scan=%d sweep=%d volume=%d transition=%d mSec=%hu last_mSec=%hu n=%d\n", az, el, scan_type, sweep, volume, transition, timebuffer.millitm, last_millisec, PMAC_acquire_times); 
+		//		printf( "az = %5.2f el = %5.2f scan=%d sweep=%d volume=%d transition=%d mSec=%hu last_mSec=%hu n=%d\n", az, el, scan_type, sweep, volume, transition, timebuffer.millitm, last_millisec, PMAC_acquire_times); 
+		if (millisec > last_millisec) 
+			delta_millisec = millisec - last_millisec; 
+		else { // system seconds rollover
+			delta_millisec = (millisec + 1000) - last_millisec; 
+			printf("beam count: b0 = %d b1 = %d b2 = %d\n", b0, b1, b2); b0 = b1 = b2 = 0; // print accumulations; clear 
+
+		}
+		//printf("n = %d last_millisec != millisec\n", n); n++; 
+		if (interpolate == TRUE) {
+			RadarEpochMillisec = (__int64)(fpExactmSecperBeam * ((double)pkt->data.info.beam_num) + fpRadarSystemCorrection); // time packet acquired, by beamnumber 
+			//!!!			RadarEpochMillisec = ((__int64)mSecperBeam) * pkt->data.info.beam_num; // time packet acquired, by beamnumber 
+
+			//printf("n = %d last_millisec != millisec, interp == TRUE\n", n); n++; 
+			RadarEpochMillisec += (__int64)(TimerStartCorrection); // compensate for timer board startup interval
+			//printf("n = %d last_millisec != millisec, interp == TRUE\n", n); n++; 
+		}
+		//		if (interpolate == FALSE) { // acquire angles only
+		//			printf("NO INTERPOLATION:\n"); 
+		//		}
+		//SystemEpochMillisec = (timebuffer.time * (__int64)1000) + (__int64)timebuffer.millitm; // take this LATER: see notes 5-10-04
+		az_avg = az_sum / PMAC_acquire_times; // average last set, both angles
+		//printf("n = %d last_millisec != millisec, / PMAC_acquire_times\n", n); n++; 
+		el_avg = el_sum / PMAC_acquire_times; 
+		//printf("n = %d last_millisec != millisec, / PMAC_acquire_times\n", n); n++; 
+		//		printf( "b=%d:\nS=%I64d \nR=%I64d az = %5.2f el = %5.2f scan=%d sweep=%d volume=%d transition=%d mSec=%hu last_mSec=%hu n=%d\n", pkt->data.info.channel, SystemEpochMillisec, RadarEpochMillisec, az, el, scan_type, sweep, volume, transition, timebuffer.millitm, last_millisec, PMAC_acquire_times); 
+		//		printf( "BEGIN interval:\n"); // new interval; subsequent data applies to it. 
+		//		printf( "b=%d:\nS=%I64d \nR=%I64d mSec=%hu last_mSec=%hu d_mSec=%d az=%4.2f az_avg=%4.3f el=%4.2f el_avg=%4.3f n=%d\n\n", pkt->data.info.channel, SystemEpochMillisec, RadarEpochMillisec, timebuffer.millitm, last_millisec, delta_millisec, az, az_avg, el, el_avg, PMAC_acquire_times); 
+		if (interpolate == TRUE) {
+			//			printf( "b=%d:\nS=%I64d mSec=%hu last_mSec=%hu d_mSec=%d az_avg=%4.3f el_avg=%4.3f n=%d idx=%d\nR=%I64d\n", pkt->data.info.channel, SystemEpochMillisec, timebuffer.millitm, last_millisec, delta_millisec, az_avg, el_avg, PMAC_acquire_times, PMACDPRAMDataidx, RadarEpochMillisec); 
+			//			printf( "b=%d:\nS=%I64d mSec=%hu last_mSec=%hu d_mSec=%d az_avg=%4.3f el_avg=%4.3f n=%d idx=%d\nR=%I64d BN=%I64d\n", pkt->data.info.channel, SystemEpochMillisec, timebuffer.millitm, last_millisec, delta_millisec, az_avg, el_avg, PMAC_acquire_times, PMACDPRAMDataidx, RadarEpochMillisec, pkt->data.info.beam_num); 
+		} 
+		else { 
+			//			printf( "S=%I64d mSec=%hu last_mSec=%hu d_mSec=%d az_avg=%4.3f el_avg=%4.3f n=%d idx=%d\nR=%I64d\n", SystemEpochMillisec, timebuffer.millitm, last_millisec, delta_millisec, az_avg, el_avg, PMAC_acquire_times, PMACDPRAMDataidx, RadarEpochMillisec); 
+			//			printf( "S=%I64d mSec=%hu last_mSec=%hu d_mSec=%d az_avg=%4.3f el_avg=%4.3f n=%d idx=%d\nR=%I64d BN=%I64d\n", SystemEpochMillisec, timebuffer.millitm, last_millisec, delta_millisec, az_avg, el_avg, PMAC_acquire_times, PMACDPRAMDataidx, RadarEpochMillisec, pkt->data.info.beam_num); 
+		} 
+		// in any case take another PMAC timeseries point: 
+		PMACDPRAMData[PMACDPRAMDataidx].acquire_time = SystemEpochMillisec; // save PREVIOUS value; see notes 5-10-04 
+		PMACDPRAMData[PMACDPRAMDataidx].az_avg = az_avg; 
+		PMACDPRAMData[PMACDPRAMDataidx].el_avg = el_avg; 
+		PMACDPRAMData[PMACDPRAMDataidx].scan_type = scan_type; 
+		PMACDPRAMData[PMACDPRAMDataidx].sweep = sweep; // scan_num
+		PMACDPRAMData[PMACDPRAMDataidx].volume = volume; // vol_num
+		PMACDPRAMData[PMACDPRAMDataidx].whatsit = size; 
+		PMACDPRAMData[PMACDPRAMDataidx].transition = transition; 
+		PMACDPRAMData[PMACDPRAMDataidx].points = PMAC_acquire_times; 
+		if (RadarEpochMillisec < (BeginEpochMillisec + INTERP_START_LATENCY)) {	// just started running: not enough data accumulated for interpolation
+			PMACDPRAMData[PMACDPRAMDataidx].avg_az_sweep_rate = LATENCY_SWEEP_RATE; // fill w/small but finite value
+			PMACDPRAMData[PMACDPRAMDataidx].avg_el_sweep_rate = LATENCY_SWEEP_RATE; 
+		}
+		else { // compute average sweep rate over previous 200mSec or so, set by #define
+			SearchPMACDPRAMDataacqidx = PMACDPRAMDataidx; // start w/latest entry: inefficient, but safe
+			while((SystemEpochMillisec - PMACDPRAMData[SearchPMACDPRAMDataacqidx].acquire_time) < SWEEP_AVERAGE_MSEC) { 
+				// most-recent acquire - stored acquire < #define interval 
+				SearchPMACDPRAMDataacqidx--; 
+				if (SearchPMACDPRAMDataacqidx < 0) 
+					SearchPMACDPRAMDataacqidx = PMACDPRAMDataSize - 1; 
+			} 
+			// back up 1 more; 1st entry > 200 mSec before
+			SearchPMACDPRAMDataacqidx--; 
+			if (SearchPMACDPRAMDataacqidx < 0) 
+				SearchPMACDPRAMDataacqidx = PMACDPRAMDataSize - 1; 
+			// compute sweep rate over this interval 
+			PMACDPRAMData[PMACDPRAMDataidx].avg_az_sweep_rate = (az_avg - PMACDPRAMData[SearchPMACDPRAMDataacqidx].az_avg) / (SystemEpochMillisec - PMACDPRAMData[SearchPMACDPRAMDataacqidx].acquire_time); 
+			PMACDPRAMData[PMACDPRAMDataidx].avg_el_sweep_rate = (el_avg - PMACDPRAMData[SearchPMACDPRAMDataacqidx].el_avg) / (SystemEpochMillisec - PMACDPRAMData[SearchPMACDPRAMDataacqidx].acquire_time); 
+			//			printf("avg az rate = %4.3f avg el rate = %4.3f\n", PMACDPRAMData[PMACDPRAMDataidx].avg_az_sweep_rate, PMACDPRAMData[PMACDPRAMDataidx].avg_el_sweep_rate); 
+			//			printf("avg begin at idx = %d\n", SearchPMACDPRAMDataacqidx); 
+		} 
+		// NOW maintain this index: 
+		PMACDPRAMDataidx++; 
+		if (PMACDPRAMDataidx == PMACDPRAMDataSize) // at end 
+			PMACDPRAMDataidx = 0;
+		//printf("PMACDPRAMDataidx = %d\n", PMACDPRAMDataidx); 
+		// az el mSec last_mSec times
+		//		printf( "%5.2f,%5.2f,%hu,%hu,n=%d\n", az, el, timebuffer.millitm, last_millisec, PMAC_acquire_times); 
+		SystemEpochMillisec = (PMACtimebuffer.time * (__int64)1000) + (__int64)PMACtimebuffer.millitm; // take this NOW: see notes 5-10-04
+		PMAC_acquire_times = 1; // count this one 
+		az_sum = az; el_sum = el; // begin sums for averaging 
+	} 
+	else {
+		PMAC_acquire_times++; 
+		az_sum += az; el_sum += el; // continue sums for averaging 
+	} 
+	last_millisec = millisec; // record previous timestamp 
+	//	printf("b:%d az = %4.3f el = %4.3f\n", pkt->data.info.channel, az, el); 
+	last_az = az; 
+	if (interpolate == FALSE) { // acquire angles only
+		return(FALSE); //printf("no interpolation\n"); 
+	}
+	if (RadarEpochMillisec < (BeginEpochMillisec + INTERP_START_LATENCY)) {	// running < 200mSec: not enough data accumulated for interpolation
+		printf("insufficient angle data\n");				// !note: reduce this interval after reliable  
+		//printf( "S=%I64d mSec=%hu last_mSec=%hu d_mSec=%d az_avg=%4.3f el_avg=%4.3f n=%d idx=%d\nR=%I64d BN=%I64d\n", SystemEpochMillisec, timebuffer.millitm, last_millisec, delta_millisec, az_avg, el_avg, PMAC_acquire_times, PMACDPRAMDataidx, RadarEpochMillisec, pkt->data.info.beam_num); 
+		//		SearchPMACDPRAMDataidx = PMACDPRAMDataidx; // save last rejected; begin searches there. 
+		return(TRUE); // tell main to keep getting data 
+	}
+	int search_times = 0; 
+	// search for previous data points bracketing current packet's timestamp: 
+	// search for two PMACDPRAMData[] entries bracketing RadarEpochMillisec:
+	FirstPMACDPRAMInterpidx = PMACDPRAMDataidx; // index w/most recent
+	FirstPMACDPRAMInterpidx--;
+	if (FirstPMACDPRAMInterpidx < 0)
+		FirstPMACDPRAMInterpidx = PMACDPRAMDataSize - 1; 
+	// put error trap here for when RadarEpochMillisec > most-recent time 
+	while(1) { // break on find of required index 
+		if (PMACDPRAMData[FirstPMACDPRAMInterpidx].acquire_time > RadarEpochMillisec) { // PMAC DPRAM Data time > beam time
+			FirstPMACDPRAMInterpidx--;							// index previous entry  
+			if (FirstPMACDPRAMInterpidx < 0)
+				FirstPMACDPRAMInterpidx = PMACDPRAMDataSize - 1; 
+		} 
+		else { //  got index of first acquire-time < RadarEpochMillisec 
+			SecondPMACDPRAMInterpidx = FirstPMACDPRAMInterpidx;	//  interpolation data point index 
+			SecondPMACDPRAMInterpidx++;							// index previous entry for 1st 
+			if (SecondPMACDPRAMInterpidx >= PMACDPRAMDataSize)
+				SecondPMACDPRAMInterpidx = 0; 
+			break; 
+		}
+	}
+	//		goto interpolate;
+
+interpolate: 
+	if (PMACDPRAMDataidx == SecondPMACDPRAMInterpidx) { // second interpolation indexes future -- no data there -- return
+		//	; // !remove for now	
+		//printf( "S=%I64d mSec=%hu last_mSec=%hu d_mSec=%d az_avg=%4.3f el_avg=%4.3f n=%d idx=%d\nR=%I64d BN=%I64d\n", SystemEpochMillisec, timebuffer.millitm, last_millisec, delta_millisec, az_avg, el_avg, PMAC_acquire_times, PMACDPRAMDataidx, RadarEpochMillisec, pkt->data.info.beam_num); 
+		//printf("PMACDPRAMDataidx == SecondPMACDPRAMInterpidx\n"); 
+		return(FALSE); 
+	} // tell main to wait a bit ... 
+	//printf( "S=%I64d mSec=%hu last_mSec=%hu d_mSec=%d az_avg=%4.3f el_avg=%4.3f n=%d idx=%d\nR=%I64d BN=%I64d\n", SystemEpochMillisec, timebuffer.millitm, last_millisec, delta_millisec, az_avg, el_avg, PMAC_acquire_times, PMACDPRAMDataidx, RadarEpochMillisec, pkt->data.info.beam_num); 
+	//printf("Interp success.\n"); 
+
+	float az1, az2; 
+	float az1_corr, az2_corr; 
+	az1_corr = 0.0; az2_corr = 0.0; 
+	az1 = PMACDPRAMData[FirstPMACDPRAMInterpidx].az_avg; az2 = PMACDPRAMData[SecondPMACDPRAMInterpidx].az_avg; 
+	//	if (((az2 - az1) > 90.0) || ((az2 - az1) < -90.0)) // large angle discontinuity
+	//		printf("big leap!! az2 = %4.3f az1 = %4.3f\n", az2, az1); 
+	az1 += az1_corr; az2 += az2_corr; 
+	//	az_interp = PMACDPRAMData[FirstPMACDPRAMInterpidx].az_avg+(RadarEpochMillisec - PMACDPRAMData[FirstPMACDPRAMInterpidx].acquire_time)*((PMACDPRAMData[SecondPMACDPRAMInterpidx].az_avg-PMACDPRAMData[FirstPMACDPRAMInterpidx].az_avg)/(PMACDPRAMData[SecondPMACDPRAMInterpidx].acquire_time-PMACDPRAMData[FirstPMACDPRAMInterpidx].acquire_time));
+	az_interp = az1+(RadarEpochMillisec - PMACDPRAMData[FirstPMACDPRAMInterpidx].acquire_time)*((az2-az1)/(PMACDPRAMData[SecondPMACDPRAMInterpidx].acquire_time-PMACDPRAMData[FirstPMACDPRAMInterpidx].acquire_time));
+	el_interp = PMACDPRAMData[FirstPMACDPRAMInterpidx].el_avg+(RadarEpochMillisec - PMACDPRAMData[FirstPMACDPRAMInterpidx].acquire_time)*((PMACDPRAMData[SecondPMACDPRAMInterpidx].el_avg-PMACDPRAMData[FirstPMACDPRAMInterpidx].el_avg)/(PMACDPRAMData[SecondPMACDPRAMInterpidx].acquire_time-PMACDPRAMData[FirstPMACDPRAMInterpidx].acquire_time));
+	pkt->data.info.az = az_interp; 
+	pkt->data.info.el = el_interp; 
+	pkt->data.info.scan_type = PMACDPRAMData[FirstPMACDPRAMInterpidx].scan_type;
+	pkt->data.info.scan_num = PMACDPRAMData[FirstPMACDPRAMInterpidx].sweep; // scan_num
+	pkt->data.info.vol_num = PMACDPRAMData[FirstPMACDPRAMInterpidx].volume;
+	pkt->data.info.transition = PMACDPRAMData[FirstPMACDPRAMInterpidx].transition;
+	daI = az_interp - last_ai; deI = el_interp - last_ei;
+	//printf("%d\n", pkt->data.info.channel);
+	//azI, elI interpolated angles put in packet: 
+	//	fprintf(db_fp, "REMSec = %I64d: azI = %4.3f daI = %4.3f elI = %4.3f deI = %4.3f\n", RadarEpochMillisec, az_interp, daI, el_interp, deI); 
+	//printf("REMSec = %I64d\ntN+1   = %I64d \ntN     = %I64d idxN+1 = %d idxN = %d idxCur = %d aN+1 = %4.3f aN = %4.3f\n\n", RadarEpochMillisec, PMACDPRAMData[SecondPMACDPRAMInterpidx].acquire_time, PMACDPRAMData[FirstPMACDPRAMInterpidx].acquire_time, SecondPMACDPRAMInterpidx, FirstPMACDPRAMInterpidx, PMACDPRAMDataidx, PMACDPRAMData[SecondPMACDPRAMInterpidx].az_avg, PMACDPRAMData[FirstPMACDPRAMInterpidx].az_avg); 
+	last_ai = az_interp; last_ei = el_interp; 
+	_ftime( &PMACtimebuffer ); millisec = PMACtimebuffer.millitm; 
+	//printf("PMACDPRAMData: sweep=%d volume=%d\n", PMACDPRAMData[FirstPMACDPRAMInterpidx].sweep, PMACDPRAMData[FirstPMACDPRAMInterpidx].volume); 
+	return(TRUE);
+}
+
