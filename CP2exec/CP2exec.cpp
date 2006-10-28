@@ -12,7 +12,7 @@
 #include <time.h>
 
 #include "CP2exec.h" 
-#include "../include/proto.h"
+#include "CP2PIRAQ.h"
 #include "get_julian_day.h"
 
 #ifdef _DEBUG
@@ -296,38 +296,41 @@ poll_piraq(
 int 
 _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 {
-	PIRAQ *piraq1, *piraq2, *piraq3; 
+	CP2PIRAQ* piraq1;
+	CP2PIRAQ* piraq2;
+	CP2PIRAQ* piraq3;
+
 	CONFIG *config1, *config2, *config3;
-	FIFO *fifo1, *fifo2, *fifo3; 
-	FIFO *cmd1, *cmd2, *cmd3; 
-	PACKET *fifopiraq2, *fifopiraq3;
-	PACKET *pkt1, *pkt2, *pkt3, *pn_pkt; 
-	UDPHEADER *udp1, *udp2, *udp3;
+//	FIFO *fifo1, *fifo2, *fifo3; 
+//	FIFO *cmd1, *cmd2, *cmd3; 
+//	PACKET *fifopiraq2, *fifopiraq3;
+//	PACKET *pkt1, *pkt2, *pkt3, *pn_pkt; 
+//	UDPHEADER *udp1, *udp2, *udp3;
 
-	int cmd1_notifysock, cmd2_notifysock, cmd3_notifysock; 
-	int outsock1, outsock2, outsock3; 
-	unsigned __int64 temp2, temp3; 
+//	int cmd1_notifysock, cmd2_notifysock, cmd3_notifysock; 
+//	int outsock1, outsock2, outsock3; 
+//	unsigned __int64 temp2, temp3; 
 
-	float az1 = 0, az2 = 0, az3 = 0;
-	float el1 = 0, el2 = 0, el3 = 0;
-	unsigned int scan1 = 0, scan2 = 0, scan3 = 0;
-	unsigned int volume1 = 0, volume2 = 0, volume3 = 0; 
-	int fifo1_hits, fifo2_hits, fifo3_hits; // cumulative hits per board 
-	int cycle_fifo1_hits, cycle_fifo2_hits, cycle_fifo3_hits; // current hits per cycle 
+//	float az1 = 0, az2 = 0, az3 = 0;
+//	float el1 = 0, el2 = 0, el3 = 0;
+//	unsigned int scan1 = 0, scan2 = 0, scan3 = 0;
+//	unsigned int volume1 = 0, volume2 = 0, volume3 = 0; 
+//	int fifo1_hits, fifo2_hits, fifo3_hits; // cumulative hits per board 
+//	int cycle_fifo1_hits, cycle_fifo2_hits, cycle_fifo3_hits; // current hits per cycle 
 	char fname1[10]; char fname2[10]; char fname3[10]; // configuration filenames
-	__int64 lastpulsenumber1, lastpulsenumber2, lastpulsenumber3;
-	__int64 lastbeamnumber1, lastbeamnumber2, lastbeamnumber3;
-	int  PNerrors1, PNerrors2, PNerrors3; 
-	unsigned int seq1, seq2, seq3; 
+//	__int64 lastpulsenumber1, lastpulsenumber2, lastpulsenumber3;
+//	__int64 lastbeamnumber1, lastbeamnumber2, lastbeamnumber3;
+//	int  PNerrors1, PNerrors2, PNerrors3; 
+//	unsigned int seq1, seq2, seq3; 
 
 
-//for mSec-resolution time tests: 
-struct _timeb timebuffer;
-char *timeline;
+	//for mSec-resolution time tests: 
+	struct _timeb timebuffer;
+	char *timeline;
 
-// set/compute #hits combined by piraq: equal in both piraq executable (CP2_DCCS3_1.out) and CP2exec.exe 
-unsigned int Nhits; 
-//unsigned int packets = 0; 
+	// set/compute #hits combined by piraq: equal in both piraq executable (CP2_DCCS3_1.out) and CP2exec.exe 
+	unsigned int Nhits; 
+	//unsigned int packets = 0; 
 
 
 	int i,j,k,y,outport;
@@ -335,9 +338,9 @@ unsigned int Nhits;
 	unsigned int errors = 0; 
 	int r_c; // return code 
 	int piraqs = 0;   // board count -- default to single board operation 
-	cycle_fifo1_hits = cycle_fifo2_hits = cycle_fifo3_hits = 0; // clear hits per cycle     
+//	cycle_fifo1_hits = cycle_fifo2_hits = cycle_fifo3_hits = 0; // clear hits per cycle     
 	FILE * dspEXEC; 
-//	int dspl_hits = 100; // fifo hits modulus for updating display 
+	//	int dspl_hits = 100; // fifo hits modulus for updating display 
 	unsigned int bytespergate; 
 	__int64 pulsenum, beamnum; 
 	time_t now, now_was; 
@@ -348,9 +351,9 @@ unsigned int Nhits;
 	int iError;
 
 
-	lastpulsenumber1 = lastpulsenumber2 = lastpulsenumber3 = 0;
-	lastbeamnumber1 = lastbeamnumber2 = lastbeamnumber3 = 0;
-	PNerrors1 = PNerrors2 = PNerrors3 = 0; 
+//	lastpulsenumber1 = lastpulsenumber2 = lastpulsenumber3 = 0;
+//	lastbeamnumber1 = lastbeamnumber2 = lastbeamnumber3 = 0;
+//	PNerrors1 = PNerrors2 = PNerrors3 = 0; 
 
 	config1	= new CONFIG; 
 	config2	= new CONFIG; 
@@ -393,24 +396,25 @@ unsigned int Nhits;
 	outport = 3100; 
 
 	// open sockets
-	if((outsock1 = open_udp_out("192.168.3.255")) ==  ERROR)			/* open one socket */
-	{
-		printf("%s: Could not open output socket 1\n",name); 
-		exit(0);
-	}
-	printf("udp socket opens; outsock1 = %d\n", outsock1); 
-	if((outsock2 = open_udp_out("192.168.3.255")) ==  ERROR)			/* open second socket */
-	{
-		printf("%s: Could not open output socket 2\n",name); 
-		exit(0);
-	}
-	printf("udp socket opens; outsock2 = %d\n", outsock2); 
-	if((outsock3 = open_udp_out("192.168.3.255")) ==  ERROR)			/* open second socket */
-	{
-		printf("%s: Could not open output socket 3\n",name); 
-		exit(0);
-	}
-	printf("udp socket opens; outsock3 = %d\n", outsock3); 
+	//	if((outsock1 = open_udp_out("192.168.3.255")) ==  ERROR)			/* open one socket */
+	//	{
+	//		printf("%s: Could not open output socket 1\n",name); 
+	//		exit(0);
+	//	}
+	//	printf("udp socket opens; outsock1 = %d\n", outsock1); 
+
+//	if((outsock2 = open_udp_out("192.168.3.255")) ==  ERROR)			/* open second socket */
+//	{
+//		printf("%s: Could not open output socket 2\n",name); 
+//		exit(0);
+//	}
+//	printf("udp socket opens; outsock2 = %d\n", outsock2); 
+//	if((outsock3 = open_udp_out("192.168.3.255")) ==  ERROR)			/* open second socket */
+//	{
+//		printf("%s: Could not open output socket 3\n",name); 
+//		exit(0);
+//	}
+//	printf("udp socket opens; outsock3 = %d\n", outsock3); 
 
 	timer_stop(&ext_timer); // stop timer card 
 
@@ -434,54 +438,36 @@ unsigned int Nhits;
 
 	///////////////////////////////////////////////////////////////////////////
 	//
-	//    Initialize piraqs
+	//    Create piraqs
 
+	float prt;
+	INFOHEADER info;
 	if (piraqs & 1) {
-		if (init_piraq(piraq1, cmd1, "/CMD1", fifo1, config1, pkt1, 
-			cmd1_notifysock, Nhits, bytespergate, fname1, argv[1]))
-			piraqs &= ~1;
-		else 
-			pn_pkt = pkt1;
+		piraq1 = new CP2PIRAQ(config1, Nhits, outport, fname1, argv[1], bytespergate, "/CMD1");
+		prt = piraq1->prt();
+		info = piraq1->info();
 	}
 
 	if (piraqs & 2) {
-		if (init_piraq(piraq2, cmd2, "/CMD2", fifo2, config2, pkt2, 
-			cmd2_notifysock, Nhits, bytespergate, fname2, argv[1]))
-			piraqs &= ~2;
-		else 
-			pn_pkt = pkt2;
+		piraq2 = new CP2PIRAQ(config2, Nhits, outport+1, fname2, argv[1], bytespergate, "/CMD2");
+		prt = piraq2->prt();
+		info = piraq2->info();
 	}
 
 	if (piraqs & 4) {
-		if (init_piraq(piraq3, cmd3, "/CMD2", fifo3, config3, pkt3,  
-			cmd3_notifysock, Nhits, bytespergate, fname3, argv[1]))
-			piraqs &= ~4;
-		else 
-			pn_pkt = pkt3;
+		piraq3 = new CP2PIRAQ(config3, Nhits, outport+2, fname3, argv[1], bytespergate, "/CMD3");
+		prt = piraq3->prt();
+		info = piraq3->info();
 	}
+
 
 	///////////////////////////////////////////////////////////////////////////
 	//
 	//      Don't know what the following stuff is all about
 
-	// next section waits for PPS edge and then starts external timer card
-	// get time, then wait for new second
-	float prt = pn_pkt->data.info.prt[0];   // get PRTs from valid packet as determined above. 
-	float prt2 = pn_pkt->data.info.prt[1]; 
-
-	//		if (pn_pkt->data.info.dataformat == 17) // staggered PRT
-	//			prt += prt2; 
-	// from singlepiraq now041505.cpp: 
-	if (pn_pkt->data.info.dataformat == 17) { // staggered PRT
-		prt += prt2; 
-		prt /= 2.0; // staggered PRT: two hits per combined prt
-		printf("STAGGER: combined prt = %+8.3e\n", prt); 
-	}
-
 	__int64 prf; 
 	prf = (__int64)(ceil((double)(1/prt)));
 	unsigned int pri; 
-	printf("pn_pkt->data.info.prt[0] = %f (float)(1/prt) = %+8.3e\n", pn_pkt->data.info.prt[0], (float)(1/prt)); 
 	// fp: 
 	double fpprf, fpsuppm; 
 	fpprf = ((double)1.0)/((double)prt); 
@@ -495,7 +481,6 @@ unsigned int Nhits;
 	pri = (unsigned int)(((float)COUNTFREQ)/(float)(1/prt)) + 0.5; 
 	printf("pri = %d\n", pri); 
 	printf("prf = %I64d\n", prf); 
-	printf("prt2 = %8.3e\n", pn_pkt->data.info.prt[1]); 
 	//!board-specific for 2,3
 	//	hits = config1->hits; 
 	printf("hits = %d\n", config1->hits); 
@@ -520,15 +505,15 @@ unsigned int Nhits;
 	//      start the piraqs, waiting for each to indicate functionality
 
 	if (piraqs & 0x01) { // turn on slot 1
-		if (start_piraq(piraq1, config1, pkt1, pulsenum, beamnum)) 
+		if (piraq1->start()) 
 			exit(-1);
 	} 
 	if (piraqs & 0x02) { // turn on slot 2
-		if (start_piraq(piraq2, config2, pkt2, pulsenum, beamnum)) 
+		if (piraq2->start()) 
 			exit(-1);
 	} 
 	if (piraqs & 0x04) { // turn on slot 3
-		if (start_piraq(piraq3, config3, pkt3, pulsenum, beamnum)) 
+		if (piraq3->start()) 
 			exit(-1);
 	} 
 
@@ -555,94 +540,33 @@ unsigned int Nhits;
 	printf("now=%d: ... now_was=%d\n", now, now_was);  
 
 	// start timer board immediately:
-	start_timer_card(&ext_timer, &pn_pkt->data.info); // pn_pkt = PACKET pointer to a live piraq 
+	start_timer_card(&ext_timer, &info); // pn_pkt = PACKET pointer to a live piraq 
 
 	///////////////////////////////////////////////////////////////////////////
 	//
 	//      poll the piraqs in succesion
 
 	// all running -- get data!
-	fifo1_hits = 0; fifo2_hits = 0; fifo3_hits = 0; // 
-	seq1 = seq2 = seq3 = 0; // initialize sequence# for each channel 
+//	fifo1_hits = 0; fifo2_hits = 0; fifo3_hits = 0; // 
+//	seq1 = seq2 = seq3 = 0; // initialize sequence# for each channel 
 	while(1) { // until 'q' 
 		julian_day = get_julian_day(); 
+
 		if (piraqs & 0x01) { // turn on slot 1
-			if (poll_piraq(
-				config1,
-				fifo1,
-				udp1,
-				cmd1_notifysock,
-				beamnum,
-				pulsenum,
-				outport,
-				outsock1,
-				cycle_fifo1_hits,
-				fifo1_hits,
-				lastpulsenumber1,
-				PNerrors1,
-				az1,
-				el1,
-				scan1,
-				volume1,
-				seq1,
-				prt,
-				julian_day,
-				bytespergate,
-				Nhits))
+			if (piraq1->poll(julian_day))
 				continue;
 		}
-		// piraq2: 
-		if (piraqs & 0x02) { // turn on slot 2
-			if (poll_piraq(
-				config2,
-				fifo2,
-				udp2,
-				cmd2_notifysock,
-				beamnum,
-				pulsenum,
-				outport+1,
-				outsock2,
-				cycle_fifo2_hits,
-				fifo2_hits,
-				lastpulsenumber2,
-				PNerrors2,
-				az2,
-				el2,
-				scan2,
-				volume2,
-				seq2,
-				prt,
-				julian_day,
-				bytespergate,
-				Nhits))
+
+		if (piraqs & 0x02) { // turn on slot 1
+			if (piraq2->poll(julian_day))
 				continue;
-		}	
-		// piraq3: 
-		if (piraqs & 0x04) { // turn on slot 3
-			if (poll_piraq(
-				config3,
-				fifo3,
-				udp3,
-				cmd3_notifysock,
-				beamnum,
-				pulsenum,
-				outport+2,
-				outsock3,
-				cycle_fifo3_hits,
-				fifo3_hits,
-				lastpulsenumber3,
-				PNerrors3,
-				az3,
-				el3,
-				scan3,
-				volume3,
-				seq3,
-				prt,
-				julian_day,
-				bytespergate,
-				Nhits))
+		}
+
+		if (piraqs & 0x04) { // turn on slot 1
+			if (piraq3->poll(julian_day))
 				continue;
-		} 
+		}
+
 
 		if (kbhit()) {
 			c = toupper(getch());
@@ -703,8 +627,6 @@ unsigned int Nhits;
 				else if (c == '8')	piraq3->SetCP2PIRAQTestAction(SEND_COMBINED);	//	send combined data
 			}
 			if(c == 'Q' || c == 27)   {
-				printf("errors 0:%d 1:%d 2:%d\n", 
-					PNerrors1, PNerrors2, PNerrors3 ); 
 				printf("\nUser terminated:\n");	
 				break;
 			}

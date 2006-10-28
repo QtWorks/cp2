@@ -84,7 +84,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;C:\Program Files\TVicSoft\TVicHW50\MSVC&quot;;C:\Plx\PciSdk\Inc"
+				AdditionalIncludeDirectories="&quot;C:\Program Files\TVicSoft\TVicHW50\MSVC&quot;;C:\Plx\PciSdk\Inc;../include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -170,6 +170,9 @@
 			</File>
 			<File
 				RelativePath="CP2exec.rc">
+			</File>
+			<File
+				RelativePath=".\CP2PIRAQ.cpp">
 			</File>
 			<File
 				RelativePath="get_julian_day.cpp">
@@ -339,6 +342,9 @@
 			Filter="h;hpp;hxx;hm;inl">
 			<File
 				RelativePath="CP2exec.h">
+			</File>
+			<File
+				RelativePath=".\CP2PIRAQ.h">
 			</File>
 			<File
 				RelativePath="..\include\dd_types.h">
