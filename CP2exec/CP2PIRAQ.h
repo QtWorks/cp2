@@ -1,9 +1,6 @@
 #ifndef CP2PIRAQINC_
 #define CP2PIRAQINC_
-
 #include "proto.h"
-
-#define PIRAQ3D_SCALE	1.0/pow(2,31)	// normalize 2^31 data to 1.0 full scale using multiplication
 
 class CP2PIRAQ: public PIRAQ {
 
@@ -15,7 +12,7 @@ public:
 		char* configFname,
 		char* dspObjFnamefloat,
 		unsigned int Nhits
-);
+		);
 
 	~CP2PIRAQ();
 
@@ -32,7 +29,7 @@ protected:
 	/// A configurtion which will be created from
 	/// a supplied file name
 	CONFIG _config;
-    /// The FIFO that is used for data transfering from piraq to host
+	/// The FIFO that is used for data transfering from piraq to host
 	FIFO* pFifo; 
 	/// This will be the first packet in the fifo. It appears that
 	/// the piraq may read this structure?
@@ -56,7 +53,7 @@ protected:
 	unsigned int volume;
 	/// current sequence
 	unsigned int seq;
-    /// the number of bytes per gate
+	/// the number of bytes per gate
 	int bytespergate;
 	/// the number of hits in each block transfer
 	/// from the piraq.
