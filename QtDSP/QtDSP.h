@@ -16,6 +16,7 @@
 #include "Fifo.h"		//	std::vector-based implementation 
 
 #include <vector>
+#include <map>
 
 //	QtDSP-specific definitions: 
 //	3 IQ receive channels: 
@@ -43,9 +44,7 @@ public slots:
 	void startStopReceiveSlot();	
 
 	//	one SIGNAL/SLOT pair for each receive channel: 
-	void dataReceiveSocketActivatedSlot0( int socket );	// File descriptor of the data socket
-	void dataReceiveSocketActivatedSlot1( int socket );
-	void dataReceiveSocketActivatedSlot2( int socket );
+	void dataReceiveSocketActivatedSlot( int socket );
 
 protected:
 	//	objects, etc. for 1 comm channel: 
@@ -75,6 +74,9 @@ protected:
 
 	uint8			_SABPgenBeginPN;	//	1st PN in beam to compute pulsepairs
 
+	/// save the mapping of sockets to receive channels
+	std::map<int, int> _socketToChannelMap;
+
 	//	define structure array of receive channels: 
 	struct	receiveChannel {
 		int	_rcvChannel;	//	index
@@ -89,16 +91,16 @@ protected:
 		unsigned int _secsSilent;	//	seconds receive channel silent
 		uint8 _PN;				//	most-recent received pulsenumber
 		//	parameters related to this channel and its radar description: 
-		//	operating parameters from piraqx (or other header) "housekeeping" for use by program: data types per piraqx.h
+		//	operating parameters from piraqx (or other header) 
+		//  "housekeeping" for use by program: data types per piraqx.h
 		uint4			_gates;
 		uint4			_hits;
 		//	operating parameters derived from piraqx and N-hit implementation:	
 		uint4			_radarType;		//	set by field "desc", describing the radar function
-
 		unsigned int	_pulsesToProcess;	//	pulses to process, this channel
 		Fifo*			_fifo;		//	std::vector implementation 
 		uint4			_fifo_hits;	//	timeseries hits: fifo "size"
-
+		int    lastreadBufLen;
 	} rcvChannel[QTDSP_RECEIVE_CHANNELS];
 
 	//	define structure array of send channels: 
