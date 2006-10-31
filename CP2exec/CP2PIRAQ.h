@@ -23,6 +23,7 @@ public:
 	int poll(int julian_day);
 	int start(__int64 firstPulseNum,
 			  __int64 firstBeamNum);
+	void stop();
 	float prt();
 	INFOHEADER info();
 
