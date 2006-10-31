@@ -7,24 +7,23 @@
 #define CYCLE_HITS 20
 
 ///////////////////////////////////////////////////////////////////////////
-CP2PIRAQ::CP2PIRAQ(
-				   unsigned int Nhits_, 
+CP2PIRAQ::CP2PIRAQ(char* destIP,
 				   int outputPort_, 
 				   char* configFname, 
 				   char* dspObjFname,
-				   int bytespergate_):
+				   unsigned int Nhits_):
 PIRAQ(),
 Nhits(Nhits_), 
 outport(outputPort_), 
-bytespergate(bytespergate_),
+bytespergate(2 * sizeof(float)),
 _lastPulseNumber(0)
 {
-	if((outsock = open_udp_out("192.168.3.255")) ==  ERROR)			/* open one socket */
+
+	if((outsock = open_udp_out(destIP)) ==  ERROR)			/* open one socket */
 	{
 		printf("Could not open output socket\n"); 
 		exit(0);
 	}
-	printf("udp socket opens; outsock1 = %d\n", outsock); 
 
 	init(configFname, dspObjFname);
 }
@@ -147,7 +146,7 @@ CP2PIRAQ::poll(int julian_day)
 		udp->type = UDPTYPE_PIRAQ_CP2_TIMESERIES; 
 
 		// set the data size
-		pFifoPiraq->data.info.bytespergate = 2 * (sizeof(float)); // Staggered PRT ABPDATA
+		pFifoPiraq->data.info.bytespergate = bytespergate; // Staggered PRT ABPDATA
 
 		// set a time stamp. Why is this necessary?
 		unsigned __int64 temp = 

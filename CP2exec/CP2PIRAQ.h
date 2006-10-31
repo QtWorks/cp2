@@ -10,11 +10,12 @@ class CP2PIRAQ: public PIRAQ {
 public:
 
 	CP2PIRAQ( 
-		unsigned int Nhits,
+		char* ipDestination,
 		int outputPort,
 		char* configFname,
 		char* dspObjFnamefloat,
-		int bytespergate);
+		unsigned int Nhits
+);
 
 	~CP2PIRAQ();
 

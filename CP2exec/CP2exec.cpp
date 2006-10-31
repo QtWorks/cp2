@@ -25,12 +25,8 @@ static char THIS_FILE[] = __FILE__;
 // test drx data throughput limits by varying data packet size w/o changing DSP computational load:  
 #define			DRX_PACKET_TESTING	// define to activate data packet resizing for CP2 throughput testing. 
 #endif
-#define			CYCLE_HITS	20	// #fifo hits to take from piraq-host shared memory before rotating to next board: CP2
-
 //#define TESTING_TIMESERIES // compute test diagnostic timeseries data in one of two piraq channels: 
 //#define TESTING_TIMESERIES_RANGE	// test dynamic reassignment of timeseries start, end gate using 'U','D'
-
-#define PIRAQ3D_SCALE	1.0/pow(2,31)	// normalize 2^31 data to 1.0 full scale using multiplication
 
 int keyvalid() 
 {
@@ -49,17 +45,16 @@ _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 	CP2PIRAQ* piraq3 = 0;
 
 	CONFIG *config1, *config2, *config3;
-	char fname1[10]; char fname2[10]; char fname3[10]; // configuration filenames
+	char fname1[100]; char fname2[100]; char fname3[100]; // configuration filenames
+	char* destIP = "192.168.3.255";
 
 	// set/compute #hits combined by piraq: equal in both piraq executable (CP2_DCCS3_1.out) and CP2exec.exe 
 	unsigned int Nhits; 
-
 	int outport;
 	char c;
-
 	int piraqs = 0;   // board count -- default to single board operation 
 	FILE * dspEXEC; 
-	unsigned int bytespergate; 
+
 	__int64 pulsenum;
 	__int64 beamnum; 
 
@@ -116,9 +111,8 @@ _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 	// Nhits is the number of hits that are combined into one
 	// data transfer from the piraq to the host.
 	if (config1->dataformat == 18) {  
-		bytespergate = 2 * sizeof(float); 
 		// CP2: compute #hits combined into one PCI Bus transfer
-		Nhits = 65536 / (HEADERSIZE + (config1->gatesa * bytespergate) + BUFFER_EPSILON); 
+		Nhits = 65536 / (HEADERSIZE + (config1->gatesa * 2 * sizeof(float)) + BUFFER_EPSILON); 
 		if	(Nhits % 2)	//	computed odd #hits
 			Nhits--;	//	make it even
 	}
@@ -134,9 +128,9 @@ _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 	//    are found in succesion, even if we will not be collecting data 
 	//    from all of them.
 
-	piraq1 = new CP2PIRAQ(Nhits, outport,   fname1, argv[1], bytespergate);
-	piraq2 = new CP2PIRAQ(Nhits, outport+1, fname2, argv[1], bytespergate);
-	piraq3 = new CP2PIRAQ(Nhits, outport+2, fname3, argv[1], bytespergate);
+	piraq1 = new CP2PIRAQ(destIP, outport,   fname1, argv[1], Nhits);
+	piraq2 = new CP2PIRAQ(destIP, outport+1, fname2, argv[1], Nhits);
+	piraq3 = new CP2PIRAQ(destIP, outport+2, fname3, argv[1], Nhits);
 
 	///////////////////////////////////////////////////////////////////////////
 	//
