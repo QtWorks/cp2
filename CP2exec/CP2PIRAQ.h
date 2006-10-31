@@ -10,53 +10,56 @@ class CP2PIRAQ: public PIRAQ {
 public:
 
 	CP2PIRAQ( 
-		CONFIG* pConfig,
 		unsigned int Nhits,
 		int outputPort,
 		char* configFname,
 		char* dspObjFnamefloat,
-		int bytespergate,
-		char* cmdFifoName);
+		int bytespergate);
 
 	~CP2PIRAQ();
 
 	int poll(int julian_day);
 	int start(__int64 firstPulseNum,
-			  __int64 firstBeamNum);
+		__int64 firstBeamNum);
 	void stop();
 	float prt();
 	INFOHEADER info();
 
 protected:
-	int init();
+	int init(char* configFname, char* dspObjFname);
 
-		CONFIG* pConfig;
-		   FIFO* pFifo; 
-		   FIFO* pCmd;
-		   UDPHEADER* udp; 
-		   PACKET* pPkt;
-		   int cmd_notifysock; 
-		   __int64 beamnum;
-		   __int64 pulsenum;
-		   int outport;
-		   int outsock;
-		   int cycle_fifo_hits; 
-		   int fifo_hits;
-		   __int64 lastpulsenumber; 
-		   int PNerrors;
-		   float az;
-		   float el; 
-		   unsigned int scan; 
-		   unsigned int volume; 
-		   unsigned int seq;
-		   int bytespergate;
-		   unsigned int Nhits;
-		   char* cmdFifoName;
-		   char* configFname;
-		   char* dspObjFname;
-		   float _prt;
-		INFOHEADER _info;
-
+	/// A configurtion which will be created from
+	/// a supplied file name
+	CONFIG _config;
+    /// The FIFO that is used for data transfering from piraq to host
+	FIFO* pFifo; 
+	/// This will be the first packet in the fifo. It appears that
+	/// the piraq may read this structure?
+	PACKET* _pConfigPacket;
+	/// The destination data port
+	int outport;
+	/// The socket for output data
+	int outsock;
+	/// The last pulse number received. Used to detect
+	/// dropped pulses.
+	__int64 _lastPulseNumber; 
+	/// Cumulative pulse number errors
+	int PNerrors;
+	/// current azimuth
+	float az;
+	/// current elevation
+	float el; 
+	/// current scan
+	unsigned int scan;
+	/// current volume
+	unsigned int volume;
+	/// current sequence
+	unsigned int seq;
+    /// the number of bytes per gate
+	int bytespergate;
+	/// the number of hits in each block transfer
+	/// from the piraq.
+	unsigned int Nhits;
 };
 
 #endif

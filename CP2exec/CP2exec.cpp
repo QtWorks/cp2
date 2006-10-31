@@ -134,9 +134,9 @@ _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 	//    are found in succesion, even if we will not be collecting data 
 	//    from all of them.
 
-	piraq1 = new CP2PIRAQ(config1, Nhits, outport, fname1, argv[1], bytespergate, "/CMD1");
-	piraq2 = new CP2PIRAQ(config2, Nhits, outport+1, fname2, argv[1], bytespergate, "/CMD2");
-	piraq3 = new CP2PIRAQ(config3, Nhits, outport+2, fname3, argv[1], bytespergate, "/CMD3");
+	piraq1 = new CP2PIRAQ(Nhits, outport,   fname1, argv[1], bytespergate);
+	piraq2 = new CP2PIRAQ(Nhits, outport+1, fname2, argv[1], bytespergate);
+	piraq3 = new CP2PIRAQ(Nhits, outport+2, fname3, argv[1], bytespergate);
 
 	///////////////////////////////////////////////////////////////////////////
 	//
