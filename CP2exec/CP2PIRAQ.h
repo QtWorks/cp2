@@ -21,7 +21,8 @@ public:
 	~CP2PIRAQ();
 
 	int poll(int julian_day);
-	int start();
+	int start(__int64 firstPulseNum,
+			  __int64 firstBeamNum);
 	float prt();
 	INFOHEADER info();
 
@@ -34,8 +35,8 @@ protected:
 		   UDPHEADER* udp; 
 		   PACKET* pPkt;
 		   int cmd_notifysock; 
-		   int beamnum;
-		   int pulsenum;
+		   __int64 beamnum;
+		   __int64 pulsenum;
 		   int outport;
 		   int outsock;
 		   int cycle_fifo_hits; 

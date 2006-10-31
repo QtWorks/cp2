@@ -21,7 +21,6 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-//#define			TIME_TESTING		// define to activate millisecond printout for time of events. 
 #ifdef CP2_TESTING		// switch ON test code for CP2 
 // test drx data throughput limits by varying data packet size w/o changing DSP computational load:  
 #define			DRX_PACKET_TESTING	// define to activate data packet resizing for CP2 throughput testing. 
@@ -141,29 +140,18 @@ _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 
 	///////////////////////////////////////////////////////////////////////////
 	//
-	//    Create piraqs
+	//    Create piraqs. They all have to be created, so that all boards
+	//    are found in succesion, even if we will not be collecting data 
+	//    from all of them.
+
+	piraq1 = new CP2PIRAQ(config1, Nhits, outport, fname1, argv[1], bytespergate, "/CMD1");
+	piraq2 = new CP2PIRAQ(config2, Nhits, outport+1, fname2, argv[1], bytespergate, "/CMD2");
+	piraq3 = new CP2PIRAQ(config3, Nhits, outport+2, fname3, argv[1], bytespergate, "/CMD3");
 
 	float prt;
 	INFOHEADER info;
-	if (piraqs & 1) {
-		piraq1 = new CP2PIRAQ(config1, Nhits, outport, fname1, argv[1], bytespergate, "/CMD1");
-		prt = piraq1->prt();
-		info = piraq1->info();
-	}
-
-	if (piraqs & 2) {
-		piraq2 = new CP2PIRAQ(config2, Nhits, outport+1, fname2, argv[1], bytespergate, "/CMD2");
-		prt = piraq2->prt();
-		info = piraq2->info();
-	}
-
-	if (piraqs & 4) {
-		piraq3 = new CP2PIRAQ(config3, Nhits, outport+2, fname3, argv[1], bytespergate, "/CMD3");
-		prt = piraq3->prt();
-		info = piraq3->info();
-	}
-
-
+	prt = piraq3->prt();
+	info = piraq3->info();
 	///////////////////////////////////////////////////////////////////////////
 	//
 	//      Don't know what the following stuff is all about
@@ -200,23 +188,23 @@ _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 	now = time(&now); now_was = now;
 	pulsenum = ((((__int64)(now+2)) * (__int64)COUNTFREQ) / pri) + 1; 
 	beamnum = pulsenum / config1->hits;
-	printf("pulsenum=%I64d\n", pulsenum); 
-	printf("beamnum=%I64d\n", beamnum); 
+	printf("pulsenum = %I64d\n", pulsenum); 
+	printf("beamnum  =  %I64d\n", beamnum); 
 
 	///////////////////////////////////////////////////////////////////////////
 	//
 	//      start the piraqs, waiting for each to indicate functionality
 
 	if (piraqs & 0x01) { // turn on slot 1
-		if (piraq1->start()) 
+		if (piraq1->start(pulsenum, beamnum)) 
 			exit(-1);
 	} 
 	if (piraqs & 0x02) { // turn on slot 2
-		if (piraq2->start()) 
+		if (piraq2->start(pulsenum, beamnum)) 
 			exit(-1);
 	} 
 	if (piraqs & 0x04) { // turn on slot 3
-		if (piraq3->start()) 
+		if (piraq3->start(pulsenum, beamnum)) 
 			exit(-1);
 	} 
 
@@ -232,8 +220,8 @@ _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 	printf("now+1=%d: data collection starts THEN.\n... waiting for this second (now) to expire ... \npulsenumber computed using NEXT second, when timer board is triggered \n", now+1);  
 	printf("now=%d\n", now);  
 	printf("pri = %d\n", pri+1); 
-	printf("pulsenum=%I64d\n", pulsenum); 
-	printf("beamnum=%I64d\n", beamnum); 
+	printf("pulsenum = %I64d\n", pulsenum); 
+	printf("beamnum  =  %I64d\n", beamnum); 
 
 	// time-related parameters initialized -- wait for new second then start timer card and 
 	// data acquisition. 
@@ -250,8 +238,8 @@ _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 	//      poll the piraqs in succesion
 
 	// all running -- get data!
-//	fifo1_hits = 0; fifo2_hits = 0; fifo3_hits = 0; // 
-//	seq1 = seq2 = seq3 = 0; // initialize sequence# for each channel 
+	//	fifo1_hits = 0; fifo2_hits = 0; fifo3_hits = 0; // 
+	//	seq1 = seq2 = seq3 = 0; // initialize sequence# for each channel 
 	while(1) { // until 'q' 
 		julian_day = get_julian_day(); 
 

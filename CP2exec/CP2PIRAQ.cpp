@@ -95,7 +95,7 @@ CP2PIRAQ::init()
 
 	struct_init(&pPkt->data.info, configFname);   /* initialize the info structure */
 	_info = pPkt->data.info;
-    _prt = pPkt->data.info.prt[0];   // get PRTs from valid packet as determined above. 
+	_prt = pPkt->data.info.prt[0];   // get PRTs from valid packet as determined above. 
 
 	r_c = this->LoadDspCode(dspObjFname); // load entered DSP executable filename
 	printf("loading %s: this->LoadDspCode returns %d\n", dspObjFname, r_c);  
@@ -119,10 +119,11 @@ CP2PIRAQ::init()
 
 /////////////////////////////////////////////////////////////////////////////
 int 
-CP2PIRAQ::start() 
+CP2PIRAQ::start(__int64 firstPulseNum,
+				__int64 firstBeamNum) 
 {
-	pPkt->data.info.pulse_num = pulsenum;	// set UNIX epoch pulsenum just before starting
-	pPkt->data.info.beam_num = beamnum; 
+	pPkt->data.info.pulse_num = firstPulseNum;	// set UNIX epoch pulsenum just before starting
+	pPkt->data.info.beam_num = firstBeamNum; 
 	pPkt->data.info.packetflag = 1;			// set to piraq: get header! 
 	printf("board%d: receiver_gain = %4.2f vreceiver_gain = %4.2f \n", 
 		pPkt->data.info.channel, 
@@ -206,14 +207,6 @@ CP2PIRAQ::poll(int julian_day)
 			pFifoPiraq->data.info.el = el; // set in packet 
 			pFifoPiraq->data.info.scan_num = scan;
 			pFifoPiraq->data.info.vol_num = volume;  
-			//					printf("fake: az = %4.3f el = %4.3f\n",fifopiraq1->data.info.az,fifopiraq1->data.info.el); 
-			// ... to here 
-#ifdef TIME_TESTING	
-			// for mSec-resolution time tests: 
-			_ftime( &timebuffer );
-			timeline = ctime( & ( timebuffer.time ) );
-			printf( "1: %hu ... fakin it.\n", timebuffer.millitm );
-#endif
 			pFifoPiraq->data.info.julian_day = julian_day; 
 
 #ifdef	DRX_PACKET_TESTING	// define to activate data packet resizing for throughput testing. 
@@ -251,7 +244,6 @@ CP2PIRAQ::poll(int julian_day)
 			// increase udp-send totalsize to Nhits
 			int test_totalsize1 = Nhits*(TOTALSIZE(pFifoPiraq) + BUFFER_EPSILON); 
 			pFifoPiraq->udp.totalsize = test_totalsize1; // CP2 throughput testing
-
 			seq = send_udp_packet(outsock, outport, seq, udp); 
 			fifo_increment_tail(pFifo);
 		} // end	while(fifo_hit()
