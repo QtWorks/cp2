@@ -89,7 +89,9 @@ protected:
 		int	_packetCountErrors;
 		int _parametersSet;		//	set if operating parameters obtained from incoming data
 		unsigned int _secsSilent;	//	seconds receive channel silent
-		uint8 _PN;				//	most-recent received pulsenumber
+		uint8 _PN;
+		uint8 lastPN;
+		int pnErrors;
 		//	parameters related to this channel and its radar description: 
 		//	operating parameters from piraqx (or other header) 
 		//  "housekeeping" for use by program: data types per piraqx.h

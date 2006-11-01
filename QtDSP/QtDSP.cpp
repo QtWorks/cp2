@@ -47,6 +47,7 @@ _fifo3(0)
 	// Start a timer to monitor data channel functioning 
 	m_dataDisplayTimer = startTimer(QTDSP_MONITOR_INTERVAL);
 
+
 	//	create FIFOs for 3 PIRAQs 
 	sprintf(m_statusLogBuf, "FIFOs created for data channels 1, 2, 3: std::vector implementation"); 
 	_fifo1 = new Fifo(0);
@@ -55,9 +56,11 @@ _fifo3(0)
 	rcvChannel[0]._fifo = _fifo1;
 	rcvChannel[1]._fifo = _fifo2;
 	rcvChannel[2]._fifo = _fifo3;
-	rcvChannel[0]._fifo_hits = 0;
-	rcvChannel[1]._fifo_hits = 0;
-	rcvChannel[2]._fifo_hits = 0;
+	for (int i = 0;  i < 3; i++) {
+		rcvChannel[i]._fifo_hits = 0;
+		rcvChannel[i].pnErrors = 0;
+		rcvChannel[i].lastreadBufLen = -1;
+	}
 }
 
 QtDSP::~QtDSP() {
@@ -67,7 +70,9 @@ QtDSP::~QtDSP() {
 			terminateReceiveSocket(&rcvChannel[i]);
 		}
 	}
-	delete _fifo1; delete _fifo2; delete _fifo3; 
+	delete _fifo1; 
+	delete _fifo2; 
+	delete _fifo3; 
 }
 
 int
@@ -168,6 +173,10 @@ QtDSP::timerEvent(QTimerEvent *e) {	//	monitor receive-data functioning
 	static int secs = 0;
 	static uint8 PN; 
 
+	_chan0PNerrs->setNum(rcvChannel[0].pnErrors);
+	_chan1PNerrs->setNum(rcvChannel[1].pnErrors);
+	_chan2PNerrs->setNum(rcvChannel[2].pnErrors);
+
 	if	((!m_receiving) || (rcvChannel[0]._PN == 0))	//	not receiving data
 		return;			//	no channels to monitor
 	if	(PN == rcvChannel[0]._PN)	{	//	no data received on channel (0)
@@ -230,9 +239,11 @@ QtDSP::startStopReceiveSlot()	//	activated on either lostFocus or returnPressed
 		//	piraqx parameters used by this channel:
 		rcvChannel[i]._gates = 0;		//	gates, this channel
 		rcvChannel[i]._hits = 0;		//	hits
+		rcvChannel[i].pnErrors = 0;
 		rcvChannel[i]._radarType = CP2RADARTYPES;	//	radar type end value: must be < this value
 		//	operating parameters: 
 		rcvChannel[i]._pulsesToProcess = 0;	
+		rcvChannel[i].pnErrors = 0;
 		rcvChannel[i].lastreadBufLen = -1;
 		initializeReceiveSocket(&rcvChannel[i]); //	initialize receive socket
 		_socketToChannelMap[rcvChannel[i]._DataSocket->socket()] = i;
@@ -359,9 +370,9 @@ QtDSP::SABPgen(int rcvChan) {	//	generate S-band ABPs on rcvChan data
 	const void * PulseReadPtr;
 	float	ABPscale = (float)pow(2,31)*(float)pow(2,31)*(rcvChannel[rcvChan]._hits/2);	//	hits/2 = #sums performed per beam. 
 	//	temp send 
-	static	int sendBufLen, lastsendBufLen, SABPLen;
-	static	int errcount = 0;	//	PNs out of sequence
-	static	uint8	PN, lastPN;
+	int lastsendBufLen, SABPLen;
+	int errcount = 0;	//	PNs out of sequence
+	uint8	PN;
 	static	uint8* PNptr;	//	32 + 28 + 32 = _PNOffset in piraqx
 	float * buf;	//	pointer to 1 PACKET pop'd from front of FIFO
 	int i, j;
@@ -370,7 +381,7 @@ QtDSP::SABPgen(int rcvChan) {	//	generate S-band ABPs on rcvChan data
 		while(1)	{	//	until  PN = (BN * _hits) - 2 is found
 			buf = &(rcvChannel[rcvChan]._fifo->fpfront()[0]);	//	refer to oldest FIFO entry
 			PNptr = (uint8*)((char *)(&buf[0]) + _PNOffset);	//	compute PN offset in it
-			lastPN = PN;	PN = *PNptr; 
+			PN = *PNptr; 
 			if	((PN % rcvChannel[rcvChan]._hits) == (rcvChannel[rcvChan]._hits - 2))	{	//	found it: keep it in Vlag
 				_SABPgenBeginPN = PN; 
 				sprintf(m_statusLogBuf, "_SABPgenBeginPN = %I64d", _SABPgenBeginPN); statusLog->append( m_statusLogBuf );
@@ -387,7 +398,7 @@ QtDSP::SABPgen(int rcvChan) {	//	generate S-band ABPs on rcvChan data
 		buf = &(rcvChannel[rcvChan]._fifo->fpfront()[0]);	//	
 		memmove(HlagPtr, buf, _pulseStride*(sizeof(float)));	
 		PNptr = (uint8*)((char *)(&buf[0]) + _PNOffset);	//	compute PN offset in it
-		lastPN = PN;	PN = *PNptr; 
+		PN = *PNptr; 
 		rcvChannel[rcvChan]._fifo->pop_fpfront();		//	drop Hlag FIFO entry
 		rcvChannel[rcvChan]._fifo_hits--;	
 	}
@@ -409,12 +420,13 @@ QtDSP::SABPgen(int rcvChan) {	//	generate S-band ABPs on rcvChan data
 		//	get V: 
 		buf = &(rcvChannel[rcvChan]._fifo->fpfront()[0]);	//	
 		PNptr = (uint8*)((char *)(&buf[0]) + _PNOffset);	//	compute PN offset in it
-		lastPN = PN;	PN = *PNptr;	
+		PN = *PNptr;	
 		rcvChannel[rcvChan]._PN = PN;	//	retain most-recent PN received
-		if	(lastPN != PN - 1)	{	//	PNs not in sequence; ABP calculation not possible
-			sprintf(m_statusLogBuf, "PNs not in sequence; SVHABP beam calc aborted"); statusLog->append( m_statusLogBuf ); 
+		if	(rcvChannel[rcvChan].lastPN != PN - 1)	{	//	PNs not in sequence; ABP calculation not possible
+			rcvChannel[rcvChan].pnErrors++;
 			//	dump the beam altogether
 		}
+		rcvChannel[rcvChan].lastPN = PN;	
 		memmove(VPtr, buf, _pulseStride*(sizeof(float)));
 		VDataI = VPtr + _IQdataOffset/sizeof(float); VDataQ = VDataI + 1;	//	set pointers to data; _IQdataOffset in bytes
 		rcvChannel[rcvChan]._fifo->pop_fpfront();		//	drop FIFO entry
@@ -422,12 +434,13 @@ QtDSP::SABPgen(int rcvChan) {	//	generate S-band ABPs on rcvChan data
 		//	get H:
 		buf = &(rcvChannel[rcvChan]._fifo->fpfront()[0]);	//	
 		PNptr = (uint8*)((char *)(&buf[0]) + _PNOffset);	//	compute PN offset in it
-		lastPN = PN;	PN = *PNptr; 
+		PN = *PNptr; 
 		rcvChannel[rcvChan]._PN = PN;	//	retain most-recent PN received
-		if	(lastPN != PN - 1)	{	//	PNs not in sequence; ABP calculation not possible
-			sprintf(m_statusLogBuf, "PNs not in sequence; SVHABP beam calc aborted"); statusLog->append( m_statusLogBuf ); 
+		if	(rcvChannel[rcvChan].lastPN != PN - 1)	{	//	PNs not in sequence; ABP calculation not possible
+			rcvChannel[rcvChan].pnErrors++;
 			//	dump the beam altogether
 		}
+		rcvChannel[rcvChan].lastPN = PN;	
 		memmove(HPtr, buf, _pulseStride*(sizeof(float)));	
 		HDataI = HPtr + _IQdataOffset/sizeof(float); HDataQ = HDataI + 1;	//	set pointers to data; _IQdataOffset in bytes
 		rcvChannel[rcvChan]._fifo->pop_fpfront();		//	drop IFO entry
@@ -487,7 +500,7 @@ QtDSP::SABPgen(int rcvChan) {	//	generate S-band ABPs on rcvChan data
 	//	set record length, dataformat in ABP packet for consumers: 
 	setABPParameters((char *)SABP, SABPLen, PIRAQ_CP2_SVHABP); 
 	//	send ABP data to destination port -- numbered immediately after timeseries ports. send from SABP buffer, use its length: 
-	sendBufLen = sendChannel[DATA_CHANNELS + rcvChan]._DataSocket->writeBlock((char *)SABP, SABPLen, sendChannel[QTDSP_SEND_SBAND_ABP]._sendqHost, sendChannel[DATA_CHANNELS + rcvChan]._port);
+	sendChannel[DATA_CHANNELS + rcvChan]._DataSocket->writeBlock((char *)SABP, SABPLen, sendChannel[QTDSP_SEND_SBAND_ABP]._sendqHost, sendChannel[DATA_CHANNELS + rcvChan]._port);
 	return;
 }
 
@@ -562,18 +575,23 @@ QtDSP::initializeReceiveSocket(receiveChannel * rcvChannel)	{	//	receiveChannel 
 	sprintf(m_statusLogBuf, "rx buffer size %d", result); 
 	statusLog->append( m_statusLogBuf );
 
-	rcvChannel->_DataSocketNotifier = new QSocketNotifier(rcvChannel->_DataSocket->socket(), QSocketNotifier::Read);
-	sprintf(m_statusLogBuf, "init rec port %d socket %d", rcvChannel->_port, rcvChannel->_DataSocket->socket()); 
+	rcvChannel->_DataSocketNotifier = 
+		new QSocketNotifier(rcvChannel->_DataSocket->socket(), QSocketNotifier::Read);
+	sprintf(m_statusLogBuf, "init rec port %d socket %d", 
+		rcvChannel->_port, 
+		rcvChannel->_DataSocket->socket()); 
 	statusLog->append( m_statusLogBuf );
 
 	rxBufSize = rcvChannel->_DataSocket->receiveBufferSize(); 
-	sprintf(m_statusLogBuf, "port %d rxBufSize %d", rcvChannel->_port, rxBufSize); 
+	sprintf(m_statusLogBuf, "port %d rxBufSize %d", 
+		rcvChannel->_port, rxBufSize); 
 	statusLog->append( m_statusLogBuf );
 
 }
 
 void
-QtDSP::initializeSendSocket(transmitChannel * sendChannel)	{	//	 
+QtDSP::initializeSendSocket(transmitChannel * sendChannel)	
+{	//	 
 	sendChannel->_DataSocket = new QSocketDevice(QSocketDevice::Datagram);
 
 	char nameBuf[1000];
@@ -588,17 +606,23 @@ QtDSP::initializeSendSocket(transmitChannel * sendChannel)	{	//
 		statusLog->append("gethostbyname failed");
 		//exit(1);
 	}
-	sprintf(m_statusLogBuf, "Destination Hostname %s", m_destinationHostname.ascii());
+	sprintf(m_statusLogBuf, 
+		"Destination Hostname %s", 
+		m_destinationHostname.ascii());
 	statusLog->append( m_statusLogBuf );
 
 	sendChannel->_SocketBuf = new CP2_PIRAQ_DATA_TYPE[1000000];	
 	std::string destIPname = m_destinationHostname.ascii();
 	std::string destIPaddress = inet_ntoa(*(struct in_addr*)pHostEnt->h_addr_list[0]);
-	std::cout << "ip name: " << destIPname.c_str() << ", ip address  " << destIPaddress.c_str() << std::endl;
+	std::cout << "ip name: " << destIPname.c_str() 
+		<< ", ip address  " 
+		<< destIPaddress.c_str() 
+		<< std::endl;
 
 	_sendqHost.setAddress(destIPaddress.c_str()); // works
 	sendChannel[0]._sendqHost.setAddress(destIPaddress.c_str()); //?
-	std::cout << "opened datagram port:" << sendChannel->_port << std::endl;
+	std::cout << "opened datagram port:" 
+		<< sendChannel->_port << std::endl;
 	int sockbufsize = 1000000;
 
 	int result = setsockopt (sendChannel->_DataSocket->socket(),
@@ -606,6 +630,7 @@ QtDSP::initializeSendSocket(transmitChannel * sendChannel)	{	//
 		SO_SNDBUF,
 		(char *) &sockbufsize,
 		sizeof sockbufsize);
+
 	if (result) {
 		statusLog->append("Set send buffer size for socket failed");
 		exit(1); 
