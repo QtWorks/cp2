@@ -21,10 +21,10 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-#ifdef CP2_TESTING		// switch ON test code for CP2 
+//#ifdef CP2_TESTING		// switch ON test code for CP2 
 // test drx data throughput limits by varying data packet size w/o changing DSP computational load:  
-#define			DRX_PACKET_TESTING	// define to activate data packet resizing for CP2 throughput testing. 
-#endif
+//#define			DRX_PACKET_TESTING	// define to activate data packet resizing for CP2 throughput testing. 
+//#endif
 //#define TESTING_TIMESERIES // compute test diagnostic timeseries data in one of two piraq channels: 
 //#define TESTING_TIMESERIES_RANGE	// test dynamic reassignment of timeseries start, end gate using 'U','D'
 
@@ -112,7 +112,7 @@ _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 	// data transfer from the piraq to the host.
 	if (config1->dataformat == 18) {  
 		// CP2: compute #hits combined into one PCI Bus transfer
-		Nhits = 65536 / (HEADERSIZE + (config1->gatesa * 2 * sizeof(float)) + BUFFER_EPSILON); 
+		Nhits = 65536 / (HEADERSIZE + (config1->gatesa * 2 * sizeof(float))); 
 		if	(Nhits % 2)	//	computed odd #hits
 			Nhits--;	//	make it even
 	}
@@ -177,20 +177,16 @@ _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 	//      poll the piraqs in succesion
 
 	while(1) {   // until 'q' 
-		julian_day = get_julian_day(); 
-
 		if (piraqs & 0x01) { // turn on slot 1
-			if (piraq1->poll(julian_day))
+			if (piraq1->poll())
 				continue;
 		}
-
 		if (piraqs & 0x02) { // turn on slot 1
-			if (piraq2->poll(julian_day))
+			if (piraq2->poll())
 				continue;
 		}
-
 		if (piraqs & 0x04) { // turn on slot 1
-			if (piraq3->poll(julian_day))
+			if (piraq3->poll())
 				continue;
 		}
 

@@ -16,10 +16,10 @@ public:
 
 	~CP2PIRAQ();
 
-	int poll(int julian_day);
 	int start(__int64 firstPulseNum,
-		__int64 firstBeamNum);
+		      __int64 firstBeamNum);
 	void stop();
+	int poll();
 	float prt();
 	INFOHEADER info();
 

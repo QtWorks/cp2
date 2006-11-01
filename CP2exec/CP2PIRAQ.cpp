@@ -76,11 +76,8 @@ CP2PIRAQ::init(char* configFname, char* dspObjFname)
 	piraq_fifo_init(
 		pFifo,"/PRQDATA", 
 		HEADERSIZE, 
-		Nhits * (HEADERSIZE + (_config.gatesa * bytespergate) + BUFFER_EPSILON), 
+		Nhits * (HEADERSIZE + (_config.gatesa * bytespergate)), 
 		PIRAQ_FIFO_NUM); 
-	printf("hit size = %d computed Nhits = %d\n", 
-		(HEADERSIZE + (_config.gatesa * bytespergate) + BUFFER_EPSILON), 
-		Nhits); 
 
 	if (!pFifo) { 
 		printf("this fifo_create failed\n"); exit(0);
@@ -123,7 +120,7 @@ CP2PIRAQ::start(__int64 firstPulseNum,
 }
 /////////////////////////////////////////////////////////////////////////////
 int
-CP2PIRAQ::poll(int julian_day) 
+CP2PIRAQ::poll() 
 {
 	// sleep for a ms
 	Sleep(1);
@@ -148,19 +145,6 @@ CP2PIRAQ::poll(int julian_day)
 		// set the data size
 		pFifoPiraq->data.info.bytespergate = bytespergate; // Staggered PRT ABPDATA
 
-		// set a time stamp. Why is this necessary?
-		unsigned __int64 temp = 
-			pFifoPiraq->data.info.pulse_num * 
-			(unsigned __int64)(_pConfigPacket->data.info.prt[0] * 
-			(float)COUNTFREQ + 0.5);
-		pFifoPiraq->data.info.secs = 
-			temp / COUNTFREQ;
-		pFifoPiraq->data.info.nanosecs = 
-			((unsigned __int64)10000 * (temp % ((unsigned __int64)COUNTFREQ))) 
-			/ (unsigned __int64)COUNTFREQ;
-		pFifoPiraq->data.info.nanosecs *= 
-			(unsigned __int64)100000; // multiply by 10**5 to get nanoseconds
-
 		// bogus up pointing information for right now.
 		az += 0.5;  
 		if(az > 360.0) { // full scan 
@@ -176,25 +160,18 @@ CP2PIRAQ::poll(int julian_day)
 		pFifoPiraq->data.info.el = el; // set in packet 
 		pFifoPiraq->data.info.scan_num = scan;
 		pFifoPiraq->data.info.vol_num = volume;  
-		pFifoPiraq->data.info.julian_day = julian_day; 
 
-#ifdef	DRX_PACKET_TESTING	// define to activate data packet resizing for throughput testing. 
-		//					fifopiraq1->data.info.recordlen = (fifopiraq1->data.info.clutter_end[0])*fifopiraq1->data.info.gates*24 + (RECORDLEN(fifopiraq1)); // vary multiplier; note CPU usage in Task Manager. 24 = 2*bytespergate. 
-		pFifoPiraq->data.info.recordlen = Nhits*(RECORDLEN(pFifoPiraq)+BUFFER_EPSILON); /* this after numgates corrected */
-#else
 		pFifoPiraq->data.info.recordlen = RECORDLEN(pFifoPiraq); /* this after numgates corrected */
-#endif
 
 		//////////////////////////////////////////////////////////////////////////
 		//
 		// check for pulse numbers out of sequence.
 		for (int i = 0; i < Nhits; i++) { // all hits in the packet 
 			// compute pointer to datum in an individual hit, dereference and print. 
-			// CP2 PCI Bus transfer size: Nhits * (HEADERSIZE + (config1->gatesa * bytespergate) + BUFFER_EPSILON)
+			// CP2 PCI Bus transfer size: Nhits * (HEADERSIZE + (config1->gatesa * bytespergate))
 			__int64 thisPulseNumber = *(__int64 *)((char *)&pFifoPiraq->data.info.pulse_num + 
 				i*((HEADERSIZE + 
-				(_config.gatesa * bytespergate) + 
-				BUFFER_EPSILON))); 
+				(_config.gatesa * bytespergate)))); 
 
 			if (_lastPulseNumber != thisPulseNumber - 1) { // PNs not sequential
 				printf("pulse number out of sequence, last PN %I64d, this PN %I64d\n", 
@@ -208,7 +185,7 @@ CP2PIRAQ::poll(int julian_day)
 		//
 		// send data out on the socket
 		
-		pFifoPiraq->udp.totalsize = Nhits*(TOTALSIZE(pFifoPiraq) + BUFFER_EPSILON);
+		pFifoPiraq->udp.totalsize = Nhits*(TOTALSIZE(pFifoPiraq));
 		seq = send_udp_packet(outsock, outport, seq, udp); 
 
 		//////////////////////////////////////////////////////////////////////////
