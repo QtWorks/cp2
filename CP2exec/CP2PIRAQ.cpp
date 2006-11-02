@@ -1,7 +1,6 @@
 #include <stdafx.h>
 #include <winsock2.h>
 #include "CP2PIRAQ.h"
-#include "get_julian_day.h"
 #include "proto.h"
 
 #define CYCLE_HITS 20

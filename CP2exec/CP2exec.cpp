@@ -13,7 +13,6 @@
 
 #include "CP2exec.h" 
 #include "CP2PIRAQ.h"
-#include "get_julian_day.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -60,7 +59,6 @@ _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 
 	int	PIRAQadjustAmplitude = 0; 
 	int	PIRAQadjustFrequency = 1; 
-	unsigned int julian_day; 
 	TIMER ext_timer; // structure defining external timer parameters 
 
 	config1	= new CONFIG; 

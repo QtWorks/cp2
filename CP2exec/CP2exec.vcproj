@@ -175,46 +175,6 @@
 				RelativePath=".\CP2PIRAQ.cpp">
 			</File>
 			<File
-				RelativePath="get_julian_day.cpp">
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="Julian.cpp">
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="StdAfx.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -248,12 +208,6 @@
 			</File>
 			<File
 				RelativePath="..\include\dd_types.h">
-			</File>
-			<File
-				RelativePath="get_julian_day.h">
-			</File>
-			<File
-				RelativePath="Julian.h">
 			</File>
 			<File
 				RelativePath="Resource.h">
