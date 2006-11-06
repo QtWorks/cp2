@@ -1,0 +1,47 @@
+; Code Composer Project File, Version 2.0 (do not modify or remove this line)
+
+[Project Settings]
+ProjectName="single_p3iq_D"
+ProjectDir="C:\tmp\CP2_D\"
+ProjectType=Executable
+CPUFamily=TMS320C67XX
+Tool="Compiler"
+Tool="CustomBuilder"
+Tool="DspBiosBuilder"
+Tool="Linker"
+Config="Debug"
+Config="Release"
+
+[Source Files]
+Source="..\..\..\CCStudio_v3.1\C6000\csl\lib\csl6701.lib"
+Source="channelselect.c"
+Source="CP2_D.c"
+Source="dma_isr.c"
+Source="Fifo.c"
+Source="init_dsp.c"
+Source="shortint.c"
+Source="single_p3iq_d.cdb"
+
+[Generated Files]
+Source="single_p3iq_dcfg.cmd"
+Source="single_p3iq_dcfg.s62"
+Source="single_p3iq_dcfg_c.c"
+
+["Compiler" Settings: "Debug"]
+Options=-k -q -al -o2 -fr"obj\Debug" -fs"asm\" -ft"tmp\" -fb"abs\" -ff"list\" -d"_DEBUG" -d"CHIP_6701" -d"DMA_EN0" -d"DMA_EN1" -d"DMA_EN2" -d"NO_INPUT_SINUSOID" -mw -mh -mv6700
+
+["Compiler" Settings: "Release"]
+Options=-q -o3 -fr"C:\tmp\CP2_D\Release" -mv6700
+
+["DspBiosBuilder" Settings: "Debug"]
+Options=-v6x
+
+["DspBiosBuilder" Settings: "Release"]
+Options=-v6x
+
+["Linker" Settings: "Debug"]
+Options=-q -c -m".\CP2_D.map" -o"C:\develop\CP2\CP2exec\CP2_DCCS3_1norampnoihf.out" -x -i"c:\ti\c6000\bios\lib" -l"csl6701.lib"
+
+["Linker" Settings: "Release"]
+Options=-q -c -o".\Release\single_p3iq_D.out" -x
+
