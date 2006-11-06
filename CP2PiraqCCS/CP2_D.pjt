@@ -40,7 +40,7 @@ Options=-v6x
 Options=-v6x
 
 ["Linker" Settings: "Debug"]
-Options=-q -c -m".\CP2_D.map" -o"C:\develop\CP2\CP2exec\CP2_DCCS3_1norampnoihf.out" -x -i"c:\ti\c6000\bios\lib" -l"csl6701.lib"
+Options=-q -c -m"list\CP2_D.map" -o"CP2_D.out" -x -i"c:\ti\c6000\bios\lib" -l"csl6701.lib"
 
 ["Linker" Settings: "Release"]
 Options=-q -c -o".\Release\single_p3iq_D.out" -x
