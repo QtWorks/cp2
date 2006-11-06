@@ -91,7 +91,7 @@ type GlobalStatus {
         prop Visible :: 0
         prop Writable :: 0
     }
-    global DATE :: "Thu Jul 27 17:05:33 2006" { 
+    global DATE :: "Mon Nov 06 14:32:05 2006" { 
         prop Type :: "{21455EA3-B96A-11cf-9BFE-0000C0AC14C7}"
         prop Visible :: 0
         prop Writable :: 0
