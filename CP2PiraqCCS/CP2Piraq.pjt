@@ -28,7 +28,7 @@ Source="single_p3iq_dcfg.s62"
 Source="single_p3iq_dcfg_c.c"
 
 ["Compiler" Settings: "Debug"]
-Options=-k -q -al -o2 -fr"obj\Debug" -fs"asm\" -ft"tmp\" -fb"abs\" -ff"list\" -d"_DEBUG" -d"CHIP_6701" -d"DMA_EN0" -d"DMA_EN1" -d"DMA_EN2" -d"NO_INPUT_SINUSOID" -mw -mh -mv6700
+Options=-k -q -al -o2 -fr"obj\Debug" -fs"asm\" -ft"tmp\" -fb"abs\" -ff"list\" -d"_DEBUG" -d"CHIP_6701" -d"NO_INPUT_SINUSOID" -mw -mh -mv6700
 
 ["Compiler" Settings: "Release"]
 Options=-q -o3 -fr"C:\Projects\cp2\CP2PiraqCCS\Release" -mv6700
