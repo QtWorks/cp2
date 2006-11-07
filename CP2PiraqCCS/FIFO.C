@@ -41,11 +41,8 @@
 /* used the same way by any task (i.e. size, structure type, etc.) */
 FIFO *fifo_create(char *name, int headersize, int recordsize, int recordnum)
    {
-   int 		size;
-   FIFO	*fifo;
 
-   size = sizeof(FIFO) + headersize + recordsize * recordnum;
-    
+   FIFO	*fifo;
    fifo = (FIFO *)PCIBASE;
 
    if(fifo)
@@ -83,16 +80,6 @@ FIFO *fifo_open(char *name)
 /* do your best to destroy and remove FIFO from operating system */
 int fifo_close(FIFO *fifo)
    {
-   char	name[8];
-   void	*addr;
-   int		size;
-
-//   strcpy(name,fifo->name);
-//   addr = fifo;
-//   size = fifo->size;
-//   fifo->magic = 0;
-   
-//   shared_mem_close(name,addr,size);
    return(0);
    }
 
