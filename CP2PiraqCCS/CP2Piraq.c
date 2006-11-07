@@ -159,12 +159,12 @@ void initTask(void)
 	boardnumber =  pkt->info.channel;
 
 	//	compute #hits to combine per PCI transfer:
-	PCIHits = (unsigned int)UDPSENDSIZE / (HEADERSIZE + (gates * bytespergate) + BUFFER_EPSILON); 
+	PCIHits = (unsigned int)UDPSENDSIZE / (HEADERSIZE + (gates * bytespergate)); 
 	if	(PCIHits % 2)	//	odd #hits computed
 		PCIHits--;		//	make it even
 	// allocate a complete 1-channel PACKET; it contains current pulse, 
 	// header plus data, post channel-select
-	CurPkt = (PACKET *)malloc((HEADERSIZE + (gates * bytespergate) + BUFFER_EPSILON));
+	CurPkt = (PACKET *)malloc((HEADERSIZE + (gates * bytespergate)));
 	
 	// method using DSP-internal PACKET for header parameter maintenance
 	dst = (unsigned int *)CurPkt;	
@@ -182,14 +182,14 @@ void initTask(void)
 
 	// PACKET pointer to one hit in sbsram N-hit alloc
 	NPkt = (PACKET *)MEM_alloc(sbsram_seg, 
-				PCIHits * (HEADERSIZE + (gates * bytespergate) + BUFFER_EPSILON),
+				PCIHits * (HEADERSIZE + (gates * bytespergate)),
 				0); 
 
 	// hwData DSP-internal 2-channel hwFIFO data array, interleaved I1, Q1, I2, Q2
-  	hwData = (int *)malloc((gates * 2 * bytespergate) + BUFFER_EPSILON);
+  	hwData = (int *)malloc((gates * 2 * bytespergate));
 
 	/* zero single-pulse buffer */
-	memset(hwData,0,(gates * 2 * bytespergate) + BUFFER_EPSILON);	
+	memset(hwData,0,(gates * 2 * bytespergate));	
 
 	/* Read PLX Mailbox 4 to get PMAC DPRAM base address */
 	WriteCE1(PLX_CFG_MODE);
@@ -336,7 +336,7 @@ void data_xfer_loop(void)
 		CurPkt->data.info.pulse_num_low = pulse_num_low;
 		CurPkt->data.info.pulse_num_high = pulse_num_high;
 		if (sbsram_hits == PCIHits) { // full load
-			Tfer_sz = PCIHits * (HEADERSIZE + (gates * bytespergate) + BUFFER_EPSILON);  /* in bytes */
+			Tfer_sz = PCIHits * (HEADERSIZE + (gates * bytespergate));  /* in bytes */
 			//	moved from above
 			IRQ_Disable(IRQ_EVT_EXTINT5);		/* Disable Fifo interrupt during data xfer */
 			dst = (PACKET *)fifo_get_write_address(Fifo);
@@ -345,7 +345,8 @@ void data_xfer_loop(void)
 			sbsram_hits = 0;
 			burstready = 1;  
 		}
-		/* Read PLX Mailbox 5 to get channel mode: LO, HI, or combined via dynamic range extension algorithm */
+		// Read PLX Mailbox 5 to get channel mode: 
+		// LO, HI, or combined via dynamic range extension algorithm 
 		WriteCE1(PLX_CFG_MODE);
 		Mailbox5Ptr = (volatile unsigned int *)0x14000D4; /* PLX Mailbox 5 */
 		channelMode = ((unsigned int)*Mailbox5Ptr) & CHMODE_MASK; /* Host sets test actions in PLX Mailbox 5 */
@@ -366,7 +367,7 @@ void pci_burst_xfer()
 
 	while(1)	{
  		SEM_pend(&burst_ready,SYS_FOREVER);
-		Tfer_sz = PCIHits * (HEADERSIZE + (gates * bytespergate) + BUFFER_EPSILON);  /* in bytes */
+		Tfer_sz = PCIHits * (HEADERSIZE + (gates * bytespergate));  /* in bytes */
 		//	moved from above
 		IRQ_Disable(IRQ_EVT_EXTINT5);		/* Disable Fifo interrupt during data xfer */
 		dst = (PACKET *)fifo_get_write_address(Fifo);

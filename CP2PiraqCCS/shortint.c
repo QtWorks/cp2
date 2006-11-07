@@ -324,7 +324,7 @@ unsigned int * intsrc, * SBSRAMdst;
 #endif
 
 	intsrc = (unsigned int *)CurPkt;
-	SBSRAMdst = (unsigned int *)((char *)NPkt + (sbsram_hits * (HEADERSIZE + (gates * bytespergate) + BUFFER_EPSILON)));	// add nth hit offset 
+	SBSRAMdst = (unsigned int *)((char *)NPkt + (sbsram_hits * (HEADERSIZE + (gates * bytespergate))));	// add nth hit offset 
 
 	/* keep track of the 64 bit pulsenumber: works here -- commented out in int_half_full() */
 	if(!(++pulse_num_low))
@@ -347,7 +347,7 @@ CurPkt->data.info.clutter_start[1] = (uint4)PMACDPRAMBaseData;
 															//	and board-specific stagger elapsed
 		SEM_post(&burst_ready);	//	let 'er rip! 
 	}
-	fp_dbg_dst = (float *)((char *)&NPkt->data.data + (sbsram_hits * (HEADERSIZE + (gates * bytespergate) + BUFFER_EPSILON)));	
+	fp_dbg_dst = (float *)((char *)&NPkt->data.data + (sbsram_hits * (HEADERSIZE + (gates * bytespergate))));	
 	sbsram_hits++; // hits in sbsram
 
    	if(++samplectr >= hits) { // beam done

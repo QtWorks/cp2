@@ -545,7 +545,6 @@ typedef struct packet_header {			/* this structure must match the non-data porti
 #define	TOTALSIZE(a)		(sizeof(COMMAND) + RECORDLEN(a))
 // CP2: 
 //#define	TOTALSIZE(a)		(sizeof(UDPHEADER) + sizeof(COMMAND) + RECORDLEN(a))
-#define BUFFER_EPSILON	0	// CP2 space between hits in buffer and within N-hit PCI packet
 
 #define	SET(t,b)			(t |= (b))
 #define	CLR(t,b)			(t &= ~(b))
