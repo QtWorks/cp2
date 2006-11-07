@@ -351,58 +351,7 @@ void data_xfer_loop(void)
 		channelMode = ((unsigned int)*Mailbox5Ptr) & CHMODE_MASK; /* Host sets test actions in PLX Mailbox 5 */
 
 #ifdef	CP2_TEST_SINUSOID
-		freqAdjust = ((unsigned int)*Mailbox5Ptr) & FREQADJ_MASK; /* Host sets channelMode in PLX Mailbox 5 */
-		if (freqAdjust)	{	//	host requested frequency adjust
-			switch(freqAdjust)	{
-				case	INCREMENT_TEST_SINUSIOD_COARSE:
-//					test_freq += 0.001;		//	was 0.001
-					test_freq += 0.0002;	
-					break; 
-				case	INCREMENT_TEST_SINUSIOD_FINE:
-					test_freq += 0.000001;
-					break; 
-				case	DECREMENT_TEST_SINUSIOD_COARSE:
-//					if	(test_freq > 0.001)	test_freq -= 0.001;
-					if	(test_freq > 0.0002)	test_freq -= 0.0002;
-					break; 
-				case	DECREMENT_TEST_SINUSIOD_FINE:
-					if	(test_freq > 0.000002)	test_freq -= 0.000001;
-					break; 
-				default:
-					break;
-			}
-			createSineTestWaveform(test_freq); // generate new test waveform for output
-			freqAdjust = 0;	//	do once
-			channelMode = ((unsigned int)*Mailbox5Ptr); //	use cM here to get PLX Mailbox 5 contents 
-			*Mailbox5Ptr = channelMode & ~FREQADJ_MASK;	//	turn off adjust request
-			channelMode = ((unsigned int)*Mailbox5Ptr) & CHMODE_MASK;	//	restore channelMode to former glory 
-		}
-		amplAdjust = ((unsigned int)*Mailbox5Ptr) & AMPLADJ_MASK; /* Host sets channelMode in PLX Mailbox 5 */
-		if (amplAdjust)	{	//	host requested amplitude adjust
-			switch(amplAdjust)	{
-				case	INCREMENT_TEST_AMPLITUDE_COARSE:
-					TestWaveformAmplitude *= 3.0; 
-					break; 
-				case	INCREMENT_TEST_AMPLITUDE_FINE:
-					TestWaveformAmplitude *= 1.1; 
-					break; 
-				case	DECREMENT_TEST_AMPLITUDE_COARSE:
-					TestWaveformAmplitude /= 3.0; 
-					break; 
-				case	DECREMENT_TEST_AMPLITUDE_FINE:
-					TestWaveformAmplitude /= 1.1; 
-					break; 
-				default:
-					break;
-			}
-			if (TestWaveformAmplitude >= 100.0)	//	at maximum amplitude
-				TestWaveformAmplitude = 1.0;	//	cap it there
-			createSineTestWaveform(test_freq); // generate new test waveform for output
-			amplAdjust = 0;
-			channelMode = ((unsigned int)*Mailbox5Ptr); //	use cM here to get PLX Mailbox 5 contents 
-			*Mailbox5Ptr = channelMode & ~AMPLADJ_MASK;	//	turn off adjust request
-			channelMode = ((unsigned int)*Mailbox5Ptr) & CHMODE_MASK;	//	restore channelMode to former glory 
-		}
+		synthesizeSine(Mailbox5Ptr);
 #endif
 		WriteCE1(HIGH_SPEED_MODE);	 /* re-enable high speed mode */
 		IRQ_Enable(IRQ_EVT_EXTINT5);  /* re-enable fifo interrupt */
@@ -534,7 +483,8 @@ void dma_pci(int tsize, unsigned int pci_dst)
 
 }
 
-void createSineTestWaveform(float freq)	//	create test sine waveform of freq; store to SINstore
+void 
+createSineTestWaveform(float freq)	//	create test sine waveform of freq; store to SINstore
 {
 	float	x;
 	float *	test_dst;
@@ -549,4 +499,62 @@ void createSineTestWaveform(float freq)	//	create test sine waveform of freq; st
 		*test_dst++ = -16777216.0*TestWaveformAmplitude*sinf(x*i);
 	}
 
+}
+
+
+void
+synthesizeSine(unsigned int *Mailbox5Ptr) 
+{
+		freqAdjust = ((unsigned int)*Mailbox5Ptr) & FREQADJ_MASK; /* Host sets channelMode in PLX Mailbox 5 */
+		if (freqAdjust)	{	//	host requested frequency adjust
+			switch(freqAdjust)	{
+				case	INCREMENT_TEST_SINUSIOD_COARSE:
+//					test_freq += 0.001;		//	was 0.001
+					test_freq += 0.0002;	
+					break; 
+				case	INCREMENT_TEST_SINUSIOD_FINE:
+					test_freq += 0.000001;
+					break; 
+				case	DECREMENT_TEST_SINUSIOD_COARSE:
+//					if	(test_freq > 0.001)	test_freq -= 0.001;
+					if	(test_freq > 0.0002)	test_freq -= 0.0002;
+					break; 
+				case	DECREMENT_TEST_SINUSIOD_FINE:
+					if	(test_freq > 0.000002)	test_freq -= 0.000001;
+					break; 
+				default:
+					break;
+			}
+			createSineTestWaveform(test_freq); // generate new test waveform for output
+			freqAdjust = 0;	//	do once
+			channelMode = ((unsigned int)*Mailbox5Ptr); //	use cM here to get PLX Mailbox 5 contents 
+			*Mailbox5Ptr = channelMode & ~FREQADJ_MASK;	//	turn off adjust request
+			channelMode = ((unsigned int)*Mailbox5Ptr) & CHMODE_MASK;	//	restore channelMode to former glory 
+		}
+		amplAdjust = ((unsigned int)*Mailbox5Ptr) & AMPLADJ_MASK; /* Host sets channelMode in PLX Mailbox 5 */
+		if (amplAdjust)	{	//	host requested amplitude adjust
+			switch(amplAdjust)	{
+				case	INCREMENT_TEST_AMPLITUDE_COARSE:
+					TestWaveformAmplitude *= 3.0; 
+					break; 
+				case	INCREMENT_TEST_AMPLITUDE_FINE:
+					TestWaveformAmplitude *= 1.1; 
+					break; 
+				case	DECREMENT_TEST_AMPLITUDE_COARSE:
+					TestWaveformAmplitude /= 3.0; 
+					break; 
+				case	DECREMENT_TEST_AMPLITUDE_FINE:
+					TestWaveformAmplitude /= 1.1; 
+					break; 
+				default:
+					break;
+			}
+			if (TestWaveformAmplitude >= 100.0)	//	at maximum amplitude
+				TestWaveformAmplitude = 1.0;	//	cap it there
+			createSineTestWaveform(test_freq); // generate new test waveform for output
+			amplAdjust = 0;
+			channelMode = ((unsigned int)*Mailbox5Ptr); //	use cM here to get PLX Mailbox 5 contents 
+			*Mailbox5Ptr = channelMode & ~AMPLADJ_MASK;	//	turn off adjust request
+			channelMode = ((unsigned int)*Mailbox5Ptr) & CHMODE_MASK;	//	restore channelMode to former glory 
+		}
 }
