@@ -180,29 +180,7 @@ unsigned int * intsrc, * SBSRAMdst;
 
 	TSptrBase = ABPstore + Stgr*NUMVARS*NUMCHANS*(gates + CHIRP_GATES) + 2*NUMCHANS*hits*Ntsgates; //use 2nd timeseries buffer
 
-#if 0	// this does not work here ... see "Notes" of ~8-22-05; still not after duplicate-data fix of 6-5-06
-	/* keep track of the 64 bit pulsenumber */
-	if(!(++pulse_num_low))
-		pulse_num_high++;
-//	src->data.info.pulse_num_low = pulse_num_low;
-//	src->data.info.pulse_num_high = pulse_num_high;
-#endif
-  
 	// Set up data ingest either by programmed transfer or by DMA. 
-#ifndef DMA_EN1
-   /* read data from the four FIFO's into the scratch memory */
-	iptr = hwData;  
-	for(i = 0; i < gates; i++) {
-		*iptr++ = *(volatile int *)fifo1I;
-		*iptr++ = *(volatile int *)fifo1Q;
-		*iptr++ = *(volatile int *)fifo2I;
-		*iptr++ = *(volatile int *)fifo2Q;
-	}        
-
-#endif
-
-#ifdef DMA_EN1 
-
 	/* Read FIFO 1 I */
 	dma_ptr = (unsigned int *)0x1840058; /* DMA Channel 1 Destination Address */
 	*dma_ptr = (unsigned int)hwData;
@@ -273,7 +251,6 @@ unsigned int * intsrc, * SBSRAMdst;
 	while((*dma_stat & 0xc) == 0x4)
 		asm("	NOP");
 
-#endif
     /* Read EOF's from each FIFO */
    	temp  = *(volatile int *)fifo2I;
    	temp |= *(volatile int *)fifo2Q;
@@ -472,7 +449,6 @@ void dma_Data(int Ngates, float *ABPin, float *ABPout) {
 	int i;
 	volatile unsigned int *dma_stat;
 
-#ifdef DMA_EN0
 	dma_ptr = (unsigned int *)0x1840010; /* DMA Channel 0 Source Address */
 	*dma_ptr = (unsigned int)ABPin;	
 	dma_ptr = (unsigned int *)0x1840018; /* DMA Channel 0 Destination Address */
@@ -488,12 +464,6 @@ void dma_Data(int Ngates, float *ABPin, float *ABPout) {
 	dma_stat = (volatile unsigned int *)0x1840000;  /* channel 0 primary control */
 	while((*dma_stat & 0xc) == 0x4)
 		asm("	NOP");
-#else
-	l_ABPin = ABPin;
-	l_ABPout = ABPout;
-	for(i=0;i<Ngates*Stgr*NUMCHANS*NUMVARS;i++)
-		*l_ABPout++ = *l_ABPin++;
-#endif	//DMA_EN0	
 }
 
 

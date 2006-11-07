@@ -249,16 +249,14 @@ void initTask(void)
 	dma_ptr = (unsigned int *)0x1840008;  
 	*dma_ptr = 0x90; 
 
-	/* Initialize DMA Channel 1 for FIFO transfers */
+	/* Initialize DMA Channel 1 for A/D FIFO transfers */
 
-#ifdef DMA_EN1
 	dma_ptr = (unsigned int *)0x1840040;  /* channel 1 primary control */
 	*dma_ptr = 0xc0; 
 	dma_ptr = (unsigned int *)0x1840048;  /* channel 1 secondary control */
 	*dma_ptr = 0x90; 
 	dma_ptr = (unsigned int *)0x1840030; /* DMA Global Index Register A */
 	*dma_ptr = 0x10;
-#endif
 
 	/* Clear the PCI FIFO */
 
@@ -420,20 +418,6 @@ volatile unsigned int *dma_stat;
 	WriteCE1(HIGH_SPEED_MODE);
 	src = source;
 
-#ifndef DMA_EN2
-
-   /* read data from the SBSRAM into the PCI FIFOs */
-   /* this is for test use only */
-	
-	tfer_sz = tsize >> 2;  /* convert from bytes to words */
-	mem_ptr = (unsigned int *)src;
-	burst_fifo = (unsigned int *)PCI_FIFO_WR;
-	for(i = 0; i < tfer_sz; i++) {
-       	*burst_fifo = *mem_ptr++;
-	}        
-
-#endif
-#ifdef DMA_EN2
 /* DMA Data into PCI FIFOs */
 
 	frame_cnt = 1;
@@ -457,7 +441,6 @@ volatile unsigned int *dma_stat;
 	dma_stat = (volatile unsigned int *)0x1840004;  /* channel 2 primary control */
 	while((*dma_stat & 0xc) == 0x4)
 		asm("	NOP");
-#endif
 }
 
 void dma_pci(int tsize, unsigned int pci_dst)
