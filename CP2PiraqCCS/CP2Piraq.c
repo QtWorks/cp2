@@ -101,11 +101,11 @@ void initTask(void)
 	PACKET			*lsrc, *ldst;
 	float 			* dbg_dst;
 	volatile unsigned int *Mailbox4Ptr; 
-volatile unsigned int *DMPBAMPtr; 
-volatile unsigned int *DMPBAMDataPtr;
-volatile unsigned int DMPBAM, DMPBAMPMAC, DMPBAMPIRAQ1, DMPBAMPIRAQ2;
-unsigned short DMPBAMData;	//	data at DMPBAMDataPtr
-unsigned char * DMPBAMDataPtrByte;	
+	volatile unsigned int *DMPBAMPtr; 
+	volatile unsigned int *DMPBAMDataPtr;
+	volatile unsigned int DMPBAM, DMPBAMPMAC, DMPBAMPIRAQ1, DMPBAMPIRAQ2;
+	unsigned short DMPBAMData;	//	data at DMPBAMDataPtr
+	unsigned char * DMPBAMDataPtrByte;	
 /* Initialize Essential DSP Control Registers */
 /* setup EMIF Global and Local Control Registers */
 /* this should allow external memory to be used! */
@@ -162,111 +162,64 @@ unsigned char * DMPBAMDataPtrByte;
 	PCIHits = (unsigned int)UDPSENDSIZE / (HEADERSIZE + (gates * bytespergate) + BUFFER_EPSILON); 
 	if	(PCIHits % 2)	//	odd #hits computed
 		PCIHits--;		//	make it even
-	// allocate a complete 1-channel PACKET; it contains current pulse, header plus data, post channel-select
-	CurPkt = (PACKET *)malloc((HEADERSIZE + (gates * bytespergate) + BUFFER_EPSILON)); 
-	dst = (unsigned int *)CurPkt;		// method using DSP-internal PACKET for header parameter maintenance 
-	for(i = 0; i < HEADERSIZE/4; i++)	// /4: move header as integers 
+	// allocate a complete 1-channel PACKET; it contains current pulse, 
+	// header plus data, post channel-select
+	CurPkt = (PACKET *)malloc((HEADERSIZE + (gates * bytespergate) + BUFFER_EPSILON));
+	
+	// method using DSP-internal PACKET for header parameter maintenance
+	dst = (unsigned int *)CurPkt;	
+		 
+	// /4: move header as integers
+	for(i = 0; i < HEADERSIZE/4; i++)	 
 		*dst++ = *src++;
+
 	lsrc = (PACKET *)fifo_get_header_address(Fifo);
 	ldst = (PACKET *)CurPkt;	// new method
+
 	// NPkt PACKET pointer to one hit in sbsram N-hit alloc
-	// CP2 PCI Bus transfer size: Nhits * (HEADERSIZE + (config->gatesa * bytespergate) + BUFFER_EPSILON)
-	NPkt = (PACKET *)MEM_alloc(sbsram_seg, PCIHits * (HEADERSIZE + (gates * bytespergate) + BUFFER_EPSILON), 0); // PACKET pointer to one hit in sbsram N-hit alloc
+	// CP2 PCI Bus transfer size: Nhits * (HEADERSIZE + (config->gatesa * bytespergate) 
+	//                                + BUFFER_EPSILON)
+
+	// PACKET pointer to one hit in sbsram N-hit alloc
+	NPkt = (PACKET *)MEM_alloc(sbsram_seg, 
+				PCIHits * (HEADERSIZE + (gates * bytespergate) + BUFFER_EPSILON),
+				0); 
+
 	// hwData DSP-internal 2-channel hwFIFO data array, interleaved I1, Q1, I2, Q2
   	hwData = (int *)malloc((gates * 2 * bytespergate) + BUFFER_EPSILON);
-	memset(hwData,0,(gates * 2 * bytespergate) + BUFFER_EPSILON);		/* zero single-pulse buffer */
+
+	/* zero single-pulse buffer */
+	memset(hwData,0,(gates * 2 * bytespergate) + BUFFER_EPSILON);	
 
 	/* Read PLX Mailbox 4 to get PMAC DPRAM base address */
 	WriteCE1(PLX_CFG_MODE);
-	Mailbox4Ptr = (volatile unsigned int *)0x14000D0; /* PLX Mailbox 4 */
-	PMACDPRAMBaseAddress = ((unsigned int *)*Mailbox4Ptr); /* Host sets PMAC DPRAM base address in PLX Mailbox 4 */
 
-#if 0
-//	test: get PIRAQ Physical address, compare w/host initialization value: works
-DMPBAMPtr = (volatile unsigned int *)0x14000A8; /* A8: PLX DMPBAM register */
-DMPBAM = *DMPBAMPtr; /* Host sets PMAC DPRAM base address in PLX Mailbox 4 */
-//	mimic PIRAQ initialization on host: 
-DMPBAMPMAC = (DMPBAM & 0x0000FFFF) | ((volatile unsigned int)PMACDPRAMBaseAddress & 0xFFFF0000);
-*DMPBAMPtr = DMPBAMPMAC;	//	set pointer to PMAC Physical memory in DMPBAM
-//	get PMAC DPRAM pointer contents 
-//	PMACDPRAMBaseData = *PMACDPRAMBaseAddress;	//	get data from PMAC DPRAM: constant 0
-//	get data from location 0 in this PMAC PCI memory space: 
-DMPBAMDataPtr = 0;   
-DMPBAMDataPtr += ((0x3000000+0x8000)/4);	//	add an offset
-//crash:DMPBAMDataPtr += ((0x3000000+0x100000-4)/4);	//	add an offset
-//read from location:
-PMACDPRAMBaseData = *DMPBAMDataPtr;
-//	get data from location at value of PMACDPRAMBaseAddress: 
-//PMACDPRAMBaseData = *(PMACDPRAMBaseAddress+0); 
-*DMPBAMPtr = DMPBAM;	//	restore pointer to PIRAQ-host shared physical memory
-#endif
-#if 0
-//	test add delta between PIRAQs physical addresses to DMPBAM, so accesses are based from 2nd card rather
-//	than 1st:
-	WriteCE1(PLX_CFG_MODE);	//	""
-DMPBAMPtr = (volatile unsigned int *)0x14000A8; /* A8: PLX DMPBAM register */
-DMPBAMPIRAQ1 = *DMPBAMPtr; /* Host sets PMAC DPRAM base address in PLX Mailbox 4 */
-DMPBAMPIRAQ2 = *DMPBAMPtr; /* Host sets PMAC DPRAM base address in PLX Mailbox 4 */
-DMPBAMPIRAQ2 = 0x008f01c1;	//	explicit value 
-*DMPBAMPtr = DMPBAMPIRAQ2;	//	using board2 physical address
-//DMPBAM = *DMPBAMPtr;
-//	pointer to integer:
-//DMPBAMDataPtr = 0;   
-//DMPBAMDataPtr += ((0x3000000+0)/4)+(0x1400/4);	//	add an offset; /4  for 32-bit entities
-//	pointer to byte:
-DMPBAMDataPtrByte = 0;   
-DMPBAMDataPtrByte += 0x3000000+0xb400;	//	add an offset 
-//DMPBAMDataPtrByte += 0x3000000+0x410;	//	add an offset 
-DMPBAMData = (unsigned short)*DMPBAMDataPtrByte;
-//PMACDPRAMBaseData = DMPBAMData;	//	send value computed to host 
-//PMACDPRAMBaseData = DMPBAM;	//	send value computed to host
-//	for	(ii = 0; ii < 1000000; ii++)	{ 
-	while(1)	{ 
-DMPBAMData |= STAT0_PCLED + 0x0; 
-//off:DMPBAMData &= ~STAT0_PCLED; 
-//*DMPBAMDataPtr = (volatile unsigned int)DMPBAMData;
-*DMPBAMDataPtrByte = (volatile unsigned short)DMPBAMData;
-	for (j = 0; j < 20; j++)	;	//	count down
-//DMPBAMData &= ~STAT0_PCLED; 
-//*DMPBAMDataPtr = (volatile unsigned int)DMPBAMData;
-*DMPBAMDataPtrByte = (volatile unsigned short)DMPBAMData;
-PMACDPRAMBaseData = DMPBAMData;	//	send value computed to host
-	}
-*DMPBAMPtr = DMPBAMPIRAQ1;	//	restore pointer to PIRAQ-host shared physical memory
-	WriteCE1(HIGH_SPEED_MODE);	 /* re-enable high speed mode */
-#endif
-#if 0
-//	test turn on PIRAQ1 LED: 
-DMPBAMDataPtr = 0;   
-DMPBAMDataPtr += ((0x3000000+0)/4)+(0x1400);	//	add an offset; /2 for 16-bit entities
-//DMPBAMDataPtr += (0x1400);	//	add an offset; /2 for 16-bit entities
-PMACDPRAMBaseData = *DMPBAMDataPtr;
-//PMACDPRAMBaseData |= STAT0_PCLED; 
-//off:
-PMACDPRAMBaseData &= ~STAT0_PCLED; 
-*DMPBAMDataPtr = PMACDPRAMBaseData;
-exit(0);
-#endif  
-// Timeseries initialization
+	/* PLX Mailbox 4 */
+	Mailbox4Ptr = (volatile unsigned int *)0x14000D0; 
+
+	/* Host sets PMAC DPRAM base address in PLX Mailbox 4 */
+	PMACDPRAMBaseAddress = ((unsigned int *)*Mailbox4Ptr); 
+
+    // Timeseries initialization
 	
 	Tsgate = ldst->data.info.ts_start_gate;
 	Ntsgates = (ldst->data.info.ts_end_gate - Tsgate) + 1; 
-	if(Ntsgates > TSMAX)  /* don't exceed maximum number of timeseries */
+	/* don't exceed maximum number of timeseries */
+	if(Ntsgates > TSMAX)  
 		Ntsgates = TSMAX;
    	  
 	if(ldst->data.info.dataformat == 16) {
-		Maxgates = 400;  		// if simplepp & clutterfilter
+		// if simplepp & clutterfilter
+		Maxgates = 400;  	
 		Stgr = 1;
 		Cfltr = 1;
 	}
-	else /* (ldst->data.info.dataformat == 17) */ {
+	else  {
+	    /* (ldst->data.info.dataformat == 17) */
 		Maxgates = 600;			// else staggered PRT
 		Stgr = 2;
 		Cfltr = 0;
 	}
-	// test CurPkt functioning end-to-end: 
-//	ldst->data.info.clutter_start[0] = ldst->data.info.hits; 
-//	ldst->data.info.clutter_end[0] = ldst->data.info.channel; 
 	
 #ifdef	CP2_TEST_SINUSOID		// CP2 test sine wave ... along pulse in timeseries data
 	SINstore = (float *)MEM_alloc(sdram0_seg,2000000 * sizeof (float),0);	//	allow up to 2000000 data
@@ -285,12 +238,15 @@ exit(0);
 	HWfifo_latency_ratio = (float)HWfifo_latency/(float)ldst->data.info.hits;
 
 	//	Calculate DC offset normalization
-	sumnorm = 1.0/((float)ldst->data.info.gates); // CP2 nix hits in normalization. 
+	// CP2 nix hits in normalization.
+	sumnorm = 1.0/((float)ldst->data.info.gates);  
 
 	/* Initialize DMA Channel 0 for ABP transfers */
-	dma_ptr = (unsigned int *)0x1840000;  /* channel 0 primary control */
+	/* channel 0 primary control */
+	dma_ptr = (unsigned int *)0x1840000;  
 	*dma_ptr = 0x01000050; 
-	dma_ptr = (unsigned int *)0x1840008;  /* channel 0 secondary control */
+	/* channel 0 secondary control */
+	dma_ptr = (unsigned int *)0x1840008;  
 	*dma_ptr = 0x90; 
 
 	/* Initialize DMA Channel 1 for FIFO transfers */
@@ -317,8 +273,6 @@ exit(0);
 	*dma_ptr = 0x90; 
 	dma_ptr = (unsigned int *)0x184001C; /* DMA Channel 2 Destination Address */
 	*dma_ptr = (unsigned int)PCI_FIFO_WR;
-//	dma_ptr = (unsigned int *)0x1840014; /* DMA Channel 2 Source Address */
-//	*dma_ptr = (unsigned int)Scratch;
 
 	/* Re-configure Asynchronous interface for CE1 */
 	/* Increase cycle length to talk to PLX chip */
@@ -341,7 +295,6 @@ exit(0);
 	/* Re-program MARBR Register for test */
 	pci_cfg_ptr = (volatile unsigned int *)0x1400088;
 	*pci_cfg_ptr = 0x01270808;           /* MARBR  */
-//	*pci_cfg_ptr = 0x01240000;           /* MARBR  */
 
 	/* Re-program INTCSR to enable DMA CH0 Interrupt */
 
@@ -389,12 +342,6 @@ void data_xfer_loop(void)
 			dst = (PACKET *)fifo_get_write_address(Fifo);
 			dma_fifo(Tfer_sz,(unsigned int )NPkt);       /* DMA NPkt to PCI Burst FIFO */
 			offset = (unsigned int )dst - PCIBASE; 
-#if 0
-			dma_pci(Tfer_sz,(unsigned int )DMA_base+offset); 		/* DMA FIFO */
-			sbsram_hits = 0;
-			/* increment packet index in fifo structure */
-			fifo_increment_head(Fifo);
-#endif
 			sbsram_hits = 0;
 			burstready = 1;  
 		}
@@ -568,8 +515,8 @@ void dma_pci(int tsize, unsigned int pci_dst)
 
 	volatile unsigned int *pci_cfg_ptr;
 
-/* Re-configure Asynchronous interface for CE1 */
-/* Increase cycle length to talk to PLX chip */
+	/* Re-configure Asynchronous interface for CE1 */
+	/* Increase cycle length to talk to PLX chip */
 
 	WriteCE1(PLX_CFG_MODE);
 	                                               
@@ -579,7 +526,7 @@ void dma_pci(int tsize, unsigned int pci_dst)
 	pci_cfg_ptr = (volatile unsigned int *)0x140010C; 
 	*pci_cfg_ptr = tsize;   /* DMASIZ0  */	
 	
-/* Tell PCI Bridge Chip to DMA data */
+	/* Tell PCI Bridge Chip to DMA data */
 
 	pci_cfg_ptr = (volatile unsigned int *)0x1400128; 
 	*pci_cfg_ptr = 0x3;           /* DMACSR0 */
@@ -594,14 +541,9 @@ void createSineTestWaveform(float freq)	//	create test sine waveform of freq; st
 	int		i; 
 	 
 	test_dst = SINstore;
-//	x = freq*PI;
 	x = freq*2.0*PI;
 	TestWaveformiMax	= (unsigned int)(1.0/freq);
 	//	compute sinusoid suitable along pulse, for as many gates as possible: 6/uS, 1000Hz
-//	for(i = 0; i < 2000; i++) {	//	compute test waveform up to 2000 gates
-//		*test_dst++ = 16777216.0*cosf(x*i);
-//		*test_dst++ = -16777216.0*sinf(x*i);
-//	}
 	for(i = 0; i <= TestWaveformiMax; i++) {	//	compute one complete test waveform (up to 2000 gates)
 		*test_dst++ = 16777216.0*TestWaveformAmplitude*cosf(x*i);
 		*test_dst++ = -16777216.0*TestWaveformAmplitude*sinf(x*i);
