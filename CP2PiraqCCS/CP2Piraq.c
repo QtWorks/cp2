@@ -94,18 +94,13 @@ void initTask(void)
 	volatile unsigned int *pci_cfg_ptr;
 	int 			i;
 	volatile int 	ii,j;
-	int 			sbsram_seg, sdram0_seg;
-	float 			*fake_in;
+	int 			sbsram_seg;
 	PACKETHEADER	*pkt;
 	unsigned int	*src, *dst;
-	PACKET			*lsrc, *ldst;
-	float 			* dbg_dst;
+	PACKET			*ldst;
 	volatile unsigned int *Mailbox4Ptr; 
-	volatile unsigned int *DMPBAMPtr; 
-	volatile unsigned int *DMPBAMDataPtr;
 	volatile unsigned int DMPBAM, DMPBAMPMAC, DMPBAMPIRAQ1, DMPBAMPIRAQ2;
-	unsigned short DMPBAMData;	//	data at DMPBAMDataPtr
-	unsigned char * DMPBAMDataPtrByte;	
+
 /* Initialize Essential DSP Control Registers */
 /* setup EMIF Global and Local Control Registers */
 /* this should allow external memory to be used! */
@@ -123,10 +118,10 @@ void initTask(void)
 	/* set up SDRAM, SBSRAM segments */
 
     sbsram_seg = MEM_define((Ptr) 0x400000, 0x40000, 0);
-    sdram0_seg = MEM_define((Ptr) 0x2000000, 0x1000000,0); // 16 MB of SDRAM
-
 	sbsram_hits = 0; 
-	// CP2 PCI Bus transfer size: Nhits * (HEADERSIZE + (config->gatesa * bytespergate) + BUFFER_EPSILON)
+
+	// CP2 PCI Bus transfer size:
+	// Nhits * (HEADERSIZE + (config->gatesa * bytespergate))
 	
 	samplectr = 0;	// Initialize sample counter to 0
 
@@ -173,7 +168,6 @@ void initTask(void)
 	for(i = 0; i < HEADERSIZE/4; i++)	 
 		*dst++ = *src++;
 
-	lsrc = (PACKET *)fifo_get_header_address(Fifo);
 	ldst = (PACKET *)CurPkt;	// new method
 
 	// NPkt PACKET pointer to one hit in sbsram N-hit alloc
@@ -321,11 +315,6 @@ void initTask(void)
 
 void data_xfer_loop(void)
 {
-	PACKET *dst;
-	float * dbg_dst;
-	unsigned int * src, * SBSRAMdst; 
-	unsigned int offset;
-	unsigned int i; 
 	volatile unsigned int *Mailbox5Ptr; 
 
 	/* Fill PCI Shared Memory forever */
@@ -337,9 +326,7 @@ void data_xfer_loop(void)
 			Tfer_sz = PCIHits * (HEADERSIZE + (gates * bytespergate));  /* in bytes */
 			//	moved from above
 			IRQ_Disable(IRQ_EVT_EXTINT5);		/* Disable Fifo interrupt during data xfer */
-			dst = (PACKET *)fifo_get_write_address(Fifo);
 			dma_fifo(Tfer_sz,(unsigned int )NPkt);       /* DMA NPkt to PCI Burst FIFO */
-			offset = (unsigned int )dst - PCIBASE; 
 			sbsram_hits = 0;
 			burstready = 1;  
 		}
@@ -407,11 +394,10 @@ void delay(void)
    
 void dma_fifo(int tsize, unsigned int source)
 {
-int frame_cnt, tfer_sz;
-unsigned int *dma_ptr,*burst_fifo,*mem_ptr,src;
-volatile unsigned int *dma_stat;
 
-//	SEM_pend(&fifo_ready,SYS_FOREVER);	
+int frame_cnt, tfer_sz;
+unsigned int *dma_ptr, src;
+volatile unsigned int *dma_stat;
 
 /* Return Asynchronous interface for CE1 to initial settings */
 

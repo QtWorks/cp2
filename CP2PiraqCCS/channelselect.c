@@ -16,8 +16,6 @@ extern int m;
 void  channelselect(int ngates, float * restrict src, float * restrict dst, unsigned int channelMode)
 {
 	int i;
-	register float i0, q0, i1, q1;
-	float *iqp;
 	float * iqsrc, * iqdst; 
 	
 	iqsrc = src; iqdst = dst; 
