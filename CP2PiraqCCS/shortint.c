@@ -92,7 +92,7 @@ extern 	int		samplectr, tsctr, hitnorm, HWfifo_latency;
 extern 	int		Ramp[], testcount, ledflag, Maxgates, Stgr,Tsgate, Ntsgates;
 extern 	float 	*CFptr, HWfifo_latency_ratio;
 extern	unsigned long	pulse_num_low, pulse_num_high, beam_num_low, beam_num_high;
-extern 	float IQoffset[2*NUMCHANS];
+extern 	float IQoffset[4*NUMCHANS];
 extern	unsigned int channelMode; // sets channelselect() processing mode
 extern	unsigned int freqAdjust;  // sets test-data adjustment 
 extern	unsigned int TestWaveformiMax;	//	index of complete wavelength
@@ -136,9 +136,7 @@ void int_half_full(void) {
 
 	int		i,j;
 	PACKET	*Host_src, *src, *dst;
-//	from dxl()
-unsigned int * intsrc, * SBSRAMdst;	
-//!need another name:	float * fp_dbg_dst;
+	unsigned int * intsrc, * SBSRAMdst;	
 	int 		*iptr;
 	unsigned short *pmac_ptr;
 	unsigned int PMAC_base;
