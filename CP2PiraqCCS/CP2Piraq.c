@@ -172,7 +172,6 @@ void initTask(void)
 
 	// NPkt PACKET pointer to one hit in sbsram N-hit alloc
 	// CP2 PCI Bus transfer size: Nhits * (HEADERSIZE + (config->gatesa * bytespergate) 
-	//                                + BUFFER_EPSILON)
 
 	// PACKET pointer to one hit in sbsram N-hit alloc
 	NPkt = (PACKET *)MEM_alloc(sbsram_seg, 

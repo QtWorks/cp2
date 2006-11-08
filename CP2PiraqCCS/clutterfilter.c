@@ -11,13 +11,7 @@ Rapid DOW version
 Incorporates pulse pair, clutter filter, etc. 
 
 Compiler Directives:
-	Define	CF_ON to force filter ON
-	Define 	DEBUG_INTOUT	to generate an integer output ramp
-	Define	DEBUG_INTMID	to put integers into input of pulsepair
-	Define	DEBUG_INTIN		to generate an integer input ramp
 	Define	DEBUG_TS	to jam known integer data into TS
-	Define	REVB		to accomodate data in lower 18 bits,
-						 otherwise data assumed in upper 18 bits (REVD+).	
 
 Rev history:
 1/2/03	PP code added to working single_p3iq version.

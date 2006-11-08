@@ -33,15 +33,9 @@ Compiler Directives:
 #include 	"single_p3iq_dcfg.h"
 #include 	"local_defs.h"
 
-//#define	IQSCALE	 7.629394531E-6
 #define	IQSCALE	 	4.65661287E-10			// 1/2^31
-
 #define	IQMASK	0x3FFFF
                        
-#define	LOTHRESH	((double)16000 * 16000)
-#define	SCALE		(1.0/28.0)
-#define	HITHRESH	(LOTHRESH * (SCALE * SCALE))
-#define EPSILON  	1000
 #define	FIFO1I		(int *)0x1400204
 #define	FIFO1Q		(int *)0x140020C
 #define	FIFO2I		(int *)0x1400210
@@ -50,35 +44,31 @@ Compiler Directives:
 static int Firstime=1;
 static int iqOffsets=0;
 
-extern	FIFO	*Fifo;
-extern  unsigned int Period;
-extern int Stgr, Cfltr;   
-                                              
-/* Added for RapiDOW */
-static int Count=0,Val=0;
-
-extern	PACKETHEADER *pkhtemp;
-extern	PACKET	*CurPkt;
-extern	float	*IQbuf;
-extern	float	*LAGbuf;
-extern	float	*ABPbuf;
-extern 	float	*ABPstore;
-extern  float	*SINstore;
-extern	float	test_freq;	//	frequency of test sine wave 
-extern	float	ioffset0, qoffset0, ioffset1, qoffset1, sumnorm;
-extern 	int		samplectr, tsctr, hitnorm, HWfifo_latency;
-extern 	int		Ramp[], testcount, ledflag, Maxgates, Stgr,Tsgate, Ntsgates;
-extern 	float 	*CFptr, HWfifo_latency_ratio;
+extern	FIFO*        Fifo;
+extern	PACKETHEADER* pkhtemp;
+extern	PACKET*      CurPkt;
+extern 	float*       ABPstore;
+extern  float*       SINstore;
+extern	float        ioffset0; 
+extern	float        qoffset0; 
+extern	float        ioffset1; 
+extern	float        qoffset1; 
+extern	float        sumnorm;
+extern 	int          samplectr;
+extern 	int          hitnorm; 
+extern 	int          ledflag;
+extern 	int	         Stgr;
+extern 	int	         Ntsgates;
 extern	unsigned long	pulse_num_low, pulse_num_high, beam_num_low, beam_num_high;
-extern 	float IQoffset[4*NUMCHANS];
+extern 	float        IQoffset[4*NUMCHANS];
 extern	unsigned int channelMode; // sets channelselect() processing mode
 extern	unsigned int freqAdjust;  // sets test-data adjustment 
 extern	unsigned int TestWaveformiMax;	//	index of complete wavelength
-extern unsigned int amplAdjust;     // sets test-data amplitude adjustment 
-extern	float TestWaveformAmplitude;	//	index of complete wavelength
+extern  unsigned int amplAdjust;     // sets test-data amplitude adjustment 
+extern	float        TestWaveformAmplitude;	//	index of complete wavelength
 
-extern	int		PCIHits, sbsram_hits;	// #hits combined for one PCI Bus transfer, #hits in SBSRAM
-extern	PACKET	*NPkt;		// sbsram N-PACKET MEM_alloc w/1-channel data 
+extern	int		     PCIHits, sbsram_hits;	// #hits combined for one PCI Bus transfer, #hits in SBSRAM
+extern	PACKET*      NPkt;		// sbsram N-PACKET MEM_alloc w/1-channel data 
 
 extern	int gates, bytespergate, hits, boardnumber;
 
@@ -88,11 +78,9 @@ PACKET *testptr;
 
 float	f_test;	// test frequency for injected sine wave
 
-int		datainput(int Ngates, int *Dmabuf, float *Inbuf);
-void 	sum_timeseries(int Ngates, float * restrict IQbuf, float *IQoff);
-void	timeseries(float * restrict IQbuf, float *TSptr, int TSstart, int TSsize);
-void	dma_Data(int Ngates, float *ABPin, float *ABPout);
-/* End added for RapiDOW */
+int		toFloats(int Ngates, int *pIn, float *pOut);
+void 	sumTimeseries(int Ngates, float * restrict pIn, float *pOut);
+void	dmaChan0Transfer(int Ngates, float *pSrc, float *pDest);
 
 int k = 0; 
 int m = 0;
@@ -106,7 +94,7 @@ extern void dma_pci(int tsize, unsigned int pci_dst);
 static	int	jTestWaveform = 0;	//	index into test waveform; persist hit-to-hit
 static	float * fp_dbg_src = (float *)&SINstore;	//	pointer to test waveform
 
-void int_half_full(void) {    
+void AtoDfifoISR(void) {    
 	volatile int temp;
 	volatile unsigned int *dma_stat,*pci_cfg_ptr;
 	unsigned int *led0,*led1,*dma_ptr,cfg_store0,cfg_store1;
@@ -237,11 +225,11 @@ void int_half_full(void) {
 	}
 		
 	/* Convert I,Q integers to floats in-place */
-   	datainput(gates, hwData, (float *) hwData); 
+   	toFloats(gates, hwData, (float *) hwData); 
 
 	//  For first dwell sum timeseries to determine Piraq3 DC offset
 	if(!iqOffsets) {	//	I,Q offsets not calcuated
-	  	sum_timeseries(gates, (float *)hwData, IQoffset);
+	  	sumTimeseries(gates, (float *)hwData, IQoffset);
 	  	ioffset0 = IQoffset[0]*sumnorm;	//	CP2: normalize to #gates only
 	  	qoffset0 = IQoffset[1]*sumnorm;
 	  	ioffset1 = IQoffset[2]*sumnorm;
@@ -307,15 +295,15 @@ void int_half_full(void) {
 	}
 }
 
-int datainput(int ngates, int *ipt, float *iqpt) {   
+int toFloats(int ngates, int *pIn, float *pOut) {   
 	int 	i, temp;
 	int 	*iptr;
    	int		i0i, q0i, i1i, q1i;
 	float 	*iqptr;	
 	
 	// Set up pointers 
-	iptr = ipt;			// Copy Input pointer
-	iqptr = iqpt;		// Copy IQ pointer
+	iptr = pIn;			// Copy Input pointer
+	iqptr = pOut;		// Copy IQ pointer
 	
 #pragma MUST_ITERATE(20, ,2) 		
    	// Input all data as int's and convert to floats
@@ -338,64 +326,33 @@ int datainput(int ngates, int *ipt, float *iqpt) {
 	return(temp);
 }
 
-void sum_timeseries(int ngates, float * restrict iqpt, float *IQoff) {
+void sumTimeseries(int ngates, float * restrict pIn, float *pOut) {
 
 	int 	i;
 	float 	* restrict iqptr;	
 	
-	iqptr = iqpt;		// Copy IQ pointer
+	iqptr = pIn;		// Copy IQ pointer
 
 #pragma MUST_ITERATE(20, ,2) 		
    	// Input all data as int's and convert to floats
    	for(i=0; i < ngates; i++) {
 	   	//accumulate timeseries to determine DC offset of Piraq3
 			
-		IQoff[0] += *iqptr++;  //i0
-		IQoff[1] += *iqptr++;  //q0
-	  	IQoff[2] += *iqptr++;  //i1
-	  	IQoff[3] += *iqptr++;  //q1
+		pOut[0] += *iqptr++;  //i0
+		pOut[1] += *iqptr++;  //q0
+	  	pOut[2] += *iqptr++;  //i1
+	  	pOut[3] += *iqptr++;  //q1
 	}
 }
 
-void timeseries(float * restrict iqpt, float *tspt, int TSstart, int TSsize) {   
-	int 	i;
-   	float	debug_ts_base;
-   	float   *tsptr;
-	float 	*iqptr;	
-	
-	// Set up pointers 
-
-	tsptr = tspt;						// Copy TS pointer
-	iqptr = iqpt + TSstart*NUMCHANS*2;	// Copy IQ pointer
-
-	// Set up debug parameter
-	debug_ts_base = (float)((int)tspt << 8);
-
-  	for(i=0; i < TSsize; i++) {
-#ifndef	DEBUG_TS
-	  	*tsptr++ = *iqptr++;
-	  	*tsptr++ = *iqptr++;
-	  	*tsptr++ = *iqptr++;
-	  	*tsptr++ = *iqptr++;
-#else
-	  	*tsptr++ = PIRAQ3D_SCALE*j+0.0; j++; 	// ramp Phoney data
-	  	*tsptr++ = PIRAQ3D_SCALE*j+0.0; j++; 
-	  	*tsptr++ = PIRAQ3D_SCALE*j+0.0; j++;
-	  	*tsptr++ = PIRAQ3D_SCALE*j+0.0; j++;
-#endif 	// DEBUG_TS
-  	}
-}  
-   
-void dma_Data(int Ngates, float *ABPin, float *ABPout) {
-	float *l_ABPin, *l_ABPout;
+void dmaChan0Transfer(int Ngates, float *pSrc, float *pDest) {
 	unsigned int *dma_ptr;
-	int i;
 	volatile unsigned int *dma_stat;
 
 	dma_ptr = (unsigned int *)0x1840010; /* DMA Channel 0 Source Address */
-	*dma_ptr = (unsigned int)ABPin;	
+	*dma_ptr = (unsigned int)pSrc;	
 	dma_ptr = (unsigned int *)0x1840018; /* DMA Channel 0 Destination Address */
-	*dma_ptr = (unsigned int)ABPout;		
+	*dma_ptr = (unsigned int)pSrc;		
 	dma_ptr = (unsigned int *)0x1840020; /* DMA Channel 0 Transfer Counter */
 	*dma_ptr = Ngates;         
 	dma_ptr = (unsigned int *)0x1840000;  /* channel 0 primary control */
