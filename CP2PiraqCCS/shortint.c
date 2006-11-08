@@ -123,9 +123,9 @@ int first = 1;
 
 extern int burstready; 
 extern void dma_pci(int tsize, unsigned int pci_dst);
-extern unsigned int * PMACDPRAMBaseAddress;
-extern unsigned int PMACDPRAMBaseData;	//	data at PMAC DPRAM Base Address
-
+//extern unsigned int * PMACDPRAMBaseAddress;
+//extern unsigned int PMACDPRAMBaseData;	//	data at PMAC DPRAM Base Address
+//
 static	int	jTestWaveform = 0;	//	index into test waveform; persist hit-to-hit
 static	float * fp_dbg_src = (float *)&SINstore;	//	pointer to test waveform
 
@@ -261,8 +261,6 @@ void int_half_full(void) {
 	}
 	else {
 		*led1 = 1; /* Turn off the LED */
-//		if((beam_num_low & 0x3FF) == 0x3FF)	// Create test for EOF
-//		src->data.info.packetflag = -1;		// Tell PC Host got EOF!
 	}
 		
 	/* Convert I,Q integers to floats in-place */
@@ -306,11 +304,6 @@ void int_half_full(void) {
 		pulse_num_high++;
 	CurPkt->data.info.pulse_num_low = pulse_num_low;
 	CurPkt->data.info.pulse_num_high = pulse_num_high;
-//	return PMAC DPRAM pointer and contents of location to host
-//	get PMAC DPRAM pointer contents 
-//	PMACDPRAMBaseData = *PMACDPRAMBaseAddress;	//	get data from PMAC DPRAM: varies  
-CurPkt->data.info.clutter_start[0] = (uint4)PMACDPRAMBaseAddress;	
-CurPkt->data.info.clutter_start[1] = (uint4)PMACDPRAMBaseData;	
 
 	// process 2-channel hwData into 1-channel data: channel-select, gate by gate. data destination CurPkt->data.data
 	channelselect(gates, (float *)hwData, (float *)CurPkt->data.data, channelMode); 
