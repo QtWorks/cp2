@@ -6,35 +6,16 @@
 /****************************************/
 
 /*
-CP2 version
-
-REMOVED pulse pair, clutter filter, etc. 
-
 Compiler Directives:
-	Define	CF_ON to force filter ON
-	Define 	DEBUG_INTOUT	to generate an integer output ramp
-	Define	DEBUG_INTIN		to generate an integer input ramp
 	Define	DEBUG_TS	to jam known integer data into TS
-	Define	REVB		to accomodate data in lower 18 bits,
-						 otherwise data assumed in upper 18 bits (REVD+).	
 */
 
-#define		REVD
-//#define		ANGLE_CORRECT		// Correct az/el for hardware fifo latency
-
-// Several debugging tools
-//#define	DEBUG_INTIN			// Plug integers in place of input FIFO
-//#define	DEBUG_INTMID		// Stuff integers into input of pulsepair
-//#define	DEBUG_INTOUT		// Plug integers into ABP output
 //#define	DEBUG_TS			// Timeseries debug
 
 #define PIRAQ3D_SCALE	1.0/IQSCALE
 	
 #define		NO_PMAC_DIRECT
 
-// RapidDOW:
-//#define		NUMVARS		3		// Number of variables (ABP)
-//#define		NUMCHANS	2		// Number of channels
 // CP2: 
 #define		NUMVARS		2		// Number of variables (I,Q)
 #define		NUMCHANS	1		// Number of channels
@@ -113,7 +94,6 @@ void	timeseries(float * restrict IQbuf, float *TSptr, int TSstart, int TSsize);
 void	dma_Data(int Ngates, float *ABPin, float *ABPout);
 /* End added for RapiDOW */
 
-//int j = 0; // index for test timeseries data using DEBUG_TS over entire beam
 int k = 0; 
 int m = 0;
 int first = 1;  
@@ -398,18 +378,10 @@ void timeseries(float * restrict iqpt, float *tspt, int TSstart, int TSsize) {
 	  	*tsptr++ = *iqptr++;
 	  	*tsptr++ = *iqptr++;
 #else
-//	  	*tsptr++ = debug_ts_base + 4*i; 		// old Phoney data
-//	  	*tsptr++ = debug_ts_base + 4*i+1;
-//	  	*tsptr++ = debug_ts_base + 4*i+2;
-//	  	*tsptr++ = debug_ts_base + 4*i+3;
 	  	*tsptr++ = PIRAQ3D_SCALE*j+0.0; j++; 	// ramp Phoney data
 	  	*tsptr++ = PIRAQ3D_SCALE*j+0.0; j++; 
 	  	*tsptr++ = PIRAQ3D_SCALE*j+0.0; j++;
 	  	*tsptr++ = PIRAQ3D_SCALE*j+0.0; j++;
-//	  	*tsptr++ = *iqptr++;					// no phoney data: put ramp in source buffer
-//	  	*tsptr++ = *iqptr++;
-//	  	*tsptr++ = *iqptr++;
-//	  	*tsptr++ = *iqptr++;
 #endif 	// DEBUG_TS
   	}
 }  
