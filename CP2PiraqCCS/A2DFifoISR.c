@@ -30,7 +30,7 @@ Compiler Directives:
 #include 	<csl_irq.h> 
 #include	<math.h>                      
 #include	"proto.h"                          
-#include 	"single_p3iq_dcfg.h"
+#include 	"CP2Piraqcfg.h"
 #include 	"local_defs.h"
 
 #define	IQSCALE	 	4.65661287E-10			// 1/2^31

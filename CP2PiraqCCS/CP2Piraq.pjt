@@ -17,15 +17,15 @@ Source="..\..\..\CCStudio_v3.1\C6000\csl\lib\csl6701.lib"
 Source="A2DFifoISR.c"
 Source="ChannelSelect.c"
 Source="CP2Piraq.c"
+Source="CP2Piraq.cdb"
 Source="Fifo.c"
 Source="InitDsp.c"
 Source="PciDmaISR.c"
-Source="single_p3iq_d.cdb"
 
 [Generated Files]
-Source="single_p3iq_dcfg.cmd"
-Source="single_p3iq_dcfg.s62"
-Source="single_p3iq_dcfg_c.c"
+Source="CP2Piraqcfg.cmd"
+Source="CP2Piraqcfg.s62"
+Source="CP2Piraqcfg_c.c"
 
 ["Compiler" Settings: "Debug"]
 Options=-k -q -al -o2 -fr"obj\Debug" -fs"asm\" -ft"tmp\" -fb"abs\" -ff"list\" -d"_DEBUG" -d"CHIP_6701" -d"NO_INPUT_SINUSOID" -mw -mh -mv6700
@@ -44,4 +44,10 @@ Options=-q -c -m"list\CP2_D.map" -o"CP2Piraq.out" -x -l"csl6701.lib"
 
 ["Linker" Settings: "Release"]
 Options=-q -c -o".\Release\single_p3iq_D.out" -x
+
+["CP2Piraqcfg.cmd" Settings: "Debug"]
+LinkOrder=1
+
+["CP2Piraqcfg.cmd" Settings: "Release"]
+LinkOrder=1
 

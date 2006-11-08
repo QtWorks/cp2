@@ -29,7 +29,7 @@
 #define 	P3_SCOPE
 
 #include 	"proto.h"
-#include 	"single_p3iq_dcfg.h"
+#include 	"CP2Piraqcfg.h"
 #include 	"local_defs.h"
 #include	"coeff.h"
 

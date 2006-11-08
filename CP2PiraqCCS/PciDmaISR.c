@@ -5,7 +5,7 @@
 #include <sys.h>
 #include <csl_irq.h>
 
-#include "single_p3iq_dcfg.h"
+#include "CP2Piraqcfg.h"
 #include "local_defs.h"
 
 
