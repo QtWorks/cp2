@@ -1,5 +1,5 @@
 /****************************************/
-/*		  	 SHORTINT.C            		*/
+/*		  	A2DFifoISR.C            		*/
 /*								 		*/
 /* Half full interrupt service routine 	*/
 /*		   CP2 Version					*/
@@ -94,7 +94,7 @@ extern void dma_pci(int tsize, unsigned int pci_dst);
 static	int	jTestWaveform = 0;	//	index into test waveform; persist hit-to-hit
 static	float * fp_dbg_src = (float *)&SINstore;	//	pointer to test waveform
 
-void AtoDfifoISR(void) {    
+void A2DFifoISR(void) {    
 	volatile int temp;
 	volatile unsigned int *dma_stat,*pci_cfg_ptr;
 	unsigned int *led0,*led1,*dma_ptr,cfg_store0,cfg_store1;
@@ -267,7 +267,7 @@ void AtoDfifoISR(void) {
 	CurPkt->data.info.pulse_num_high = pulse_num_high;
 
 	// process 2-channel hwData into 1-channel data: channel-select, gate by gate. data destination CurPkt->data.data
-	channelselect(gates, (float *)hwData, (float *)CurPkt->data.data, channelMode); 
+	ChannelSelect(gates, (float *)hwData, (float *)CurPkt->data.data, channelMode); 
 	// move CurPkt w/combined data from DSP-internal memory to NPkt in sbsram: 
 	for (i = 0; i < sizeof(PACKET)/4; i++) { // move CurPkt contents to NPkt
 		*SBSRAMdst++ = *intsrc++;	

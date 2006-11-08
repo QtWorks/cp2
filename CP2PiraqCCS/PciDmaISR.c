@@ -11,7 +11,7 @@
 
 extern volatile int FIFO_Available;
                                                  
-void pci_int(void)
+void PciDmaISR(void)
    {
 	volatile unsigned int *pci_cfg_ptr;
 	unsigned int previousCE1;

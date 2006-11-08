@@ -759,7 +759,7 @@ void dsp(DATABLOCK *abpdata, FIFO *fifo);
 void dsp_simplepp(DATABLOCK *abpdata, FIFO *fifo);
 void correctphase(int gates, float *iqptr);
 void hvpulsep(int gates,float *hviqptr,float *lagbuf,float *hvabp);
-void channelselect(int ngates, float * restrict src, float * restrict dst, unsigned int channelMode);
+void ChannelSelect(int ngates, float * restrict src, float * restrict dst, unsigned int channelMode);
 
 /* pci.c */
 int setup_pci(void);	// Sets up the PCI hardware

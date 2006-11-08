@@ -13,7 +13,7 @@
 // specific function tbd; procedure tests 2-to-1 channel conversion with test data. mp 8-19-05. 
 extern int m;
 
-void  channelselect(int ngates, float * restrict src, float * restrict dst, unsigned int channelMode)
+void  ChannelSelect(int ngates, float * restrict src, float * restrict dst, unsigned int channelMode)
 {
 	int i;
 	float * iqsrc, * iqdst; 

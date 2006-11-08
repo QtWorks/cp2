@@ -14,12 +14,12 @@ Config="Release"
 
 [Source Files]
 Source="..\..\..\CCStudio_v3.1\C6000\csl\lib\csl6701.lib"
+Source="A2DFifoISR.c"
 Source="channelselect.c"
 Source="CP2Piraq.c"
 Source="dma_isr.c"
 Source="Fifo.c"
 Source="init_dsp.c"
-Source="shortint.c"
 Source="single_p3iq_d.cdb"
 
 [Generated Files]

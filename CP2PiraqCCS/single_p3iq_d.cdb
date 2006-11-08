@@ -91,7 +91,7 @@ type GlobalStatus {
         prop Visible :: 0
         prop Writable :: 0
     }
-    global DATE :: "Tue Nov 07 20:08:24 2006" { 
+    global DATE :: "Tue Nov 07 20:55:52 2006" { 
         prop Type :: "{21455EA3-B96A-11cf-9BFE-0000C0AC14C7}"
         prop Visible :: 0
         prop Writable :: 0
@@ -3883,7 +3883,7 @@ object HWI_INT5 :: HWI {
     param iSource :: External_Pin_5
     param iReMappable :: 1
     param iIntrEnableMask :: 32
-    param function :: @_AtoDfifoISR
+    param function :: @_A2DFifoISR
     param iSTSObj :: HWI_INT5_STS
     param monitor :: "Nothing"
     param saveAddr :: 0
@@ -3930,7 +3930,7 @@ object HWI_INT6 :: HWI {
     param iSource :: External_Pin_6
     param iReMappable :: 1
     param iIntrEnableMask :: 64
-    param function :: @_pci_int
+    param function :: @_PciDmaISR
     param iSTSObj :: HWI_INT6_STS
     param monitor :: "Nothing"
     param saveAddr :: 0

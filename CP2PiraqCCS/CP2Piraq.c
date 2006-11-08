@@ -46,7 +46,7 @@ float IQoffset[4*NUMCHANS];	//	CP2: compute offsets for both CHA and CHB
 int  Tfer_sz, Count, Stgr, Cfltr, Maxgates;
 unsigned int *Led_ptr,DMA_base, Period;
 void delay(void);
-void init_dsp(void);
+void initDsp(void);
 void dma_pci(int tsize, unsigned int pci_dst);
 void dma_fifo(int tsize, unsigned int source);
 void pci_burst_xfer();
@@ -105,7 +105,8 @@ void initTask(void)
 /* setup EMIF Global and Local Control Registers */
 /* this should allow external memory to be used! */
 
-	init_dsp(); 
+	initDsp(); 
+
 	ledflag = 1;
 	
 	/* Clear the LEDs */
