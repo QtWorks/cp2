@@ -42,9 +42,6 @@ Compiler Directives:
 #define		OFFSETI		5
 #define		OFFSETQ 	5
 	
-#define 	REVB_DATA	((*iptr++)<<14)	//<< for sign extend
-#define		REVD_DATA	(*iptr++)
-
 #include 	<std.h>
 #include 	<sem.h>
 #include 	<sys.h>
@@ -170,11 +167,7 @@ void int_half_full(void) {
 
 	localhits = hits;
 
-#ifndef	DEBUG_INTIN
 	localnorm = IQSCALE/sqrt((double)localhits);
-#else
-	localnorm = 1.0;
-#endif  
 
 	TSptrBase = ABPstore + Stgr*NUMVARS*NUMCHANS*(gates + CHIRP_GATES) + 2*NUMCHANS*hits*Ntsgates; //use 2nd timeseries buffer
 
@@ -347,26 +340,13 @@ int datainput(int ngates, int *ipt, float *iqpt) {
 #pragma MUST_ITERATE(20, ,2) 		
    	// Input all data as int's and convert to floats
    	for(i = 0; i < ngates; i++) {
-#ifndef	DEBUG_INTIN
+
       	// Grab data into upper 18 bits
-#ifdef REVB
-      	i0i = REVB_DATA;
-      	q0i = REVB_DATA;
-      	i1i = REVB_DATA;
-      	q1i = REVB_DATA;
-      
-#else // #ifdef REVD
-      	i0i = REVD_DATA;
-      	q0i = REVD_DATA;
-      	i1i = REVD_DATA;
-      	q1i = REVD_DATA;
-#endif // REVB/REVD
-#else	// for DEBUG_INTIN
-		i0i = 4*i;
-		q0i = 4*i+1;
-		i1i = 4*i+2;
-		q1i = 4*i+3;
-#endif
+      	i0i = (*iptr++);
+      	q0i = (*iptr++);
+      	i1i = (*iptr++);
+      	q1i = (*iptr++);
+
 	   	// Convert ints to floats and store
 	  	*iqptr++ = (float)(i0i) - ioffset0; 
 	  	*iqptr++ = (float)(q0i) - qoffset0; 
