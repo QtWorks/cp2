@@ -41,6 +41,8 @@ Compiler Directives:
 #define	FIFO2I		(int *)0x1400210
 #define	FIFO2Q		(int *)0x1400208
 
+///////////////////////////////////////////////////////////
+
 static int Firstime=1;
 static int iqOffsets=0;
 
@@ -88,11 +90,11 @@ int first = 1;
 
 extern int burstready; 
 extern void dma_pci(int tsize, unsigned int pci_dst);
-//extern unsigned int * PMACDPRAMBaseAddress;
-//extern unsigned int PMACDPRAMBaseData;	//	data at PMAC DPRAM Base Address
 //
 static	int	jTestWaveform = 0;	//	index into test waveform; persist hit-to-hit
 static	float * fp_dbg_src = (float *)&SINstore;	//	pointer to test waveform
+
+///////////////////////////////////////////////////////////
 
 void A2DFifoISR(void) {    
 	volatile int temp;
@@ -295,6 +297,8 @@ void A2DFifoISR(void) {
 	}
 }
 
+///////////////////////////////////////////////////////////
+
 int toFloats(int ngates, int *pIn, float *pOut) {   
 	int 	i, temp;
 	int 	*iptr;
@@ -326,6 +330,8 @@ int toFloats(int ngates, int *pIn, float *pOut) {
 	return(temp);
 }
 
+///////////////////////////////////////////////////////////
+
 void sumTimeseries(int ngates, float * restrict pIn, float *pOut) {
 
 	int 	i;
@@ -344,6 +350,8 @@ void sumTimeseries(int ngates, float * restrict pIn, float *pOut) {
 	  	pOut[3] += *iqptr++;  //q1
 	}
 }
+
+///////////////////////////////////////////////////////////
 
 void dmaChan0Transfer(int Ngates, float *pSrc, float *pDest) {
 	unsigned int *dma_ptr;
