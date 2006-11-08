@@ -14,7 +14,7 @@
 /*                                                                         */
 /*                                                                         */
 /***************************************************************************/
-void init_dsp(void)
+void initDsp(void)
 { 
 unsigned int *gcr, *csr,*sdr_cr,*sdr_tr;
 int i; 
