@@ -144,7 +144,7 @@ void A2DFifoISR(void) {
 	// Set up data ingest either by programmed transfer or by DMA. 
 	/* Read FIFO 1 I */
 	dma_ptr = (unsigned int *)0x1840058; /* DMA Channel 1 Destination Address */
-	*dma_ptr = (unsigned int)hwData;
+	*dma_ptr = (unsigned int)a2dFifoBuffer;
 	dma_ptr = (unsigned int *)0x1840050; /* DMA Channel 1 Source Address */
 	*dma_ptr = (unsigned int)fifo1I;
 	dma_ptr = (unsigned int *)0x1840060; /* DMA Channel 1 Transfer Counter */
@@ -161,7 +161,7 @@ void A2DFifoISR(void) {
 	/* Read FIFO 1 Q */
 
 	dma_ptr = (unsigned int *)0x1840058; /* DMA Channel 1 Destination Address */
-	*dma_ptr = (unsigned int)(hwData + 0x1);
+	*dma_ptr = (unsigned int)(a2dFifoBuffer + 0x1);
 	dma_ptr = (unsigned int *)0x1840050; /* DMA Channel 1 Source Address */
 	*dma_ptr = (unsigned int)fifo1Q;
 	dma_ptr = (unsigned int *)0x1840060; /* DMA Channel 1 Transfer Counter */
@@ -179,7 +179,7 @@ void A2DFifoISR(void) {
 	/* Read FIFO 2 I */
 
 	dma_ptr = (unsigned int *)0x1840058; /* DMA Channel 1 Destination Address */
-	*dma_ptr = (unsigned int)(hwData + 0x2);
+	*dma_ptr = (unsigned int)(a2dFifoBuffer + 0x2);
 	dma_ptr = (unsigned int *)0x1840050; /* DMA Channel 1 Source Address */
 	*dma_ptr = (unsigned int)fifo2I;
 	dma_ptr = (unsigned int *)0x1840060; /* DMA Channel 1 Transfer Counter */
@@ -197,7 +197,7 @@ void A2DFifoISR(void) {
 	/* Read FIFO 2 Q */
 
 	dma_ptr = (unsigned int *)0x1840058; /* DMA Channel 1 Destination Address */
-	*dma_ptr = (unsigned int)(hwData + 0x3);
+	*dma_ptr = (unsigned int)(a2dFifoBuffer + 0x3);
 	dma_ptr = (unsigned int *)0x1840050; /* DMA Channel 1 Source Address */
 	*dma_ptr = (unsigned int)fifo2Q;
 	dma_ptr = (unsigned int *)0x1840060; /* DMA Channel 1 Transfer Counter */
@@ -227,11 +227,11 @@ void A2DFifoISR(void) {
 	}
 		
 	/* Convert I,Q integers to floats in-place */
-   	toFloats(gates, hwData, (float *) hwData); 
+   	toFloats(gates, a2dFifoBuffer, (float *) a2dFifoBuffer); 
 
 	//  For first dwell sum timeseries to determine Piraq3 DC offset
 	if(!iqOffsets) {	//	I,Q offsets not calcuated
-	  	sumTimeseries(gates, (float *)hwData, IQoffset);
+	  	sumTimeseries(gates, (float *)a2dFifoBuffer, IQoffset);
 	  	ioffset0 = IQoffset[0]*sumnorm;	//	CP2: normalize to #gates only
 	  	qoffset0 = IQoffset[1]*sumnorm;
 	  	ioffset1 = IQoffset[2]*sumnorm;
@@ -269,7 +269,7 @@ void A2DFifoISR(void) {
 	CurPkt->data.info.pulse_num_high = pulse_num_high;
 
 	// process 2-channel hwData into 1-channel data: channel-select, gate by gate. data destination CurPkt->data.data
-	ChannelSelect(gates, (float *)hwData, (float *)CurPkt->data.data, channelMode); 
+	ChannelSelect(gates, (float *)a2dFifoBuffer, (float *)CurPkt->data.data, channelMode); 
 	// move CurPkt w/combined data from DSP-internal memory to NPkt in sbsram: 
 	for (i = 0; i < sizeof(PACKET)/4; i++) { // move CurPkt contents to NPkt
 		*SBSRAMdst++ = *intsrc++;	

@@ -180,10 +180,10 @@ void initTask(void)
 				0); 
 
 	// hwData DSP-internal 2-channel hwFIFO data array, interleaved I1, Q1, I2, Q2
-  	hwData = (int *)malloc((gates * 2 * bytespergate));
+  	a2dFifoBuffer = (int *)malloc((gates * 2 * bytespergate));
 
 	/* zero single-pulse buffer */
-	memset(hwData,0,(gates * 2 * bytespergate));	
+	memset(a2dFifoBuffer,0,(gates * 2 * bytespergate));	
 
 	/* Read PLX Mailbox 4 to get PMAC DPRAM base address */
 	WriteCE1(PLX_CFG_MODE);

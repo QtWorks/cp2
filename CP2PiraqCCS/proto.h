@@ -62,18 +62,7 @@
 #define	DECREMENT_TEST_AMPLITUDE_FINE	0x80
 #define	AMPLADJ_MASK	0xe0	// extract amplitude-adjust bits
 
-#define	noMBUF		//	multiple (currently double) buffer incoming hw FIFO data
-#define noIHF		//	IHF: new all-in-ihf()/noIHF: old split-task method
-
-P3_SCOPE int *hwData;			//	pointer to hwData alloc used by int_half_full()
-
-#ifdef	MBUF		//	multiple buffer incoming hw FIFO data
-#define	MBHITS	2				//	hwData capacity in hits
-P3_SCOPE int *hwDataXferPtr;	//	pointer to hwData alloc used by data_xfer_loop()
-P3_SCOPE int *hwDataOrigin;		//	pointer to hwData alloc begin
-//int	hwDataHits;					//	index to hwData used by int_half_full()
-//int	hwDataXferHits;				//	index to hwData used by data_xfer_loop()
-#endif
+P3_SCOPE int *a2dFifoBuffer;			// receives the I/Q data from the A2D fifos.
 
 typedef struct pci_card_typ{
 	int fnum;
