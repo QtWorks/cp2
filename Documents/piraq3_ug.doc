@@ -1,0 +1,2216 @@
+{\rtf1\ansi \deflang1033\deff0{\fonttbl
+{\f0\froman \fcharset0 \fprq2 Times New Roman;}}{\colortbl;\red0\green0\blue0;\red0\green0\blue255;}
+{\stylesheet{\fs20 \snext0 Normal;}
+{\*\cs1 \additive\ul\cf2 SYS_HYPERTEXT;}
+}\margl1440\margr1440\hyphhotz936\ftnbj\ftnrstpg\aftnnar\viewkind1 \sectd \sbknone\headery1440\footery1440\endnhere\endnhere 
+{\*\pnseclvl1\pndec\pnstart1{\pntxta .}}
+{\*\pnseclvl2\pnlcltr\pnstart1{\pntxta .}}
+{\*\pnseclvl3\pnlcrm\pnstart1{\pntxta .}}
+{\*\pnseclvl4\pndec\pnstart1{\pntxtb (}{\pntxta )}}
+{\*\pnseclvl5\pnlcltr\pnstart1{\pntxtb (}{\pntxta )}}
+{\*\pnseclvl6\pnlcrm\pnstart1{\pntxtb (}{\pntxta )}}
+{\*\pnseclvl7\pndec\pnstart1{\pntxta .}}
+{\*\pnseclvl8\pnlcltr\pnstart1{\pntxta .}}
+{\*\pnseclvl9\pnlcrm\pnstart1}
+
+\pard \qc 
+{\plain \b\fs36 {\tc {PIRAQ III User\'92s Guide}}\par
+}\pard 
+{\plain \par
+}{\plain \b\fs28 {\tc {Description} \tcl2}\par
+}{\plain \par
+}{\plain PIRAQ III is a PCI based data acquisition and signal processing system on a single printed circuit 
+board. Figure 1 shows a basic block diagram of the PIRAQ III. The card features two 14 bit 
+analog to digital converters running at up to 64 MHz. Each ADC feeds a pair of GC2011A FIR 
+Filter chips, which can be used to perform quadrature down conversion, filtering and decimation 
+of the input stream. 18 bit Inphase and Quadrature data are output from the FIR chips and stored 
+in separate FIFO buffers where they are available to the DSP for further processing. The DSP 
+used is a TMS320C6701, running at 160MHz and capable of 900 MFLOPS peak processing 
+performance. In addition to the DSPs 64KB internal program RAM and 64KB data RAM, there is 
+256KB of full-speed SBSRAM and 16MB of \'bd speed SDRAM. The Card supports 32bit 33MHz 
+PCI bus initiator and target interfaces and can interrupt the PC\'92s CPU as well be interrupted. In 
+addition, the PIRAQ III provides all the necessary timing signals to control data acquisition and to 
+synchronize multiple boards. \par
+}{\plain \par
+}{\plain \b\fs28 {\tc {Theory of Operation} \tcl2}\par
+}{\plain \par
+}{\plain The PIRAQ III has been developed to acquire high speed wide dynamic range data and to have 
+the onboard processing capability to deliver a very high quality raw data stream (I,Q) for 
+subsequent processing by multiple PCs. If less processing is required on the raw data then the on-board DSP can be used for Autocovariance and/or other signal processing. \par
+}{\plain \par
+}{\plain For traditional Radar applications, the Piraq III offers two data acquisition channels to provide 
+overlapping dynamic range of the input. Either a 60 MHz or a 16 MHz Intermediate Frequency 
+(IF) can be used. For a 60 MHz IF, each channel sub-samples the IF at 48 MHz; this yields a 
+signal centered at 12 MHz oversampled 4 times. If a 16 MHz IF is used, then each channel is 
+sampled at 64 MHz. This also yields a signal oversampled by a factor of 4. The samples are 
+divided into even and odd sampled streams. This forms the basis for the inphase and quadrature 
+data outputs. By judiciously choosing the signs and weights of the coefficients within the FIR 
+chips, decimated (to the desired gate spacing) inphase and quadrature data streams are available 
+to the user. The DSP can be used to perform further filtering, phase noise compensation, high or 
+low dynamic range channel selection, and other user defined tasks. \par
+}{\plain \par
+}{\plain Upon power up the PCI bridge chip is initialized via an on-board serial EEPROM. Once this 
+occurs, the PCI interface can be accessed via the PC. The DSP program is loaded from the PC 
+using the DSP\'92s 16 bit Host Port Interface (HPI), which is memory mapped to the PCI bus. The 
+program can reside in either internal program memory or external SBSRAM or SDRAM. The 
+best performance will probably be obtained using the internal memory, followed by SBSRAM and 
+then SDRAM. The SDRAM is intended for storing and operating on large data arrays. When 
+processing is completed, the data can be transferred to the PC\'92s memory via the PCI bus. In this 
+instance the PIRAQ III becomes the PCI initiator and the DSP transfers the data via the PCI 
+bridge chip. This can be done as a DMA operation on the DSP, so very little processing power 
+will be lost. The DSP can also interrupt the PC upon completion of the transfer. The interrupt can 
+be implemented in hardware or via the PCI bridge chips mailbox or doorbell interrupts.\par
+}{\plain \par
+}{\plain PIRAQ III control and status can be read via the PCI bus from two 16bit registers. In addition, 
+two programmable timer chips can be accessed from the PCI interface to set PRF, gate spacing 
+and number of range gates.\par
+}{\plain \par
+}{\plain \par
+}{\plain \b\fs28 {\tc {Programming Model} \tcl2}\par
+}{\plain \par
+}{\plain The intent here is to present memory map and data width information for all PCI mapped 
+locations. All addresses presented here are in bytes and relative to PIRAQ III base address. The 
+base address for the card is assigned by the PCI bios upon power up and can be obtained by 
+reading from address (0x?????).\par
+}{\plain \par
+}{\plain \tab \tab \tab \tab \tab }{\plain \b PCI Address Map}{\plain \par
+}{\plain \par
+}\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrdb\brdrw19\clbrdrl\brdrdb\brdrw19\clvertalb\clbrdrb\brdrdb\brdrw19\clbrdrr\brdrdb\brdrw19\cellx3120
+\clbrdrt\brdrdb\brdrw19\clbrdrl\brdrdb\brdrw19\clbrdrb\brdrdb\brdrw19\clbrdrr\brdrdb\brdrw19\cellx6240
+\clbrdrt\brdrdb\brdrw19\clbrdrl\brdrdb\brdrw19\clbrdrb\brdrdb\brdrw19\clbrdrr\brdrdb\brdrw19\cellx7800
+\clbrdrt\brdrdb\brdrw19\clbrdrl\brdrdb\brdrw19\clbrdrb\brdrdb\brdrw19\clbrdrr\brdrdb\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain \b NAME}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain \b ADDRESS}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain \b WIDTH}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain \b TYPE}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx6240
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7800
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain FIR \'96 CH1 I}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain 0x0 - 0x3FF}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain 16 bits}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain R/W}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx6240
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7800
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain FIR \'96 CH1 Q}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain 0x400 - 0x7FF}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain 16 bits}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain R/W}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx6240
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7800
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain FIR \'96 CH2 I}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain 0x800 - 0xBFF}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain 16 bits}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain R/W}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx6240
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7800
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain FIR \'96 CH2 Q}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain 0xC00-0xFFF}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain 16 bits}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain R/W}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx6240
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7800
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain Timer 0}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain 0x1000-0x100F}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain 16 bits}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain W}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx6240
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7800
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain Timer 1}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain 0x1010 - 0x13FF}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain 16 bits}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain W}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx6240
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7800
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain Control/Status Register 0}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain 0x1400}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain 16 bits}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain R/W}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx6240
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7800
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain Control/Status Register 1}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain 0x1410}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain 16 bits}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain R/W}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrb\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrb\brdrs\brdrw19\cellx6240
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrb\brdrs\brdrw19\cellx7800
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrb\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain HPI}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain 0x1800-0x180F}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain 16 bits}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa49\sl240\slmult1 
+{\plain R/W}
+\cell \pard \intbl \row
+\pard \pard 
+{\plain \par
+}{\plain Configuration of the PCI target and initiator interfaces occur on power up via the serial 
+EEPROM, although modifications can be made by the PC or the DSP.\par
+}{\plain \par
+}{\plain \b {\tc {FIR Filter Chips} \tcl3}\par
+}{\plain \par
+}{\plain The FIR filter chip used is the Graychip GC2011A, for more detailed information refer to the 
+datasheet at the Graychip\'92s website (}{\field{\*\fldinst  HYPERLINK "http://www.greychips.com." }{\fldrslt{{\ul\cf2 www.graychip.com).}}}}{\plain  Each chip has 512 registers; each 
+register is 16 bits wide. The following table gives a brief description of the registers for a single 
+GC2011A. The addresses given are relative to the base address for a given FIR filter chip.\par
+}{\plain \par
+}{\plain \par
+}{\plain \par
+}{\plain \tab \tab \tab \tab \tab }{\plain \b FIR Filter Addresses}{\plain \par
+}{\plain \par
+}\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrdb\brdrw19\clbrdrl\brdrdb\brdrw19\clbrdrb\brdrdb\brdrw19\clbrdrr\brdrdb\brdrw19\cellx4680
+\clbrdrt\brdrdb\brdrw19\clbrdrl\brdrdb\brdrw19\clbrdrb\brdrdb\brdrw19\clbrdrr\brdrdb\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain \b NAME}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain \b ADDRESS}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain Apath_reg0}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain 0x0}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain Apath_reg1}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain 0x2}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain Bpath_reg0}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain 0x4}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain Bpath_reg1}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain 0x6}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain Cascade_reg}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain 0x8}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain Counter_reg}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain 0xA}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain Gain_reg}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain 0xC}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain Output_reg}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain 0xE}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain Snap_regA}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain 0x10}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain Snap_regB}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain 0x12}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain Snap_regC}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain 0x14}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain One_Shot}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain 0x16}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain New_Modes}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain 0x18}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain Unused}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain 0x1A \'96 0xFE}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain Coefficient Registers}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain 0x100 \'96 0x1FE}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrb\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrb\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain Snapram}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain 0x200 \'96 0x3FE}
+\cell \pard \intbl \row
+\pard \pard 
+{\plain \par
+}{\plain \par
+}{\plain \par
+}{\plain \b {\tc {Timers} \tcl3}\par
+}{\plain \par
+}{\plain There are two 82C54 timer chips on the PIRAQ III. They are responsible for generating all the 
+user programmable timing signals required for data acquisition. Each timer chip has three 
+independent 16 bit counters and can operate in one of 6 user selectable modes. An 8 bit control 
+word determines counter operation. Programming of the 82C54 is very flexible; there are only 
+two rules. For each counter, the control word must be written before the initial count is written. 
+The initial count must follow the count format specified in the control word (least significant byte 
+only, most significant byte only, or least significant byte followed by most significant byte).}{\field{\*\fldinst  HYPERLINK "http://www.intersil.com" }{\fldrslt{{\ul\cf2 http://www.intersil.com}}}}{\plain  The 
+following table provides more detailed address information for the timers.\par
+}{\plain \par
+}{\plain \par
+}{\plain \par
+}{\plain \tab \tab \tab \tab \tab }{\plain \b Timer Addressing}{\plain \par
+}{\plain \par
+}\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrdb\brdrw19\clbrdrl\brdrdb\brdrw19\clbrdrb\brdrdb\brdrw19\clbrdrr\brdrdb\brdrw19\cellx3960
+\clbrdrt\brdrdb\brdrw19\clbrdrl\brdrdb\brdrw19\clbrdrb\brdrdb\brdrw19\clbrdrr\brdrdb\brdrw19\cellx6570
+\clbrdrt\brdrdb\brdrw19\clbrdrl\brdrdb\brdrw19\clbrdrb\brdrdb\brdrw19\clbrdrr\brdrdb\brdrw19\cellx8010
+\clbrdrt\brdrdb\brdrw19\clbrdrl\brdrdb\brdrw19\clbrdrb\brdrdb\brdrw19\clbrdrr\brdrdb\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain \b NAME}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain \b ADDRESS}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain \b WIDTH}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain \b TYPE}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3960
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx6570
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx8010
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain Timer 0 - Control Word}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 0x1006}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 8 bits}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain W}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3960
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx6570
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx8010
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain Timer 0 - Counter 0}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 0x1000}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 8 bits}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain W}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3960
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx6570
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx8010
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain Timer 0 - Counter 1}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 0x1002}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 8 bits}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain W}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3960
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx6570
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx8010
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain Timer 0 - Counter 2}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 0x1004}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 8 bits}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain W}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3960
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx6570
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx8010
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain Timer 1 - Control Word}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 0x1016}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 8 bits}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain W}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3960
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx6570
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx8010
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain Timer 1 - Counter 0}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 0x1010}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 8 bits}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain W}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3960
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx6570
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx8010
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain Timer 1 - Counter 1}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 0x1012}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 8 bits}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain W}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrb\brdrs\brdrw19\cellx3960
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrb\brdrs\brdrw19\cellx6570
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrb\brdrs\brdrw19\cellx8010
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrb\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain Timer 1 - Counter 2}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 0x1014}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 8 bits}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain W}
+\cell \pard \intbl \row
+\pard \pard 
+{\plain \par
+}{\plain The 8 bit control word is structured as follows.\par
+}{\plain \par
+}{\plain \tab \tab \tab \tab \tab }{\plain \b Control Word}{\plain \par
+}{\plain \par
+}\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrdb\brdrw19\clbrdrl\brdrdb\brdrw19\clbrdrb\brdrdb\brdrw19\clbrdrr\brdrdb\brdrw19\cellx2250
+\clbrdrt\brdrdb\brdrw19\clbrdrl\brdrdb\brdrw19\clbrdrb\brdrdb\brdrw19\clbrdrr\brdrdb\brdrw19\cellx3600
+\clbrdrt\brdrdb\brdrw19\clbrdrl\brdrdb\brdrw19\clbrdrb\brdrdb\brdrw19\clbrdrr\brdrdb\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb96\sa42\sl240\slmult1 
+{\plain \b NAME}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb96\sa42\sl240\slmult1 
+{\plain \b BIT}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb96\sa42\sl240\slmult1 
+{\plain .}{\plain \b FUNCTION}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx2250
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx3600
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb96\sa42\sl240\slmult1 
+{\plain BCD}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb96\sa42\sl240\slmult1 
+{\plain 0}
+\cell \pard \intbl \pard \intbl \ql\fi0\li0\ri0\sb96\sa0\sl240\slmult1 
+{\plain if BCD = 0; then counter is 16 bit binary\par
+}\pard \intbl \ql\fi0\li0\ri0\sb0\sa42\sl240\slmult1 
+{\plain if BCD = 1; then counter is binary coded decimal}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx2250
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx3600
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb96\sa42\sl240\slmult1 
+{\plain M0,M1,M2}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb96\sa42\sl240\slmult1 
+{\plain 1-3}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb96\sa42\sl240\slmult1 
+{\plain the binary value of these three bits define the mode (0-5)}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx2250
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx3600
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb96\sa42\sl240\slmult1 
+{\plain RW0,RW1}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb96\sa42\sl240\slmult1 
+{\plain 4,5}
+\cell \pard \intbl \pard \intbl \ql\fi0\li0\ri0\sb96\sa0\sl240\slmult1 
+{\plain 00 = counter latch command\par
+}\pard \intbl \ql\fi0\li0\ri0\sb0\sa0\sl240\slmult1 
+{\plain 01 = read/write ls byte only\par
+}{\plain 10 = read/write ms byte only\par
+}\pard \intbl \ql\fi0\li0\ri0\sb0\sa42\sl240\slmult1 
+{\plain 11 = read/write ls byte first then ms byte}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrb\brdrs\brdrw19\cellx2250
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\clbrdrb\brdrs\brdrw19\cellx3600
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\clbrdrb\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb96\sa42\sl240\slmult1 
+{\plain SC0,SC1}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb96\sa42\sl240\slmult1 
+{\plain 6,7}
+\cell \pard \intbl \pard \intbl \ql\fi0\li0\ri0\sb96\sa0\sl240\slmult1 
+{\plain 00 = select counter 0\par
+}\pard \intbl \ql\fi0\li0\ri0\sb0\sa0\sl240\slmult1 
+{\plain 01 = select counter 1\par
+}{\plain 10 = select counter 2\par
+}\pard \intbl \ql\fi0\li0\ri0\sb0\sa42\sl240\slmult1 
+{\plain 11 = read back command}
+\cell \pard \intbl \row
+\pard \pard 
+{\plain \par
+}{\plain For more detailed information on the 82C54 refer to }{\field{\*\fldinst  HYPERLINK "http://www.intersil.com" }{\fldrslt{{\ul\cf2 www.intersil.com}}}}{\plain  .\par
+}{\plain \par
+}{\plain \par
+}{\plain \par
+}{\plain \par
+}{\plain \par
+}{\plain }{\plain \b {\tc {Control/Status Registers} \tcl3}\par
+}{\plain \par
+}{\plain There are two 16 bit Control/Status registers on the PIRAQ III. Control/Status register 0 is at 
+offset 0x1400 and Control/Status register 1 is at 0x1410. The bits of each are defined below.\par
+}{\plain \par
+}{\plain \tab \tab \tab \tab }{\plain \b Control/Status Register 0}{\plain \par
+}{\plain \par
+}\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrdb\brdrw19\clbrdrl\brdrdb\brdrw19\clbrdrb\brdrdb\brdrw19\clbrdrr\brdrdb\brdrw19\cellx3120
+\clbrdrt\brdrdb\brdrw19\clbrdrl\brdrdb\brdrw19\clbrdrb\brdrdb\brdrw19\clbrdrr\brdrdb\brdrw19\cellx4230
+\clbrdrt\brdrdb\brdrw19\clbrdrl\brdrdb\brdrw19\clbrdrb\brdrdb\brdrw19\clbrdrr\brdrdb\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain \b NAME}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain \b BIT }
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain \b FUNCTION}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4230
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain SW_RESET}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain 0}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4230
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain TRESET}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain 1}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4230
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain TMODE}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain 2}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4230
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain DELAY_SIGN}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain 3}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4230
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain EVEN_TRIG}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain 4}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4230
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain ODD_TRIG}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain 5}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4230
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain EVEN_TP}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain 6}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4230
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain ODD_TP}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain 7}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4230
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain PCLED}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain 8}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4230
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain GLEN0}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain 9}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4230
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain GLEN1}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain 10}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4230
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain GLEN2}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain 11}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4230
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain GLEN3}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain 12}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4230
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain GLEN4}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain 13}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4230
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain GATE0MODE}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain 14}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrb\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\clbrdrb\brdrs\brdrw19\cellx4230
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrb\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain SAMPLE_CTRL}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+{\plain 15}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa52\sl240\slmult1 
+
+\cell \pard \intbl \row
+\pard \pard 
+{\plain \par
+}{\plain \par
+}{\plain \b {\tc {}{\plain \tab \tab \tab \tab }{\plain \b Control/Status Register 1} \tcl3}\par
+}{\plain \par
+}\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrdb\brdrw19\clbrdrl\brdrdb\brdrw19\clbrdrb\brdrdb\brdrw19\clbrdrr\brdrdb\brdrw19\cellx3120
+\clbrdrt\brdrdb\brdrw19\clbrdrl\brdrdb\brdrw19\clbrdrb\brdrdb\brdrw19\clbrdrr\brdrdb\brdrw19\cellx4230
+\clbrdrt\brdrdb\brdrw19\clbrdrl\brdrdb\brdrw19\clbrdrb\brdrdb\brdrw19\clbrdrr\brdrdb\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain \b NAME}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain \b BIT}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain \b FUNCTION}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4230
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain PLL_CLOCK}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 0}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4230
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain PLL_LE}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 1}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4230
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain PLL_DATA}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 2}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4230
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain WATCHDOG}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 3}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4230
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain PCI_INT}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 4}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4230
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain EXTTRIGEN}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 5}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4230
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain FIRST_TRIG}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 6}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain Read Only}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrb\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\clbrdrb\brdrs\brdrw19\cellx4230
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrb\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain PHASELOCK}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 7}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain Read Only}
+\cell \pard \intbl \row
+\pard \pard 
+{\plain \par
+}{\plain \b \par
+}{\plain \b \par
+}{\plain \b \par
+}{\plain \b {\tc {HPI} \tcl3}\par
+}{\plain \b \par
+}{\plain The 16 bit Host Port Interface allows the user to test and program DSP memory via the PCI bus. 
+From the programmer\'92s view the HPI is made up of three registers. The HPI Control Register 
+(HPIC), the HPI Address Register (HPIA) and the HPI Data Register (HPID). The registers map 
+as follows:\par
+}{\plain \par
+}\pard \fi-720\li720\tx720 
+{\plain HPIC\tab 0x1800\par
+}\pard \fi-720\li720\tx720 
+{\plain HPIA\tab 0x1804\par
+}\pard \fi-720\li720\tx720 
+{\plain HPID\tab 0x1808 (HPIA auto-increment), 0x180C (HPIA not effected)}{\plain \b \par
+}\pard 
+{\plain \b \par
+}{\plain The HPIC is organized as a 32 bit register whose high halfword and low halfword contents are 
+identical. On a PCI target write, both halfwords must be the same. Only DSP writes to the lower 
+halfword affect HPIC values and operation. The bits of the HPIC are defined in the table.\par
+}{\plain \par
+}{\plain \tab \tab \tab \tab \tab }{\plain \b HPIC}{\plain \par
+}{\plain \par
+}\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrdb\brdrw19\clbrdrl\brdrdb\brdrw19\clbrdrb\brdrdb\brdrw19\clbrdrr\brdrdb\brdrw19\cellx2430
+\clbrdrt\brdrdb\brdrw19\clbrdrl\brdrdb\brdrw19\clbrdrb\brdrdb\brdrw19\clbrdrr\brdrdb\brdrw19\cellx3870
+\clbrdrt\brdrdb\brdrw19\clbrdrl\brdrdb\brdrw19\clbrdrb\brdrdb\brdrw19\clbrdrr\brdrdb\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain \b NAME}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain \b BIT}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain \b FUNCTION}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx2430
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx3870
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain HWOB}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain 0}
+\cell \pard \intbl \pard \intbl \ql\fi0\li0\ri0\sb98\sa0\sl240\slmult1 
+{\plain if HWOB =1, the first halfword is least significant\par
+}\pard \intbl \ql\fi0\li0\ri0\sb0\sa51\sl240\slmult1 
+{\plain if HWOB = 0, the first halfword is most significant}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx2430
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx3870
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain DSPINT}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain 1}
+\cell \pard \intbl \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain the PC to DSP interrupt}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx2430
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx3870
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain HINT}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain 2}
+\cell \pard \intbl \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain DSP to PC interrupt; the inverted value determines the 
+state of the HINT output, read only}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx2430
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx3870
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain HRDY}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain 3}
+\cell \pard \intbl \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain Ready Signal to PC, read only}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx2430
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx3870
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain FETCH}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain 4}
+\cell \pard \intbl \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain PC fetch request}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx2430
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx3870
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain rsvd}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain 5-15}
+\cell \pard \intbl \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain RESERVED}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx2430
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx3870
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain HWOB}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain 16}
+\cell \pard \intbl \pard \intbl \ql\fi0\li0\ri0\sb98\sa0\sl240\slmult1 
+{\plain if HWOB =1, the first halfword is least significant\par
+}\pard \intbl \ql\fi0\li0\ri0\sb0\sa51\sl240\slmult1 
+{\plain if HWOB = 0, the first halfword is most significant}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx2430
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx3870
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain DSPINT}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain 17}
+\cell \pard \intbl \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain the PC to DSP interrupt}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx2430
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx3870
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain HINT}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain 18}
+\cell \pard \intbl \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain DSP to PC interrupt; the inverted value determines the 
+state of the HINT output, read only}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx2430
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx3870
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain HRDY}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain 19}
+\cell \pard \intbl \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain Ready Signal to PC, read only}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx2430
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx3870
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain FETCH}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain 20}
+\cell \pard \intbl \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain PC fetch request}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrb\brdrs\brdrw19\cellx2430
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrb\brdrs\brdrw19\cellx3870
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\clbrdrb\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain rsvd}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain 21-31}
+\cell \pard \intbl \pard \intbl \ql\fi0\li0\ri0\sb98\sa51\sl240\slmult1 
+{\plain RESERVED}
+\cell \pard \intbl \row
+\pard \pard 
+{\plain \b \par
+}{\plain PCI access of the HPI begins with the initialization of the HWOB bit of the HPIC, followed by 
+setting of the address in the HPIA. Then the HPID can be accessed in either address 
+autoincrement mode or not. }{\plain \b \par
+}{\plain For further information on the HPI consult document spru190c.pdf available at }{\field{\*\fldinst  HYPERLINK "http://www.ti.com" }{\fldrslt{{\ul\cf2 www.ti.com}}}}{\plain  }{\plain \b \par
+}{\plain \b \par
+}{\plain \b\fs28 {\tc {DSP Details} \tcl2}\par
+}{\plain \b \par
+}{\plain The TMS3206701 DSP chip supports a wide variety of memory types through its External 
+Memory Interface (EMIF).  On the PIRAQ III, these include SBSRAM, SDRAM,  FIFOs and 
+other asynchronous devices. The user has two choices of memory maps, Map 0 and Map 1. Map 
+0 has SBSRAM mapped at address 0, while Map 1 has internal program memory mapped to 
+address 0. These are selected at reset by the status of Bootmode(0:4) which is directly effected by 
+jumpers}{\plain \b  JP2}{\plain , }{\plain \b JP3}{\plain , and }{\plain \b JP4}{\plain . The PIRAQ III DSP supports the following 5 boot configurations 
+according to the jumper settings selected. An X indicates the jumper is in place.\par
+}{\plain \par
+}{\plain \tab \tab \tab \tab }{\plain \b Boot Jumper Settings}{\plain \par
+}{\plain \par
+}\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrdb\brdrw19\clbrdrl\brdrdb\brdrw19\clbrdrb\brdrdb\brdrw19\cellx990
+\clbrdrt\brdrdb\brdrw19\clbrdrl\brdrdb\brdrw19\clbrdrb\brdrdb\brdrw19\cellx1980
+\clbrdrt\brdrdb\brdrw19\clbrdrl\brdrdb\brdrw19\clbrdrb\brdrdb\brdrw19\cellx3060
+\clbrdrt\brdrdb\brdrw19\clbrdrl\brdrdb\brdrw19\clbrdrb\brdrdb\brdrw19\clbrdrr\brdrdb\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb97\sa44\sl240\slmult1 
+{\plain \b JP2}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb97\sa44\sl240\slmult1 
+{\plain \b JP3}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb97\sa44\sl240\slmult1 
+{\plain \b JP4}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb97\sa44\sl240\slmult1 
+{\plain \b Boot Process/Memory Map}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx990
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx1980
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3060
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb97\sa44\sl240\slmult1 
+
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb97\sa44\sl240\slmult1 
+
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb97\sa44\sl240\slmult1 
+
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb97\sa44\sl240\slmult1 
+{\plain HPI/Map 1\'96 internal program memory}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx990
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx1980
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3060
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb97\sa44\sl240\slmult1 
+
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb97\sa44\sl240\slmult1 
+
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb97\sa44\sl240\slmult1 
+{\plain X}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb97\sa44\sl240\slmult1 
+{\plain HPI/Map 0 \'96 external SBSRAM}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx990
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx1980
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3060
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb97\sa44\sl240\slmult1 
+{\plain X}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb97\sa44\sl240\slmult1 
+
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb97\sa44\sl240\slmult1 
+
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb97\sa44\sl240\slmult1 
+{\plain None (load via JTAG)/Map 1 \'96 internal program memory}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx990
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx1980
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3060
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb97\sa44\sl240\slmult1 
+{\plain X}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb97\sa44\sl240\slmult1 
+
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb97\sa44\sl240\slmult1 
+{\plain X}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb97\sa44\sl240\slmult1 
+{\plain None (load via JTAG)/Map 0 \'96 external SBSRAM 1x rate}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrb\brdrs\brdrw19\cellx990
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrb\brdrs\brdrw19\cellx1980
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrb\brdrs\brdrw19\cellx3060
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrb\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb97\sa44\sl240\slmult1 
+
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb97\sa44\sl240\slmult1 
+{\plain X}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb97\sa44\sl240\slmult1 
+
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb97\sa44\sl240\slmult1 
+{\plain None (load via JTAG)/Map 0 \'96 external SBSRAM 1/2x rate}
+\cell \pard \intbl \row
+\pard \pard 
+{\plain   \par
+}{\plain .\tab \tab \tab \tab }{\plain \b DSP Memory Maps}{\plain \par
+}{\plain \par
+}\trowd \trhdr\trqc\trgaph62\trkeep
+\clbrdrt\brdrdb\brdrw19\clbrdrl\brdrdb\brdrw19\clbrdrb\brdrdb\brdrw19\cellx3120
+\clbrdrt\brdrdb\brdrw19\clbrdrl\brdrdb\brdrw19\clbrdrb\brdrdb\brdrw19\cellx4680
+\clbrdrt\brdrdb\brdrw19\clbrdrl\brdrdb\brdrw19\clbrdrb\brdrdb\brdrw19\cellx7020
+\clbrdrt\brdrdb\brdrw19\clbrdrl\brdrdb\brdrw19\clbrdrb\brdrdb\brdrw19\clbrdrr\brdrdb\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa0\sl240\slmult1 
+\tab {\plain \b ADDRESS}{\plain  }{\plain \b RANGE}{\plain \par
+}\pard \intbl \ql\fi0\li0\ri0\sb0\sa55\sl240\slmult1 
+{\plain \b (hex)}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa0\sl240\slmult1 
+{\plain \b SIZE\par
+}\pard \intbl \ql\fi0\li0\ri0\sb0\sa55\sl240\slmult1 
+{\plain \b (bytes)}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain \b MAP 0}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain \b MAP 1}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0000 0000 \'96 0000 FFFF}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 64K}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain SBSRAM}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal Program 
+RAM}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0001 0000 \'96 0003 FFFF}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 192K}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain SBSRAM}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Reserved}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0004 0000 \'96 003F FFFF}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 4M - 256K}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain \'96}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Reserved}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0040 0000 \'96 0043 FFFF}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 256K}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain \'96}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain SBSRAM}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0044 0000 \'96 00FF FFFF}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 12M - 256K}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain \'96}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain \'96 }
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0100 0000 \'96 0100 007F}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 128}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain PLX 9054 PCI 
+configuration 
+registers}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa0\sl240\slmult1 
+{\plain \par
+}\pard \intbl \ql\fi0\li0\ri0\sb0\sa55\sl240\slmult1 
+{\plain \'96 }
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0100 0080 - 0100 017F}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 256}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain PLX 9054 local 
+configuration 
+registers}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa0\sl240\slmult1 
+{\plain \par
+}\pard \intbl \ql\fi0\li0\ri0\sb0\sa55\sl240\slmult1 
+{\plain \'96 }
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0100 0180 \'96 0100 01FF}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 128}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain \'96 }
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain \'96 }
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0100 0200 \'96 0100 0203}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 4}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain FIFO Reset}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain \'96 }
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0100 0204 \'96 0100 0207}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 4}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain FIFO 1 read enable}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain \'96 }
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0100 0208 \'96 0100 020B}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 4}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain FIFO 2 read enable}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain \'96 }
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0100 020C \'96 0100 020F}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 4}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain FIFO 3 read enable}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain \'96 }
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0100 0210 - 0100 0213}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 4}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain FIFO 4 read enable}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain \'96 }
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0100 00214 - 0100 02FF}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 236}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain \'96 }
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain \'96 }
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0100 0300 - 0100 0303}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 4}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain PCI Address bit 20}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain \'96 }
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0100 0304 \'96 0100 0307}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 4 }
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain PCI Address bit 21}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain \'96 }
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0100 0308 \'96 0100 030B}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 4}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain LED 0}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain \'96 }
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0100 030C \'96 0100 030F}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 4 }
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain LED 1}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain \'96 }
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0100 0310 \'96 013F FFFF}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 4M - 784}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain \'96 }
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain \'96 }
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0140 0000 \'96 0140 007F}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 128}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal Program 
+RAM}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa0\sl240\slmult1 
+{\plain PLX 9054 PCI 
+configuration 
+registers\par
+}\pard \intbl \ql\fi0\li0\ri0\sb0\sa55\sl240\slmult1 
+
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0140 0080 - 0140 017F}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 256}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal Program 
+RAM}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa0\sl240\slmult1 
+{\plain PLX 9054 local 
+configuration 
+registers\par
+}\pard \intbl \ql\fi0\li0\ri0\sb0\sa55\sl240\slmult1 
+
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0140 0180 \'96 0140 01FF}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 128}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal Program 
+RAM}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain \'96 }
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0140 0200 \'96 0140 0203}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 4}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal Program 
+RAM}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain FIFO Reset}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0140 0204 \'96 0140 0207}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 4}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal Program 
+RAM}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain FIFO 1 read enable}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0140 0208 \'96 0140 020B}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 4}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal Program 
+RAM}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain FIFO 2 read enable}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0140 020C \'96 0140 020F}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 4}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal Program 
+RAM}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain FIFO 3 read enable}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0140 0210 \'96 0140 0213}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 4}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal Program 
+RAM}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain FIFO 4 read enable}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0140 0214 \'96 0140 02FF}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 236}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal Program 
+RAM}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain \'96 }
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0140 0300 - 0140 0303}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 4}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal Program 
+RAM}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain PCI Address bit 20}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0140 0304 \'96 0140 0307}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 4 }
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal Program 
+RAM}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain PCI Address bit 21}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0140 0308 \'96 0140 030B}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 4}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal Program 
+RAM}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain LED 0}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clvertalb\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0140 030C \'96 0140 030F}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 4 }
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal Program 
+RAM}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain LED 1}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0140 0310 \'96 0140 FFFF}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 64K - 784}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal Program 
+RAM}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain \'96 }
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0141 0000 \'96 017F FFFF}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 4M - 64K}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Reserved}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain \'96 }
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0180 0000 \'96 0183 FFFF}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 256K}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal EMIF 
+registers}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal EMIF 
+registers}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0184 0000 \'96 0187 FFFF}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 256K}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal DMA 
+controller registers}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal DMA 
+controller registers}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0188 0000 - 018B FFFF}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 256K}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal HPI registers}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal HPI registers}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 018C 0000 \'96 018F FFFF}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 256K}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal McBSP 0 
+registers}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal McBSP 0 
+registers}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0190 0000 \'96 0193 FFFF}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 256K}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal McBSP 1 
+registers}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal McBSP 1 
+registers}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0194 0000 \'96 0197 FFFF}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 256K}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal Timer 0 
+registers}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal Timer 0 
+registers}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0198 0000 \'96 019B FFFF}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 256K}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal Timer 1 
+registers}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal Timer 1 
+registers}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 019C 0000 \'96 019F FFFF}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 256K}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal Interrupt 
+Selector registers}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal Interrupt 
+Selector registers}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 01A0 0000 \'96 01FF FFFF}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 6M}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal peripheral 
+bus (reserved)}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal peripheral 
+bus (reserved)}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0200 0000 \'96 02FF FFFF}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 16M}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain SDRAM}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain SDRAM}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0300 0000 \'96 03FF FFFF}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 16M}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain PCI bus (initiator)}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain PCI bus (initiator)}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 0400 0000 \'96 7FFF FFFF}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 2G - 64M}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Reserved}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Reserved}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 8000 0000 \'96 803F FFFF}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 64K}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal Data RAM}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Internal Data RAM}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrb\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrb\brdrs\brdrw19\cellx4680
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrb\brdrs\brdrw19\cellx7020
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrb\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 8040 0000 \'96 FFFF FFFF}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain 2G - 64K}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Reserved}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb99\sa55\sl240\slmult1 
+{\plain Reserved}
+\cell \pard \intbl \row
+\pard \pard 
+{\plain \par
+}{\plain \par
+}{\plain In order for the external memory interfaces to function correctly, the user must correctly 
+configure the 7 EMIF configuration registers, prior to any external memory accesses.  The EMIF 
+registers and the correct values for PIRAQ III are given below. For more detailed information 
+refer to}{\plain  document spru190c.pdf available at }{\field{\*\fldinst  HYPERLINK "http://www.ti.com" }{\fldrslt{{\ul\cf2 www.ti.com}}}}{\plain  }{\plain \b \par
+}{\plain \b \par
+}{\plain \b \tab \tab \tab \tab \tab EMIF Registers\par
+}{\plain \b \par
+}\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrdb\brdrw19\clbrdrl\brdrdb\brdrw19\clbrdrb\brdrdb\brdrw19\clbrdrr\brdrdb\brdrw19\cellx3120
+\clbrdrt\brdrdb\brdrw19\clbrdrl\brdrdb\brdrw19\clbrdrb\brdrdb\brdrw19\clbrdrr\brdrdb\brdrw19\cellx6240
+\clbrdrt\brdrdb\brdrw19\clbrdrl\brdrdb\brdrw19\clbrdrb\brdrdb\brdrw19\clbrdrr\brdrdb\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain \b NAME}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain \b ADDRESS}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain \b VALUE}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx6240
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain EMIF Global Control}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 0x1800000}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 0x6C}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx6240
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain EMIF CE1 Space Control}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 0x1800004}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain TBD (FIFOs,etc.)}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx6240
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain EMIF CE0 Space Control}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 0x1800008}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 0x40 (SBSRAM)}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx6240
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain Reserved}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 0x180000C}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain \b --}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx6240
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain EMIF CE2 Space Control}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 0x1800010}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 0x30 (SDRAM)}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx6240
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain EMIF CE3 Space Control}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 0x1800014}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain TBD (PCI I/F)}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\cellx6240
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain EMIF SDRAM Control}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 0x1800018}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 0x7115000}
+\cell \pard \intbl \row
+\trowd \trqc\trgaph62\trkeep
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrb\brdrs\brdrw19\cellx3120
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrb\brdrs\brdrw19\cellx6240
+\clbrdrt\brdrs\brdrw19\clbrdrl\brdrs\brdrw19\clbrdrb\brdrs\brdrw19\clbrdrr\brdrs\brdrw19\cellx9360
+
+\qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain EMIF SDRAM Timing     }{\plain \b     }
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 0x180001C}
+\cell \pard \intbl \qc \pard \intbl \ql\fi0\li0\ri0\sb98\sa48\sl240\slmult1 
+{\plain 0x518}
+\cell \pard \intbl \row
+\pard \pard 
+{\plain \b \par
+}{\plain \b \par
+}{\plain \b \par
+}{\plain \b\fs28 {\tc {PCI Interface} \tcl2}\par
+}{\plain \b \par
+}{\plain The PIRAQ III supports both initiator and target interfaces to the PCI bus. The target interface is 
+used primarily to configure the board and program the DSP. The initiator interface is used to 
+transfer data from DSP memory to PC memory.\par
+}{\plain \b \par
+}{\plain \b {\tc {Target Interface} \tcl3}\par
+}{\plain \par
+}{\plain The target interface is configured upon power up by the serial EEPROM and should not require 
+modification. The user can access all configuration registers using the PC via the PCI bus or the 
+DSP via the local bus. Refer to 9054db-20.pdf at }{\field{\*\fldinst  HYPERLINK "http://www.plxtech.com" }{\fldrslt{{\ul\cf2 www.plxtech.com}}}}{\plain  for more information.\par
+}{\plain \par
+}{\plain \b {\tc {Initiator Interface} \tcl3}\par
+}{\plain \b \par
+}{\plain The initiator interface supports type 0 and type 1 PCI configuration cycles, single cycle I/O, and 
+single and burst memory transfers across the PCI bus. The PLX 9054 PCI bridge chip must be 
+configured by the PC or the DSP prior to any data transfer. The data transfer itself can be done 
+using the DSP\'92s CPU or one of the DSP\'92s internal DMA engines. To set up a}{\plain \b  }{\plain data transfer, the 
+following procedure should be followed. }{\plain \b \par
+}{\plain \b \par
+}{\plain \b\fs28 {\tc {Interrupts} \tcl2}\par
+}{\plain \b \par
+}{\plain Several mechanisms exist for the DSP to interrupt the host PC and vice versa. These include 
+hardware interrupts, mailbox interrupts and doorbell interrupts. All involve using the PLX 9054 
+PCI bridge chip.\par
+}{\plain \par
+}{\plain \b {\tc {DSP to host PC} \tcl3}\par
+}{\plain \par
+}{\plain Hardware interrupts from the DSP to the PC are achieved via the PCI bus INTA line. The DSP 
+writes a 1 to the HINT bit in the HPIC. This lowers INTA. The ISR running on the PC clears the 
+interrupt by writing a 1 to the HINT bit of the HPIC. Mailbox registers in the PLX 9054 can be 
+used to communicate status if interrupts are shared by other devices.\par
+}{\plain \par
+}{\plain Mailbox interrupts can also be used. In this case the DSP would write a mailbox register, which 
+would generate a PCI interrupt on INTA. The PC\'92s ISR would read the mailbox register, thus 
+clearing the interrupt. It should be noted that writing to the mailbox register doesn\'92t automatically 
+result in a PCI interrupt, but must be configured to do so.\par
+}{\plain  \par
+}{\plain Doorbell interrupts work much the same way as mailbox interrupts do. In this case, the DSP 
+writes a doorbell register, which automatically generates a PCI Interrupt. The interrupt is cleared 
+by an ISR that reads the doorbell register.\par
+}{\plain \par
+}{\plain \b {\tc {Host PC to DSP} \tcl3}\par
+}{\plain \par
+}{\plain Hardware is the only means that the PC can use to interrupt the DSP, but three options with some 
+variations exist to do so. \par
+}}
