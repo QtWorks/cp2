@@ -79,8 +79,6 @@ unsigned int amplAdjust;	// sets test-data amplitude adjustment
 float		 TestWaveformAmplitude = 1.0; 
 
 int gates, bytespergate, hits, boardnumber;
-unsigned int * PMACDPRAMBaseAddress;	//	base address for accessing PMAC data 
-unsigned int PMACDPRAMBaseData;		//	data at base address for accessing PMAC data 
 
 void main()
 { 
@@ -98,8 +96,6 @@ void initTask(void)
 	PACKETHEADER	*pkt;
 	unsigned int	*src, *dst;
 	PACKET			*ldst;
-	volatile unsigned int *Mailbox4Ptr; 
-	volatile unsigned int DMPBAM, DMPBAMPMAC, DMPBAMPIRAQ1, DMPBAMPIRAQ2;
 
 /* Initialize Essential DSP Control Registers */
 /* setup EMIF Global and Local Control Registers */
@@ -185,14 +181,7 @@ void initTask(void)
 	/* zero single-pulse buffer */
 	memset(a2dFifoBuffer,0,(gates * 2 * bytespergate));	
 
-	/* Read PLX Mailbox 4 to get PMAC DPRAM base address */
 	WriteCE1(PLX_CFG_MODE);
-
-	/* PLX Mailbox 4 */
-	Mailbox4Ptr = (volatile unsigned int *)0x14000D0; 
-
-	/* Host sets PMAC DPRAM base address in PLX Mailbox 4 */
-	PMACDPRAMBaseAddress = ((unsigned int *)*Mailbox4Ptr); 
 
     // Timeseries initialization
 	
