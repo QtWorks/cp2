@@ -109,7 +109,6 @@ void A2DFifoISR(void) {
 	unsigned short *pmac_ptr;
 	unsigned int PMAC_base;
 	float	delta_az, delta_el, old_az, old_el, az, el;
-	float	*TSptrBase;
 	int 	* dbg_dst, * dbg_src;
 	float	* fp_dbg_dst;	//, * fp_dbg_src; // floating-point src, dst for debug
 	float x;
@@ -139,8 +138,6 @@ void A2DFifoISR(void) {
 	localhits = hits;
 
 	localnorm = IQSCALE/sqrt((double)localhits);
-
-	TSptrBase = ABPstore + Stgr*NUMVARS*NUMCHANS*(gates + CHIRP_GATES) + 2*NUMCHANS*hits*Ntsgates; //use 2nd timeseries buffer
 
 	/* Read FIFO 1 I */
 	dmaTransfer(1, 0xC1, fifo1I, a2dFifoBuffer, gates, 0); 
