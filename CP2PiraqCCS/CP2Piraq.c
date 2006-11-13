@@ -507,12 +507,12 @@ dmaTransfer(int channel,
 			int globalReload) 
 {
 
-	static unsigned int dmaChannelPriCtlReg[3] = { 0x1840000U, 0x1840040U, 0x1840004U};
+	static int dmaChannelPriCtlReg[3] = { 0x1840000U, 0x1840040U, 0x1840004U};
 //	static unsigned int dmaChannelSecCtlReg[3] = { 0x1840008U, 0x1840048U, 0x184000CU};
-	static unsigned int dmaChannelSourceReg[3] = { 0x1840010U, 0x1840050U, 0x1840014U};
-	static unsigned int dmaChannelDestReg[3]   = { 0x1840018U, 0x1840058U, 0x184001CU};
-	static unsigned int dmaChannelCountReg[3]  = { 0x1840020U, 0x1840060U, 0x1840024U};
-	static unsigned int dmaChannelReloadReg[3] = {         0U,         0U, 0x1840028U};
+	static int dmaChannelSourceReg[3] = { 0x1840010U, 0x1840050U, 0x1840014U};
+	static int dmaChannelDestReg[3]   = { 0x1840018U, 0x1840058U, 0x184001CU};
+	static int dmaChannelCountReg[3]  = { 0x1840020U, 0x1840060U, 0x1840024U};
+	static int dmaChannelReloadReg[3] = {         0U,         0U, 0x1840028U};
 
 
     volatile int *p;
