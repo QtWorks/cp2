@@ -69,7 +69,8 @@ int	 	testcount, ledflag;
 int 	*fifo1,*fifo2,*fifo3,*fifo4,*fifoclr, HWfifo_latency;
 int		Tsgate,Ntsgates;
 int		PCIHits, sbsram_hits;	// #hits combined for one PCI Bus transfer, #hits in SBSRAM
-float 	*CFptr, sumnorm, hitnorm;
+float 	*CFptr, sumnorm;
+float    hitnorm;
 float	HWfifo_latency_ratio;
 unsigned long	pulse_num_low, pulse_num_high, beam_num_low, beam_num_high;
 unsigned int channelMode; 	// sets channelselect() processing mode 

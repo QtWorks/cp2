@@ -92,20 +92,12 @@ void A2DFifoISR(void) {
 	volatile unsigned int *pci_cfg_ptr;
 	unsigned int *led0;
 	unsigned int *led1;
-	unsigned int cfg_store0;
-	unsigned int cfg_store1;
 
 	int		i,j;
-	PACKET	*Host_src, *src, *dst;
+	PACKET* Host_src;
+	PACKET* src;
+	PACKET* dst;
 	unsigned int * intsrc, * SBSRAMdst;	
-	int 		*iptr;
-	unsigned short *pmac_ptr;
-	unsigned int PMAC_base;
-	float	delta_az, delta_el, old_az, old_el, az, el;
-	int 	* dbg_dst, * dbg_src;
-	float	* fp_dbg_dst;	//, * fp_dbg_src; // floating-point src, dst for debug
-	float x;
-
 	int 		*fifo1I,*fifo1Q,*fifo2I,*fifo2Q;
 	led0 = (unsigned int *)(0x1400308);  /* LED0 */
 	led1 = (unsigned int *)(0x140030C);  /* LED1 */
@@ -210,7 +202,6 @@ void A2DFifoISR(void) {
 															//	and board-specific stagger elapsed
 		SEM_post(&burst_ready);	//	let 'er rip! 
 	}
-	fp_dbg_dst = (float *)((char *)&NPkt->data.data + (sbsram_hits * (HEADERSIZE + (gates * bytespergate))));	
 	sbsram_hits++; // hits in sbsram
 
    	if(++samplectr >= hits) { // beam done
