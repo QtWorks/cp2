@@ -89,13 +89,18 @@ extern void dma_pci(int tsize, unsigned int pci_dst);
 
 void A2DFifoISR(void) {    
 	volatile int temp;
-	volatile unsigned int *pci_cfg_ptr;
+//	volatile unsigned int *pci_cfg_ptr;
 	unsigned int *led0;
 	unsigned int *led1;
 
-//	int		i,j;
-	unsigned int * intsrc, * SBSRAMdst;	
-	int 		*fifo1I,*fifo1Q,*fifo2I,*fifo2Q;
+	int		i;
+	unsigned int* intsrc;
+	unsigned int* SBSRAMdst;	
+	int* fifo1I;
+	int* fifo1Q;
+	int* fifo2I;
+	int *fifo2Q;
+
 	led0 = (unsigned int *)(0x1400308);  /* LED0 */
 	led1 = (unsigned int *)(0x140030C);  /* LED1 */
 

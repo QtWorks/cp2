@@ -394,7 +394,7 @@ void dma_fifo(int tsize, unsigned int source)
 		frame_cnt = frame_cnt << 1;
 	}
 
-	dmaTransfer(2, 0x11, (unsigned int*)src, 0, (frame_cnt << 16) | (tfer_sz & 0xFFFF), tfer_sz);
+	dmaTransfer(2, 0x11, (int*)src, 0, (frame_cnt << 16) | (tfer_sz & 0xFFFF), tfer_sz);
 }
 
 void dma_pci(int tsize, unsigned int pci_dst)
@@ -501,8 +501,8 @@ synthesizeSine(unsigned int *Mailbox5Ptr)
 void
 dmaTransfer(int channel, 
 			unsigned int controlWord, 
-			unsigned int *src, 
-			unsigned int *dst, 
+			int *src, 
+			int *dst, 
 			int transferCount,
 			int globalReload) 
 {
@@ -515,28 +515,28 @@ dmaTransfer(int channel,
 	static unsigned int dmaChannelReloadReg[3] = {         0U,         0U, 0x1840028U};
 
 
-    volatile unsigned int *p;
-    volatile unsigned int **pp;
+    volatile int *p;
+    volatile int **pp;
 
 	if (src) {
-		pp  = (volatile unsigned int **)dmaChannelSourceReg[channel];
+		pp  = (volatile int **)dmaChannelSourceReg[channel];
 		*pp = src;
 	}
 
 	if (dst) {
-		pp  = (volatile unsigned int **)dmaChannelDestReg[channel];
+		pp  = (volatile int **)dmaChannelDestReg[channel];
 		*pp = dst;
 	}
 
-	p  = (volatile unsigned int *)dmaChannelCountReg[channel];
+	p  = (volatile int *)dmaChannelCountReg[channel];
 	*p = transferCount & 0xffff;
 
 	if(globalReload) {
-		p  = (volatile unsigned int *)dmaChannelReloadReg[channel];
+		p  = (volatile int *)dmaChannelReloadReg[channel];
 		*p = globalReload & 0xffff;
 	}
 
-	p  = (volatile unsigned int *)dmaChannelPriCtlReg[channel];
+	p  = (volatile int *)dmaChannelPriCtlReg[channel];
 	*p = controlWord;
 
 	while((*p & 0xc) == 0x4)
