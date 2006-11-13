@@ -94,7 +94,6 @@ void A2DFifoISR(void) {
 	unsigned int *led1;
 
 	int		i,j;
-	PACKET* Host_src;
 	PACKET* src;
 	PACKET* dst;
 	unsigned int * intsrc, * SBSRAMdst;	
@@ -110,9 +109,12 @@ void A2DFifoISR(void) {
 	/* when this loop is entered, there is a hit worth of data in the hardware FIFO */
 
 	/* put the header structure into the host memory FIFO */
+
+	// Even though dst is never referenced, if we do not
+	// make the following call, the data shows a low frequency
+	// variation. Very strange - this really needs to be sorted out.
 	dst = (PACKET *)fifo_get_write_address(Fifo);
 	src = (PACKET *)CurPkt; // 
-	Host_src = (PACKET *)fifo_get_header_address(Fifo);
 	testptr = src;
 
 	// DEBUG The following will be removed when external 
