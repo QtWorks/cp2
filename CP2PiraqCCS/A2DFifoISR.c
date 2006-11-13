@@ -82,8 +82,6 @@ float	f_test;	// test frequency for injected sine wave
 
 int		toFloats(int Ngates, int *pIn, float *pOut);
 void 	sumTimeseries(int Ngates, float * restrict pIn, float *pOut);
-void	dmaChan0Transfer(int Ngates, float *pSrc, float *pDest);
-
 int k = 0; 
 int m = 0;
 int first = 1;  
@@ -98,8 +96,11 @@ static	float * fp_dbg_src = (float *)&SINstore;	//	pointer to test waveform
 
 void A2DFifoISR(void) {    
 	volatile int temp;
-	volatile unsigned int *dma_stat,*pci_cfg_ptr;
-	unsigned int *led0,*led1,*dma_ptr,cfg_store0,cfg_store1;
+	volatile unsigned int *pci_cfg_ptr;
+	unsigned int *led0;
+	unsigned int *led1;
+	unsigned int cfg_store0;
+	unsigned int cfg_store1;
 
 	int		i,j;
 	PACKET	*Host_src, *src, *dst;
@@ -291,29 +292,3 @@ void sumTimeseries(int ngates, float * restrict pIn, float *pOut) {
 	  	pOut[3] += *iqptr++;  //q1
 	}
 }
-
-///////////////////////////////////////////////////////////
-
-void dmaChan0Transfer(int Ngates, float *pSrc, float *pDest) {
-	unsigned int *dma_ptr;
-	volatile unsigned int *dma_stat;
-
-	dma_ptr = (unsigned int *)0x1840010; /* DMA Channel 0 Source Address */
-	*dma_ptr = (unsigned int)pSrc;	
-	dma_ptr = (unsigned int *)0x1840018; /* DMA Channel 0 Destination Address */
-	*dma_ptr = (unsigned int)pSrc;		
-	dma_ptr = (unsigned int *)0x1840020; /* DMA Channel 0 Transfer Counter */
-	*dma_ptr = Ngates;         
-	dma_ptr = (unsigned int *)0x1840000;  /* channel 0 primary control */
-	*dma_ptr = 0x01000051;  /* start DMA Channel 0 */  
-
-/* Loop while waiting for transfer to complete */
-/* This can be structured so that useful multi-tasking can be done! */
-
-	dma_stat = (volatile unsigned int *)0x1840000;  /* channel 0 primary control */
-	while((*dma_stat & 0xc) == 0x4)
-		asm("	NOP");
-}
-
-
-
