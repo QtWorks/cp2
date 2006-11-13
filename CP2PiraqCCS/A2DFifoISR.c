@@ -93,8 +93,7 @@ void A2DFifoISR(void) {
 	unsigned int *led0;
 	unsigned int *led1;
 
-	int		i,j;
-	PACKET* src;
+//	int		i,j;
 	unsigned int * intsrc, * SBSRAMdst;	
 	int 		*fifo1I,*fifo1Q,*fifo2I,*fifo2Q;
 	led0 = (unsigned int *)(0x1400308);  /* LED0 */
@@ -113,13 +112,11 @@ void A2DFifoISR(void) {
 	// if we do not  make the following call, the data shows a low frequency
 	// variation. Very strange - this really needs to be sorted out.
 	(PACKET *)fifo_get_write_address(Fifo);
-	src = (PACKET *)CurPkt; // 
-	testptr = src;
 
 	// DEBUG The following will be removed when external 
 	// controls are implemented
 
-	hitnorm = 1.0/(float)src->data.info.hits;         
+	hitnorm = 1.0/(float)CurPkt->data.info.hits;         
 
 	localhits = hits;
 
@@ -145,7 +142,7 @@ void A2DFifoISR(void) {
 
    	if(temp & 0x3C000) {  /* if any of the lower 4 bits of the EOF are high */
 		*led1 = 0; /* turn on the EOF fault LED */
-		src->data.info.packetflag = -1;  // Tell PC Host got EOF!
+		CurPkt->data.info.packetflag = -1;  // Tell PC Host got EOF!
 	}
 	else {
 		*led1 = 1; /* Turn off the LED */
@@ -209,8 +206,8 @@ void A2DFifoISR(void) {
 		/* Update the beam number */
 		if(!(++beam_num_low))
 			beam_num_high++;
-		src->data.info.beam_num_low = beam_num_low;
-		src->data.info.beam_num_high = beam_num_high;
+		CurPkt->data.info.beam_num_low = beam_num_low;
+		CurPkt->data.info.beam_num_high = beam_num_high;
 		   
 		*led0 = ledflag ^= 1;	// Toggle the blinkin' LED
 	
