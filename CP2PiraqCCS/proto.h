@@ -34,6 +34,13 @@
 #define P3_SCOPE extern
 #endif
 
+void
+dmaTransfer(int channel, 
+			unsigned int controlWord, 
+			unsigned int *src, 
+			unsigned int *dst, 
+			int transferCount); 
+
 #define	CP2					// CP2 Processor
 #define	UDPSENDSIZE	(unsigned int)65536	//	size of N-hit packets in system: PIRAQ through Qt applications
 //#define	TESTING_TIMESERIES	// test code for reorientation toward timeseries

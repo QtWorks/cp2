@@ -517,3 +517,42 @@ synthesizeSine(unsigned int *Mailbox5Ptr)
 			channelMode = ((unsigned int)*Mailbox5Ptr) & CHMODE_MASK;	//	restore channelMode to former glory 
 		}
 }
+
+
+void
+dmaTransfer(int channel, 
+			unsigned int controlWord, 
+			unsigned int *src, 
+			unsigned int *dst, 
+			int transferCount) 
+{
+
+	static unsigned int dmaChannelPriCtlReg[3] = { 0x1840000U, 0x1840040U, 0x1840004U};
+//	static unsigned int dmaChannelSecCtlReg[3] = { 0x1840008U, 0x1840048U, 0x184000CU};
+	static unsigned int dmaChannelSourceReg[3] = { 0x1840010U, 0x1840050U, 0x1840014U};
+	static unsigned int dmaChannelDestReg[3]   = { 0x1840018U, 0x1840058U, 0x184001CU};
+	static unsigned int dmaChannelCountReg[3]  = { 0x1840020U, 0x1840060U, 0x1840024U};
+//	static unsigned int dmaChannelReloadReg[3] = {         0U,         0U, 0x1840028U};
+
+
+    volatile unsigned int *p;
+    volatile unsigned int **pp;
+
+	pp  = (volatile unsigned int **)dmaChannelSourceReg[channel];
+	*pp = src;
+
+	pp  = (volatile unsigned int **)dmaChannelDestReg[channel];
+	*pp = dst;
+
+	p  = (volatile unsigned int *)dmaChannelCountReg[channel];
+	*p = transferCount & 0xffff;
+
+	p  = (volatile unsigned int *)dmaChannelPriCtlReg[channel];
+	*p = controlWord;
+
+	while((*p & 0xc) == 0x4)
+		asm("	NOP");
+
+
+}
+

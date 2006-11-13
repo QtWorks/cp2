@@ -141,76 +141,17 @@ void A2DFifoISR(void) {
 
 	TSptrBase = ABPstore + Stgr*NUMVARS*NUMCHANS*(gates + CHIRP_GATES) + 2*NUMCHANS*hits*Ntsgates; //use 2nd timeseries buffer
 
-	// Set up data ingest either by programmed transfer or by DMA. 
 	/* Read FIFO 1 I */
-	dma_ptr = (unsigned int *)0x1840058; /* DMA Channel 1 Destination Address */
-	*dma_ptr = (unsigned int)a2dFifoBuffer;
-	dma_ptr = (unsigned int *)0x1840050; /* DMA Channel 1 Source Address */
-	*dma_ptr = (unsigned int)fifo1I;
-	dma_ptr = (unsigned int *)0x1840060; /* DMA Channel 1 Transfer Counter */
-	*dma_ptr = gates & 0xFFFF;     
-	dma_ptr = (unsigned int *)0x1840040;  /* channel 1 primary control */
-	*dma_ptr = 0xC1;  /* start DMA Channel 1 */ 
-	/* Loop while waiting for transfer to complete */
-	/* This can be structured so that useful multi-tasking can be done! */
-
-	dma_stat = (volatile unsigned int *)0x1840040;  /* channel 1 primary control */
-	while((*dma_stat & 0xc) == 0x4)
-		asm("	NOP");
+	dmaTransfer(1, 0xC1, fifo1I, a2dFifoBuffer, gates); 
 
 	/* Read FIFO 1 Q */
-
-	dma_ptr = (unsigned int *)0x1840058; /* DMA Channel 1 Destination Address */
-	*dma_ptr = (unsigned int)(a2dFifoBuffer + 0x1);
-	dma_ptr = (unsigned int *)0x1840050; /* DMA Channel 1 Source Address */
-	*dma_ptr = (unsigned int)fifo1Q;
-	dma_ptr = (unsigned int *)0x1840060; /* DMA Channel 1 Transfer Counter */
-	*dma_ptr = gates & 0xFFFF;     
-	dma_ptr = (unsigned int *)0x1840040;  /* channel 1 primary control */
-	*dma_ptr = 0xC1;  /* start DMA Channel 1 */ 
-
-	/* Loop while waiting for transfer to complete */
-	/* This can be structured so that useful multi-tasking can be done! */
-
-	dma_stat = (volatile unsigned int *)0x1840040;  /* channel 1 primary control */
-	while((*dma_stat & 0xc) == 0x4)
-		asm("	NOP");
+	dmaTransfer(1, 0xC1, fifo1Q, a2dFifoBuffer+1, gates); 
 		
 	/* Read FIFO 2 I */
-
-	dma_ptr = (unsigned int *)0x1840058; /* DMA Channel 1 Destination Address */
-	*dma_ptr = (unsigned int)(a2dFifoBuffer + 0x2);
-	dma_ptr = (unsigned int *)0x1840050; /* DMA Channel 1 Source Address */
-	*dma_ptr = (unsigned int)fifo2I;
-	dma_ptr = (unsigned int *)0x1840060; /* DMA Channel 1 Transfer Counter */
-	*dma_ptr = gates & 0xFFFF;     
-	dma_ptr = (unsigned int *)0x1840040;  /* channel 1 primary control */
-	*dma_ptr = 0xC1;  /* start DMA Channel 1 */ 
-
-	/* Loop while waiting for transfer to complete */
-	/* This can be structured so that useful multi-tasking can be done! */
-
-	dma_stat = (volatile unsigned int *)0x1840040;  /* channel 1 primary control */
-	while((*dma_stat & 0xc) == 0x4)
-		asm("	NOP");
+	dmaTransfer(1, 0xC1, fifo2I, a2dFifoBuffer+2, gates); 
 
 	/* Read FIFO 2 Q */
-
-	dma_ptr = (unsigned int *)0x1840058; /* DMA Channel 1 Destination Address */
-	*dma_ptr = (unsigned int)(a2dFifoBuffer + 0x3);
-	dma_ptr = (unsigned int *)0x1840050; /* DMA Channel 1 Source Address */
-	*dma_ptr = (unsigned int)fifo2Q;
-	dma_ptr = (unsigned int *)0x1840060; /* DMA Channel 1 Transfer Counter */
-	*dma_ptr = gates & 0xFFFF;     
-	dma_ptr = (unsigned int *)0x1840040;  /* channel 1 primary control */
-	*dma_ptr = 0xC1;  /* start DMA Channel 1 */ 
-
-	/* Loop while waiting for transfer to complete */
-	/* This can be structured so that useful multi-tasking can be done! */
-
-	dma_stat = (volatile unsigned int *)0x1840040;  /* channel 1 primary control */
-	while((*dma_stat & 0xc) == 0x4)
-		asm("	NOP");
+	dmaTransfer(1, 0xC1, fifo2Q, a2dFifoBuffer+3, gates); 
 
     /* Read EOF's from each FIFO */
    	temp  = *(volatile int *)fifo2I;
