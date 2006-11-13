@@ -143,16 +143,16 @@ void A2DFifoISR(void) {
 	TSptrBase = ABPstore + Stgr*NUMVARS*NUMCHANS*(gates + CHIRP_GATES) + 2*NUMCHANS*hits*Ntsgates; //use 2nd timeseries buffer
 
 	/* Read FIFO 1 I */
-	dmaTransfer(1, 0xC1, fifo1I, a2dFifoBuffer, gates); 
+	dmaTransfer(1, 0xC1, fifo1I, a2dFifoBuffer, gates, 0); 
 
 	/* Read FIFO 1 Q */
-	dmaTransfer(1, 0xC1, fifo1Q, a2dFifoBuffer+1, gates); 
+	dmaTransfer(1, 0xC1, fifo1Q, a2dFifoBuffer+1, gates, 0); 
 		
 	/* Read FIFO 2 I */
-	dmaTransfer(1, 0xC1, fifo2I, a2dFifoBuffer+2, gates); 
+	dmaTransfer(1, 0xC1, fifo2I, a2dFifoBuffer+2, gates, 0); 
 
 	/* Read FIFO 2 Q */
-	dmaTransfer(1, 0xC1, fifo2Q, a2dFifoBuffer+3, gates); 
+	dmaTransfer(1, 0xC1, fifo2Q, a2dFifoBuffer+3, gates, 0); 
 
     /* Read EOF's from each FIFO */
    	temp  = *(volatile int *)fifo2I;

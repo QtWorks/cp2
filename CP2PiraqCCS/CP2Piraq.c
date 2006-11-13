@@ -386,7 +386,7 @@ void dma_fifo(int tsize, unsigned int source)
 
 int frame_cnt, tfer_sz;
 unsigned int *dma_ptr, src;
-volatile unsigned int *dma_stat;
+//volatile unsigned int *dma_stat;
 
 /* Return Asynchronous interface for CE1 to initial settings */
 
@@ -401,21 +401,8 @@ volatile unsigned int *dma_stat;
 		tfer_sz = tfer_sz >> 1;
 		frame_cnt = frame_cnt << 1;
 	}
-	dma_ptr = (unsigned int *)0x1840014; /* DMA Channel 2 Source Address */
-	*dma_ptr = (unsigned int)src;	
-	dma_ptr = (unsigned int *)0x1840024; /* DMA Channel 2 Transfer Counter */
-	*dma_ptr = (frame_cnt << 16) | (tfer_sz & 0xFFFF);       
-	dma_ptr = (unsigned int *)0x1840028; /* DMA Global Count Reload Register A */
-	*dma_ptr = tfer_sz & 0xFFFF;
-	dma_ptr = (unsigned int *)0x1840004;  /* channel 2 primary control */
-	*dma_ptr = 0x11;  /* start DMA Channel 2 */  
 
-/* Loop while waiting for transfer to complete */
-/* This can be structured so that useful multi-tasking can be done! */
-
-	dma_stat = (volatile unsigned int *)0x1840004;  /* channel 2 primary control */
-	while((*dma_stat & 0xc) == 0x4)
-		asm("	NOP");
+	dmaTransfer(2, 0x11, (unsigned int*)src, 0, (frame_cnt << 16) | (tfer_sz & 0xFFFF), tfer_sz);
 }
 
 void dma_pci(int tsize, unsigned int pci_dst)
@@ -524,7 +511,8 @@ dmaTransfer(int channel,
 			unsigned int controlWord, 
 			unsigned int *src, 
 			unsigned int *dst, 
-			int transferCount) 
+			int transferCount,
+			int globalReload) 
 {
 
 	static unsigned int dmaChannelPriCtlReg[3] = { 0x1840000U, 0x1840040U, 0x1840004U};
@@ -532,20 +520,29 @@ dmaTransfer(int channel,
 	static unsigned int dmaChannelSourceReg[3] = { 0x1840010U, 0x1840050U, 0x1840014U};
 	static unsigned int dmaChannelDestReg[3]   = { 0x1840018U, 0x1840058U, 0x184001CU};
 	static unsigned int dmaChannelCountReg[3]  = { 0x1840020U, 0x1840060U, 0x1840024U};
-//	static unsigned int dmaChannelReloadReg[3] = {         0U,         0U, 0x1840028U};
+	static unsigned int dmaChannelReloadReg[3] = {         0U,         0U, 0x1840028U};
 
 
     volatile unsigned int *p;
     volatile unsigned int **pp;
 
-	pp  = (volatile unsigned int **)dmaChannelSourceReg[channel];
-	*pp = src;
+	if (src) {
+		pp  = (volatile unsigned int **)dmaChannelSourceReg[channel];
+		*pp = src;
+	}
 
-	pp  = (volatile unsigned int **)dmaChannelDestReg[channel];
-	*pp = dst;
+	if (dst) {
+		pp  = (volatile unsigned int **)dmaChannelDestReg[channel];
+		*pp = dst;
+	}
 
 	p  = (volatile unsigned int *)dmaChannelCountReg[channel];
 	*p = transferCount & 0xffff;
+
+	if(globalReload) {
+		p  = (volatile unsigned int *)dmaChannelReloadReg[channel];
+		*p = globalReload & 0xffff;
+	}
 
 	p  = (volatile unsigned int *)dmaChannelPriCtlReg[channel];
 	*p = controlWord;

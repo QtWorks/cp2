@@ -39,7 +39,8 @@ dmaTransfer(int channel,
 			unsigned int controlWord, 
 			unsigned int *src, 
 			unsigned int *dst, 
-			int transferCount); 
+			int transferCount,
+			int globalReload); 
 
 #define	CP2					// CP2 Processor
 #define	UDPSENDSIZE	(unsigned int)65536	//	size of N-hit packets in system: PIRAQ through Qt applications
