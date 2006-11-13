@@ -147,7 +147,7 @@ void A2DFifoISR(void) {
 
    	if(temp & 0x3C000) {  /* if any of the lower 4 bits of the EOF are high */
 		*led1 = 0; /* turn on the EOF fault LED */
-		CurPkt->data.info.packetflag = -1;  // Tell PC Host got EOF!
+		CurPkt->data.info.packetflag = 0xffffffffU;  // Tell PC Host got EOF!
 	}
 	else {
 		*led1 = 1; /* Turn off the LED */
