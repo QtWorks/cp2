@@ -43,14 +43,11 @@ Compiler Directives:
 
 ///////////////////////////////////////////////////////////
 
-static int Firstime=1;
 static int iqOffsets=0;
 
 extern	FIFO*        Fifo;
 extern	PACKETHEADER* pkhtemp;
 extern	PACKET*      CurPkt;
-extern 	float*       ABPstore;
-extern  float*       SINstore;
 extern	float        ioffset0; 
 extern	float        qoffset0; 
 extern	float        ioffset1; 
@@ -88,10 +85,6 @@ int first = 1;
 
 extern int burstready; 
 extern void dma_pci(int tsize, unsigned int pci_dst);
-//
-static	int	jTestWaveform = 0;	//	index into test waveform; persist hit-to-hit
-static	float * fp_dbg_src = (float *)&SINstore;	//	pointer to test waveform
-
 ///////////////////////////////////////////////////////////
 
 void A2DFifoISR(void) {    
