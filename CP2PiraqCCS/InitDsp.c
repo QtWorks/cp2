@@ -62,4 +62,15 @@ void delay(void);
 //	*csr = 0x14811220;  /* async IF mapped to CE3 - try for single + DMA -- add one more delay */ 
 
 	 
-}	              
+}	          
+
+/* generates a delay for led blinking */
+void delay(void)
+{
+  volatile int i,j;
+    
+  j = 1;
+  for (i=1; i<500000; i++)
+    j += i;
+}
+    

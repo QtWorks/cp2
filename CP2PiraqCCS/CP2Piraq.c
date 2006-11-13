@@ -371,15 +371,6 @@ unsigned int WriteCE1(unsigned int newValue)
 	return previous;
 }
 
-/* generates a delay for led blinking */
-void delay(void)
-   {
-   volatile int i,j;
-    
-   j = 1;
-   for (i=1; i<500000; i++)
-      j += i;
-   }
    
 void dma_fifo(int tsize, unsigned int source)
 {
