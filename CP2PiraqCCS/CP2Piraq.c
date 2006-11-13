@@ -384,9 +384,9 @@ void delay(void)
 void dma_fifo(int tsize, unsigned int source)
 {
 
-int frame_cnt, tfer_sz;
-unsigned int *dma_ptr, src;
-//volatile unsigned int *dma_stat;
+	int frame_cnt;
+	int tfer_sz;
+	unsigned int src;
 
 /* Return Asynchronous interface for CE1 to initial settings */
 
