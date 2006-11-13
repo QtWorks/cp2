@@ -95,7 +95,6 @@ void A2DFifoISR(void) {
 
 	int		i,j;
 	PACKET* src;
-	PACKET* dst;
 	unsigned int * intsrc, * SBSRAMdst;	
 	int 		*fifo1I,*fifo1Q,*fifo2I,*fifo2Q;
 	led0 = (unsigned int *)(0x1400308);  /* LED0 */
@@ -110,10 +109,10 @@ void A2DFifoISR(void) {
 
 	/* put the header structure into the host memory FIFO */
 
-	// Even though dst is never referenced, if we do not
-	// make the following call, the data shows a low frequency
+	// even though fifo_get_write_address(Fifo) doesn't do anything,
+	// if we do not  make the following call, the data shows a low frequency
 	// variation. Very strange - this really needs to be sorted out.
-	dst = (PACKET *)fifo_get_write_address(Fifo);
+	(PACKET *)fifo_get_write_address(Fifo);
 	src = (PACKET *)CurPkt; // 
 	testptr = src;
 
