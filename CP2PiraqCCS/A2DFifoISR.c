@@ -1,28 +1,13 @@
-/****************************************/
-/*		  	A2DFifoISR.C            		*/
-/*								 		*/
-/* Half full interrupt service routine 	*/
-/*		   CP2 Version					*/
-/****************************************/
+//////////////////////////////////////////////////
+//	  	A2DFifoISR.C  
+//								 		
+// A2D Fifo Half full interrupt service routine
+//
+//////////////////////////////////////////////////
 
-/*
-Compiler Directives:
-	Define	DEBUG_TS	to jam known integer data into TS
-*/
-
-//#define	DEBUG_TS			// Timeseries debug
-
-#define PIRAQ3D_SCALE	1.0/IQSCALE
-	
-#define		NO_PMAC_DIRECT
-
-// CP2: 
 #define		NUMVARS		2		// Number of variables (I,Q)
 #define		NUMCHANS	1		// Number of channels
-#define		CHIRP_GATES	0 		//
-#define		OFFSETI		5
-#define		OFFSETQ 	5
-	
+ 
 #include 	<std.h>
 #include 	<sem.h>
 #include 	<sys.h>
@@ -33,67 +18,53 @@ Compiler Directives:
 #include 	"CP2Piraqcfg.h"
 #include 	"local_defs.h"
 
-#define	IQSCALE	 	4.65661287E-10			// 1/2^31
-#define	IQMASK	0x3FFFF
-                       
 #define	FIFO1I		(int *)0x1400204
 #define	FIFO1Q		(int *)0x140020C
 #define	FIFO2I		(int *)0x1400210
 #define	FIFO2Q		(int *)0x1400208
 
 ///////////////////////////////////////////////////////////
+extern FIFO*   Fifo;
+extern PACKET* CurPkt;
+extern PACKET* NPkt;		// sbsram N-PACKET MEM_alloc w/1-channel data 
+extern float   ioffset0; 
+extern float   qoffset0; 
+extern float   ioffset1; 
+extern float   qoffset1; 
+extern float   sumnorm;
+extern int     samplectr;
+extern int     hitnorm; 
+extern int     ledflag;
 
-static int iqOffsets=0;
+extern	unsigned long pulse_num_low;
+extern	unsigned long pulse_num_high;
+extern	unsigned long beam_num_low;
+extern	unsigned long beam_num_high;
 
-extern	FIFO*        Fifo;
-extern	PACKETHEADER* pkhtemp;
-extern	PACKET*      CurPkt;
-extern	float        ioffset0; 
-extern	float        qoffset0; 
-extern	float        ioffset1; 
-extern	float        qoffset1; 
-extern	float        sumnorm;
-extern 	int          samplectr;
-extern 	int          hitnorm; 
-extern 	int          ledflag;
-extern 	int	         Stgr;
-extern 	int	         Ntsgates;
-extern	unsigned long	pulse_num_low, pulse_num_high, beam_num_low, beam_num_high;
 extern 	float        IQoffset[4*NUMCHANS];
+
 extern	unsigned int channelMode; // sets channelselect() processing mode
-extern	unsigned int freqAdjust;  // sets test-data adjustment 
-extern	unsigned int TestWaveformiMax;	//	index of complete wavelength
-extern  unsigned int amplAdjust;     // sets test-data amplitude adjustment 
-extern	float        TestWaveformAmplitude;	//	index of complete wavelength
 
-extern	int		     PCIHits, sbsram_hits;	// #hits combined for one PCI Bus transfer, #hits in SBSRAM
-extern	PACKET*      NPkt;		// sbsram N-PACKET MEM_alloc w/1-channel data 
+extern int PCIHits;             // #hits combined for one PCI Bus transfer
+extern int sbsram_hits;	        // #hits in SBSRAM
+extern int gates;
+extern int bytespergate;
+extern int hits;
+extern int boardnumber;
+extern int burstready; 
 
-extern	int gates, bytespergate, hits, boardnumber;
-
-int		testctr, localhits;
-float	localnorm;
-PACKET *testptr;
-
-float	f_test;	// test frequency for injected sine wave
-
+///////////////////////////////////////////////////////////
 int		toFloats(int Ngates, int *pIn, float *pOut);
 void 	sumTimeseries(int Ngates, float * restrict pIn, float *pOut);
-int k = 0; 
-int m = 0;
-int first = 1;  
-
-extern int burstready; 
-extern void dma_pci(int tsize, unsigned int pci_dst);
+void	dma_pci(int tsize, unsigned int pci_dst);
 ///////////////////////////////////////////////////////////
 
 void A2DFifoISR(void) {    
 	volatile int temp;
-//	volatile unsigned int *pci_cfg_ptr;
 	unsigned int *led0;
 	unsigned int *led1;
-
 	int		i;
+	int iqOffsets=0;
 	unsigned int* intsrc;
 	unsigned int* SBSRAMdst;	
 	int* fifo1I;
@@ -122,10 +93,6 @@ void A2DFifoISR(void) {
 	// controls are implemented
 
 	hitnorm = 1.0/(float)CurPkt->data.info.hits;         
-
-	localhits = hits;
-
-	localnorm = IQSCALE/sqrt((double)localhits);
 
 	/* Read FIFO 1 I */
 	dmaTransfer(1, 0xC1, fifo1I, a2dFifoBuffer, gates, 0); 
