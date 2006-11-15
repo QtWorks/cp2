@@ -60,6 +60,8 @@ extern unsigned int* pLed1;  /* LED1 */
 int		toFloats(int Ngates, int *pIn, float *pOut);
 void 	sumTimeseries(int Ngates, float * restrict pIn, float *pOut);
 void	dma_pci(int tsize, unsigned int pci_dst);
+void    setPulseAndBeamNumbers(PACKET* pPkt);
+
 ///////////////////////////////////////////////////////////
 
 void A2DFifoISR(void) {    
@@ -151,12 +153,8 @@ void A2DFifoISR(void) {
 	}
 #endif
 
-	/* keep track of the 64 bit pulsenumber: works here -- commented out in int_half_full() */
-	if(!(++pulse_num_low))
-		pulse_num_high++;
-	CurPkt->data.info.pulse_num_low = pulse_num_low;
-	CurPkt->data.info.pulse_num_high = pulse_num_high;
-
+	setPulseAndBeamNumbers(CurPkt);
+	
 	// process 2-channel hwData into 1-channel data: channel-select, gate by gate. data destination CurPkt->data.data
 	ChannelSelect(gates, (float *)a2dFifoBuffer, (float *)CurPkt->data.data, channelMode); 
 
@@ -173,20 +171,6 @@ void A2DFifoISR(void) {
 		SEM_post(&burst_ready);	//	let 'er rip! 
 	}
 	sbsram_hits++; // hits in sbsram
-
-   	// update beam number when samplectr number
-	// of hits has been accumulated.
-   	if(++samplectr >= hits) {
-		/* Update the beam number */
-		if(!(++beam_num_low))
-			beam_num_high++;
-		CurPkt->data.info.beam_num_low = beam_num_low;
-		CurPkt->data.info.beam_num_high = beam_num_high;
-		   
-		*pLed0 = led0flag ^= 1;	// Toggle the blinkin' LED
-	
-		samplectr = 0;		// Zero the sample counter
-	}
 
 	if	(sbsram_hits == PCIHits)	{	//	Nhit packet accumulated
 		SEM_post(&data_ready);			//	DMA from SBSRAM to PCI Burst FIFO
@@ -245,4 +229,32 @@ void sumTimeseries(int ngates, float * restrict pIn, float *pOut) {
 	  	pOut[2] += *iqptr++;  //i1
 	  	pOut[3] += *iqptr++;  //q1
 	}
+}
+
+///////////////////////////////////////////////////////////
+
+void    setPulseAndBeamNumbers(PACKET* pPkt)
+{
+
+	/* keep track of the 64 bit pulsenumber: works here -- commented out in int_half_full() */
+	if(!(++pulse_num_low))
+		pulse_num_high++;
+	pPkt->data.info.pulse_num_low = pulse_num_low;
+	pPkt->data.info.pulse_num_high = pulse_num_high;
+
+   	// update beam number when samplectr number
+	// of hits has been accumulated.
+   	if(++samplectr >= hits) {
+		/* Update the beam number */
+		if(!(++beam_num_low))
+			beam_num_high++;
+		pPkt->data.info.beam_num_low = beam_num_low;
+		pPkt->data.info.beam_num_high = beam_num_high;
+		   
+		*pLed0 = led0flag ^= 1;	// Toggle the blinkin' LED
+	
+		samplectr = 0;		// Zero the sample counter
+	}
+
+
 }

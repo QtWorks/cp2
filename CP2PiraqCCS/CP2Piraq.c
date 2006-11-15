@@ -117,7 +117,7 @@ void initTask(void)
 	*pLed0   = led0flag;
 	*pLed1   = 0x1;
 
-	/* set up SDRAM, SBSRAM segments */
+	/* set up SBSRAM segments */
 
     sbsram_seg = MEM_define((Ptr) 0x400000, 0x40000, 0);
 	sbsram_hits = 0; 
