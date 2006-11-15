@@ -43,7 +43,9 @@
 //#define		PI				3.1415926
 
 float IQoffset[4*NUMCHANS];	//	CP2: compute offsets for both CHA and CHB
-int  Tfer_sz, Count, Stgr, Cfltr, Maxgates;
+//int Stgr;
+int Cfltr;
+int Maxgates;
 unsigned int *Led_ptr,DMA_base, Period;
 void delay(void);
 void initDsp(void);
@@ -93,6 +95,7 @@ void initTask(void)
 	volatile unsigned int *pci_cfg_ptr;
 	int 			i;
 	volatile int 	ii,j;
+	int 			Count;
 	int 			sbsram_seg;
 	PACKETHEADER	*pkt;
 	unsigned int	*src, *dst;
@@ -306,6 +309,7 @@ void initTask(void)
 void data_xfer_loop(void)
 {
 	volatile unsigned int *Mailbox5Ptr; 
+	int Tfer_sz;
 
 	/* Fill PCI Shared Memory forever */
 	while(1) {
@@ -339,6 +343,7 @@ void pci_burst_xfer()
 {
 	PACKET *dst;
 	unsigned int offset;
+	int Tfer_sz;
 
 	while(1)	{
  		SEM_pend(&burst_ready,SYS_FOREVER);

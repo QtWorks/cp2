@@ -153,9 +153,6 @@ void A2DFifoISR(void) {
 	}
 #endif
 
-	intsrc = (unsigned int *)CurPkt;
-	SBSRAMdst = (unsigned int *)((char *)NPkt + (sbsram_hits * (HEADERSIZE + (gates * bytespergate))));	// add nth hit offset 
-
 	/* keep track of the 64 bit pulsenumber: works here -- commented out in int_half_full() */
 	if(!(++pulse_num_low))
 		pulse_num_high++;
@@ -164,17 +161,24 @@ void A2DFifoISR(void) {
 
 	// process 2-channel hwData into 1-channel data: channel-select, gate by gate. data destination CurPkt->data.data
 	ChannelSelect(gates, (float *)a2dFifoBuffer, (float *)CurPkt->data.data, channelMode); 
+
 	// move CurPkt w/combined data from DSP-internal memory to NPkt in sbsram: 
+	intsrc = (unsigned int *)CurPkt;
+	SBSRAMdst = (unsigned int *)((char *)NPkt + (sbsram_hits * (HEADERSIZE + (gates * bytespergate))));	// add nth hit offset 
 	for (i = 0; i < sizeof(PACKET)/4; i++) { // move CurPkt contents to NPkt
 		*SBSRAMdst++ = *intsrc++;	
 	}
-	if	(burstready && (sbsram_hits == 1*boardnumber))	{	//	complete Nhit packet in SBSRAM, 
-															//	and board-specific stagger elapsed
+
+	if	(burstready && (sbsram_hits == 1*boardnumber))	{	
+		//	complete Nhit packet in SBSRAM, 
+		//	and board-specific stagger elapsed
 		SEM_post(&burst_ready);	//	let 'er rip! 
 	}
 	sbsram_hits++; // hits in sbsram
 
-   	if(++samplectr >= hits) { // beam done
+   	// update beam number when samplectr number
+	// of hits has been accumulated.
+   	if(++samplectr >= hits) {
 		/* Update the beam number */
 		if(!(++beam_num_low))
 			beam_num_high++;
@@ -185,6 +189,7 @@ void A2DFifoISR(void) {
 	
 		samplectr = 0;		// Zero the sample counter
 	}
+
 	if	(sbsram_hits == PCIHits)	{	//	Nhit packet accumulated
 		SEM_post(&data_ready);			//	DMA from SBSRAM to PCI Burst FIFO
 	}
