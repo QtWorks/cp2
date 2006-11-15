@@ -34,7 +34,7 @@ extern float   qoffset1;
 extern float   sumnorm;
 extern int     samplectr;
 extern int     hitnorm; 
-extern int     ledflag;
+extern int     led0flag;
 
 extern	unsigned long pulse_num_low;
 extern	unsigned long pulse_num_high;
@@ -52,6 +52,9 @@ extern int bytespergate;
 extern int hits;
 extern int boardnumber;
 extern int burstready; 
+extern unsigned int* pLed0;  /* LED0 */  
+extern unsigned int* pLed1;  /* LED1 */
+
 
 ///////////////////////////////////////////////////////////
 int		toFloats(int Ngates, int *pIn, float *pOut);
@@ -61,9 +64,7 @@ void	dma_pci(int tsize, unsigned int pci_dst);
 
 void A2DFifoISR(void) {    
 	volatile int temp;
-	unsigned int *led0;
-	unsigned int *led1;
-	int		i;
+	int	i;
 	int iqOffsets=0;
 	unsigned int* intsrc;
 	unsigned int* SBSRAMdst;	
@@ -71,9 +72,6 @@ void A2DFifoISR(void) {
 	int* fifo1Q;
 	int* fifo2I;
 	int *fifo2Q;
-
-	led0 = (unsigned int *)(0x1400308);  /* LED0 */
-	led1 = (unsigned int *)(0x140030C);  /* LED1 */
 
 	fifo1I   = FIFO1I;	//(int *)0x1400204;
 	fifo1Q   = FIFO1Q;	//(int *)0x140020C;
@@ -113,11 +111,11 @@ void A2DFifoISR(void) {
    	temp |= *(volatile int *)fifo1I;
 
    	if(temp & 0x3C000) {  /* if any of the lower 4 bits of the EOF are high */
-		*led1 = 0; /* turn on the EOF fault LED */
+		*pLed1 = 0; /* turn on the EOF fault LED */
 		CurPkt->data.info.packetflag = 0xffffffffU;  // Tell PC Host got EOF!
 	}
 	else {
-		*led1 = 1; /* Turn off the LED */
+		*pLed1 = 1; /* Turn off the LED */
 	}
 		
 	/* Convert I,Q integers to floats in-place */
@@ -185,7 +183,7 @@ void A2DFifoISR(void) {
 		CurPkt->data.info.beam_num_low = beam_num_low;
 		CurPkt->data.info.beam_num_high = beam_num_high;
 		   
-		*led0 = ledflag ^= 1;	// Toggle the blinkin' LED
+		*pLed0 = led0flag ^= 1;	// Toggle the blinkin' LED
 	
 		samplectr = 0;		// Zero the sample counter
 	}

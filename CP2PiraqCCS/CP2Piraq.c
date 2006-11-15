@@ -43,9 +43,6 @@
 //#define		PI				3.1415926
 
 float IQoffset[4*NUMCHANS];	//	CP2: compute offsets for both CHA and CHB
-//int Stgr;
-int Cfltr;
-int Maxgates;
 unsigned int *Led_ptr,DMA_base, Period;
 void delay(void);
 void initDsp(void);
@@ -54,34 +51,40 @@ void dma_fifo(int tsize, unsigned int source);
 void pci_burst_xfer();
 int burstready = 0;
 
-extern far int SCRATCH_RAM;
-extern int m;
-
 FIFO  	*Fifo;
 PACKET	*CurPkt;	// DSP-internal PACKET malloc w/1-channel data: contains current header information
 PACKET	*NPkt;		// sbsram N-PACKET MEM_alloc w/1-channel data 
-float	*LAGbuf;	// pointer to lag
-float 	*ABPbuf;	// pointer to abp averaging buffer
-float	*ABPstore;	// pointer to abp double buffer
-float	*SINstore;  // pointer to fake sinusoidal input data
-float	test_freq; 
+
+int		samplectr;     // sample counter, time series ctr
+int		PCIHits;       // #hits combined for one PCI Bus transfer
+int     sbsram_hits;   // #hits in SBSRAM
+
 float 	ioffset0, qoffset0, ioffset1, qoffset1;	// DC offsets
-int		samplectr, tsctr;	// sample counter, time series ctr
-int	 	testcount, ledflag;
-int 	*fifo1,*fifo2,*fifo3,*fifo4,*fifoclr, HWfifo_latency;
-int		Tsgate,Ntsgates;
-int		PCIHits, sbsram_hits;	// #hits combined for one PCI Bus transfer, #hits in SBSRAM
-float 	*CFptr, sumnorm;
-float    hitnorm;
-float	HWfifo_latency_ratio;
-unsigned long	pulse_num_low, pulse_num_high, beam_num_low, beam_num_high;
-unsigned int channelMode; 	// sets channelselect() processing mode 
+
+int	    led0flag;       // holds the state of led0
+unsigned int*	pLed0 = (unsigned int *)(0x1400308);  /* LED0 */  
+unsigned int*	pLed1 = (unsigned int *)(0x140030C);  /* LED1 */
+
+float   sumnorm;
+float   hitnorm;
+
+unsigned long pulse_num_low;
+unsigned long pulse_num_high;
+unsigned long beam_num_low;
+unsigned long beam_num_high;
+
+unsigned int  channelMode; 	// sets channelselect() processing mode 
+int     gates;
+int     bytespergate;
+int     hits;
+int     boardnumber;
+
 unsigned int freqAdjust;	// sets test-data frequency adjustment 
 unsigned int TestWaveformiMax;	//	index of complete wavelength
 unsigned int amplAdjust;	// sets test-data amplitude adjustment 
 float		 TestWaveformAmplitude = 1.0; 
-
-int gates, bytespergate, hits, boardnumber;
+float	*SINstore;  // pointer to fake sinusoidal input data
+float	test_freq; 
 
 void main()
 { 
@@ -91,15 +94,15 @@ void main()
 
 void initTask(void)
 {
-	unsigned int 	*led1_ptr,*dma_ptr,*burst_fifo; 
+	int*            fifoclr;
+	unsigned int*   dma_ptr;
+	unsigned int*   burst_fifo; 
 	volatile unsigned int *pci_cfg_ptr;
 	int 			i;
 	volatile int 	ii,j;
-	int 			Count;
 	int 			sbsram_seg;
 	PACKETHEADER	*pkt;
 	unsigned int	*src, *dst;
-	PACKET			*ldst;
 
 /* Initialize Essential DSP Control Registers */
 /* setup EMIF Global and Local Control Registers */
@@ -107,14 +110,12 @@ void initTask(void)
 
 	initDsp(); 
 
-	ledflag = 1;
 	
 	/* Clear the LEDs */
 
-	Led_ptr = (unsigned int *)(0x1400308);  /* LED0 */  
-	led1_ptr = (unsigned int *)(0x140030C);  /* LED1 */
-	*Led_ptr = ledflag;
-	*led1_ptr = 0x1;
+	led0flag = 1;
+	*pLed0   = led0flag;
+	*pLed1   = 0x1;
 
 	/* set up SDRAM, SBSRAM segments */
 
@@ -139,10 +140,6 @@ void initTask(void)
 	qoffset1 = 0.0;
 	
 	fifoclr = (int *)FIFOCLR;
-	fifo1   = (int *)FIFO1;
-	fifo2   = (int *)FIFO2;
-	fifo3   = (int *)FIFO3;
-	fifo4   = (int *)FIFO4;
 
 	Fifo = fifo_open("PRQDATA");  /* the argument is not used */
 
@@ -169,8 +166,6 @@ void initTask(void)
 	for(i = 0; i < HEADERSIZE/4; i++)	 
 		*dst++ = *src++;
 
-	ldst = (PACKET *)CurPkt;	// new method
-
 	// NPkt PACKET pointer to one hit in sbsram N-hit alloc
 	// CP2 PCI Bus transfer size: Nhits * (HEADERSIZE + (config->gatesa * bytespergate) 
 
@@ -186,28 +181,7 @@ void initTask(void)
 	memset(a2dFifoBuffer,0,(gates * 2 * bytespergate));	
 
 	WriteCE1(PLX_CFG_MODE);
-
-    // Timeseries initialization
-	
-	Tsgate = ldst->data.info.ts_start_gate;
-	Ntsgates = (ldst->data.info.ts_end_gate - Tsgate) + 1; 
-	/* don't exceed maximum number of timeseries */
-	if(Ntsgates > TSMAX)  
-		Ntsgates = TSMAX;
    	  
-	if(ldst->data.info.dataformat == 16) {
-		// if simplepp & clutterfilter
-		Maxgates = 400;  	
-		Stgr = 1;
-		Cfltr = 1;
-	}
-	else  {
-	    /* (ldst->data.info.dataformat == 17) */
-		Maxgates = 600;			// else staggered PRT
-		Stgr = 2;
-		Cfltr = 0;
-	}
-	
 #ifdef	CP2_TEST_SINUSOID		// CP2 test sine wave ... along pulse in timeseries data
 	SINstore = (float *)MEM_alloc(sdram0_seg,2000000 * sizeof (float),0);	//	allow up to 2000000 data
 	test_freq = 0.002;	//	should be equivalent to 60002000.0Hz
@@ -215,18 +189,14 @@ void initTask(void)
 #endif
 
 	/* Initialize pulse and beam counters */
-	pulse_num_low = ldst->data.info.pulse_num_low;
-	pulse_num_high = ldst->data.info.pulse_num_high;
-	beam_num_high = ldst->data.info.beam_num_high;
-	beam_num_low = ldst->data.info.beam_num_low;
+	pulse_num_low  = CurPkt->data.info.pulse_num_low;
+	pulse_num_high = CurPkt->data.info.pulse_num_high;
+	beam_num_high  = CurPkt->data.info.beam_num_high;
+	beam_num_low   = CurPkt->data.info.beam_num_low;
 		
-	/* Calculate the number of hits latency we're stuck with */
-	HWfifo_latency = (int)(0.5 + 0.5*(float)FIFOLEN/(float)ldst->data.info.gates);
-	HWfifo_latency_ratio = (float)HWfifo_latency/(float)ldst->data.info.hits;
-
 	//	Calculate DC offset normalization
 	// CP2 nix hits in normalization.
-	sumnorm = 1.0/((float)ldst->data.info.gates);  
+	sumnorm = 1.0/((float)CurPkt->data.info.gates);  
 
 	/* Initialize DMA Channel 0 for ABP transfers */
 	/* channel 0 primary control */
@@ -286,7 +256,6 @@ void initTask(void)
 	pci_cfg_ptr = (volatile unsigned int *)0x14000E8; 
 	*pci_cfg_ptr = 0x50000;           /* INTCSR */
 
-	Count = 0;
 	pkt = (PACKETHEADER *)((char *)Fifo + Fifo->header_off);
 	pkt->cmd.flag = 0;  // Immediately shut off the ready flag
 			
