@@ -100,7 +100,6 @@ unsigned int*	pLed0 = (unsigned int *)(0x1400308);  /* LED0 */
 unsigned int*	pLed1 = (unsigned int *)(0x140030C);  /* LED1 */
 
 float   sumnorm;
-float   hitnorm;
 
 unsigned long pulse_num_low;
 unsigned long pulse_num_high;

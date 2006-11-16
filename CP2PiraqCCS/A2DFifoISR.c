@@ -33,7 +33,6 @@ extern float   ioffset1;
 extern float   qoffset1; 
 extern float   sumnorm;
 extern int     samplectr;
-extern int     hitnorm; 
 extern int     led0flag;
 extern int*    a2dFifoBuffer;			// receives the I/Q data from the A2D fifos.
 extern	unsigned long pulse_num_low;
@@ -83,13 +82,8 @@ void A2DFifoISR(void) {
 
 	// even though fifo_get_write_address(Fifo) doesn't do anything,
 	// if we do not  make the following call, the data shows a low frequency
-	// variation. Very strange - this really needs to be sorted out.
+	// variation in the power spectrum. Very strange - this really needs to be sorted out.
 	(PACKET *)fifo_get_write_address(Fifo);
-
-	// DEBUG The following will be removed when external 
-	// controls are implemented
-
-	hitnorm = 1.0/(float)CurPkt->data.info.hits;         
 
 	/* Read FIFO 1 I */
 	dmaTransfer(1, fifo1I, a2dFifoBuffer, gates, 0); 
