@@ -59,7 +59,6 @@ extern unsigned int* pLed1;  /* LED1 */
 ///////////////////////////////////////////////////////////
 int		toFloats(int Ngates, int *pIn, float *pOut);
 void 	sumTimeseries(int Ngates, float * restrict pIn, float *pOut);
-void	dma_pci(int tsize, unsigned int pci_dst);
 void    setPulseAndBeamNumbers(PACKET* pPkt);
 
 ///////////////////////////////////////////////////////////
@@ -168,12 +167,12 @@ void A2DFifoISR(void) {
 		//	complete Nhit packet in burst fifo, 
 		// and board-specific stagger elapsed
 		// enable dma transfer from burst fifo to pci bus.
-		SEM_post(&burst_ready);
+		SEM_post(&StartPciTransfer);
 	}
 	sbsram_hits++; // hits in sbsram
 
 	if	(sbsram_hits == PCIHits)	{	//	Nhit packet accumulated
-		SEM_post(&data_ready);			//	DMA from SBSRAM to PCI Burst FIFO
+		SEM_post(&FillBurstFifo);			//	DMA from SBSRAM to PCI Burst FIFO
 	}
 }
 

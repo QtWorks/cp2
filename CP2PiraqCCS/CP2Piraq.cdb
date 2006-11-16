@@ -91,7 +91,7 @@ type GlobalStatus {
         prop Visible :: 0
         prop Writable :: 0
     }
-    global DATE :: "Tue Nov 07 20:55:52 2006" { 
+    global DATE :: "Thu Nov 16 11:05:57 2006" { 
         prop Type :: "{21455EA3-B96A-11cf-9BFE-0000C0AC14C7}"
         prop Visible :: 0
         prop Writable :: 0
@@ -6005,7 +6005,7 @@ type SEM {
         prop Writable :: 0
         prop NoGen :: 1
     }
-    global gNumOf :: 4 { 
+    global gNumOf :: 3 { 
         prop Visible :: 0
         prop Writable :: 0
         prop NoGen :: 1
@@ -21529,13 +21529,13 @@ object Init :: TSK {
     param Order :: 2
 }
 
-object Data_send :: TSK {
+object fillBurstFifo :: TSK {
     param iComment :: "<add comments here>"
     param iIsUsed :: 1
     param iId :: 0
     param iDelUser :: "USER"
     param iDelMsg :: "ok"
-    param iFXN :: @_data_xfer_loop
+    param iFXN :: @_fillBurstFifoTask
     param iARG0 :: 0
     param iARG1 :: 0
     param iARG2 :: 0
@@ -21555,8 +21555,8 @@ object Data_send :: TSK {
     param Order :: 3
 }
 
-object data_ready :: SEM {
-    param iComment :: "<output data ready>"
+object StartPciTransfer :: SEM {
+    param iComment :: "Signal that the burst fifo is ready and should be transferred across the PCI bus."
     param iIsUsed :: 1
     param iId :: 0
     param iDelUser :: "USER"
@@ -21564,7 +21564,7 @@ object data_ready :: SEM {
     param iCount :: 0
 }
 
-object fifo_ready :: SEM {
+object PciTransferFinished :: SEM {
     param iComment :: "<pci burst fifo ready>"
     param iIsUsed :: 1
     param iId :: 0
@@ -21573,8 +21573,8 @@ object fifo_ready :: SEM {
     param iCount :: 0
 }
 
-object hwData_avail :: SEM {
-    param iComment :: "hwData buffer previous hit processing done"
+object FillBurstFifo :: SEM {
+    param iComment :: "Signal to fill the burst fifo from the SBSRAM. Posted from the a2d ISR."
     param iIsUsed :: 1
     param iId :: 0
     param iDelUser :: "USER"
@@ -21582,22 +21582,13 @@ object hwData_avail :: SEM {
     param iCount :: 0
 }
 
-object burst_ready :: SEM {
-    param iComment :: "burst FIFO contents may be transferred across PCI"
-    param iIsUsed :: 1
-    param iId :: 0
-    param iDelUser :: "USER"
-    param iDelMsg :: "ok"
-    param iCount :: 0
-}
-
-object PCI_send :: TSK {
+object pciTransfer :: TSK {
     param iComment :: "<add comments here>"
     param iIsUsed :: 1
     param iId :: 0
     param iDelUser :: "USER"
     param iDelMsg :: "ok"
-    param iFXN :: @_pci_burst_xfer
+    param iFXN :: @_pciTransferTask
     param iARG0 :: 0
     param iARG1 :: 0
     param iARG2 :: 0

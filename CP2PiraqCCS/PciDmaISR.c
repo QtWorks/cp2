@@ -29,5 +29,5 @@ void PciDmaISR(void)
 /* Return Asynchronous interface for CE1 to initial settings */
 
 	WriteCE1(previousCE1);
-	SEM_post(&fifo_ready);
+	SEM_post(&PciTransferFinished);
    }

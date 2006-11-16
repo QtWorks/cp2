@@ -79,7 +79,7 @@ void delay(void);
 void initDsp(void);
 void dma_pci(int tsize, unsigned int pci_dst);
 void dma_fifo(int tsize, unsigned int source);
-void pci_burst_xfer();
+void startPciTransfer();
 int burstready = 0;
 
 FIFO  	*Fifo;
@@ -283,14 +283,14 @@ void initTask(void)
 }
 
 /////////////////////////////////////////////////////////////////
-void data_xfer_loop(void)
+void fillBurstFifoTask(void)
 {
 	volatile unsigned int *Mailbox5Ptr; 
 	int Tfer_sz;
 
 	/* Fill burst fifo from SBSRAM */
 	while(1) {
- 		SEM_pend(&data_ready,SYS_FOREVER);
+ 		SEM_pend(&FillBurstFifo,SYS_FOREVER);
 		CurPkt->data.info.pulse_num_low = pulse_num_low;
 		CurPkt->data.info.pulse_num_high = pulse_num_high;
 		if (sbsram_hits == PCIHits) { // full load
@@ -318,24 +318,53 @@ void data_xfer_loop(void)
 /////////////////////////////////////////////////////////////////
 
 //	perform DMA transfer from PCI Burst FIFO to host memory
-void pci_burst_xfer()
+void pciTransferTask()
 {
 	PACKET *dst;
 	unsigned int offset;
 	int Tfer_sz;
+	volatile unsigned int *pci_cfg_ptr;
 
 	while(1)	{
- 		SEM_pend(&burst_ready,SYS_FOREVER);
+
+		// wait for the StartPciTransfer semaphore, which
+		// signals that the burst fifo is ready to be transferred.
+ 		SEM_pend(&StartPciTransfer,SYS_FOREVER);
 		Tfer_sz = PCIHits * (HEADERSIZE + (gates * bytespergate));  /* in bytes */
-		//	moved from above
-		IRQ_Disable(IRQ_EVT_EXTINT5);		/* Disable Fifo interrupt during data xfer */
+
+		// Disable A2D Fifo interrupt during data xfer */
+		IRQ_Disable(IRQ_EVT_EXTINT5);
+		
+		// determine the host side destination address		
 		dst = (PACKET *)fifo_get_write_address(Fifo);
 		offset = (unsigned int )dst - PCIBASE; 
-		dma_pci(Tfer_sz,(unsigned int )DMA_base+offset); 		/* DMA FIFO */
+
+		// Re-configure Asynchronous interface for CE1 
+		// Increase cycle length to talk to PLX chip 
+		WriteCE1(PLX_CFG_MODE);
+	                                               
+		// set pci dma destination register
+		pci_cfg_ptr = (volatile unsigned int *)0x1400104; 
+		*pci_cfg_ptr = DMA_base+offset;     /* DMAPADR0 */
+	
+		// set pci dma transfer size register
+		pci_cfg_ptr = (volatile unsigned int *)0x140010C; 
+		*pci_cfg_ptr = Tfer_sz;   /* DMASIZ0  */	
+	
+		// Tell PCI Bridge Chip to DMA data
+		pci_cfg_ptr = (volatile unsigned int *)0x1400128; 
+		*pci_cfg_ptr = 0x3;           /* DMACSR0 */
+	
+		// wait for the PciTransferFinished semaphore,
+		// which is set by an interrupt
+		SEM_pend(&PciTransferFinished, SYS_FOREVER);	
+
 		fifo_increment_head(Fifo);
+		
 		burstready = 0; 
+		
 		WriteCE1(HIGH_SPEED_MODE);	 /* re-enable high speed mode */
-		IRQ_Enable(IRQ_EVT_EXTINT5);  /* re-enable fifo interrupt */
+		IRQ_Enable(IRQ_EVT_EXTINT5);  /* re-enable A2D fifo interrupt */
 	}	//	end while(1)
 }
 
@@ -381,32 +410,6 @@ void dma_fifo(int tsize, unsigned int source)
 	}
 
 	dmaTransfer(2, (int*)src, 0, (frame_cnt << 16) | (tfer_sz & 0xFFFF), tfer_sz);
-}
-
-/////////////////////////////////////////////////////////////////
-
-void dma_pci(int tsize, unsigned int pci_dst)
-{
-
-	volatile unsigned int *pci_cfg_ptr;
-
-	/* Re-configure Asynchronous interface for CE1 */
-	/* Increase cycle length to talk to PLX chip */
-
-	WriteCE1(PLX_CFG_MODE);
-	                                               
-	pci_cfg_ptr = (volatile unsigned int *)0x1400104; 
-
-	*pci_cfg_ptr = pci_dst;     /* DMAPADR0 */
-	pci_cfg_ptr = (volatile unsigned int *)0x140010C; 
-	*pci_cfg_ptr = tsize;   /* DMASIZ0  */	
-	
-	/* Tell PCI Bridge Chip to DMA data */
-
-	pci_cfg_ptr = (volatile unsigned int *)0x1400128; 
-	*pci_cfg_ptr = 0x3;           /* DMACSR0 */
-	SEM_pend(&fifo_ready,SYS_FOREVER);	
-
 }
 
 /////////////////////////////////////////////////////////////////
@@ -568,8 +571,8 @@ dmaTransfer(int channel,
 	p  = (volatile int *)dmaTransCountReg[channel];
 	*p = transferCount & 0xffff;
 
-	// if global reload is set, program the 
-	// global reload register A
+	// if count reload is set, program the 
+	// count reload register A
 	if(countReloadA) {
 		p  = (volatile int *)dmaCountReloadRegA;
 		*p = countReloadA & 0xffff;
