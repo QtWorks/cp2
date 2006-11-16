@@ -35,7 +35,7 @@ extern float   sumnorm;
 extern int     samplectr;
 extern int     hitnorm; 
 extern int     led0flag;
-
+extern int*    a2dFifoBuffer;			// receives the I/Q data from the A2D fifos.
 extern	unsigned long pulse_num_low;
 extern	unsigned long pulse_num_high;
 extern	unsigned long beam_num_low;

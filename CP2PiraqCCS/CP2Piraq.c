@@ -71,7 +71,10 @@ static int dmaGlobalIndexRegA   = 0x01840030U;
 /// address of the dma  index register b
 static int dmaGlobalIndexRegB   = 0x01840034U;
 
+int *a2dFifoBuffer;			// receives the I/Q data from the A2D fifos.
+
 float IQoffset[4*NUMCHANS];	//	CP2: compute offsets for both CHA and CHB
+
 unsigned int *Led_ptr,DMA_base, Period;
 
 void initializeDma();
