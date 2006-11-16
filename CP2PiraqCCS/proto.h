@@ -36,7 +36,6 @@
 
 void
 dmaTransfer(int channel, 
-			unsigned int controlWord, 
 			int *src, 
 			int *dst, 
 			int transferCount,

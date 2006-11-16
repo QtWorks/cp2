@@ -95,16 +95,16 @@ void A2DFifoISR(void) {
 	hitnorm = 1.0/(float)CurPkt->data.info.hits;         
 
 	/* Read FIFO 1 I */
-	dmaTransfer(1, 0xC1, fifo1I, a2dFifoBuffer, gates, 0); 
+	dmaTransfer(1, fifo1I, a2dFifoBuffer, gates, 0); 
 
 	/* Read FIFO 1 Q */
-	dmaTransfer(1, 0xC1, fifo1Q, a2dFifoBuffer+1, gates, 0); 
+	dmaTransfer(1, fifo1Q, a2dFifoBuffer+1, gates, 0); 
 		
 	/* Read FIFO 2 I */
-	dmaTransfer(1, 0xC1, fifo2I, a2dFifoBuffer+2, gates, 0); 
+	dmaTransfer(1, fifo2I, a2dFifoBuffer+2, gates, 0); 
 
 	/* Read FIFO 2 Q */
-	dmaTransfer(1, 0xC1, fifo2Q, a2dFifoBuffer+3, gates, 0); 
+	dmaTransfer(1, fifo2Q, a2dFifoBuffer+3, gates, 0); 
 
     /* Read EOF's from each FIFO */
    	temp  = *(volatile int *)fifo2I;
@@ -161,14 +161,14 @@ void A2DFifoISR(void) {
 	// move CurPkt w/combined data from DSP-internal memory to NPkt in sbsram: 
 	intsrc = (unsigned int *)CurPkt;
 	SBSRAMdst = (unsigned int *)((char *)NPkt + (sbsram_hits * (HEADERSIZE + (gates * bytespergate))));	// add nth hit offset 
-	for (i = 0; i < sizeof(PACKET)/4; i++) { // move CurPkt contents to NPkt
-		*SBSRAMdst++ = *intsrc++;	
-	}
+
+	dmaTransfer(0, intsrc, SBSRAMdst,  sizeof(PACKET), 0); 
 
 	if	(burstready && (sbsram_hits == 1*boardnumber))	{	
-		//	complete Nhit packet in SBSRAM, 
-		//	and board-specific stagger elapsed
-		SEM_post(&burst_ready);	//	let 'er rip! 
+		//	complete Nhit packet in burst fifo, 
+		// and board-specific stagger elapsed
+		// enable dma transfer from burst fifo to pci bus.
+		SEM_post(&burst_ready);
 	}
 	sbsram_hits++; // hits in sbsram
 

@@ -40,10 +40,41 @@
 #define 	PCI_LOCAL_BASE 	0x3000000
 #define 	MAX_BUFFER_SZ 	0x400000
 #define 	TIMER_CLOCK 2	5.e-09
-//#define		PI				3.1415926
+
+/// address of the dma destination register
+static int dmaDestReg[3]      = { 0x1840018U, 0x1840058U, 0x184001CU };
+/// address of the dma primary control register
+static int dmaPriCtlReg[3]    = { 0x1840000U, 0x1840040U, 0x1840004U };
+/// address of the dma secondary control register
+static int dmaSecCtlReg[3]    = { 0x1840008U, 0x1840048U, 0x184000CU };
+/// address of the dma source address register
+static int dmaSourceReg[3]    = { 0x1840010U, 0x1840050U, 0x1840014U };
+/// address of the dma transfer count register
+static int dmaTransCountReg[3]= { 0x1840020U, 0x1840060U, 0x1840024U };
+
+/// address of the dma auxillary control register
+static int dmaAuxCtlreg         = 0x01840070;
+/// address of the dma global adddress register a
+static int dmaGlobalAddressRegA = 0x01840038U;
+/// address of the dma  adddress register b
+static int dmaGlobalAddressRegB = 0x0184003CU;
+/// address of the dma  adddress register c
+static int dmaGlobalAddressRegC = 0x01840068U;
+/// address of the dma  adddress register d
+static int dmaGlobalAddressRegD = 0x0184006CU;
+/// address of the dma count reload register a
+static int dmaCountReloadRegA   = 0x01840028U;
+/// address of the dma count reload register b 
+static int dmaCountReloadRegB   = 0x0184002CU;
+/// address of the dma global index register a
+static int dmaGlobalIndexRegA   = 0x01840030U;
+/// address of the dma  index register b
+static int dmaGlobalIndexRegB   = 0x01840034U;
 
 float IQoffset[4*NUMCHANS];	//	CP2: compute offsets for both CHA and CHB
 unsigned int *Led_ptr,DMA_base, Period;
+
+void initializeDma();
 void delay(void);
 void initDsp(void);
 void dma_pci(int tsize, unsigned int pci_dst);
@@ -95,7 +126,6 @@ void main()
 void initTask(void)
 {
 	int*            fifoclr;
-	unsigned int*   dma_ptr;
 	unsigned int*   burst_fifo; 
 	volatile unsigned int *pci_cfg_ptr;
 	int 			i;
@@ -198,38 +228,15 @@ void initTask(void)
 	// CP2 nix hits in normalization.
 	sumnorm = 1.0/((float)CurPkt->data.info.gates);  
 
-	/* Initialize DMA Channel 0 for ABP transfers */
-	/* channel 0 primary control */
-	dma_ptr = (unsigned int *)0x1840000;  
-	*dma_ptr = 0x01000050; 
-	/* channel 0 secondary control */
-	dma_ptr = (unsigned int *)0x1840008;  
-	*dma_ptr = 0x90; 
-
-	/* Initialize DMA Channel 1 for A/D FIFO transfers */
-
-	dma_ptr = (unsigned int *)0x1840040;  /* channel 1 primary control */
-	*dma_ptr = 0xc0; 
-	dma_ptr = (unsigned int *)0x1840048;  /* channel 1 secondary control */
-	*dma_ptr = 0x90; 
-	dma_ptr = (unsigned int *)0x1840030; /* DMA Global Index Register A */
-	*dma_ptr = 0x10;
-
 	/* Clear the PCI FIFO */
 
 	burst_fifo = (unsigned int *)PCI_FIFO_RST;
 	*burst_fifo = 0x0;
 
-	/* Initialize DMA Channel 2 for PCI FIFO transfers */
+	// set up the dma channels
+	initializeDma();
 
-	dma_ptr = (unsigned int *)0x1840004;  /* channel 2 primary control */
-	*dma_ptr = 0x10; 
-	dma_ptr = (unsigned int *)0x184000C;  /* channel 2 secondary control */
-	*dma_ptr = 0x90; 
-	dma_ptr = (unsigned int *)0x184001C; /* DMA Channel 2 Destination Address */
-	*dma_ptr = (unsigned int)PCI_FIFO_WR;
-
-	/* Re-configure Asynchronous interface for CE1 */
+/* Re-configure Asynchronous interface for CE1 */
 	/* Increase cycle length to talk to PLX chip */
     
 	WriteCE1(PLX_CFG_MODE);
@@ -275,20 +282,21 @@ void initTask(void)
 
 }
 
+/////////////////////////////////////////////////////////////////
 void data_xfer_loop(void)
 {
 	volatile unsigned int *Mailbox5Ptr; 
 	int Tfer_sz;
 
-	/* Fill PCI Shared Memory forever */
+	/* Fill burst fifo from SBSRAM */
 	while(1) {
  		SEM_pend(&data_ready,SYS_FOREVER);
 		CurPkt->data.info.pulse_num_low = pulse_num_low;
 		CurPkt->data.info.pulse_num_high = pulse_num_high;
 		if (sbsram_hits == PCIHits) { // full load
 			Tfer_sz = PCIHits * (HEADERSIZE + (gates * bytespergate));  /* in bytes */
-			//	moved from above
-			IRQ_Disable(IRQ_EVT_EXTINT5);		/* Disable Fifo interrupt during data xfer */
+		    // Disable A2D half-full fifo interrupts during data xfer */
+			IRQ_Disable(IRQ_EVT_EXTINT5);		
 			dma_fifo(Tfer_sz,(unsigned int )NPkt);       /* DMA NPkt to PCI Burst FIFO */
 			sbsram_hits = 0;
 			burstready = 1;  
@@ -306,6 +314,8 @@ void data_xfer_loop(void)
 		IRQ_Enable(IRQ_EVT_EXTINT5);  /* re-enable fifo interrupt */
 	}
 }
+
+/////////////////////////////////////////////////////////////////
 
 //	perform DMA transfer from PCI Burst FIFO to host memory
 void pci_burst_xfer()
@@ -347,6 +357,8 @@ unsigned int WriteCE1(unsigned int newValue)
 }
 
    
+/////////////////////////////////////////////////////////////////
+
 void dma_fifo(int tsize, unsigned int source)
 {
 
@@ -368,8 +380,10 @@ void dma_fifo(int tsize, unsigned int source)
 		frame_cnt = frame_cnt << 1;
 	}
 
-	dmaTransfer(2, 0x11, (int*)src, 0, (frame_cnt << 16) | (tfer_sz & 0xFFFF), tfer_sz);
+	dmaTransfer(2, (int*)src, 0, (frame_cnt << 16) | (tfer_sz & 0xFFFF), tfer_sz);
 }
+
+/////////////////////////////////////////////////////////////////
 
 void dma_pci(int tsize, unsigned int pci_dst)
 {
@@ -395,6 +409,8 @@ void dma_pci(int tsize, unsigned int pci_dst)
 
 }
 
+/////////////////////////////////////////////////////////////////
+
 void 
 createSineTestWaveform(float freq)	//	create test sine waveform of freq; store to SINstore
 {
@@ -410,10 +426,10 @@ createSineTestWaveform(float freq)	//	create test sine waveform of freq; store t
 		*test_dst++ = 16777216.0*TestWaveformAmplitude*cosf(x*i);
 		*test_dst++ = -16777216.0*TestWaveformAmplitude*sinf(x*i);
 	}
-
 }
 
 
+/////////////////////////////////////////////////////////////////
 void
 synthesizeSine(unsigned int *Mailbox5Ptr) 
 {
@@ -471,47 +487,96 @@ synthesizeSine(unsigned int *Mailbox5Ptr)
 		}
 }
 
-
+/////////////////////////////////////////////////////////////////
+/// Initialize the three dma controllers for the
+/// specific jobs they will handle:
+/// channel 0 - dma from internal ram to sbsram
+/// channel 1 - dma from a2d fifos into internal memory
+/// channel 2 - dma from sbsram to burst fifo
+///
+/// since none of the dma transfers are occuring
+/// at the same time (all dma is polled until completion), 
+/// in theory only one channel
+/// could be used for all dma activities. However,
+/// assigning them for specific tasks allows us to
+/// only have to program some registers only once.
 void
-dmaTransfer(int channel, 
-			unsigned int controlWord, 
+initializeDma()
+{
+	int i;
+	int j;
+
+	/* Initialize DMA Channel 0 for transfers from DSP memory to sbsram */
+	*(unsigned int*)dmaPriCtlReg[0]    = 0x01000050;
+	*(unsigned int*)dmaSecCtlReg[0]    = 0x00000090; 
+
+	/* Initialize DMA Channel 1 for A/D FIFO transfers to DSP memory */
+	*(unsigned int*)dmaPriCtlReg[1]    = 0xc0; 
+	*(unsigned int*)dmaSecCtlReg[1]    = 0x90; 
+	*(unsigned int*)dmaGlobalIndexRegA = 0x10;
+
+	/* Initialize DMA Channel 2 for sbsram transfers to PCI burst fifo */
+	*(unsigned int*)dmaPriCtlReg[2]    = 0x10; 
+	*(unsigned int*)dmaSecCtlReg[2]    = 0x90; 
+	*(unsigned int*)dmaDestReg[2]      = (unsigned int)PCI_FIFO_WR;
+
+	// the following code just accesses all of the 
+	// dma register addresses, so that the compiler
+	// warnings are suppresed for unaccessed variables
+	for (i = 0; i < 3; i++) {
+
+		j = dmaDestReg[i];
+		j = dmaPriCtlReg[i];
+		j = dmaSecCtlReg[i];
+		j = dmaSourceReg[i];
+		j = dmaTransCountReg[i];
+	}
+	j = dmaAuxCtlreg;
+	j = dmaGlobalAddressRegA;
+	j = dmaGlobalAddressRegB;
+	j = dmaGlobalAddressRegC;
+	j = dmaGlobalAddressRegD;
+	j = dmaCountReloadRegA;
+	j = dmaCountReloadRegB;
+	j = dmaGlobalIndexRegA;
+	j = dmaGlobalIndexRegB;
+
+	i = j;
+}
+
+/////////////////////////////////////////////////////////////////
+void
+dmaTransfer(int channel,
 			int *src, 
 			int *dst, 
 			int transferCount,
-			int globalReload) 
+			int countReloadA) 
 {
-
-	static int dmaChannelPriCtlReg[3] = { 0x1840000U, 0x1840040U, 0x1840004U};
-//	static unsigned int dmaChannelSecCtlReg[3] = { 0x1840008U, 0x1840048U, 0x184000CU};
-	static int dmaChannelSourceReg[3] = { 0x1840010U, 0x1840050U, 0x1840014U};
-	static int dmaChannelDestReg[3]   = { 0x1840018U, 0x1840058U, 0x184001CU};
-	static int dmaChannelCountReg[3]  = { 0x1840020U, 0x1840060U, 0x1840024U};
-	static int dmaChannelReloadReg[3] = {         0U,         0U, 0x1840028U};
-
-
     volatile int *p;
     volatile int **pp;
 
 	if (src) {
-		pp  = (volatile int **)dmaChannelSourceReg[channel];
+		pp  = (volatile int **)dmaSourceReg[channel];
 		*pp = src;
 	}
 
 	if (dst) {
-		pp  = (volatile int **)dmaChannelDestReg[channel];
+		pp  = (volatile int **)dmaDestReg[channel];
 		*pp = dst;
 	}
 
-	p  = (volatile int *)dmaChannelCountReg[channel];
+	p  = (volatile int *)dmaTransCountReg[channel];
 	*p = transferCount & 0xffff;
 
-	if(globalReload) {
-		p  = (volatile int *)dmaChannelReloadReg[channel];
-		*p = globalReload & 0xffff;
+	// if global reload is set, program the 
+	// global reload register A
+	if(countReloadA) {
+		p  = (volatile int *)dmaCountReloadRegA;
+		*p = countReloadA & 0xffff;
 	}
 
-	p  = (volatile int *)dmaChannelPriCtlReg[channel];
-	*p = controlWord;
+	p  = (volatile int *)dmaPriCtlReg[channel];
+	*p = *p | 1;
 
 	while((*p & 0xc) == 0x4)
 		asm("	NOP");
