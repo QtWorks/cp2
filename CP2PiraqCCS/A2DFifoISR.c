@@ -26,7 +26,7 @@
 ///////////////////////////////////////////////////////////
 extern FIFO*   Fifo;
 extern PACKET* CurPkt;
-extern PACKET* NPkt;		// sbsram N-PACKET MEM_alloc w/1-channel data 
+extern PACKET* sbsRamBuffer;		// sbsram N-PACKET MEM_alloc w/1-channel data 
 extern float   ioffset0; 
 extern float   qoffset0; 
 extern float   ioffset1; 
@@ -45,7 +45,7 @@ extern 	float        IQoffset[4*NUMCHANS];
 
 extern	unsigned int channelMode; // sets channelselect() processing mode
 
-extern int PCIHits;             // #hits combined for one PCI Bus transfer
+extern int nPacketsPerBlock;             // #hits combined for one PCI Bus transfer
 extern int sbsram_hits;	        // #hits in SBSRAM
 extern int gates;
 extern int bytespergate;
@@ -65,10 +65,8 @@ void    setPulseAndBeamNumbers(PACKET* pPkt);
 
 void A2DFifoISR(void) {    
 	volatile int temp;
-	int	i;
 	int iqOffsets=0;
-	unsigned int* intsrc;
-	unsigned int* SBSRAMdst;	
+	int* sbsRamDst;	
 	int* fifo1I;
 	int* fifo1Q;
 	int* fifo2I;
@@ -157,11 +155,9 @@ void A2DFifoISR(void) {
 	// process 2-channel hwData into 1-channel data: channel-select, gate by gate. data destination CurPkt->data.data
 	ChannelSelect(gates, (float *)a2dFifoBuffer, (float *)CurPkt->data.data, channelMode); 
 
-	// move CurPkt w/combined data from DSP-internal memory to NPkt in sbsram: 
-	intsrc = (unsigned int *)CurPkt;
-	SBSRAMdst = (unsigned int *)((char *)NPkt + (sbsram_hits * (HEADERSIZE + (gates * bytespergate))));	// add nth hit offset 
-
-	dmaTransfer(0, intsrc, SBSRAMdst,  sizeof(PACKET), 0); 
+	// move CurPkt w/combined data from DSP-internal memory to sbsRamBuffer in sbsram: 
+	sbsRamDst = (int *)((char *)sbsRamBuffer + (sbsram_hits * (HEADERSIZE + (gates * bytespergate))));
+	dmaTransfer(0, (int*)CurPkt, sbsRamDst,  sizeof(PACKET), 0); 
 
 	if	(burstready && (sbsram_hits == 1*boardnumber))	{	
 		//	complete Nhit packet in burst fifo, 
@@ -171,7 +167,7 @@ void A2DFifoISR(void) {
 	}
 	sbsram_hits++; // hits in sbsram
 
-	if	(sbsram_hits == PCIHits)	{	//	Nhit packet accumulated
+	if	(sbsram_hits == nPacketsPerBlock)	{	//	Nhit packet accumulated
 		SEM_post(&FillBurstFifo);			//	DMA from SBSRAM to PCI Burst FIFO
 	}
 }

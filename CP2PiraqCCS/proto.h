@@ -7,7 +7,6 @@
 
 #define	MAGIC		0x12345678
 
-#define NEW_INCLUDE // new definitions for RapidDOW DWELL, UDPHEADER, 4-byte data alignment. 
 #define STRUCTURE_ALIGNMENT 8 // must be a power of 2
 
 #define	PIRAQ_DEVICE_ID 	0x9054
@@ -47,55 +46,10 @@ dmaTransfer(int channel,
 #define	DECREMENT_TEST_AMPLITUDE_FINE	0x80
 #define	AMPLADJ_MASK	0xe0	// extract amplitude-adjust bits
 
-typedef struct pci_card_typ{
-	int fnum;
-	int bus;
-	unsigned int base;
-} PCI_CARD;
-
-//typedef struct  {float x,y;}   complex;
-
-//#define K2      0.93
-//#define C       2.99792458E8
-/* #define M_PI    3.141592654 */
 #define		PI				3.1415926
-//#define TWOPI   6.283185307
 
 #define	MAXPACKET	1200
-// DEBUG #define	MAXGATES	2000
-//#define	MAXGATES	1000
 #define	MAXGATES	400		// Added to test speed; most you can do w/clutterfilter
-#define MAXHITS 1024
-#define PRODS_ELEMENTS  16      /* number of elements in prods array */
-#define	ERROR	-1
-#define	DATA_TIMEOUT	1
-
-/* define UDP packet types */
-#define	UDPTYPE_CMD		1
-#define	UDPTYPE_IQDATA	2
-#define	UDPTYPE_ABPDATA	3
-
-/* global define of number of records in the various FIFO's */
-#define	CMD_FIFO_NUM			5
-#define	PIRAQ_FIFO_NUM		250
-#define	IQDATA_FIFO_NUM		450
-#define	ABPDATA_FIFO_NUM	20
-
-/* define the FIFO notification port numbers */
-#define	CMD_RING_PORT		2000
-#define	PIRAQ_RING_PORT		2100
-#define	IQDATA_RING_PORT		2200
-#define	ABPDATA_RING_PORT	2300
-
-/* define the data communications port numbers */
-#define	CMD_DATA_PORT			21050
-#define	PIRAQ_DATA_PORT		21055
-#define	IQDATA_DATA_PORT		21060
-#define	ABPDATA_DATA_PORT	21065
-
-/****************************************************/
-/* set up the infra structure for software FIFO's  */
-/****************************************************/
 
 typedef	struct 
 	{
@@ -113,8 +67,6 @@ typedef	struct
     int clients;
 	} FIFO;
 
-#ifdef NEW_INCLUDE // new UDPHEADER 
-// !!! REPLACE int w/uint4 below: 
 typedef struct udp_header{
     int magic;             /* must be 'MAGIC' value above */
     int type;             /* e.g. DATA_SIMPLEPP, defined in piraq.h */
@@ -125,20 +77,6 @@ typedef struct udp_header{
     int pages;     /* how many 'pages' (packets) are in this group */
 } UDPHEADER;
 #pragma STRUCT_ALIGN (UDPHEADER, 8);
-#else				// old UDPHEADER 
-typedef struct {
-	int		magic;
-	int		type;
-	int		totalsize;  /* total amount of data only (don't count the size of this header) */
-	int		pagesize;	/* amount of data in each page INCLUDING the size of the header */
-	int		pagenum;
-	int		pages;
-	} UDPHEADER;
-#endif 
-
-/****************************************************/
-/* set up the infrastructure for intraprocess communication */
-/****************************************************/
 
 typedef struct command {
 	int		type;
@@ -154,47 +92,10 @@ typedef struct udp_packet {
 	} UDPPACKET;
 #pragma STRUCT_ALIGN (UDPHEADER, 8);
 
-typedef struct {
-	UDPHEADER		udphdr;
-	int			cnt;
-	} FIFORING;
-
-
-/****************************************************/
-/* completely define radar operation with a single structure */
-/****************************************************/
-
-#define	CTRL_CLUTTERFILTER	0x00000001
-#define	CTRL_TIMESERIES		0x00000002
-#define	CTRL_PHASECORRECT	0x00000004
-#define	CTRL_SCAN_TRANSITION	0x00000008
-#define	CTRL_TXON		0x00000010
-#define	CTRL_SECONDTRIP		0x00000020
-#define	CTRL_VELOCITYFOLD	0x00000040
-#define	CTRL_CALMODE		0x00000080
-#define	CTRL_CALSIMPLE		0x00000100
-#define CTRL_OBSERVING          0x00000200
-
-typedef	struct {
-	char		type;				// dsp type 0 = AB  1 = P  2 = stokes
-    char		start;				// starting at this hit referenced to the begining of the sequence
-	char		Apol,Bpol;			// polarizations of the two halves of a pair (numbered H,V,+,-,R,L)
-	char		Astep,ABstep;		// step from one A to the next and step from A to B
-    } PRIMARYDSP;
-
 #define MAXNUM 1200
 
-//#define PIRAQX_CURRENT_REVISION 1
-//struct piraqX_header_rev1
 typedef struct infoheader
-{	// JVA changes rec'd 4-22-03
-	/* /code/oye/solo/translate/piraq.h
-         * all elements start on 4-byte boundaries
-         * 8-byte elements start on 8-byte boundaries
-         * character arrays that are a multiple of 4
-         * are welcome
-         */
-    char desc[4];			/* "DWLX" */
+{   char desc[4];			/* "DWLX" */
     uint4 recordlen;        /* total length of record - must be the second field */
     uint4 channel;          /* e.g., RapidDOW range 0-5 */
     uint4 rev;		        /* format revision #-from RADAR structure */
@@ -202,8 +103,9 @@ typedef struct infoheader
     uint4 byte_offset_to_data;
     uint4 dataformat;
 
-    uint4 typeof_compression;	/*  */
-/*
+    uint4 typeof_compression;
+    
+    /*
       Pulsenumber (pulse_num) is the number of transmitted pulses
 since Jan 1970. It is a 64 bit number. It is assumed
 that the first pulse (pulsenumber = 0) falls exactly
@@ -224,7 +126,6 @@ The first beam (beamnumber = 0) was completed exactly
 at the epoch. beamnumber = pulsenumber / hits. 
 */
     
-
 #ifdef _TMS320C6X   /* TI doesn't support long long */
     uint4 pulse_num_low;
     uint4 pulse_num_high;
@@ -252,8 +153,6 @@ at the epoch. beamnumber = pulsenumber / hits.
 #define PX_MAX_SEGMENTS 8
     float4 gate_spacing_meters[PX_MAX_SEGMENTS];
     uint4 gates_in_segment[PX_MAX_SEGMENTS]; /* how many gates in this segment */
-    
-    
 
 #define PX_NUM_CLUTTER_REGIONS 4
     uint4 clutter_start[PX_NUM_CLUTTER_REGIONS]; /* start gate of clutter filtered region */
@@ -385,17 +284,11 @@ typedef struct packet_header {			/* this structure must match the non-data porti
 	} PACKETHEADER;
 #pragma STRUCT_ALIGN (PACKETHEADER, 8);
 	
-
 #define	HEADERSIZE		sizeof(PACKETHEADER)
-#define	IQSIZE				(sizeof(float) * 2 * MAXGATES)
-#define	ABPSIZE			(sizeof(float) * 12 * MAXGATES)
-#define	DATASIZE(a)		(a->data.info.numgates * a->data.info.bytespergate)
-#define	RECORDLEN(a)		(sizeof(INFOHEADER) + DATASIZE(a))
-#define	TOTALSIZE(a)		(sizeof(COMMAND) + RECORDLEN(a))
-
 
 void createSineTestWaveform(float freq);	//	create test sine waveform of freq; store to SINstore
 void ChannelSelect(int ngates, float * restrict src, float * restrict dst, unsigned int channelMode);
+
 FIFO *fifo_create(char *name, int headersize, int recordsize, int recordnum);
 FIFO *fifo_open(char *name);
 int fifo_close(FIFO *fifo);
