@@ -12,8 +12,6 @@
 #define	PIRAQ_DEVICE_ID 	0x9054
 #define	PIRAQ_VENDOR_ID		0x10B5   
 
-#define	COUNTFREQ	8000000
-
 #define	true	1
 #define	false	0
 
@@ -129,38 +127,29 @@ at the epoch. beamnumber = pulsenumber / hits.
 #ifdef _TMS320C6X   /* TI doesn't support long long */
     uint4 pulse_num_low;
     uint4 pulse_num_high;
-#else
-    uint8 pulse_num;   /*  keep this field on an 8 byte boundary */
-#endif
-#ifdef _TMS320C6X   /* TI doesn't support long long */
     uint4 beam_num_low;
     uint4 beam_num_high;
 #else
-    uint8 beam_num;	/*  keep this field on an 8 byte boundary */
+    uint8 pulse_num;   /*  keep this field on an 8 byte boundary */
+    uint8 beam_num;	   /*  keep this field on an 8 byte boundary */
 #endif
     uint4 gates;
     uint4 start_gate;
     uint4 hits;
-/* additional fields: simplify current integration */
     uint4 ctrlflags; /* equivalent to packetflag below?  */
     uint4 bytespergate; 
     float4 rcvr_pulsewidth;
 #define PX_NUM_PRT 4
     float4 prt[PX_NUM_PRT];
     float4 meters_to_first_gate;  
-
     uint4 num_segments;  /* how many segments are we using */
 #define PX_MAX_SEGMENTS 8
     float4 gate_spacing_meters[PX_MAX_SEGMENTS];
     uint4 gates_in_segment[PX_MAX_SEGMENTS]; /* how many gates in this segment */
-
 #define PX_NUM_CLUTTER_REGIONS 4
     uint4 clutter_start[PX_NUM_CLUTTER_REGIONS]; /* start gate of clutter filtered region */
     uint4 clutter_end[PX_NUM_CLUTTER_REGIONS];  /* end gate of clutter filtered region */
     uint4 clutter_type[PX_NUM_CLUTTER_REGIONS]; /* type of clutter filtering applied */
-
-#define PIRAQ_CLOCK_FREQ 10000000  /* 10 Mhz */
-
 /* following fields are computed from pulse_num by host */
     uint4 secs;     /* Unix standard - seconds since 1/1/1970
                        = pulse_num * N / ClockFrequency */
@@ -169,7 +158,6 @@ at the epoch. beamnumber = pulsenumber / hits.
     float4 az_off_ref;   /* azimuth offset off reference */ 
     float4 el;		/* elevation: referenced to 9550 MHz.  */ 
     float4 el_off_ref;   /* elevation offset off reference */ 
-
     float4 radar_longitude;
     float4 radar_latitude;
     float4 radar_altitude;
