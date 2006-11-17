@@ -29,7 +29,7 @@
 #include	<string.h>
 #include	<stdio.h>
 
-#include "proto.h"
+#include "piraqComm.h"
 #define	ERROR	-1
 
 /* This shorthand is useful */

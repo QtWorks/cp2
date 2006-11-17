@@ -28,7 +28,7 @@
 #define		TSMAX			10		// Maximum Number of Timeseries gates
 #define 	P3_SCOPE
 
-#include 	"proto.h"
+#include 	"piraqComm.h"
 #include 	"CP2Piraqcfg.h"
 #include 	"local_defs.h"
 #include	"coeff.h"

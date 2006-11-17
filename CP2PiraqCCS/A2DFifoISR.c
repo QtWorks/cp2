@@ -14,7 +14,7 @@
 #include 	<csl_legacy.h>	//	gets IRQ_Disable() 
 #include 	<csl_irq.h> 
 #include	<math.h>                      
-#include	"proto.h"                          
+#include	"piraqComm.h"                          
 #include 	"CP2Piraqcfg.h"
 #include 	"local_defs.h"
 
