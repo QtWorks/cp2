@@ -1,6 +1,7 @@
 #ifndef CP2PIRAQINC_
 #define CP2PIRAQINC_
-#include "proto.h"
+#include "../include/proto.h"
+#include "piraqComm.h"
 
 class CP2PIRAQ: public PIRAQ {
 
@@ -21,7 +22,7 @@ public:
 	void stop();
 	int poll();
 	float prt();
-	INFOHEADER info();
+	PINFOHEADER info();
 
 protected:
 	int init(char* configFname, char* dspObjFname);
@@ -30,10 +31,10 @@ protected:
 	/// a supplied file name
 	CONFIG _config;
 	/// The FIFO that is used for data transfering from piraq to host
-	FIFO* pFifo; 
+	PFIFO*   pFifo;
 	/// This will be the first packet in the fifo. It appears that
 	/// the piraq may read this structure?
-	PACKET* _pConfigPacket;
+	PPACKET* _pConfigPacket;
 	/// The destination data port
 	int outport;
 	/// The socket for output data
@@ -58,6 +59,10 @@ protected:
 	/// the number of hits in each block transfer
 	/// from the piraq.
 	unsigned int Nhits;
+	void cp2piraq_fifo_init(PFIFO * fifo, char *name, int headersize, int recordsize, int recordnum);
+	void cp2struct_init(PINFOHEADER *h, char *fname);
+	int cp2start(CONFIG *config,PIRAQ *piraq, PPACKET * pkt);
+
 };
 
 #endif

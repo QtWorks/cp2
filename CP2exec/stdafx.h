@@ -21,7 +21,7 @@
 #endif // _AFX_NO_AFXCMN_SUPPORT
 
 #include <iostream>
-#include        "../include/proto.h"
+//#include        "../include/proto.h"
 #include "../PiraqIII_RevD_Driver/piraq.h"
 #include "../PiraqIII_RevD_Driver/plx.h"
 #include "../PiraqIII_RevD_Driver/control.h"

@@ -80,15 +80,15 @@
 			ConfigurationType="1"
 			UseOfMFC="2"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			CharacterSet="1">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;C:\Program Files\TVicSoft\TVicHW50\MSVC&quot;;C:\Plx\PciSdk\Inc;../include"
+				AdditionalIncludeDirectories="&quot;C:\Program Files\TVicSoft\TVicHW50\MSVC&quot;;C:\Plx\PciSdk\Inc;../CP2Piraq"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				UsePrecompiledHeader="3"
+				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough="stdafx.h"
 				PrecompiledHeaderFile="./Debug/CP2exec.pch"
 				AssemblerListingLocation=".\Debug/"
@@ -175,6 +175,9 @@
 				RelativePath=".\CP2PIRAQ.cpp">
 			</File>
 			<File
+				RelativePath="..\CP2Piraq\piraqComm.c">
+			</File>
+			<File
 				RelativePath="StdAfx.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -208,6 +211,9 @@
 			</File>
 			<File
 				RelativePath="..\include\dd_types.h">
+			</File>
+			<File
+				RelativePath="..\CP2Piraq\piraqComm.h">
 			</File>
 			<File
 				RelativePath="Resource.h">
