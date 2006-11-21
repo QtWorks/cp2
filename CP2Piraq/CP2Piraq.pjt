@@ -1,0 +1,53 @@
+; Code Composer Project File, Version 2.0 (do not modify or remove this line)
+
+[Project Settings]
+ProjectName="single_p3iq_D"
+ProjectDir="C:\Projects\cp2\CP2PiraqCCS\"
+ProjectType=Executable
+CPUFamily=TMS320C67XX
+Tool="Compiler"
+Tool="CustomBuilder"
+Tool="DspBiosBuilder"
+Tool="Linker"
+Config="Debug"
+Config="Release"
+
+[Source Files]
+Source="..\..\..\CCStudio_v3.1\C6000\csl\lib\csl6701.lib"
+Source="A2DFifoISR.c"
+Source="ChannelSelect.c"
+Source="CP2Piraq.c"
+Source="CP2Piraq.cdb"
+Source="Fifo.c"
+Source="InitDsp.c"
+Source="PciDmaISR.c"
+
+[Generated Files]
+Source="CP2Piraqcfg.cmd"
+Source="CP2Piraqcfg.s62"
+Source="CP2Piraqcfg_c.c"
+
+["Compiler" Settings: "Debug"]
+Options=-k -q -al -o2 -fr"obj\Debug" -fs"asm\" -ft"tmp\" -fb"abs\" -ff"list\" -d"_DEBUG" -d"CHIP_6701" -d"NO_INPUT_SINUSOID" -mw -mh -mv6700
+
+["Compiler" Settings: "Release"]
+Options=-q -o3 -fr"C:\Projects\cp2\CP2PiraqCCS\Release" -mv6700
+
+["DspBiosBuilder" Settings: "Debug"]
+Options=-v6x
+
+["DspBiosBuilder" Settings: "Release"]
+Options=-v6x
+
+["Linker" Settings: "Debug"]
+Options=-q -c -m"list\CP2_D.map" -o"CP2Piraq.out" -x -l"csl6701.lib"
+
+["Linker" Settings: "Release"]
+Options=-q -c -o".\Release\single_p3iq_D.out" -x
+
+["CP2Piraqcfg.cmd" Settings: "Debug"]
+LinkOrder=1
+
+["CP2Piraqcfg.cmd" Settings: "Release"]
+LinkOrder=1
+
