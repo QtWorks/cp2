@@ -1,7 +1,7 @@
 #include <Afx.h>
 
 #include <windows.h>
-#include "tvichw32.h"
+//#include "tvichw32.h"
 #include <stdio.h>
 #include "pci_w32.h"
 
