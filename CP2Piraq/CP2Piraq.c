@@ -28,7 +28,7 @@
 #define		TSMAX			10		// Maximum Number of Timeseries gates
 #define 	P3_SCOPE
 
-#include 	"proto.h"
+#include 	"piraqComm.h"
 #include 	"CP2Piraqcfg.h"
 #include 	"local_defs.h"
 #include	"coeff.h"
@@ -85,9 +85,9 @@ void dma_fifo(int tsize, unsigned int source);
 void startPciTransfer();
 int burstready = 0;
 
-FIFO  	*Fifo;
-PACKET	*CurPkt;	// DSP-internal PACKET malloc w/1-channel data: contains current header information
-PACKET	*sbsRamBuffer;		// sbsram N-PACKET MEM_alloc w/1-channel data 
+PFIFO  	*Fifo;
+PPACKET	*CurPkt;	// DSP-internal PACKET malloc w/1-channel data: contains current header information
+PPACKET	*sbsRamBuffer;		// sbsram N-PACKET MEM_alloc w/1-channel data 
 
 int		samplectr;     // sample counter, time series ctr
 int		nPacketsPerBlock;       // #hits combined for one PCI Bus transfer
@@ -133,7 +133,7 @@ void initTask(void)
 	int 			i;
 	volatile int 	ii,j;
 	int 			sbsram_seg;
-	PACKETHEADER	*pkt;
+	PPACKETHEADER	*pkt;
 	unsigned int	*src, *dst;
 
 /* Initialize Essential DSP Control Registers */
@@ -173,37 +173,37 @@ void initTask(void)
 	
 	fifoclr = (int *)FIFOCLR;
 
-	Fifo = fifo_open("PRQDATA");  /* the argument is not used */
+	Fifo = pfifo_open("PRQDATA");  /* the argument is not used */
 
 	/* Transfer packet header to current buffer */
-    src = (unsigned int *)fifo_get_header_address(Fifo);
-    pkt = (PACKETHEADER *)src; 
+    src = (unsigned int *)pfifo_get_header_address(Fifo);
+    pkt = (PPACKETHEADER *)src; 
 	gates = pkt->info.gates; 
 	hits = pkt->info.hits; 
 	bytespergate = pkt->info.bytespergate;
 	boardnumber =  pkt->info.channel;
 
 	//	compute #hits to combine per PCI transfer:
-	nPacketsPerBlock = (unsigned int)UDPSENDSIZE / (HEADERSIZE + (gates * bytespergate)); 
+	nPacketsPerBlock = (unsigned int)PUDPSENDSIZE / (PHEADERSIZE + (gates * bytespergate)); 
 	if	(nPacketsPerBlock % 2)	//	odd #hits computed
 		nPacketsPerBlock--;		//	make it even
 	// allocate a complete 1-channel PACKET; it contains current pulse, 
 	// header plus data, post channel-select
-	CurPkt = (PACKET *)malloc((HEADERSIZE + (gates * bytespergate)));
+	CurPkt = (PPACKET *)malloc((PHEADERSIZE + (gates * bytespergate)));
 	
 	// method using DSP-internal PACKET for header parameter maintenance
 	dst = (unsigned int *)CurPkt;	
 		 
 	// /4: move header as integers
-	for(i = 0; i < HEADERSIZE/4; i++)	 
+	for(i = 0; i < PHEADERSIZE/4; i++)	 
 		*dst++ = *src++;
 
 	// sbsRamBuffer PACKET pointer to one hit in sbsram N-hit alloc
 	// CP2 PCI Bus transfer size: Nhits * (HEADERSIZE + (config->gatesa * bytespergate) 
 
 	// PACKET pointer to one hit in sbsram N-hit alloc
-	sbsRamBuffer = (PACKET *)MEM_alloc(sbsram_seg, 
-				nPacketsPerBlock * (HEADERSIZE + (gates * bytespergate)),
+	sbsRamBuffer = (PPACKET *)MEM_alloc(sbsram_seg, 
+				nPacketsPerBlock * (PHEADERSIZE + (gates * bytespergate)),
 				0); 
 
 	// hwData DSP-internal 2-channel hwFIFO data array, interleaved I1, Q1, I2, Q2
@@ -265,7 +265,7 @@ void initTask(void)
 	pci_cfg_ptr = (volatile unsigned int *)0x14000E8; 
 	*pci_cfg_ptr = 0x50000;           /* INTCSR */
 
-	pkt = (PACKETHEADER *)((char *)Fifo + Fifo->header_off);
+	pkt = (PPACKETHEADER *)((char *)Fifo + Fifo->header_off);
 	pkt->cmd.flag = 0;  // Immediately shut off the ready flag
 			
 	/* Clear DMA interrupt -- just in case */	
@@ -296,7 +296,7 @@ void fillBurstFifoTask(void)
 		CurPkt->data.info.pulse_num_low = pulse_num_low;
 		CurPkt->data.info.pulse_num_high = pulse_num_high;
 		if (sbsram_hits == nPacketsPerBlock) { // full load
-			Tfer_sz = nPacketsPerBlock * (HEADERSIZE + (gates * bytespergate));  /* in bytes */
+			Tfer_sz = nPacketsPerBlock * (PHEADERSIZE + (gates * bytespergate));  /* in bytes */
 		    // Disable A2D half-full fifo interrupts during data xfer */
 			IRQ_Disable(IRQ_EVT_EXTINT5);		
 			dma_fifo(Tfer_sz,(unsigned int )sbsRamBuffer);       /* DMA sbsRamBuffer to PCI Burst FIFO */
@@ -322,7 +322,7 @@ void fillBurstFifoTask(void)
 //	perform DMA transfer from PCI Burst FIFO to host memory
 void pciTransferTask()
 {
-	PACKET *dst;
+	PPACKET *dst;
 	unsigned int offset;
 	int Tfer_sz;
 	volatile unsigned int *pci_cfg_ptr;
@@ -332,13 +332,13 @@ void pciTransferTask()
 		// wait for the StartPciTransfer semaphore, which
 		// signals that the burst fifo is ready to be transferred.
  		SEM_pend(&StartPciTransfer,SYS_FOREVER);
-		Tfer_sz = nPacketsPerBlock * (HEADERSIZE + (gates * bytespergate));  /* in bytes */
+		Tfer_sz = nPacketsPerBlock * (PHEADERSIZE + (gates * bytespergate));  /* in bytes */
 
 		// Disable A2D Fifo interrupt during data xfer */
 		IRQ_Disable(IRQ_EVT_EXTINT5);
 		
 		// determine the host side destination address		
-		dst = (PACKET *)fifo_get_write_address(Fifo);
+		dst = (PPACKET *)pfifo_get_write_address(Fifo);
 		offset = (unsigned int )dst - PCIBASE; 
 
 		// Re-configure Asynchronous interface for CE1 
@@ -361,7 +361,7 @@ void pciTransferTask()
 		// which is set by an interrupt
 		SEM_pend(&PciTransferFinished, SYS_FOREVER);	
 
-		fifo_increment_head(Fifo);
+		pfifo_increment_head(Fifo);
 		
 		burstready = 0; 
 		

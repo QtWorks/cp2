@@ -2,7 +2,7 @@
 
 [Project Settings]
 ProjectName="single_p3iq_D"
-ProjectDir="C:\Projects\cp2\CP2PiraqCCS\"
+ProjectDir="C:\Projects\cp2\CP2Piraq\"
 ProjectType=Executable
 CPUFamily=TMS320C67XX
 Tool="Compiler"
@@ -18,9 +18,9 @@ Source="A2DFifoISR.c"
 Source="ChannelSelect.c"
 Source="CP2Piraq.c"
 Source="CP2Piraq.cdb"
-Source="Fifo.c"
 Source="InitDsp.c"
 Source="PciDmaISR.c"
+Source="piraqComm.c"
 
 [Generated Files]
 Source="CP2Piraqcfg.cmd"
@@ -31,7 +31,7 @@ Source="CP2Piraqcfg_c.c"
 Options=-k -q -al -o2 -fr"obj\Debug" -fs"asm\" -ft"tmp\" -fb"abs\" -ff"list\" -d"_DEBUG" -d"CHIP_6701" -d"NO_INPUT_SINUSOID" -mw -mh -mv6700
 
 ["Compiler" Settings: "Release"]
-Options=-q -o3 -fr"C:\Projects\cp2\CP2PiraqCCS\Release" -mv6700
+Options=-q -o3 -fr"C:\Projects\cp2\CP2Piraq\Release" -mv6700
 
 ["DspBiosBuilder" Settings: "Debug"]
 Options=-v6x

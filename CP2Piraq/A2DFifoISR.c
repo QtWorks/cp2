@@ -14,7 +14,7 @@
 #include 	<csl_legacy.h>	//	gets IRQ_Disable() 
 #include 	<csl_irq.h> 
 #include	<math.h>                      
-#include	"proto.h"                          
+#include	"piraqComm.h"                          
 #include 	"CP2Piraqcfg.h"
 #include 	"local_defs.h"
 
@@ -24,9 +24,9 @@
 #define	FIFO2Q		(int *)0x1400208
 
 ///////////////////////////////////////////////////////////
-extern FIFO*   Fifo;
-extern PACKET* CurPkt;
-extern PACKET* sbsRamBuffer;		// sbsram N-PACKET MEM_alloc w/1-channel data 
+extern PFIFO*   Fifo;
+extern PPACKET* CurPkt;
+extern PPACKET* sbsRamBuffer;		// sbsram N-PACKET MEM_alloc w/1-channel data 
 extern float   ioffset0; 
 extern float   qoffset0; 
 extern float   ioffset1; 
@@ -58,7 +58,7 @@ extern unsigned int* pLed1;  /* LED1 */
 ///////////////////////////////////////////////////////////
 int		toFloats(int Ngates, int *pIn, float *pOut);
 void 	sumTimeseries(int Ngates, float * restrict pIn, float *pOut);
-void    setPulseAndBeamNumbers(PACKET* pPkt);
+void    setPulseAndBeamNumbers(PPACKET* pPkt);
 
 ///////////////////////////////////////////////////////////
 
@@ -83,7 +83,7 @@ void A2DFifoISR(void) {
 	// even though fifo_get_write_address(Fifo) doesn't do anything,
 	// if we do not  make the following call, the data shows a low frequency
 	// variation in the power spectrum. Very strange - this really needs to be sorted out.
-	(PACKET *)fifo_get_write_address(Fifo);
+	(PPACKET *)pfifo_get_write_address(Fifo);
 
 	/* Read FIFO 1 I */
 	dmaTransfer(1, fifo1I, a2dFifoBuffer, gates, 0); 
@@ -150,8 +150,8 @@ void A2DFifoISR(void) {
 	ChannelSelect(gates, (float *)a2dFifoBuffer, (float *)CurPkt->data.data, channelMode); 
 
 	// move CurPkt w/combined data from DSP-internal memory to sbsRamBuffer in sbsram: 
-	sbsRamDst = (int *)((char *)sbsRamBuffer + (sbsram_hits * (HEADERSIZE + (gates * bytespergate))));
-	dmaTransfer(0, (int*)CurPkt, sbsRamDst,  sizeof(PACKET), 0); 
+	sbsRamDst = (int *)((char *)sbsRamBuffer + (sbsram_hits * (PHEADERSIZE + (gates * bytespergate))));
+	dmaTransfer(0, (int*)CurPkt, sbsRamDst,  sizeof(PPACKET), 0); 
 
 	if	(burstready && (sbsram_hits == 1*boardnumber))	{	
 		//	complete Nhit packet in burst fifo, 
@@ -222,7 +222,7 @@ void sumTimeseries(int ngates, float * restrict pIn, float *pOut) {
 
 ///////////////////////////////////////////////////////////
 
-void    setPulseAndBeamNumbers(PACKET* pPkt)
+void    setPulseAndBeamNumbers(PPACKET* pPkt)
 {
 
 	/* keep track of the 64 bit pulsenumber: works here -- commented out in int_half_full() */

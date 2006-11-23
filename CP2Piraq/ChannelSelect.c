@@ -6,7 +6,7 @@
 /********************************************/
 
 
-#include 	"proto.h"
+#include 	"piraqComm.h"
 
 // CP2_D version
 
