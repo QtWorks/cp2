@@ -216,6 +216,9 @@
 				RelativePath="..\CP2Piraq\piraqComm.h">
 			</File>
 			<File
+				RelativePath="..\include\proto.h">
+			</File>
+			<File
 				RelativePath="Resource.h">
 			</File>
 			<File

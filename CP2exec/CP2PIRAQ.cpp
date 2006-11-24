@@ -188,14 +188,36 @@ CP2PIRAQ::poll()
 		//////////////////////////////////////////////////////////////////////////
 		//
 		// send data out on the socket
-		
-		pFifoPiraq->udp.totalsize = Nhits*(TOTALSIZE(pFifoPiraq));
+
+		UDPHEADER* udpOut = new UDPHEADER[Nhits];
+		unsigned int totalSize = Nhits*(
+			sizeof(UDPHEADER)+
+			sizeof(COMMAND) + 
+			sizeof(INFOHEADER) + 
+			pFifoPiraq->data.info.gates*pFifoPiraq->data.info.bytespergate
+			);
+
+		for (int i = 0; i < Nhits; i++) {
+			PUDPHEADER* pudp = &pFifoPiraq->udp + 
+			sizeof(PUDPHEADER)+
+			sizeof(PCOMMAND) + 
+			sizeof(INFOHEADER) + 
+			pFifoPiraq->data.info.gates*pFifoPiraq->data.info.bytespergate;
+
+			udpOut[i].type = UDPTYPE_PIRAQ_CP2_TIMESERIES;
+			udpOut[i].totalsize = totalSize; // set for all of them, although it is probably only needed for the first one?
+			udpOut[i].magic = MAGIC;
+
+		}
+
 		// for right, cast to UDPHEADER. This only works because the
 		// PUDPHEADER and UDPHEADER are currently identical. When
 		// we start triming down PUDPHEADER, we will need to 
 		// put a translation from PUDPHEADER to UDPHEADER. Better
 		// yet, jut plan to broadcast PUDPHEADER. 
-		seq = send_udp_packet(outsock, outport, seq, (UDPHEADER*)udp); 
+		seq = send_udp_packet(outsock, outport, seq, udpOut); 
+
+		delete []udpOut;
 
 		//////////////////////////////////////////////////////////////////////////
 		//
