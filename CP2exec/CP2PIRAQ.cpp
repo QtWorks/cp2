@@ -78,8 +78,8 @@ CP2PIRAQ::init(char* configFname, char* dspObjFname)
 	// CP2: data packets sized at runtime.  + BUFFER_EPSILON
 	cp2piraq_fifo_init(
 		pFifo,"/PRQDATA", 
-		HEADERSIZE, 
-		Nhits * (HEADERSIZE + (_config.gatesa * bytespergate)), 
+		PHEADERSIZE, 
+		Nhits * (PHEADERSIZE + (_config.gatesa * bytespergate)), 
 		PIRAQ_FIFO_NUM); 
 
 	if (!pFifo) { 
@@ -142,9 +142,9 @@ CP2PIRAQ::poll()
 
 		// and set the magic number and datatype in it.
 		// What is the purpose of MAGIC?
-		PUDPHEADER* udp = &pFifoPiraq->udp;
-		udp->magic = MAGIC;
-		udp->type = UDPTYPE_PIRAQ_CP2_TIMESERIES; 
+//		PUDPHEADER* udp = &pFifoPiraq->udp;
+//		udp->magic = MAGIC;
+//		udp->type = UDPTYPE_PIRAQ_CP2_TIMESERIES; 
 
 		// set the data size
 		pFifoPiraq->data.info.bytespergate = bytespergate; // Staggered PRT ABPDATA
@@ -165,16 +165,16 @@ CP2PIRAQ::poll()
 		pFifoPiraq->data.info.scan_num = scan;
 		pFifoPiraq->data.info.vol_num = volume;  
 
-		pFifoPiraq->data.info.recordlen = PRECORDLEN(pFifoPiraq); /* this after numgates corrected */
+//		pFifoPiraq->data.info.recordlen = PRECORDLEN(pFifoPiraq); /* this after numgates corrected */
 
 		//////////////////////////////////////////////////////////////////////////
 		//
 		// check for pulse numbers out of sequence.
 		for (int i = 0; i < Nhits; i++) { // all hits in the packet 
 			// compute pointer to datum in an individual hit, dereference and print. 
-			// CP2 PCI Bus transfer size: Nhits * (HEADERSIZE + (config1->gatesa * bytespergate))
+			// CP2 PCI Bus transfer size: Nhits * (PHEADERSIZE + (config1->gatesa * bytespergate))
 			__int64 thisPulseNumber = *(__int64 *)((char *)&pFifoPiraq->data.info.pulse_num + 
-				i*((HEADERSIZE + 
+				i*((PHEADERSIZE + 
 				(_config.gatesa * bytespergate)))); 
 
 			if (_lastPulseNumber != thisPulseNumber - 1) { // PNs not sequential
@@ -316,11 +316,11 @@ CP2PIRAQ::cp2struct_init(PINFOHEADER *h, char *fname)
    h->hits			= config->hits;
 
    channel = h->channel * 2; /* here h->channel = board#; = channel# in channel-separated data */ 
-   h->one = 1;			/* one, per JVA request (endian flag: LITTLE_ENDIAN) */ 
-   h->byte_offset_to_data = sizeof(INFOHEADER);	/*   */
-   h->typeof_compression = 0; // NO_COMPRESSION;			/* none */ 
+//   h->one = 1;			/* one, per JVA request (endian flag: LITTLE_ENDIAN) */ 
+//   h->byte_offset_to_data = sizeof(INFOHEADER);	/*   */
+//   h->typeof_compression = 0; // NO_COMPRESSION;			/* none */ 
    h->ctrlflags = 0;	// later statements assume this
-   h->recordlen	= 0;
+//   h->recordlen	= 0;
    h->start_gate	= 0;	// use this sensible default, but needs attention
    h->gates 		= config->gatesa;
    h->hits			= config->hits;
@@ -372,7 +372,7 @@ CP2PIRAQ::cp2struct_init(PINFOHEADER *h, char *fname)
    h->packetflag	= 0;	// clear: set to -1 by piraq on hardware EOF detect 
 
    h->dacv				= radar->frequency;
-   h->rev				= radar->rev; 
+//   h->rev				= radar->rev; 
    h->year				= radar->year;
    strncpy(h->radar_name,radar->radar_name,PX_MAX_RADAR_NAME);
    strncpy(h->channel_name,radar->channel_name,PX_MAX_CHANNEL_NAME);

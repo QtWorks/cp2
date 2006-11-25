@@ -438,7 +438,7 @@ main(int argc, char* argv[], char* envp[])
 	readconfig(fname2, config2);    
 	readconfig(fname3, config3);   
 
-		Nhits = 65536 / (HEADERSIZE + (config1->gatesa * 2 * sizeof(float))); 
+		Nhits = 65536 / (PHEADERSIZE + (config1->gatesa * 2 * sizeof(float))); 
 		if	(Nhits % 2)	//	computed odd #hits
 			Nhits--;	//	make it even
 	///////////////////////////////////////////////////////////////////////////
