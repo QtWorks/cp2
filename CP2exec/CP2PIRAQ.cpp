@@ -189,24 +189,35 @@ CP2PIRAQ::poll()
 		//
 		// send data out on the socket
 
-		UDPHEADER* udpOut = new UDPHEADER[Nhits];
-		unsigned int totalSize = Nhits*(
-			sizeof(UDPHEADER)+
+		// This assumes that the number of gates does not change
+		int gates = pFifoPiraq->data.info.gates;
+		int bytespergates = pFifoPiraq->data.info.bytespergate;
+		int piraqPacketSize = sizeof(PUDPHEADER)+
+			sizeof(PCOMMAND) + 
+			sizeof(PINFOHEADER) + 
+			gates*bytespergate;
+		
+		int udpPacketSize = sizeof(UDPHEADER)+
 			sizeof(COMMAND) + 
 			sizeof(INFOHEADER) + 
-			pFifoPiraq->data.info.gates*pFifoPiraq->data.info.bytespergate
-			);
+			gates*bytespergate;
+	
+		char* udpOut = new char[Nhits*udpPacketSize];
 
 		for (int i = 0; i < Nhits; i++) {
-			PUDPHEADER* pudp = &pFifoPiraq->udp + 
-			sizeof(PUDPHEADER)+
-			sizeof(PCOMMAND) + 
-			sizeof(INFOHEADER) + 
-			pFifoPiraq->data.info.gates*pFifoPiraq->data.info.bytespergate;
 
-			udpOut[i].type = UDPTYPE_PIRAQ_CP2_TIMESERIES;
-			udpOut[i].totalsize = totalSize; // set for all of them, although it is probably only needed for the first one?
-			udpOut[i].magic = MAGIC;
+			PPACKET* ppacket = (PPACKET*)((char*)&pFifoPiraq->udp + i*piraqPacketSize);
+			PACKET*   packet = (PACKET*) (udpOut + i*udpPacketSize);
+
+			packet->udp.type = UDPTYPE_PIRAQ_CP2_TIMESERIES;
+			packet->udp.totalsize = Nhits*udpPacketSize; // set for all of them, although it is probably only needed for the first one?
+			packet->udp.magic = MAGIC;
+			packet->data.info.gates = gates;
+			packet->data.info.bytespergate = bytespergate;
+
+			for (int j = 0; j < gates; j++) {
+				packet->data.data[j] = ppacket->data.data[j];
+			}
 
 		}
 
@@ -215,7 +226,7 @@ CP2PIRAQ::poll()
 		// we start triming down PUDPHEADER, we will need to 
 		// put a translation from PUDPHEADER to UDPHEADER. Better
 		// yet, jut plan to broadcast PUDPHEADER. 
-		seq = send_udp_packet(outsock, outport, seq, udpOut); 
+		seq = send_udp_packet(outsock, outport, seq, (UDPHEADER*)udpOut); 
 
 		delete []udpOut;
 

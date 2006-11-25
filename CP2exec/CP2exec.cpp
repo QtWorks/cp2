@@ -401,7 +401,9 @@ main(int argc, char* argv[], char* envp[])
 	}
 
 	if ((dspEXEC = fopen(argv[1],"r")) == NULL) // DSP executable file not found 
-	{ printf("Usage: %s <DSP filename> DSP executable file not found\n", argv[0]); exit(0); 
+	{ 
+		char* dspFileName = argv[1];
+		printf("Usage: %s <DSP filename> DSP executable file not found\n", argv[0]); exit(0); 
 	} 
 	fclose(dspEXEC); // existence test passed; use command-line filename
 
