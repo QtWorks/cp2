@@ -192,6 +192,14 @@ CP2PIRAQ::poll()
 		// This assumes that the number of gates does not change
 		int gates = pFifoPiraq->data.info.gates;
 		int bytespergates = pFifoPiraq->data.info.bytespergate;
+		int hits = pFifoPiraq->data.info.hits;
+		float prt[4];
+		for (int f = 0; f < 4; f++)
+			prt[f] = pFifoPiraq->data.info.prt[4];
+		char desc[4];
+		for(int c = 0; c < 4; c++)
+			desc[c] = pFifoPiraq->data.info.desc[4];
+
 		int piraqPacketSize = sizeof(PUDPHEADER)+
 			sizeof(PCOMMAND) + 
 			sizeof(PINFOHEADER) + 
@@ -214,11 +222,16 @@ CP2PIRAQ::poll()
 			packet->udp.magic = MAGIC;
 			packet->data.info.gates = gates;
 			packet->data.info.bytespergate = bytespergate;
+			packet->data.info.hits = hits;
+			for (int f = 0; f < 4; f++)
+				packet->data.info.prt[f] = prt[f];
 
-			for (int j = 0; j < gates; j++) {
+			for(int c = 0; c < 4; c++)
+				packet->data.info.desc[c] = desc[c];
+
+			for (int j = 0; j < 2*gates; j++) {
 				packet->data.data[j] = ppacket->data.data[j];
 			}
-
 		}
 
 		// for right, cast to UDPHEADER. This only works because the
