@@ -150,7 +150,10 @@ void A2DFifoISR(void) {
 	ChannelSelect(gates, (float *)a2dFifoBuffer, (float *)CurPkt->data.data, channelMode); 
 
 	// move CurPkt w/combined data from DSP-internal memory to sbsRamBuffer in sbsram: 
-	sbsRamDst = (int *)((char *)sbsRamBuffer + (sbsram_hits * (PHEADERSIZE + (gates * bytespergate))));
+	sbsRamDst = (int *)((char *)sbsRamBuffer 
+		+ (sbsram_hits * (PHEADERSIZE + (gates * bytespergate))));
+	// @todo Why does the DMA transfer send sizeof(PACKET), instead of 
+	// PHEADERSIZE + gates*bytespergate? This should be tracked down.
 	dmaTransfer(0, (int*)CurPkt, sbsRamDst,  sizeof(PPACKET), 0); 
 
 	if	(burstready && (sbsram_hits == 1*boardnumber))	{	
