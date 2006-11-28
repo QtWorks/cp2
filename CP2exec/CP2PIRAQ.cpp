@@ -41,7 +41,7 @@ CP2PIRAQ::~CP2PIRAQ()
 int
 CP2PIRAQ::init(char* configFname, char* dspObjFname)	 
 {
-	
+
 	readconfig(configFname, &_config);    
 
 	int r_c;   // generic return code
@@ -128,7 +128,7 @@ CP2PIRAQ::poll()
 	// sleep for a ms
 	Sleep(1);
 	int cycle_fifo_hits = 0;
-		PPACKET* p = (PPACKET *)pfifo_get_read_address(pFifo, 0); 
+	PPACKET* p = (PPACKET *)pfifo_get_read_address(pFifo, 0); 
 	// take CYCLE_HITS beams from piraq:
 	while((
 		(pfifo_hit(pFifo)) > 0) && 
@@ -159,7 +159,7 @@ CP2PIRAQ::poll()
 		pFifoPiraq->data.info.scan_num = scan;
 		pFifoPiraq->data.info.vol_num = volume;  
 
-//		pFifoPiraq->data.info.recordlen = PRECORDLEN(pFifoPiraq); /* this after numgates corrected */
+		//		pFifoPiraq->data.info.recordlen = PRECORDLEN(pFifoPiraq); /* this after numgates corrected */
 
 		//////////////////////////////////////////////////////////////////////////
 		//
@@ -198,12 +198,12 @@ CP2PIRAQ::poll()
 			sizeof(PCOMMAND) + 
 			sizeof(PINFOHEADER) + 
 			gates*bytespergate;
-		
+
 		int udpPacketSize = sizeof(UDPHEADER)+
 			sizeof(COMMAND) + 
 			sizeof(INFOHEADER) + 
 			gates*bytespergate;
-	
+
 		char* udpOut = new char[Nhits*udpPacketSize];
 
 		for (int i = 0; i < Nhits; i++) {
@@ -245,7 +245,7 @@ CP2PIRAQ::poll()
 
 	} // end	while(fifo_hit()
 
-return 0;
+	return 0;
 }
 ///////////////////////////////////////////////////////////////////////////
 float
@@ -271,158 +271,138 @@ CP2PIRAQ::stop()
 void 
 CP2PIRAQ::cp2piraq_fifo_init(CircularBuffer * fifo, char *name, int headersize, int recordsize, int recordnum)
 {
-   if(fifo)
-      {
-	   /* initialize the fifo structure */
-	   fifo->header_off = sizeof(FIFO);		/* pointer to the user header */
-	   fifo->fifobuf_off = fifo->header_off + headersize;	/* pointer to fifo base address */
-	   fifo->record_size = recordsize;						/* size in bytes of each FIFO record */
-	   fifo->record_num = recordnum;					/* number of records in FIFO buffer */
-	   fifo->head = fifo->tail = 0;							/* indexes to the head and tail records */
-      }
+	if(fifo)
+	{
+		/* initialize the fifo structure */
+		fifo->header_off = sizeof(FIFO);		/* pointer to the user header */
+		fifo->fifobuf_off = fifo->header_off + headersize;	/* pointer to fifo base address */
+		fifo->record_size = recordsize;						/* size in bytes of each FIFO record */
+		fifo->record_num = recordnum;					/* number of records in FIFO buffer */
+		fifo->head = fifo->tail = 0;							/* indexes to the head and tail records */
+	}
 }
 ///////////////////////////////////////////////////////////////////////////
 void 
 CP2PIRAQ::cp2struct_init(PINFOHEADER *h, char *fname)
-   {
-   RADAR	*radar;
-   CONFIG	*config;
-   struct synth synthinfo[CHANNELS]; 
-   FILE * SynthAngleInfo; 
+{
+	RADAR	*radar;
+	CONFIG	*config;
+	struct synth synthinfo[CHANNELS]; 
+	FILE * SynthAngleInfo; 
 
-   int  i; 
-   unsigned int channel; // radar channel for channel-specific parameters (RapidDOW) 
+	int  i; 
+	unsigned int channel; // radar channel for channel-specific parameters (RapidDOW) 
 
-   config  = (CONFIG *)malloc(sizeof(CONFIG));
-   radar = (RADAR *)malloc(sizeof(RADAR));
+	config  = (CONFIG *)malloc(sizeof(CONFIG));
+	radar = (RADAR *)malloc(sizeof(RADAR));
 
-   readconfig(fname,config);   /* read in config.dsp and set up all parameters */
-   readradar(fname,radar);	/* read in the config.rdr file */   
+	readconfig(fname,config);   /* read in config.dsp and set up all parameters */
+	readradar(fname,radar);	/* read in the config.rdr file */   
 
-   h->gates 		= config->gatesa;
-   h->hits			= config->hits;
+	h->gates 		= config->gatesa;
+	h->hits			= config->hits;
 
-   channel = h->channel * 2; /* here h->channel = board#; = channel# in channel-separated data */ 
-//   h->one = 1;			/* one, per JVA request (endian flag: LITTLE_ENDIAN) */ 
-//   h->byte_offset_to_data = sizeof(INFOHEADER);	/*   */
-//   h->typeof_compression = 0; // NO_COMPRESSION;			/* none */ 
-   h->ctrlflags = 0;	// later statements assume this
-//   h->recordlen	= 0;
-   h->start_gate	= 0;	// use this sensible default, but needs attention
-   h->gates 		= config->gatesa;
-   h->hits			= config->hits;
-   h->rcvr_pulsewidth	= (float)config->rcvr_pulsewidth * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
-   h->prt[0]			= (float)config->prt * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
-   h->prt[1]			= (float)config->prt2 * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
-//   if prt2 not specified in config file, set to prt:    if (h->prt[0] != h->prt[1]) 
-//   h->delay				= config->delay * 100e-9; //  
+	channel = h->channel * 2; /* here h->channel = board#; = channel# in channel-separated data */ 
+	h->gates 		= config->gatesa;
+	h->hits			= config->hits;
+	h->rcvr_pulsewidth	= (float)config->rcvr_pulsewidth * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
+	h->prt[0]			= (float)config->prt * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
+	h->prt[1]			= (float)config->prt2 * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
+	h->bytespergate = 2*sizeof(float); // CP2: 2 fp I,Q per gate
+	h->clutter_type[0] = config->clutterfilter; 
+	h->clutter_start[0] = config->clutter_start; 
+	h->clutter_end[0] = config->clutter_end; 
+	h->xmit_power	= radar->peak_power;
+	// put radar file piraq_saturation_power in infoheader data_sys_sat from radar struct data_sys_sat
+	h->data_sys_sat	= radar->data_sys_sat;
+	h->E_plane_angle	= radar->E_plane_angle;
+	h->H_plane_angle	= radar->H_plane_angle;
+	h->antenna_rotation_angle	= radar->antenna_rotation_angle;
+	h->packetflag	= 0;	// clear: set to -1 by piraq on hardware EOF detect 
 
-   config->clutterfilter ? SET(h->ctrlflags,CTRL_CLUTTERFILTER) : CLR(h->ctrlflags,CTRL_CLUTTERFILTER);
-   config->timeseries ? SET(h->ctrlflags,CTRL_TIMESERIES) : CLR(h->ctrlflags,CTRL_TIMESERIES);
+	h->dacv				= radar->frequency;
+	h->year				= radar->year;
+	strncpy(h->radar_name,radar->radar_name,PX_MAX_RADAR_NAME);
+	strncpy(h->channel_name,radar->channel_name,PX_MAX_CHANNEL_NAME);
+	strncpy(h->project_name,radar->project_name,PX_MAX_PROJECT_NAME);
+	strncpy(h->operator_name,radar->operator_name,PX_MAX_OPERATOR_NAME);
+	strncpy(h->site_name,radar->site_name,PX_MAX_SITE_NAME);
+	strncpy(h->desc,radar->desc,PX_MAX_RADAR_DESC);
+	strncpy(h->comment,radar->text,PX_SZ_COMMENT);
+	h->polarization		= 1;
+	h->test_pulse_pwr	= radar->test_pulse_pwr;
 
-   h->ts_start_gate			= config->ts_start_gate;
-   h->ts_end_gate			= config->ts_end_gate;
-   h->bytespergate = 2*sizeof(float); // CP2: 2 fp I,Q per gate
-   h->clutter_type[0] = config->clutterfilter; 
-   h->clutter_start[0] = config->clutter_start; 
-   h->clutter_end[0] = config->clutter_end; 
-   h->xmit_power	= radar->peak_power;
-// put radar file piraq_saturation_power in infoheader data_sys_sat from radar struct data_sys_sat
-   h->data_sys_sat	= radar->data_sys_sat;
-   h->E_plane_angle	= radar->E_plane_angle;
-   h->H_plane_angle	= radar->H_plane_angle;
-   h->antenna_rotation_angle	= radar->antenna_rotation_angle;
-   h->packetflag	= 0;	// clear: set to -1 by piraq on hardware EOF detect 
+	h->test_pulse_frq	= radar->test_pulse_frq;
+	h->frequency		= radar->frequency;
+	h->xmit_power	= radar->peak_power;
+	h->noise_figure	= radar->noise_figure;
 
-   h->dacv				= radar->frequency;
-   h->year				= radar->year;
-   strncpy(h->radar_name,radar->radar_name,PX_MAX_RADAR_NAME);
-   strncpy(h->channel_name,radar->channel_name,PX_MAX_CHANNEL_NAME);
-   strncpy(h->project_name,radar->project_name,PX_MAX_PROJECT_NAME);
-   strncpy(h->operator_name,radar->operator_name,PX_MAX_OPERATOR_NAME);
-   strncpy(h->site_name,radar->site_name,PX_MAX_SITE_NAME);
-   strncpy(h->desc,radar->desc,PX_MAX_RADAR_DESC);
-   strncpy(h->comment,radar->text,PX_SZ_COMMENT);
-   h->polarization		= 1;
-   h->test_pulse_pwr	= radar->test_pulse_pwr;
+	h->receiver_gain	= radar->receiver_gain[0];
+	h->noise_power	= radar->noise_power[0];
+	h->data_sys_sat	= radar->data_sys_sat;
+	h->antenna_gain	= radar->antenna_gain;	
+	h->H_beam_width = radar->horz_beam_width;
+	h->V_beam_width = radar->vert_beam_width;	
+	h->xmit_pulsewidth = radar->xmit_pulsewidth;
+	h->rconst		= radar->rconst;
+	h->phaseoffset	= radar->phaseoffset;
+	h->zdr_fudge_factor = radar->zdr_fudge_factor;
+	h->mismatch_loss	= radar->missmatch_loss;
+	h->gate_spacing_meters[0] = config->gate_spacing_meters; 
+	h->gates_in_segment[0] = h->gates;
 
-   h->test_pulse_frq	= radar->test_pulse_frq;
-   h->frequency		= radar->frequency;
-   h->xmit_power	= radar->peak_power;
-   h->noise_figure	= radar->noise_figure;
-
-   h->receiver_gain	= radar->receiver_gain[0];
-   h->noise_power	= radar->noise_power[0];
-   h->data_sys_sat	= radar->data_sys_sat;
-   h->antenna_gain	= radar->antenna_gain;	
-   h->H_beam_width = radar->horz_beam_width;
-   h->V_beam_width = radar->vert_beam_width;	
-   h->xmit_pulsewidth = radar->xmit_pulsewidth;
-   h->rconst		= radar->rconst;
-   h->phaseoffset	= radar->phaseoffset;
-   h->zdr_fudge_factor = radar->zdr_fudge_factor;
-   h->mismatch_loss	= radar->missmatch_loss;
-   h->radar_latitude	= radar->latitude;
-   h->radar_longitude	= radar->longitude;
-   h->radar_altitude	= radar->altitude;
-   h->meters_to_first_gate = config->meters_to_first_gate; 
-   h->gate_spacing_meters[0] = config->gate_spacing_meters; 
-   h->num_segments = 1;	
-   h->gates_in_segment[0] = h->gates;
-
-// unitialized parameters: set to obviously untrue values 
-   h->prt[2] =    h->prt[3]		= 9999.9; // [0],[1] set above
-   for (i = 1; i < PX_MAX_SEGMENTS; i++) { // only first gate_spacing_meters array element initialized
+	// unitialized parameters: set to obviously untrue values 
+	h->prt[2] =    h->prt[3]		= 9999.9; // [0],[1] set above
+	for (i = 1; i < PX_MAX_SEGMENTS; i++) { // only first gate_spacing_meters array element initialized
 		h->gate_spacing_meters[i] = 9999.9; h->gates_in_segment[i] = 9999;
-   } 
-   for (i = 1; i < PX_NUM_CLUTTER_REGIONS; i++) { // 0th initialized above: 1 clutter region 
+	} 
+	for (i = 1; i < PX_NUM_CLUTTER_REGIONS; i++) { // 0th initialized above: 1 clutter region 
 		h->clutter_start[i] = h->clutter_end[i] = h->clutter_type[i] = 9999;
-   } 
-   h->secs				= 9999;
-   h->nanosecs			= 9999;
-   strncpy(h->gps_datum,"GPSDATM",PX_MAX_GPS_DATUM-1); 
-   h->ew_velocity		= -9999.9;
-   h->ns_velocity		= -9999.9;
-   h->vert_velocity	= -9999.9;
+	} 
+	h->secs				= 9999;
+	h->nanosecs			= 9999;
+	h->ew_velocity		= -9999.9;
+	h->ns_velocity		= -9999.9;
+	h->vert_velocity	= -9999.9;
 
-   h->fxd_angle		= -9999.9;
-   h->true_scan_rate	= -9999.9;
-   h->scan_type		= 9999;
-   h->scan_num		= 9999;
-   h->vol_num		= 9999;
+	h->fxd_angle		= -9999.9;
+	h->true_scan_rate	= -9999.9;
+	h->scan_type		= 9999;
+	h->scan_num		= 9999;
+	h->vol_num		= 9999;
 
-   h->transition	= 9999;
+	h->transition	= 9999;
 
-   h->yaw			= -9999.9;
-   h->pitch			= -9999.9;
-   h->roll			= -9999.9;
-   h->track			= -9999.9;
-   h->gate0mag		= -9999.9;
+	h->yaw			= -9999.9;
+	h->pitch			= -9999.9;
+	h->roll			= -9999.9;
+	h->track			= -9999.9;
+	h->gate0mag		= -9999.9;
 
-   h->julian_day	= 9999;
+	h->julian_day	= 9999;
 
-   h->rcvr_const	= -9999.9;
+	h->rcvr_const	= -9999.9;
 
-   h->test_pulse_rngs_km[0]	=	h->test_pulse_rngs_km[1]	=-9999.9;
+	h->test_pulse_rngs_km[0]	=	h->test_pulse_rngs_km[1]	=-9999.9;
 
-   h->i_norm		= -9999.9;
-   h->q_norm		= -9999.9;
-   h->i_compand		= -9999.9;
-   h->q_compand		= -9999.9;
-   h->transform_matrix[0][0][0]	=	h->transform_matrix[0][0][1]	= -9999.9;
-   h->transform_matrix[0][1][0]	=	h->transform_matrix[0][1][1]	= -9999.9;
-   h->transform_matrix[1][0][0]	=	h->transform_matrix[1][0][1]	= -9999.9;
-   h->transform_matrix[1][1][0]	=	h->transform_matrix[1][1][1]	= -9999.9;
-   for (i = 0; i < 4; i++) { 
+	h->i_norm		= -9999.9;
+	h->q_norm		= -9999.9;
+	h->i_compand		= -9999.9;
+	h->q_compand		= -9999.9;
+	h->transform_matrix[0][0][0]	=	h->transform_matrix[0][0][1]	= -9999.9;
+	h->transform_matrix[0][1][0]	=	h->transform_matrix[0][1][1]	= -9999.9;
+	h->transform_matrix[1][0][0]	=	h->transform_matrix[1][0][1]	= -9999.9;
+	h->transform_matrix[1][1][0]	=	h->transform_matrix[1][1][1]	= -9999.9;
+	for (i = 0; i < 4; i++) { 
 		h->stokes[i] = 9999.9; 
-   } 
-   for (i = 0; i < 2; i++) {   
+	} 
+	for (i = 0; i < 2; i++) {   
 		h->spare[i] = 9999.9; 
-   } 
+	} 
 
-   free(config);
-   free(radar);
-   }
+	free(config);
+	free(radar);
+}
 
 #ifdef NCAR_DRX				// NCAR drx: one piraq, no PMAC, no timer card, go.exe wait for piraq in subs.cpp\start()
 #define WAIT_FOR_PIRAQ	TRUE	// start() waits for piraq to begin executing
@@ -432,98 +412,77 @@ CP2PIRAQ::cp2struct_init(PINFOHEADER *h, char *fname)
 /* wait for a DSP reset signal so no data is missed */
 //!!!int start(CONFIG *config,PIRAQ *piraq)
 int CP2PIRAQ::cp2start(CONFIG *config,PIRAQ *piraq, PPACKET * pkt)
-   {
-   int  d,cnt1,cnt2,i,first;
-   char c;
-
-int temp;
-   /* stop the timer */
-//   STATCLR(STAT0_TRESET | STAT0_TMODE);
-//temp = piraq->GetControl()->GetValue_StatusRegister0();
-//delay(1);
-//temp &= ~(STAT0_TRESET | STAT0_TMODE);
-  piraq->GetControl()->UnSetBit_StatusRegister0((STAT0_TRESET) | (STAT0_TMODE));
-   
-   if(config->timingmode == 1)
-//      STATSET(STAT0_TMODE);      /* set timing mode */
-{ 
-//temp = *piraq->status0;
-//delay(1);
-//temp |= STAT0_TMODE;
-//*piraq->status0 = temp;
-	piraq->GetControl()->SetBit_StatusRegister0(STAT0_TMODE);
-}
-   else
-//      STATCLR(STAT0_TMODE);
 {
-//temp = *piraq->status0;
-//delay(1);
-//temp &= ~(STAT0_TMODE);
-//*piraq->status0 = temp;
-	piraq->GetControl()->UnSetBit_StatusRegister0(STAT0_TMODE);
-}
+	int  d,cnt1,cnt2,i,first;
+	char c;
 
-   /* make sure that all possible timer time-outs occur */
-//   delay(STOPDELAY);    /* wait some number of milliseconds */
-Sleep(1000);    /* wait some number of milliseconds */
+	int temp;
+	/* stop the timer */
+	piraq->GetControl()->UnSetBit_StatusRegister0((STAT0_TRESET) | (STAT0_TMODE));
 
-//   piraq->oldbeamnum = piraq->beamnum = 0;
-//   piraq->pulsenum = 0;       /* make sure the pulsenum is even */
-//   piraq->hitcount = 0;       /* start at the begining of a dwell */
+	if(config->timingmode == 1)
+	{ 
+		piraq->GetControl()->SetBit_StatusRegister0(STAT0_TMODE);
+	}
+	else
+	{
+		piraq->GetControl()->UnSetBit_StatusRegister0(STAT0_TMODE);
+	}
 
-/* start the DSP */
-//*piraq->HPICLO = 3;
-//*piraq->HPICHI = 3;
-   pkt->cmd.flag = 0; // clear location
-   piraq->StartDsp();
+	/* make sure that all possible timer time-outs occur */
+	Sleep(1000);    /* wait some number of milliseconds */
+
+
+	/* start the DSP */
+	pkt->cmd.flag = 0; // clear location
+	piraq->StartDsp();
 #if WAIT_FOR_PIRAQ
-   printf("waiting for pkt->cmd.flag = 1\n");
-   i = 0; 
-   while((pkt->cmd.flag != 1) && (i++ < 10)) { // wait for DSP program to set it
-//   while((pkt->cmd.flag != 1) && (i++ < 2)) { // remind viewer that test needs to be done
-	  printf("still waiting for pkt->cmd.flag = 1\n"); Sleep(500); 
-   } 
+	printf("waiting for pkt->cmd.flag = 1\n");
+	i = 0; 
+	while((pkt->cmd.flag != 1) && (i++ < 10)) { // wait for DSP program to set it
+		printf("still waiting for pkt->cmd.flag = 1\n"); Sleep(500); 
+	} 
 #else
-   printf("NOT waiting for pkt->cmd.flag = 1\n");
+	printf("NOT waiting for pkt->cmd.flag = 1\n");
 #endif
 
-//!!!   if (pkt->cmd.flag != 1) return(FALSE); // DSP program not yet ready
-   /* clear the fifo */
-//   *piraq->fifoclr = 0;
+	//!!!   if (pkt->cmd.flag != 1) return(FALSE); // DSP program not yet ready
+	/* clear the fifo */
+	//   *piraq->fifoclr = 0;
 
-   /* take timer state machine out of reset */
-//   STATSET(STAT0_TRESET);
+	/* take timer state machine out of reset */
+	//   STATSET(STAT0_TRESET);
 
-//temp = *piraq->status0;
-//delay(1);
-//*piraq->status0 = temp | STAT0_TRESET;
-   piraq->GetControl()->SetBit_StatusRegister0(STAT0_TRESET);
+	//temp = *piraq->status0;
+	//delay(1);
+	//*piraq->status0 = temp | STAT0_TRESET;
+	piraq->GetControl()->SetBit_StatusRegister0(STAT0_TRESET);
 
-   switch(config->timingmode)
-      {
-      case 2:   /* continuous with sync delay */
+	switch(config->timingmode)
+	{
+	case 2:   /* continuous with sync delay */
 		first = time(NULL) + 3;   /* wait up to 3 seconds */
-                while(!STATUSRD1(piraq,STAT1_FIRST_TRIG))
-		   if(time(NULL) > first)
-			   ::timer(1,5,config->prt2-2 ,piraq->timer);   /* odd prt (2) */
+		while(!STATUSRD1(piraq,STAT1_FIRST_TRIG))
+			if(time(NULL) > first)
+				::timer(1,5,config->prt2-2 ,piraq->timer);   /* odd prt (2) */
 		break;
-      case 0:   /* continuous (software triggered) */
-      case 1:   /* external trigger */
+	case 0:   /* continuous (software triggered) */
+	case 1:   /* external trigger */
 		break;
-      }
-   
-   if(!config->timingmode)  /* software trigger for continuous mode */
-      {
-      piraq->GetControl()->SetBit_StatusRegister0(STAT0_TMODE);
-//temp = *piraq->status0;
+	}
+
+	if(!config->timingmode)  /* software trigger for continuous mode */
+	{
+		piraq->GetControl()->SetBit_StatusRegister0(STAT0_TMODE);
+		//temp = *piraq->status0;
 		Sleep(1);
-//*piraq->status0 = temp | STAT0_TMODE;
-      piraq->GetControl()->UnSetBit_StatusRegister0(STAT0_TMODE);
-//temp = *piraq->status0;
-//delay(1);
-//*piraq->status0 = temp & ~STAT0_TMODE;
-      }
-   
-   return(1);  /* everything is OK */
-   }
+		//*piraq->status0 = temp | STAT0_TMODE;
+		piraq->GetControl()->UnSetBit_StatusRegister0(STAT0_TMODE);
+		//temp = *piraq->status0;
+		//delay(1);
+		//*piraq->status0 = temp & ~STAT0_TMODE;
+	}
+
+	return(1);  /* everything is OK */
+}
 

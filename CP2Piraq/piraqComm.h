@@ -74,15 +74,7 @@ typedef struct pcommand {
 typedef struct pinfoheader
 {   
 	char desc[4];			/* "DWLX" */
-//    uint4 recordlen;        /* total length of record - must be the second field */
     uint4 channel;          ///< board number
-//    uint4 rev;		        /* format revision #-from RADAR structure */
-//    uint4 one;			    /* always set to the value 1 (endian flag) */
-//    uint4 byte_offset_to_data;
-    uint4 dataformat;
-
-//    uint4 typeof_compression;
-    
     /*
       Pulsenumber (pulse_num) is the number of transmitted pulses
 since Jan 1970. It is a 64 bit number. It is assumed
@@ -114,15 +106,11 @@ at the epoch. beamnumber = pulsenumber / hits.
     uint8 beam_num;	   /*  keep this field on an 8 byte boundary */
 #endif
     uint4 gates;
-    uint4 start_gate;
     uint4 hits;
-    uint4 ctrlflags; /* equivalent to packetflag below?  */
     uint4 bytespergate; 
     float4 rcvr_pulsewidth;
 #define PX_NUM_PRT 4
     float4 prt[PX_NUM_PRT];
-    float4 meters_to_first_gate;  
-    uint4 num_segments;  /* how many segments are we using */
 #define PX_MAX_SEGMENTS 8
     float4 gate_spacing_meters[PX_MAX_SEGMENTS];
     uint4 gates_in_segment[PX_MAX_SEGMENTS]; /* how many gates in this segment */
@@ -135,17 +123,17 @@ at the epoch. beamnumber = pulsenumber / hits.
                        = pulse_num * N / ClockFrequency */
     uint4 nanosecs;  /* within this second */
     float4 az;   /* azimuth: referenced to 9550 MHz. possibily modified to be relative to true North. */
-    float4 az_off_ref;   /* azimuth offset off reference */ 
+//    float4 az_off_ref;   /* azimuth offset off reference */ 
     float4 el;		/* elevation: referenced to 9550 MHz.  */ 
-    float4 el_off_ref;   /* elevation offset off reference */ 
-    float4 radar_longitude;
-    float4 radar_latitude;
-    float4 radar_altitude;
-#define PX_MAX_GPS_DATUM 8
-    char gps_datum[PX_MAX_GPS_DATUM]; /* e.g. "NAD27" */
+//    float4 el_off_ref;   /* elevation offset off reference */ 
+//    float4 radar_longitude;
+//    float4 radar_latitude;
+//    float4 radar_altitude;
+//#define PX_MAX_GPS_DATUM 8
+//    char gps_datum[PX_MAX_GPS_DATUM]; /* e.g. "NAD27" */
     
-    uint4 ts_start_gate;   /* starting time series gate , set to 0 for none */
-    uint4 ts_end_gate;     /* ending time series gate , set to 0 for none */
+//    uint4 ts_start_gate;   /* starting time series gate , set to 0 for none */
+//    uint4 ts_end_gate;     /* ending time series gate , set to 0 for none */
     
     float4 ew_velocity;
 
