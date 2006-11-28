@@ -122,12 +122,6 @@ at the epoch. beamnumber = pulsenumber / hits.
     char site_name[PPX_MAX_SITE_NAME];
     float4 frequency;
     float4 xmit_pulsewidth;
-    float4 rconst;
-    float4 phaseoffset;
-
-    float4 zdr_fudge_factor;
-
-    float4 mismatch_loss;
     float4 rcvr_const;
 
     float4 test_pulse_rngs_km[2];
