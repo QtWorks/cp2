@@ -52,18 +52,12 @@ dmaTransfer(int channel,
 #pragma pack(4)
 typedef	struct 
 	{
-	char	name[80];	/* name that identifies the type of FIFO buffer */
-	int	magic;	/* magic number indicating the FIFO has been initialized */
 	int	size;		/* total size of allocated memory for this FIFO */
 	int	header_off;	/* offset to the user header (can't use absolute address here) */
 	int	fifobuf_off;	/* offset to fifo base address */
 	int	record_size;	/* size in bytes of each FIFO record */
 	int	record_num;	/* number of records in FIFO buffer */
 	int	head,tail;	/* indexes to the head and tail records */
-	int	destroy_flag;	/* destroy-when-empty flag */
-	int sock;				/* socket file descriptor for notification communications */
-    int port;				/* UDP (datagram) socket port for notification */
-    int clients;
 	} PFIFO;
 
 typedef struct pudp_header{

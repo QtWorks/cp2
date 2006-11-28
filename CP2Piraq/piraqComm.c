@@ -48,17 +48,11 @@ PFIFO *pfifo_create(char *name, int headersize, int recordsize, int recordnum)
    if(fifo)
       {
 	   /* initialize the fifo structure */
-	   strncpy(fifo->name,name,80);
 	   fifo->header_off = sizeof(PFIFO);		/* pointer to the user header */
 	   fifo->fifobuf_off = fifo->header_off + headersize;	/* pointer to fifo base address */
 	   fifo->record_size = recordsize;						/* size in bytes of each PFIFO record */
 	   fifo->record_num = recordnum;					/* number of records in PFIFO buffer */
 	   fifo->head = fifo->tail = 0;							/* indexes to the head and tail records */
-	   fifo->destroy_flag = 0;								/* destroy-when-empty flag */
-	   fifo->sock = -1;  /* indicating it's unitialized */
-	   fifo->port = 20000;
-	   fifo->clients = 0;
-	   fifo->magic = MAGIC;  /* do this last so clients can use it as done flag */
       }
       
    return(fifo);

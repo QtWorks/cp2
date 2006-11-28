@@ -140,12 +140,6 @@ CP2PIRAQ::poll()
 		// get the next packet in the circular buffer
 		PPACKET* pFifoPiraq = (PPACKET *)pfifo_get_read_address(pFifo, 0); 
 
-		// and set the magic number and datatype in it.
-		// What is the purpose of MAGIC?
-//		PUDPHEADER* udp = &pFifoPiraq->udp;
-//		udp->magic = MAGIC;
-//		udp->type = UDPTYPE_PIRAQ_CP2_TIMESERIES; 
-
 		// set the data size
 		pFifoPiraq->data.info.bytespergate = bytespergate; // Staggered PRT ABPDATA
 
@@ -280,19 +274,12 @@ CP2PIRAQ::cp2piraq_fifo_init(PFIFO * fifo, char *name, int headersize, int recor
    if(fifo)
       {
 	   /* initialize the fifo structure */
-	   strncpy(fifo->name,name,80);
 	   fifo->header_off = sizeof(FIFO);		/* pointer to the user header */
 	   fifo->fifobuf_off = fifo->header_off + headersize;	/* pointer to fifo base address */
 	   fifo->record_size = recordsize;						/* size in bytes of each FIFO record */
 	   fifo->record_num = recordnum;					/* number of records in FIFO buffer */
 	   fifo->head = fifo->tail = 0;							/* indexes to the head and tail records */
-	   fifo->destroy_flag = 0;								/* destroy-when-empty flag */
-	   fifo->sock = -1;  /* indicating it's unitialized */
-	   fifo->port = 20000;
-	   fifo->clients = 0;
-	   fifo->magic = MAGIC;  /* do this last so clients can use it as done flag */
       }
-// else here 
 }
 ///////////////////////////////////////////////////////////////////////////
 void 
