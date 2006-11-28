@@ -113,30 +113,19 @@ at the epoch. beamnumber = pulsenumber / hits.
     float4 prt[PX_NUM_PRT];
     float4 az;   /* azimuth: referenced to 9550 MHz. possibily modified to be relative to true North. */
     float4 el;		/* elevation: referenced to 9550 MHz.  */ 
-    uint4 transition;
-    float4 xmit_power;
-    float4 yaw;
-    float4 pitch;
-    float4 roll;
-    float4 track;
-    float4 gate0mag;  /* magnetron sample amplitude */
-    float4 dacv;
+//    uint4 transition;
+//    float4 xmit_power;
+//    float4 yaw;
+//    float4 pitch;
+//    float4 roll;
+//    float4 track;
+//    float4 gate0mag;  /* magnetron sample amplitude */
+//    float4 dacv;
     uint4  packetflag; 
-    /*
-    // items from the depricated radar "RHDR" header
-    // do not set "radar->recordlen"
-    */
-    uint4 year;             /* e.g. 2003 */
-    uint4 julian_day;
-    
 #define PPX_MAX_RADAR_NAME 16
     char radar_name[PPX_MAX_RADAR_NAME];
 #define PPX_MAX_CHANNEL_NAME 16
     char channel_name[PPX_MAX_CHANNEL_NAME];
-#define PPX_MAX_PROJECT_NAME 16
-    char project_name[PPX_MAX_PROJECT_NAME];
-#define PPX_MAX_OPERATOR_NAME 12
-    char operator_name[PPX_MAX_OPERATOR_NAME];
 #define PPX_MAX_SITE_NAME 12
     char site_name[PPX_MAX_SITE_NAME];
     

@@ -304,23 +304,14 @@ CP2PIRAQ::cp2struct_init(PINFOHEADER *h, char *fname)
 	h->prt[0]			= (float)config->prt * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
 	h->prt[1]			= (float)config->prt2 * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
 	h->bytespergate = 2*sizeof(float); // CP2: 2 fp I,Q per gate
-//	h->clutter_type[0] = config->clutterfilter; 
-//	h->clutter_start[0] = config->clutter_start; 
-//	h->clutter_end[0] = config->clutter_end; 
-	h->xmit_power	= radar->peak_power;
 	// put radar file piraq_saturation_power in infoheader data_sys_sat from radar struct data_sys_sat
 	h->data_sys_sat	= radar->data_sys_sat;
 	h->E_plane_angle	= radar->E_plane_angle;
 	h->H_plane_angle	= radar->H_plane_angle;
 	h->antenna_rotation_angle	= radar->antenna_rotation_angle;
 	h->packetflag	= 0;	// clear: set to -1 by piraq on hardware EOF detect 
-
-	h->dacv				= radar->frequency;
-	h->year				= radar->year;
 	strncpy(h->radar_name,radar->radar_name,PX_MAX_RADAR_NAME);
 	strncpy(h->channel_name,radar->channel_name,PX_MAX_CHANNEL_NAME);
-	strncpy(h->project_name,radar->project_name,PX_MAX_PROJECT_NAME);
-	strncpy(h->operator_name,radar->operator_name,PX_MAX_OPERATOR_NAME);
 	strncpy(h->site_name,radar->site_name,PX_MAX_SITE_NAME);
 	strncpy(h->desc,radar->desc,PX_MAX_RADAR_DESC);
 	strncpy(h->comment,radar->text,PX_SZ_COMMENT);
@@ -329,7 +320,6 @@ CP2PIRAQ::cp2struct_init(PINFOHEADER *h, char *fname)
 
 	h->test_pulse_frq	= radar->test_pulse_frq;
 	h->frequency		= radar->frequency;
-	h->xmit_power	= radar->peak_power;
 	h->noise_figure	= radar->noise_figure;
 
 	h->receiver_gain	= radar->receiver_gain[0];
@@ -346,25 +336,6 @@ CP2PIRAQ::cp2struct_init(PINFOHEADER *h, char *fname)
 
 	// unitialized parameters: set to obviously untrue values 
 	h->prt[2] =    h->prt[3]		= 9999.9; // [0],[1] set above
-//	h->ew_velocity		= -9999.9;
-//	h->ns_velocity		= -9999.9;
-//	h->vert_velocity	= -9999.9;
-
-//	h->fxd_angle		= -9999.9;
-//	h->true_scan_rate	= -9999.9;
-//	h->scan_type		= 9999;
-//	h->scan_num		= 9999;
-//	h->vol_num		= 9999;
-
-	h->transition	= 9999;
-
-	h->yaw			= -9999.9;
-	h->pitch			= -9999.9;
-	h->roll			= -9999.9;
-	h->track			= -9999.9;
-	h->gate0mag		= -9999.9;
-
-	h->julian_day	= 9999;
 
 	h->rcvr_const	= -9999.9;
 
