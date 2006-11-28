@@ -176,18 +176,12 @@ void initTask(void)
 	Fifo = pfifo_open("PRQDATA");  /* the argument is not used */
 
 	/* Transfer packet header to current buffer */
-    src = (unsigned int *)pfifo_get_header_address(Fifo);
-    pkt = (PPACKETHEADER *)src; 
-	gates = pkt->info.gates; 
-	hits = pkt->info.hits; 
-	bytespergate = pkt->info.bytespergate;
-	boardnumber =  pkt->info.channel;
-
-	//	compute #hits to combine per PCI transfer:
-	nPacketsPerBlock = (unsigned int)PUDPSENDSIZE / (PHEADERSIZE + (gates * bytespergate)); 
-	if	(nPacketsPerBlock % 2)	//	odd #hits computed
-		nPacketsPerBlock--;		//	make it even
-
+    src              = (unsigned int *)pfifo_get_header_address(Fifo);
+    pkt              = (PPACKETHEADER *)src; 
+	gates            = pkt->info.gates; 
+	hits             = pkt->info.hits; 
+	bytespergate     = pkt->info.bytespergate;
+	boardnumber      =  pkt->info.channel;
 	nPacketsPerBlock = pkt->info.packetsPerBlock;
 
 	// allocate a complete 1-channel PACKET; it contains current pulse, 

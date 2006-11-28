@@ -110,17 +110,11 @@ at the epoch. beamnumber = pulsenumber / hits.
     uint4 hits;
     uint4 bytespergate; 
     float4 rcvr_pulsewidth;
-#define PX_NUM_PRT 4
-    float4 prt[PX_NUM_PRT];
-    float4 az;   /* azimuth: referenced to 9550 MHz. possibily modified to be relative to true North. */
-    float4 el;		/* elevation: referenced to 9550 MHz.  */ 
+//#define PX_NUM_PRT 4
+    float4 prt;//[PX_NUM_PRT];
+    float4 az;      
+    float4 el;		
     uint4  packetflag; 
-#define PPX_MAX_RADAR_NAME 16
-    char radar_name[PPX_MAX_RADAR_NAME];
-#define PPX_MAX_CHANNEL_NAME 16
-    char channel_name[PPX_MAX_CHANNEL_NAME];
-#define PPX_MAX_SITE_NAME 12
-    char site_name[PPX_MAX_SITE_NAME];
     float4 frequency;
     float4 xmit_pulsewidth;
 } PINFOHEADER;

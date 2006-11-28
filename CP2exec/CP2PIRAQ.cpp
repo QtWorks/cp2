@@ -182,9 +182,7 @@ CP2PIRAQ::poll()
 		int gates = pFifoPiraq->data.info.gates;
 		int bytespergates = pFifoPiraq->data.info.bytespergate;
 		int hits = pFifoPiraq->data.info.hits;
-		float prt[4];
-		for (int f = 0; f < 4; f++)
-			prt[f] = pFifoPiraq->data.info.prt[4];
+		float prt = pFifoPiraq->data.info.prt;
 		char desc[4];
 		for(int c = 0; c < 4; c++)
 			desc[c] = pFifoPiraq->data.info.desc[4];
@@ -212,8 +210,7 @@ CP2PIRAQ::poll()
 			packet->data.info.gates = gates;
 			packet->data.info.bytespergate = bytespergate;
 			packet->data.info.hits = hits;
-			for (int f = 0; f < 4; f++)
-				packet->data.info.prt[f] = prt[f];
+			packet->data.info.prt[0] = prt;
 
 			for(int c = 0; c < 4; c++)
 				packet->data.info.desc[c] = desc[c];
@@ -246,7 +243,7 @@ CP2PIRAQ::poll()
 float
 CP2PIRAQ::prt()
 {
-	return _pConfigPacket->data.info.prt[0];
+	return _pConfigPacket->data.info.prt;
 }
 
 PINFOHEADER
@@ -303,34 +300,10 @@ CP2PIRAQ::cp2struct_init(PINFOHEADER *h, char *fname)
 	h->gates 		= config->gatesa;
 	h->hits			= config->hits;
 	h->rcvr_pulsewidth	= (float)config->rcvr_pulsewidth * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
-	h->prt[0]			= (float)config->prt * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
-	h->prt[1]			= (float)config->prt2 * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
+	h->prt			= (float)config->prt * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
 	h->bytespergate = 2*sizeof(float); // CP2: 2 fp I,Q per gate
-//	h->antenna_rotation_angle	= radar->antenna_rotation_angle;
 	h->packetflag	= 0;	// clear: set to -1 by piraq on hardware EOF detect 
-	strncpy(h->radar_name,radar->radar_name,PX_MAX_RADAR_NAME);
-	strncpy(h->channel_name,radar->channel_name,PX_MAX_CHANNEL_NAME);
-	strncpy(h->site_name,radar->site_name,PX_MAX_SITE_NAME);
 	strncpy(h->desc,radar->desc,PX_MAX_RADAR_DESC);
-//	strncpy(h->comment,radar->text,PX_SZ_COMMENT);
-//	h->frequency		= radar->frequency;
-//	h->xmit_pulsewidth = radar->xmit_pulsewidth;
-	// unitialized parameters: set to obviously untrue values 
-	h->prt[2] =    h->prt[3]		= 9999.9; // [0],[1] set above
-//	h->i_norm		= -9999.9;
-//	h->q_norm		= -9999.9;
-//	h->i_compand		= -9999.9;
-//	h->q_compand		= -9999.9;
-//	h->transform_matrix[0][0][0]	=	h->transform_matrix[0][0][1]	= -9999.9;
-//	h->transform_matrix[0][1][0]	=	h->transform_matrix[0][1][1]	= -9999.9;
-//	h->transform_matrix[1][0][0]	=	h->transform_matrix[1][0][1]	= -9999.9;
-//	h->transform_matrix[1][1][0]	=	h->transform_matrix[1][1][1]	= -9999.9;
-//	for (i = 0; i < 4; i++) { 
-//		h->stokes[i] = 9999.9; 
-//	} 
-//	for (i = 0; i < 2; i++) {   
-//		h->spare[i] = 9999.9; 
-//	} 
 
 	free(config);
 	free(radar);
@@ -406,13 +379,8 @@ int CP2PIRAQ::cp2start(CONFIG *config,PIRAQ *piraq, PPACKET * pkt)
 	if(!config->timingmode)  /* software trigger for continuous mode */
 	{
 		piraq->GetControl()->SetBit_StatusRegister0(STAT0_TMODE);
-		//temp = *piraq->status0;
 		Sleep(1);
-		//*piraq->status0 = temp | STAT0_TMODE;
 		piraq->GetControl()->UnSetBit_StatusRegister0(STAT0_TMODE);
-		//temp = *piraq->status0;
-		//delay(1);
-		//*piraq->status0 = temp & ~STAT0_TMODE;
 	}
 
 	return(1);  /* everything is OK */

@@ -89,7 +89,7 @@ int   cp2timer_init(TIMER *timer, int boardnumber)
 int cp2timer_config(TIMER *timer, PINFOHEADER *info)
    {
    int		i,dualprt;
-   HILO		delay,width,prt[2];
+   HILO		delay,width,prt;
    int		j,cycles,len;
 
    if(FIRSTIMER)
@@ -117,16 +117,12 @@ int cp2timer_config(TIMER *timer, PINFOHEADER *info)
    
 //   timer->seqlen = info->polarization;   /* the sequence based on the sequence length */
    timer->seqlen = 1;   /* for now the sequence will always be 1 deep */
-   prt[0].hilo = info->prt[0]  * COUNTFREQ + 0.5;		/* compute prt1 */
-   prt[1].hilo = info->prt[1] * COUNTFREQ + 0.5;
+   prt.hilo = info->prt  * COUNTFREQ + 0.5;		/* compute prt */
 
    /* check sanity of request */
    if(timer->seqlen > 12 || timer->seqlen < 1)	{printf("TIMER_CONFIG: invalid sequence length %d\n",timer->seqlen); return(0);}
-   if(prt[0].hilo < 1 || prt[0].hilo > 65535)	{printf("TIMER_CONFIG: invalid PRT1 %d\n",prt[0].hilo); return(0);}
-   if(prt[1].hilo < 1 || prt[1].hilo > 65535)	{printf("TIMER_CONFIG: invalid PRT2 %d\n",prt[1].hilo); return(0);}
-   dualprt = (prt[0].hilo == prt[1].hilo) ? 1 : 2;
-printf("dualprt = %d\n", dualprt); 
-
+   if(prt.hilo < 1 || prt.hilo > 65535)	{printf("TIMER_CONFIG: invalid PRT1 %d\n",prt.hilo); return(0);}
+   dualprt = 1;
    len = timer->seqlen * dualprt;
    cycles = 1;
 
@@ -138,8 +134,8 @@ printf("dualprt = %d\n", dualprt);
       for(i=0; i<timer->seqlen * dualprt; i++)
          {
          /* program the 5 bytes for this sequence */
-         timer->seq[i+j*len].period.byte.lo = prt[i<timer->seqlen?0:1].byte.lo;
-         timer->seq[i+j*len].period.byte.hi = prt[i<timer->seqlen?0:1].byte.hi;
+         timer->seq[i+j*len].period.byte.lo = prt.byte.lo;
+         timer->seq[i+j*len].period.byte.hi = prt.byte.hi;
          timer->seq[i+j*len].pulseenable = (i?0x2F:0x3F);
 //         timer->seq[i+j*len].polarization = (i?0:0x80) | info->polarization_array[i % timer->seqlen];  /* add in a frame sync */
       timer->seq[i+j*len].polarization = 0;
