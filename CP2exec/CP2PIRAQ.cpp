@@ -312,25 +312,25 @@ CP2PIRAQ::cp2struct_init(PINFOHEADER *h, char *fname)
 	strncpy(h->channel_name,radar->channel_name,PX_MAX_CHANNEL_NAME);
 	strncpy(h->site_name,radar->site_name,PX_MAX_SITE_NAME);
 	strncpy(h->desc,radar->desc,PX_MAX_RADAR_DESC);
-	strncpy(h->comment,radar->text,PX_SZ_COMMENT);
-	h->frequency		= radar->frequency;
-	h->xmit_pulsewidth = radar->xmit_pulsewidth;
+//	strncpy(h->comment,radar->text,PX_SZ_COMMENT);
+//	h->frequency		= radar->frequency;
+//	h->xmit_pulsewidth = radar->xmit_pulsewidth;
 	// unitialized parameters: set to obviously untrue values 
 	h->prt[2] =    h->prt[3]		= 9999.9; // [0],[1] set above
-	h->i_norm		= -9999.9;
-	h->q_norm		= -9999.9;
-	h->i_compand		= -9999.9;
-	h->q_compand		= -9999.9;
-	h->transform_matrix[0][0][0]	=	h->transform_matrix[0][0][1]	= -9999.9;
-	h->transform_matrix[0][1][0]	=	h->transform_matrix[0][1][1]	= -9999.9;
-	h->transform_matrix[1][0][0]	=	h->transform_matrix[1][0][1]	= -9999.9;
-	h->transform_matrix[1][1][0]	=	h->transform_matrix[1][1][1]	= -9999.9;
-	for (i = 0; i < 4; i++) { 
-		h->stokes[i] = 9999.9; 
-	} 
-	for (i = 0; i < 2; i++) {   
-		h->spare[i] = 9999.9; 
-	} 
+//	h->i_norm		= -9999.9;
+//	h->q_norm		= -9999.9;
+//	h->i_compand		= -9999.9;
+//	h->q_compand		= -9999.9;
+//	h->transform_matrix[0][0][0]	=	h->transform_matrix[0][0][1]	= -9999.9;
+//	h->transform_matrix[0][1][0]	=	h->transform_matrix[0][1][1]	= -9999.9;
+//	h->transform_matrix[1][0][0]	=	h->transform_matrix[1][0][1]	= -9999.9;
+//	h->transform_matrix[1][1][0]	=	h->transform_matrix[1][1][1]	= -9999.9;
+//	for (i = 0; i < 4; i++) { 
+//		h->stokes[i] = 9999.9; 
+//	} 
+//	for (i = 0; i < 2; i++) {   
+//		h->spare[i] = 9999.9; 
+//	} 
 
 	free(config);
 	free(radar);
