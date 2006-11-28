@@ -322,25 +322,7 @@ CP2PIRAQ::cp2struct_init(PINFOHEADER *h, char *fname)
 
    h->ts_start_gate			= config->ts_start_gate;
    h->ts_end_gate			= config->ts_end_gate;
-#ifndef TESTING_INITIALIZATION
-   h->secs				= 0;
-   h->nanosecs			= 0;
-   h->az				= 0;
-   h->el				= 0;
-   h->radar_longitude	= -104;
-   h->radar_latitude	= 40;
-   h->radar_altitude	= 1500;
-   h->ew_velocity		= 0;
-   h->ns_velocity		= 0;
-   h->vert_velocity	= 0;
-   h->fxd_angle		= 0;
-   h->scan_type		= 0;
-   h->scan_num		= 0;
-   h->vol_num		= 0;
-#endif
-   h->dataformat		= config->dataformat;
-   if (h->dataformat == PIRAQ_CP2_TIMESERIES)
-	   h->bytespergate = 2*sizeof(float); // CP2: 2 fp I,Q per gate
+   h->bytespergate = 2*sizeof(float); // CP2: 2 fp I,Q per gate
    h->clutter_type[0] = config->clutterfilter; 
    h->clutter_start[0] = config->clutter_start; 
    h->clutter_end[0] = config->clutter_end; 
@@ -350,16 +332,9 @@ CP2PIRAQ::cp2struct_init(PINFOHEADER *h, char *fname)
    h->E_plane_angle	= radar->E_plane_angle;
    h->H_plane_angle	= radar->H_plane_angle;
    h->antenna_rotation_angle	= radar->antenna_rotation_angle;
-#ifndef TESTING_INITIALIZATION
-   h->yaw				= 0;
-   h->pitch				= 0;
-   h->roll				= 0;
-   h->gate0mag		= 1.0;
-#endif
    h->packetflag	= 0;	// clear: set to -1 by piraq on hardware EOF detect 
 
    h->dacv				= radar->frequency;
-//   h->rev				= radar->rev; 
    h->year				= radar->year;
    strncpy(h->radar_name,radar->radar_name,PX_MAX_RADAR_NAME);
    strncpy(h->channel_name,radar->channel_name,PX_MAX_CHANNEL_NAME);
@@ -374,20 +349,12 @@ CP2PIRAQ::cp2struct_init(PINFOHEADER *h, char *fname)
    h->test_pulse_frq	= radar->test_pulse_frq;
    h->frequency		= radar->frequency;
    h->xmit_power	= radar->peak_power;
-//   h->vxmit_power	= radar->peak_power;
-//   h->peak_power	= radar->peak_power;
-
    h->noise_figure	= radar->noise_figure;
 
    h->receiver_gain	= radar->receiver_gain[0];
-//   h->vreceiver_gain	= radar->receiver_gain[1];
    h->noise_power	= radar->noise_power[0];
-//   h->vnoise_power	= radar->noise_power[1];
-
    h->data_sys_sat	= radar->data_sys_sat;
    h->antenna_gain	= radar->antenna_gain;	
-//   h->vantenna_gain	= radar->vantenna_gain;	
-
    h->H_beam_width = radar->horz_beam_width;
    h->V_beam_width = radar->vert_beam_width;	
    h->xmit_pulsewidth = radar->xmit_pulsewidth;
@@ -402,12 +369,6 @@ CP2PIRAQ::cp2struct_init(PINFOHEADER *h, char *fname)
    h->gate_spacing_meters[0] = config->gate_spacing_meters; 
    h->num_segments = 1;	
    h->gates_in_segment[0] = h->gates;
-
-//   h->i_offset	= radar->i_offset;		// I dc offset 
-//   h->q_offset	= radar->q_offset;		// Q dc offset 
-//   h->zdr_bias	= radar->zdr_bias;		//  
-   //  noise immunity for velocity estimation: "ph_off" in products
-//   h->noise_phase_offset	= radar->noise_phase_offset;	
 
 // unitialized parameters: set to obviously untrue values 
    h->prt[2] =    h->prt[3]		= 9999.9; // [0],[1] set above
