@@ -15,12 +15,6 @@
 #define	true	1
 #define	false	0
 
-void
-dmaTransfer(int channel, 
-			int *src, 
-			int *dst, 
-			int transferCount,
-			int globalReload); 
 
 #define	PUDPSENDSIZE	(unsigned int)65536	//	size of N-hit packets in system: PIRAQ through Qt applications
 
@@ -110,8 +104,7 @@ at the epoch. beamnumber = pulsenumber / hits.
     uint4 hits;
     uint4 bytespergate; 
     float4 rcvr_pulsewidth;
-//#define PX_NUM_PRT 4
-    float4 prt;//[PX_NUM_PRT];
+    float4 prt;
     float4 az;      
     float4 el;		
     uint4  packetflag; 
@@ -143,26 +136,22 @@ typedef struct ppacket_header {			/* this structure must match the non-data port
 #define	PHEADERSIZE		sizeof(PPACKETHEADER)
 #define	PRECORDLEN(a)  (sizeof(PINFOHEADER) + (PDATASIZE(a)))
 #define	PDATASIZE(a)   (a->data.info.gates * a->data.info.bytespergate)
-//void createSineTestWaveform(float freq);	//	create test sine waveform of freq; store to SINstore
-//void ChannelSelect(int ngates, float * restrict src, float * restrict dst, unsigned int channelMode);
-
-
 #ifdef __cplusplus
 extern "C" {  // only need to export C interface if
               // used by C++ source code
 #endif
-CircularBuffer *pfifo_create(char *name, int headersize, int recordsize, int recordnum);
-CircularBuffer *pfifo_open(char *name);
-int    pfifo_close(CircularBuffer *fifo);
-void  *pfifo_get_last_address(CircularBuffer *fifo);
-int    pfifo_increment_head(CircularBuffer *fifo);
-void   pfifo_notify(CircularBuffer *fifo);
-void  *pfifo_get_read_address(CircularBuffer *fifo, int offset);
-void  *pfifo_get_write_address(CircularBuffer *fifo);
-int    pfifo_increment_tail(CircularBuffer *fifo);
-int    pfifo_hit(CircularBuffer *fifo);
-int    pfifo_exhist(char *name);
-void  *pfifo_get_header_address(CircularBuffer *fifo);
+CircularBuffer* pfifo_create(char *name, int headersize, int recordsize, int recordnum);
+CircularBuffer* pfifo_open(char *name);
+int             pfifo_close(CircularBuffer *fifo);
+void*           pfifo_get_last_address(CircularBuffer *fifo);
+int             pfifo_increment_head(CircularBuffer *fifo);
+void            pfifo_notify(CircularBuffer *fifo);
+void*           pfifo_get_read_address(CircularBuffer *fifo, int offset);
+void*           pfifo_get_write_address(CircularBuffer *fifo);
+int             pfifo_increment_tail(CircularBuffer *fifo);
+int             pfifo_hit(CircularBuffer *fifo);
+int             pfifo_exhist(char *name);
+void*           pfifo_get_header_address(CircularBuffer *fifo);
 #ifdef __cplusplus
 }
 #endif

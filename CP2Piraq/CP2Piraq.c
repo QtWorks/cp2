@@ -78,6 +78,12 @@ float IQoffset[4*NUMCHANS];	//	CP2: compute offsets for both CHA and CHB
 unsigned int *Led_ptr,DMA_base, Period;
 
 void initializeDma();
+void
+dmaTransfer(int channel, 
+			int *src, 
+			int *dst, 
+			int transferCount,
+			int globalReload); 
 void delay(void);
 void initDsp(void);
 void dma_pci(int tsize, unsigned int pci_dst);
