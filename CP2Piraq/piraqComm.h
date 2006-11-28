@@ -123,11 +123,6 @@ at the epoch. beamnumber = pulsenumber / hits.
     char site_name[PPX_MAX_SITE_NAME];
     float4 frequency;
     float4 xmit_pulsewidth;
-    float4 rcvr_const;
-
-    float4 test_pulse_rngs_km[2];
-    float4 antenna_rotation_angle;   /* S-Pol 2nd frequency antenna may be 30 degrees off vertical */
-    
 } PINFOHEADER;
 #pragma STRUCT_ALIGN (PINFOHEADER, 8);
 
