@@ -288,6 +288,8 @@ CP2PIRAQ::cp2struct_init(PINFOHEADER *h, char *fname)
 	int  i; 
 	unsigned int channel; // radar channel for channel-specific parameters (RapidDOW) 
 
+	h->packetsPerBlock = Nhits;
+
 	config  = (CONFIG *)malloc(sizeof(CONFIG));
 	radar = (RADAR *)malloc(sizeof(RADAR));
 

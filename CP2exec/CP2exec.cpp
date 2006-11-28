@@ -438,9 +438,22 @@ main(int argc, char* argv[], char* envp[])
 	readconfig(fname2, config2);    
 	readconfig(fname3, config3);   
 
-		Nhits = 65536 / (PHEADERSIZE + (config1->gatesa * 2 * sizeof(float))); 
-		if	(Nhits % 2)	//	computed odd #hits
-			Nhits--;	//	make it even
+	///@todo
+	/// NOTE- Nhits is computed here from the size of the udp packet, such that
+	/// it will be smaller than 64K. This must also hold true for the PCI 
+	/// bus transfers. Since Nhits is used in both plces, this logic will fail
+	/// if the udo packet overhead is ever smaller than the PCI packet overhead.
+	///
+	/// The logic needs to be rewritten such that Nhits does not allow the PCI
+	/// block size, nor the udp block size, to exceed 64K.
+	int blocksize = sizeof(UDPHEADER)+
+			sizeof(COMMAND) + 
+			sizeof(INFOHEADER) + 
+			config1->gatesa * 2 * sizeof(float);
+
+	Nhits = 65536 / blocksize; 
+	if	(Nhits % 2)	//	computed odd #hits
+		Nhits--;	//	make it even
 	///////////////////////////////////////////////////////////////////////////
 	//
 	//    Create piraqs. They all have to be created, so that all boards

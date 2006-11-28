@@ -187,6 +187,9 @@ void initTask(void)
 	nPacketsPerBlock = (unsigned int)PUDPSENDSIZE / (PHEADERSIZE + (gates * bytespergate)); 
 	if	(nPacketsPerBlock % 2)	//	odd #hits computed
 		nPacketsPerBlock--;		//	make it even
+
+	nPacketsPerBlock = pkt->info.packetsPerBlock;
+
 	// allocate a complete 1-channel PACKET; it contains current pulse, 
 	// header plus data, post channel-select
 	CurPkt = (PPACKET *)malloc((PHEADERSIZE + (gates * bytespergate)));

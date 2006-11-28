@@ -105,6 +105,7 @@ at the epoch. beamnumber = pulsenumber / hits.
     uint8 pulse_num;   /*  keep this field on an 8 byte boundary */
     uint8 beam_num;	   /*  keep this field on an 8 byte boundary */
 #endif
+	uint4 packetsPerBlock;
     uint4 gates;
     uint4 hits;
     uint4 bytespergate; 
@@ -122,7 +123,7 @@ at the epoch. beamnumber = pulsenumber / hits.
     char site_name[PPX_MAX_SITE_NAME];
     float4 frequency;
     float4 xmit_pulsewidth;
-    float4 rcvr_const;
+//    float4 rcvr_const;
 
     float4 test_pulse_rngs_km[2];
     float4 antenna_rotation_angle;   /* S-Pol 2nd frequency antenna may be 30 degrees off vertical */
