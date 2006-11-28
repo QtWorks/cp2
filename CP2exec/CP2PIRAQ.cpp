@@ -156,11 +156,6 @@ CP2PIRAQ::poll()
 		} 
 		pFifoPiraq->data.info.az = az;  
 		pFifoPiraq->data.info.el = el; // set in packet 
-		pFifoPiraq->data.info.scan_num = scan;
-		pFifoPiraq->data.info.vol_num = volume;  
-
-		//		pFifoPiraq->data.info.recordlen = PRECORDLEN(pFifoPiraq); /* this after numgates corrected */
-
 		//////////////////////////////////////////////////////////////////////////
 		//
 		// check for pulse numbers out of sequence.
@@ -309,9 +304,9 @@ CP2PIRAQ::cp2struct_init(PINFOHEADER *h, char *fname)
 	h->prt[0]			= (float)config->prt * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
 	h->prt[1]			= (float)config->prt2 * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
 	h->bytespergate = 2*sizeof(float); // CP2: 2 fp I,Q per gate
-	h->clutter_type[0] = config->clutterfilter; 
-	h->clutter_start[0] = config->clutter_start; 
-	h->clutter_end[0] = config->clutter_end; 
+//	h->clutter_type[0] = config->clutterfilter; 
+//	h->clutter_start[0] = config->clutter_start; 
+//	h->clutter_end[0] = config->clutter_end; 
 	h->xmit_power	= radar->peak_power;
 	// put radar file piraq_saturation_power in infoheader data_sys_sat from radar struct data_sys_sat
 	h->data_sys_sat	= radar->data_sys_sat;
@@ -348,28 +343,18 @@ CP2PIRAQ::cp2struct_init(PINFOHEADER *h, char *fname)
 	h->phaseoffset	= radar->phaseoffset;
 	h->zdr_fudge_factor = radar->zdr_fudge_factor;
 	h->mismatch_loss	= radar->missmatch_loss;
-	h->gate_spacing_meters[0] = config->gate_spacing_meters; 
-	h->gates_in_segment[0] = h->gates;
 
 	// unitialized parameters: set to obviously untrue values 
 	h->prt[2] =    h->prt[3]		= 9999.9; // [0],[1] set above
-	for (i = 1; i < PX_MAX_SEGMENTS; i++) { // only first gate_spacing_meters array element initialized
-		h->gate_spacing_meters[i] = 9999.9; h->gates_in_segment[i] = 9999;
-	} 
-	for (i = 1; i < PX_NUM_CLUTTER_REGIONS; i++) { // 0th initialized above: 1 clutter region 
-		h->clutter_start[i] = h->clutter_end[i] = h->clutter_type[i] = 9999;
-	} 
-	h->secs				= 9999;
-	h->nanosecs			= 9999;
-	h->ew_velocity		= -9999.9;
-	h->ns_velocity		= -9999.9;
-	h->vert_velocity	= -9999.9;
+//	h->ew_velocity		= -9999.9;
+//	h->ns_velocity		= -9999.9;
+//	h->vert_velocity	= -9999.9;
 
-	h->fxd_angle		= -9999.9;
-	h->true_scan_rate	= -9999.9;
-	h->scan_type		= 9999;
-	h->scan_num		= 9999;
-	h->vol_num		= 9999;
+//	h->fxd_angle		= -9999.9;
+//	h->true_scan_rate	= -9999.9;
+//	h->scan_type		= 9999;
+//	h->scan_num		= 9999;
+//	h->vol_num		= 9999;
 
 	h->transition	= 9999;
 

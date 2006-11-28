@@ -111,44 +111,10 @@ at the epoch. beamnumber = pulsenumber / hits.
     float4 rcvr_pulsewidth;
 #define PX_NUM_PRT 4
     float4 prt[PX_NUM_PRT];
-#define PX_MAX_SEGMENTS 8
-    float4 gate_spacing_meters[PX_MAX_SEGMENTS];
-    uint4 gates_in_segment[PX_MAX_SEGMENTS]; /* how many gates in this segment */
-#define PX_NUM_CLUTTER_REGIONS 4
-    uint4 clutter_start[PX_NUM_CLUTTER_REGIONS]; /* start gate of clutter filtered region */
-    uint4 clutter_end[PX_NUM_CLUTTER_REGIONS];  /* end gate of clutter filtered region */
-    uint4 clutter_type[PX_NUM_CLUTTER_REGIONS]; /* type of clutter filtering applied */
-/* following fields are computed from pulse_num by host */
-    uint4 secs;     /* Unix standard - seconds since 1/1/1970
-                       = pulse_num * N / ClockFrequency */
-    uint4 nanosecs;  /* within this second */
     float4 az;   /* azimuth: referenced to 9550 MHz. possibily modified to be relative to true North. */
-//    float4 az_off_ref;   /* azimuth offset off reference */ 
     float4 el;		/* elevation: referenced to 9550 MHz.  */ 
-//    float4 el_off_ref;   /* elevation offset off reference */ 
-//    float4 radar_longitude;
-//    float4 radar_latitude;
-//    float4 radar_altitude;
-//#define PX_MAX_GPS_DATUM 8
-//    char gps_datum[PX_MAX_GPS_DATUM]; /* e.g. "NAD27" */
-    
-//    uint4 ts_start_gate;   /* starting time series gate , set to 0 for none */
-//    uint4 ts_end_gate;     /* ending time series gate , set to 0 for none */
-    
-    float4 ew_velocity;
-
-    float4 ns_velocity;
-    float4 vert_velocity;
-
-    float4 fxd_angle;		/* in degrees instead of counts */
-    float4 true_scan_rate;	/* degrees/second */
-    uint4 scan_type;
-    uint4 scan_num;
-    uint4 vol_num;
-
     uint4 transition;
     float4 xmit_power;
-
     float4 yaw;
     float4 pitch;
     float4 roll;
