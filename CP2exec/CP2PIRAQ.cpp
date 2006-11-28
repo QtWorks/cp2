@@ -304,7 +304,7 @@ CP2PIRAQ::cp2struct_init(PINFOHEADER *h, char *fname)
 	h->prt[0]			= (float)config->prt * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
 	h->prt[1]			= (float)config->prt2 * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
 	h->bytespergate = 2*sizeof(float); // CP2: 2 fp I,Q per gate
-	h->antenna_rotation_angle	= radar->antenna_rotation_angle;
+//	h->antenna_rotation_angle	= radar->antenna_rotation_angle;
 	h->packetflag	= 0;	// clear: set to -1 by piraq on hardware EOF detect 
 	strncpy(h->radar_name,radar->radar_name,PX_MAX_RADAR_NAME);
 	strncpy(h->channel_name,radar->channel_name,PX_MAX_CHANNEL_NAME);
@@ -313,18 +313,8 @@ CP2PIRAQ::cp2struct_init(PINFOHEADER *h, char *fname)
 	strncpy(h->comment,radar->text,PX_SZ_COMMENT);
 	h->frequency		= radar->frequency;
 	h->xmit_pulsewidth = radar->xmit_pulsewidth;
-	h->rconst		= radar->rconst;
-	h->phaseoffset	= radar->phaseoffset;
-	h->zdr_fudge_factor = radar->zdr_fudge_factor;
-	h->mismatch_loss	= radar->missmatch_loss;
-
 	// unitialized parameters: set to obviously untrue values 
 	h->prt[2] =    h->prt[3]		= 9999.9; // [0],[1] set above
-
-	h->rcvr_const	= -9999.9;
-
-	h->test_pulse_rngs_km[0]	=	h->test_pulse_rngs_km[1]	=-9999.9;
-
 	h->i_norm		= -9999.9;
 	h->q_norm		= -9999.9;
 	h->i_compand		= -9999.9;
