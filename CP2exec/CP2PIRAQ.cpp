@@ -73,7 +73,7 @@ CP2PIRAQ::init(char* configFname, char* dspObjFname)
 	stop_piraq(&_config, this);
 
 	// create the data fifo.
-	pFifo = (PFIFO *)this->GetBuffer(); 
+	pFifo = (CircularBuffer *)this->GetBuffer(); 
 
 	// CP2: data packets sized at runtime.  + BUFFER_EPSILON
 	cp2piraq_fifo_init(
@@ -269,7 +269,7 @@ CP2PIRAQ::stop()
 
 ///////////////////////////////////////////////////////////////////////////
 void 
-CP2PIRAQ::cp2piraq_fifo_init(PFIFO * fifo, char *name, int headersize, int recordsize, int recordnum)
+CP2PIRAQ::cp2piraq_fifo_init(CircularBuffer * fifo, char *name, int headersize, int recordsize, int recordnum)
 {
    if(fifo)
       {

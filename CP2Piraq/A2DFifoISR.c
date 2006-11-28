@@ -24,7 +24,7 @@
 #define	FIFO2Q		(int *)0x1400208
 
 ///////////////////////////////////////////////////////////
-extern PFIFO*   Fifo;
+extern CircularBuffer*   Fifo;
 extern PPACKET* CurPkt;
 extern PPACKET* sbsRamBuffer;		// sbsram N-PACKET MEM_alloc w/1-channel data 
 extern float   ioffset0; 

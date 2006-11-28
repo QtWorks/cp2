@@ -85,7 +85,7 @@ void dma_fifo(int tsize, unsigned int source);
 void startPciTransfer();
 int burstready = 0;
 
-PFIFO  	*Fifo;
+CircularBuffer  	*Fifo;
 PPACKET	*CurPkt;	// DSP-internal PACKET malloc w/1-channel data: contains current header information
 PPACKET	*sbsRamBuffer;		// sbsram N-PACKET MEM_alloc w/1-channel data 
 

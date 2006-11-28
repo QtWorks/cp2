@@ -58,7 +58,7 @@ typedef	struct
 	int	record_size;	/* size in bytes of each FIFO record */
 	int	record_num;	/* number of records in FIFO buffer */
 	int	head,tail;	/* indexes to the head and tail records */
-	} PFIFO;
+	} CircularBuffer;
 
 typedef struct pudp_header{
     int totalsize;      /* total amount of data only (don't count the size of this header) */
@@ -263,18 +263,18 @@ typedef struct ppacket_header {			/* this structure must match the non-data port
 extern "C" {  // only need to export C interface if
               // used by C++ source code
 #endif
-PFIFO *pfifo_create(char *name, int headersize, int recordsize, int recordnum);
-PFIFO *pfifo_open(char *name);
-int    pfifo_close(PFIFO *fifo);
-void  *pfifo_get_last_address(PFIFO *fifo);
-int    pfifo_increment_head(PFIFO *fifo);
-void   pfifo_notify(PFIFO *fifo);
-void  *pfifo_get_read_address(PFIFO *fifo, int offset);
-void  *pfifo_get_write_address(PFIFO *fifo);
-int    pfifo_increment_tail(PFIFO *fifo);
-int    pfifo_hit(PFIFO *fifo);
+CircularBuffer *pfifo_create(char *name, int headersize, int recordsize, int recordnum);
+CircularBuffer *pfifo_open(char *name);
+int    pfifo_close(CircularBuffer *fifo);
+void  *pfifo_get_last_address(CircularBuffer *fifo);
+int    pfifo_increment_head(CircularBuffer *fifo);
+void   pfifo_notify(CircularBuffer *fifo);
+void  *pfifo_get_read_address(CircularBuffer *fifo, int offset);
+void  *pfifo_get_write_address(CircularBuffer *fifo);
+int    pfifo_increment_tail(CircularBuffer *fifo);
+int    pfifo_hit(CircularBuffer *fifo);
 int    pfifo_exhist(char *name);
-void  *pfifo_get_header_address(PFIFO *fifo);
+void  *pfifo_get_header_address(CircularBuffer *fifo);
 #ifdef __cplusplus
 }
 #endif

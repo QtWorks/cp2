@@ -31,7 +31,7 @@ protected:
 	/// a supplied file name
 	CONFIG _config;
 	/// The FIFO that is used for data transfering from piraq to host
-	PFIFO*   pFifo;
+	CircularBuffer*   pFifo;
 	/// This will be the first packet in the fifo. It appears that
 	/// the piraq may read this structure?
 	PPACKET* _pConfigPacket;
@@ -59,7 +59,7 @@ protected:
 	/// the number of hits in each block transfer
 	/// from the piraq.
 	unsigned int Nhits;
-	void cp2piraq_fifo_init(PFIFO * fifo, char *name, int headersize, int recordsize, int recordnum);
+	void cp2piraq_fifo_init(CircularBuffer * fifo, char *name, int headersize, int recordsize, int recordnum);
 	void cp2struct_init(PINFOHEADER *h, char *fname);
 	int cp2start(CONFIG *config,PIRAQ *piraq, PPACKET * pkt);
 
