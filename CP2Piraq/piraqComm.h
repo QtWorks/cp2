@@ -113,14 +113,6 @@ at the epoch. beamnumber = pulsenumber / hits.
     float4 prt[PX_NUM_PRT];
     float4 az;   /* azimuth: referenced to 9550 MHz. possibily modified to be relative to true North. */
     float4 el;		/* elevation: referenced to 9550 MHz.  */ 
-//    uint4 transition;
-//    float4 xmit_power;
-//    float4 yaw;
-//    float4 pitch;
-//    float4 roll;
-//    float4 track;
-//    float4 gate0mag;  /* magnetron sample amplitude */
-//    float4 dacv;
     uint4  packetflag; 
 #define PPX_MAX_RADAR_NAME 16
     char radar_name[PPX_MAX_RADAR_NAME];
@@ -128,24 +120,7 @@ at the epoch. beamnumber = pulsenumber / hits.
     char channel_name[PPX_MAX_CHANNEL_NAME];
 #define PPX_MAX_SITE_NAME 12
     char site_name[PPX_MAX_SITE_NAME];
-    
-    uint4 polarization;
-    float4 test_pulse_pwr;
-    float4 test_pulse_frq;
     float4 frequency;
-
-    float4 noise_figure;
-    float4 noise_power;
-    float4 receiver_gain;
-    float4 E_plane_angle;  /* offsets from normal pointing angle */
-    float4 H_plane_angle;
-    
-
-    float4 data_sys_sat;
-    float4 antenna_gain;
-    float4 H_beam_width;
-    float4 V_beam_width;
-
     float4 xmit_pulsewidth;
     float4 rconst;
     float4 phaseoffset;

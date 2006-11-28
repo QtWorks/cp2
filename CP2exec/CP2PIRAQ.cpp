@@ -304,10 +304,6 @@ CP2PIRAQ::cp2struct_init(PINFOHEADER *h, char *fname)
 	h->prt[0]			= (float)config->prt * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
 	h->prt[1]			= (float)config->prt2 * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
 	h->bytespergate = 2*sizeof(float); // CP2: 2 fp I,Q per gate
-	// put radar file piraq_saturation_power in infoheader data_sys_sat from radar struct data_sys_sat
-	h->data_sys_sat	= radar->data_sys_sat;
-	h->E_plane_angle	= radar->E_plane_angle;
-	h->H_plane_angle	= radar->H_plane_angle;
 	h->antenna_rotation_angle	= radar->antenna_rotation_angle;
 	h->packetflag	= 0;	// clear: set to -1 by piraq on hardware EOF detect 
 	strncpy(h->radar_name,radar->radar_name,PX_MAX_RADAR_NAME);
@@ -315,19 +311,7 @@ CP2PIRAQ::cp2struct_init(PINFOHEADER *h, char *fname)
 	strncpy(h->site_name,radar->site_name,PX_MAX_SITE_NAME);
 	strncpy(h->desc,radar->desc,PX_MAX_RADAR_DESC);
 	strncpy(h->comment,radar->text,PX_SZ_COMMENT);
-	h->polarization		= 1;
-	h->test_pulse_pwr	= radar->test_pulse_pwr;
-
-	h->test_pulse_frq	= radar->test_pulse_frq;
 	h->frequency		= radar->frequency;
-	h->noise_figure	= radar->noise_figure;
-
-	h->receiver_gain	= radar->receiver_gain[0];
-	h->noise_power	= radar->noise_power[0];
-	h->data_sys_sat	= radar->data_sys_sat;
-	h->antenna_gain	= radar->antenna_gain;	
-	h->H_beam_width = radar->horz_beam_width;
-	h->V_beam_width = radar->vert_beam_width;	
 	h->xmit_pulsewidth = radar->xmit_pulsewidth;
 	h->rconst		= radar->rconst;
 	h->phaseoffset	= radar->phaseoffset;
