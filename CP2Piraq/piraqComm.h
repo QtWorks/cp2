@@ -104,18 +104,17 @@ at the epoch. beamnumber = pulsenumber / hits.
 } PINFOHEADER;
 #pragma STRUCT_ALIGN (PINFOHEADER, 8);
 
-typedef struct pdatablock {		/* data that's in the PIRAQ1 FIFO */
+typedef struct ppacket {
 	PINFOHEADER		info;
 	float				data[PMAXGATES * 12];
-	} PDATABLOCK;
-#pragma STRUCT_ALIGN (PDATABLOCK, 8);
-
-typedef struct ppacket {
-	PDATABLOCK	data;
     } PPACKET;
 #pragma STRUCT_ALIGN (PPACKET, 8);
 
-//#define	PHEADERSIZE		sizeof(PINFOHEADER)
+//-------------------------------------------------------------------
+//
+// The interfce to the circular buffer management routines
+//
+//
 #ifdef __cplusplus
 extern "C" {  // only need to export C interface if
               // used by C++ source code
