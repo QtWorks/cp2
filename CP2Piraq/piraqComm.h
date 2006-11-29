@@ -5,8 +5,6 @@
 
 #define PCIBASE		0x3000000
 
-#define	MAGIC		0x12345678
-
 #define STRUCTURE_ALIGNMENT 8 // must be a power of 2
 
 #define	PIRAQ_DEVICE_ID 	0x9054
