@@ -427,7 +427,7 @@ createSineTestWaveform(float freq)	//	create test sine waveform of freq; store t
 	int		i; 
 	 
 	test_dst = SINstore;
-	x = freq*2.0*PI;
+	x = freq*2.0*3.1415926;
 	TestWaveformiMax	= (unsigned int)(1.0/freq);
 	//	compute sinusoid suitable along pulse, for as many gates as possible: 6/uS, 1000Hz
 	for(i = 0; i <= TestWaveformiMax; i++) {	//	compute one complete test waveform (up to 2000 gates)
