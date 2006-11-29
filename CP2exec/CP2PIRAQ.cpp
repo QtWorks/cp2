@@ -92,7 +92,7 @@ CP2PIRAQ::init(char* configFname, char* dspObjFname)
 	//
 	// Not sure what the following is about; maybe the 
 	// piraq will read this information?
-	_pConfigPacket = (PPACKET *)pfifo_get_header_address(pFifo); 
+	_pConfigPacket = (PPACKET *)cb_get_header_address(pFifo); 
 	_pConfigPacket->info.flag = 0;                    // Preset the flags just in case
 	_pConfigPacket->info.channel = 0;			// set BOARD number
 
@@ -129,10 +129,10 @@ CP2PIRAQ::poll()
 	// sleep for a ms
 	Sleep(1);
 	int cycle_fifo_hits = 0;
-	PPACKET* p = (PPACKET *)pfifo_get_read_address(pFifo, 0); 
+	PPACKET* p = (PPACKET *)cb_get_read_address(pFifo, 0); 
 	// take CYCLE_HITS beams from piraq:
 	while((
-		(pfifo_hit(pFifo)) > 0) && 
+		(cb_hit(pFifo)) > 0) && 
 		(cycle_fifo_hits < CYCLE_HITS)) 
 	{ 
 		// fifo hits ready: save #hits pending 
@@ -142,7 +142,7 @@ CP2PIRAQ::poll()
 			printf("piraq %d packets %d\n", _pConfigPacket->info.channel, _totalHits);
 
 		// get the next packet in the circular buffer
-		PPACKET* pFifoPiraq = (PPACKET *)pfifo_get_read_address(pFifo, 0); 
+		PPACKET* pFifoPiraq = (PPACKET *)cb_get_read_address(pFifo, 0); 
 
 		// set the data size
 		pFifoPiraq->info.bytespergate = bytespergate; // Staggered PRT ABPDATA
@@ -235,7 +235,7 @@ CP2PIRAQ::poll()
 		//
 		// return packet to the fifo
 		//
-		pfifo_increment_tail(pFifo);
+		cb_increment_tail(pFifo);
 
 	} // end	while(fifo_hit()
 
@@ -263,16 +263,16 @@ CP2PIRAQ::stop()
 
 ///////////////////////////////////////////////////////////////////////////
 void 
-CP2PIRAQ::cp2piraq_fifo_init(CircularBuffer * fifo, char *name, int headersize, int recordsize, int recordnum)
+CP2PIRAQ::cp2piraq_fifo_init(CircularBuffer * cb, char *name, int headersize, int recordsize, int recordnum)
 {
-	if(fifo)
+	if(cb)
 	{
 		/* initialize the fifo structure */
-		fifo->header_off = sizeof(FIFO);		/* pointer to the user header */
-		fifo->fifobuf_off = fifo->header_off + headersize;	/* pointer to fifo base address */
-		fifo->record_size = recordsize;						/* size in bytes of each FIFO record */
-		fifo->record_num = recordnum;					/* number of records in FIFO buffer */
-		fifo->head = fifo->tail = 0;							/* indexes to the head and tail records */
+		cb->header_off = sizeof(FIFO);						/* pointer to the user header */
+		cb->cbbuf_off = cb->header_off + headersize;		/* pointer to cb base address */
+		cb->record_size = recordsize;						/* size in bytes of each cb record */
+		cb->record_num = recordnum;							/* number of records in cb buffer */
+		cb->head = cb->tail = 0;							/* indexes to the head and tail records */
 	}
 }
 ///////////////////////////////////////////////////////////////////////////

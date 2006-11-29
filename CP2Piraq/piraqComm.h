@@ -16,41 +16,25 @@
 #define	SEND_COMBINED	2		// execute dynamic-range extension algorithm; send resulting combined data
 #define	CHMODE_MASK		0x03	// extract channel mode bits
 
+//--------------------------------------------------------------------
+
 #pragma pack(4)
 /// A circular buffer that is filled on the Piraq side and
 /// emptied on the host side. The Piraq will increment head whenever
 /// records are added, and the host will increment tail whenever 
 /// they are removed. Management of this structure is performed
-/// by the pfifo_ routines.
+/// by the cb_ routines.
 typedef	struct 
 	{
 	int	header_off;		///< offset to the user header (can't use absolute address here) 
-	int	fifobuf_off;	///< offset to fifo base address 
-	int	record_size;	///< size in bytes of each FIFO record 
-	int	record_num;		///< number of records in FIFO buffer 
+	int	cbbuf_off;		///< offset to cb base address 
+	int	record_size;	///< size in bytes of each cb record 
+	int	record_num;		///< number of records in cb buffer 
 	int	head,tail;		///< indices to the head and tail records 
 	} CircularBuffer;
 
-///
-/// Pulsenumber (pulse_num) is the number of transmitted pulses
-/// since Jan 1970. It is a 64 bit number. It is assumed
-/// that the first pulse (pulsenumber = 0) falls exactly
-/// at the midnight Jan 1,1970 epoch. To get unix time,
-/// multiply by the PRT. The PRT is a rational number a/b.
-/// More specifically N/Fc where Fc is the counter clock (PIRAQ_CLOCK_FREQ),
-/// and N is the divider number. So you can get unix time
-/// without roundoff error by:
-///    secs = pulsenumber * N / Fc. 
-/// The computations is done with 64 bit arithmatic. No
-/// rollover will occur.
-///
-/// The 'nanosecs' field is derived without roundoff
-/// error by: 100 * (pulsenumber * N % Fc).
-///
-/// Beamnumber is the number of beams since Jan 1,1970.
-/// The first beam (beamnumber = 0) was completed exactly
-/// at the epoch. beamnumber = pulsenumber / hits. 
-    
+//--------------------------------------------------------------------
+
 /// PINFOHEADER is a header structure that contains 
 /// metadata for each individual beam. It also contains
 /// a field (flag) that is used to transmit 
@@ -68,6 +52,24 @@ typedef	struct
 /// extract useful fields (gates, etc.) from this, to initialize 
 /// itself.
 ///
+/// Pulsenumber (pulse_num) is the number of transmitted pulses
+/// since Jan 1970. It is a 64 bit number. It is assumed
+/// that the first pulse (pulsenumber = 0) falls exactly
+/// at the midnight Jan 1,1970 epoch. To get unix time,
+/// multiply by the PRT. The PRT is a rational number a/b.
+/// More specifically N/Fc where Fc is the counter clock (PIRAQ_CLOCK_FREQ),
+/// and N is the divider number. So you can get unix time
+/// without roundoff error by:
+///    secs = pulsenumber * N / Fc. 
+/// The computation is done with 64 bit arithmetic. No
+/// rollover will occur.
+///
+/// The 'nanosecs' field is derived without roundoff
+/// error by: 100 * (pulsenumber * N % Fc).
+///
+/// Beamnumber is the number of beams since Jan 1,1970.
+/// The first beam (beamnumber = 0) was completed exactly
+/// at the epoch. beamnumber = pulsenumber / hits. 
 typedef struct pinfoheader
 {   
 	int	   flag;			///< command indicator: done, new, old, handshake, whatever, ..... 
@@ -125,18 +127,18 @@ typedef struct ppacket {
 extern "C" {  // only need to export C interface if
               // used by C++ source code
 #endif
-CircularBuffer* pfifo_create(char *name, int headersize, int recordsize, int recordnum);
-CircularBuffer* pfifo_open(char *name);
-int             pfifo_close(CircularBuffer *fifo);
-void*           pfifo_get_last_address(CircularBuffer *fifo);
-int             pfifo_increment_head(CircularBuffer *fifo);
-void            pfifo_notify(CircularBuffer *fifo);
-void*           pfifo_get_read_address(CircularBuffer *fifo, int offset);
-void*           pfifo_get_write_address(CircularBuffer *fifo);
-int             pfifo_increment_tail(CircularBuffer *fifo);
-int             pfifo_hit(CircularBuffer *fifo);
-int             pfifo_exhist(char *name);
-void*           pfifo_get_header_address(CircularBuffer *fifo);
+CircularBuffer* cb_create(char *name, int headersize, int recordsize, int recordnum);
+CircularBuffer* cb_open(char *name);
+int             cb_close(CircularBuffer *cb);
+void*           cb_get_last_address(CircularBuffer *cb);
+int             cb_increment_head(CircularBuffer *cb);
+void            cb_notify(CircularBuffer *cb);
+void*           cb_get_read_address(CircularBuffer *cb, int offset);
+void*           cb_get_write_address(CircularBuffer *cb);
+int             cb_increment_tail(CircularBuffer *cb);
+int             cb_hit(CircularBuffer *cb);
+int             cb_exhist(char *name);
+void*           cb_get_header_address(CircularBuffer *cb);
 #ifdef __cplusplus
 }
 #endif

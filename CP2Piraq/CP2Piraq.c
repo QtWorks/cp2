@@ -179,10 +179,10 @@ void initTask(void)
 	
 	fifoclr = (int *)FIFOCLR;
 
-	Fifo = pfifo_open("PRQDATA");  /* the argument is not used */
+	Fifo = cb_open("PRQDATA");  /* the argument is not used */
 
 	/* Transfer packet header to current buffer */
-    src              = (unsigned int *)pfifo_get_header_address(Fifo);
+    src              = (unsigned int *)cb_get_header_address(Fifo);
     pkt              = (PINFOHEADER *)src; 
 	gates            = pkt->gates; 
 	hits             = pkt->hits; 
@@ -341,7 +341,7 @@ void pciTransferTask()
 		IRQ_Disable(IRQ_EVT_EXTINT5);
 		
 		// determine the host side destination address		
-		dst = (PPACKET *)pfifo_get_write_address(Fifo);
+		dst = (PPACKET *)cb_get_write_address(Fifo);
 		offset = (unsigned int )dst - PCIBASE; 
 
 		// Re-configure Asynchronous interface for CE1 
@@ -364,7 +364,7 @@ void pciTransferTask()
 		// which is set by an interrupt
 		SEM_pend(&PciTransferFinished, SYS_FOREVER);	
 
-		pfifo_increment_head(Fifo);
+		cb_increment_head(Fifo);
 		
 		burstready = 0; 
 		

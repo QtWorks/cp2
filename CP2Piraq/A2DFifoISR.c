@@ -83,7 +83,7 @@ void A2DFifoISR(void) {
 	// even though fifo_get_write_address(Fifo) doesn't do anything,
 	// if we do not  make the following call, the data shows a low frequency
 	// variation in the power spectrum. Very strange - this really needs to be sorted out.
-	(PPACKET *)pfifo_get_write_address(Fifo);
+	(PPACKET *)cb_get_write_address(Fifo);
 
 	/* Read FIFO 1 I */
 	dmaTransfer(1, fifo1I, a2dFifoBuffer, gates, 0); 

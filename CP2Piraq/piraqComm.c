@@ -1,28 +1,16 @@
 /********************************************************/
-// Generic FIFO routines using POSIX shared memory		 
+// Generic circular buffer (cb) routines		 
 //                                                   
-// Each FIFO buffer consists of a generic header for    
-// handling the shared memory and basic FIFO functions  
+// Each CB buffer consists of a generic header for    
+// handling the basic cb functions  
 // (i.e. head and tail pointers, base addresses, etc.), 
 // a user header which describes something common about 
-// the FIFO records (i.e. gate spacing, scaling factor, 
-// etc.), and an array of FIFO records.			
+// the CB records (i.e. gate spacing, scaling factor, 
+// etc.), and an array of CB records.			
 //                                                      
-// If the FIFO is full, the data just overwrites the    
-// last FIFO record.					
+// If the CB is full, the data just overwrites the    
+// last CB record.					
 //                                                      
-// Shared memory is managed using a list which is also  
-// shared memory. Programs can access the shared memory 
-// containing this list by getting the address from a   
-// file called /temp/sharedmem.list. This address needs 
-// to be read once. Subsequent dynamic allocations of	
-// shared memory FIFO buffers get reflected in the list 
-// immediately and all programs have shared access to	
-// that information.					
-//                                                      
-// The fifo users are awakened by UDP socket writes on up
-// to N ports.
-//
 /********************************************************/
 
 /* for shmem calls */
@@ -35,136 +23,136 @@
 /* This shorthand is useful */
 #define	FP	fp->header
 
-/* Allocate memory for a new fifo buffer. */
+/* Allocate memory for a new cb buffer. */
 /* If the FIFO is already open, then just use it */
 /* This assumes that a FIFO with a specific name is always */
 /* used the same way by any task (i.e. size, structure type, etc.) */
-CircularBuffer *pfifo_create(char *name, int headersize, int recordsize, int recordnum)
+CircularBuffer *cb_create(char *name, int headersize, int recordsize, int recordnum)
    {
 
-   CircularBuffer	*fifo;
-   fifo = (CircularBuffer *)PCIBASE;
+   CircularBuffer	*cb;
+   cb = (CircularBuffer *)PCIBASE;
 
-   if(fifo)
+   if(cb)
       {
-	   /* initialize the fifo structure */
-	   fifo->header_off = sizeof(CircularBuffer);		/* pointer to the user header */
-	   fifo->fifobuf_off = fifo->header_off + headersize;	/* pointer to fifo base address */
-	   fifo->record_size = recordsize;						/* size in bytes of each CircularBuffer record */
-	   fifo->record_num = recordnum;					/* number of records in CircularBuffer buffer */
-	   fifo->head = fifo->tail = 0;							/* indexes to the head and tail records */
+	   /* initialize the cb structure */
+	   cb->header_off = sizeof(CircularBuffer);		/* pointer to the user header */
+	   cb->cbbuf_off = cb->header_off + headersize;	/* pointer to cb base address */
+	   cb->record_size = recordsize;						/* size in bytes of each CircularBuffer record */
+	   cb->record_num = recordnum;					/* number of records in CircularBuffer buffer */
+	   cb->head = cb->tail = 0;							/* indexes to the head and tail records */
       }
       
-   return(fifo);
+   return(cb);
    }
 
 
 /* Get a pointer to the next available CircularBuffer. */
 /* Returns NULL if none available (already allocated */
-/* by pfifo_create). */
-CircularBuffer *pfifo_open(char *name)
+/* by cb_create). */
+CircularBuffer *cb_open(char *name)
    {
-   CircularBuffer	*fifo;
-//   fifo = (CircularBuffer *)shared_mem_open(name);
-   fifo = (CircularBuffer *)PCIBASE;
-//   fifo = (CircularBuffer *)(volatile unsigned int *)0x14000C8; /* PLX Mailbox 2 */
-   return(fifo);
+   CircularBuffer	*cb;
+//   cb = (CircularBuffer *)shared_mem_open(name);
+   cb = (CircularBuffer *)PCIBASE;
+//   cb = (CircularBuffer *)(volatile unsigned int *)0x14000C8; /* PLX Mailbox 2 */
+   return(cb);
    }
 
 /* do your best to destroy and remove CircularBuffer from operating system */
-int pfifo_close(CircularBuffer *fifo)
+int cb_close(CircularBuffer *cb)
    {
    return(0);
    }
 
 /* Return a pointer to the next working write record. */
 /* Return -1 if error */
-void *pfifo_get_write_address(CircularBuffer *fifo)
+void *cb_get_write_address(CircularBuffer *cb)
    {
-   return((char *)fifo + fifo->fifobuf_off + fifo->record_size * fifo->head); 
+   return((char *)cb + cb->cbbuf_off + cb->record_size * cb->head); 
    }
 
 
 /* Return a pointer to a good pointer near the head */
 /* Return -1 if error */
-void *pfifo_get_last_address(CircularBuffer *fifo)
+void *cb_get_last_address(CircularBuffer *cb)
    {
    int	last;
    
-   last = fifo->head - 1;
-   if(last < 0)	last += fifo->record_num;
-   return((char *)fifo + fifo->fifobuf_off + fifo->record_size * last); 
+   last = cb->head - 1;
+   if(last < 0)	last += cb->record_num;
+   return((char *)cb + cb->cbbuf_off + cb->record_size * last); 
    }
 
 /* Increment the CircularBuffer head pointer. Return the number of remaining */
 /* records or -1 on error */
-int pfifo_increment_head(CircularBuffer *fifo)
+int cb_increment_head(CircularBuffer *cb)
    {
    int	free;
 
-   if(!fifo)	return(-1);
+   if(!cb)	return(-1);
 
    /* this code throws away oldest data */
-//   fifo->head = (fifo->head + 1) % fifo->record_num;		   /* increment head */
-   fifo->head = ((fifo->head) + 1) % fifo->record_num;		   /* increment head */
-   if(fifo->head == fifo->tail)   /* if you are about to overwrote some data */
+//   cb->head = (cb->head + 1) % cb->record_num;		   /* increment head */
+   cb->head = ((cb->head) + 1) % cb->record_num;		   /* increment head */
+   if(cb->head == cb->tail)   /* if you are about to overwrote some data */
       {
-//      printf("CircularBuffer overflow (%s)\n",fifo->name);
-      fifo->tail = (fifo->tail + 1) % fifo->record_num;	/* increment tail */
+//      printf("CircularBuffer overflow (%s)\n",cb->name);
+      cb->tail = (cb->tail + 1) % cb->record_num;	/* increment tail */
       }
 
    /* return the number of remaining records */
-   free = fifo->tail - fifo->head;
-   if(free <= 0)	free += fifo->record_num;
+   free = cb->tail - cb->head;
+   if(free <= 0)	free += cb->record_num;
    return(free);
    }
 
 /* Return a pointer to the next working read record. */
 /* Return a NULL if the CircularBuffer is empty */
 /* Return -1 if error */
-void *pfifo_get_read_address(CircularBuffer *fifo, int offset)
+void *cb_get_read_address(CircularBuffer *cb, int offset)
    {
    int	offptr;
    
-   if(!fifo)	return((void *)-1);
+   if(!cb)	return((void *)-1);
 
-   offptr = fifo->tail + offset;
-   while(offptr < 0) offptr += fifo->record_num;
+   offptr = cb->tail + offset;
+   while(offptr < 0) offptr += cb->record_num;
 
-   return((char *)fifo + fifo->fifobuf_off + fifo->record_size * offptr); 
+   return((char *)cb + cb->cbbuf_off + cb->record_size * offptr); 
    }
 
 /* Increment the CircularBuffer tail pointer. Return the number of used */
 /* records or -1 on error */
-int pfifo_increment_tail(CircularBuffer *fifo)
+int cb_increment_tail(CircularBuffer *cb)
    {
-   if(!fifo)	return(-1);
+   if(!cb)	return(-1);
 
-   if(fifo->head == fifo->tail)	/* if empty */
+   if(cb->head == cb->tail)	/* if empty */
       return(0);		/* return without incrementing */
 
-   fifo->tail = (fifo->tail + 1) % fifo->record_num;	/* increment tail */
+   cb->tail = (cb->tail + 1) % cb->record_num;	/* increment tail */
 
-   return(pfifo_hit(fifo));
+   return(cb_hit(cb));
    }
 
 /* Return number of records waiting to be read */
 /* or -1 on error */
-int pfifo_hit(CircularBuffer *fifo)
+int cb_hit(CircularBuffer *cb)
    {
    int	used;
 
-   if(!fifo)	return(-1);
+   if(!cb)	return(-1);
 
-   used = fifo->head - fifo->tail;
-   if(used < 0)	used += fifo->record_num;
+   used = cb->head - cb->tail;
+   if(used < 0)	used += cb->record_num;
    return(used);
    }
 
 /* Return a pointer to the next working write record. */
 /* Return -1 if error */
-void *pfifo_get_header_address(CircularBuffer *fifo)
+void *cb_get_header_address(CircularBuffer *cb)
    {
-   return((char *)fifo + fifo->header_off); 
+   return((char *)cb + cb->header_off); 
    }
 
