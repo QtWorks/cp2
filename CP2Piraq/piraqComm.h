@@ -18,9 +18,6 @@
 #define	SEND_COMBINED	2		// execute dynamic-range extension algorithm; send resulting combined data
 #define	CHMODE_MASK		0x03	// extract channel mode bits
 
-#define	PMAXPACKET	1200
-#define	PMAXGATES	400		// Added to test speed; most you can do w/clutterfilter
-
 #pragma pack(4)
 /// A circular buffer that is filled on the Piraq side and
 /// emptied on the host side. The Piraq will increment head whenever
@@ -101,9 +98,9 @@ typedef struct pinfoheader
 
 /// PPACKET combines the header info from PINFOHEADER with the data array.
 typedef struct ppacket {
-	PINFOHEADER		info;
-	float				data[PMAXGATES * 12];
-    } PPACKET;
+	PINFOHEADER		info;		///< The header information in the packet.
+	float			data[2];	///< place holder for the data array.
+} PPACKET;
 #pragma STRUCT_ALIGN (PPACKET, 8);
 
 //-------------------------------------------------------------------
