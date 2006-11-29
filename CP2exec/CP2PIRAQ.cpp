@@ -92,7 +92,7 @@ CP2PIRAQ::init(char* configFname, char* dspObjFname)
 	// Not sure what the following is about; maybe the 
 	// piraq will read this information?
 	_pConfigPacket = (PPACKET *)pfifo_get_header_address(pFifo); 
-	_pConfigPacket->cmd.flag = 0;                    // Preset the flags just in case
+	_pConfigPacket->data.info.flag = 0;                    // Preset the flags just in case
 	_pConfigPacket->data.info.channel = 0;			// set BOARD number
 
 	cp2struct_init(&_pConfigPacket->data.info, configFname);   /* initialize the info structure */
@@ -188,7 +188,7 @@ CP2PIRAQ::poll()
 			desc[c] = pFifoPiraq->data.info.desc[4];
 
 		int piraqPacketSize = 
-			sizeof(PCOMMAND) + 
+//			sizeof(PCOMMAND) + 
 			sizeof(PINFOHEADER) + 
 			gates*bytespergate;
 
@@ -201,7 +201,7 @@ CP2PIRAQ::poll()
 
 		for (int i = 0; i < Nhits; i++) {
 
-			PPACKET* ppacket = (PPACKET*)((char*)&pFifoPiraq->cmd + i*piraqPacketSize);
+			PPACKET* ppacket = (PPACKET*)((char*)&pFifoPiraq->data.info + i*piraqPacketSize);
 			PACKET*   packet = (PACKET*) (udpOut + i*udpPacketSize);
 
 			packet->udp.type = UDPTYPE_PIRAQ_CP2_TIMESERIES;
@@ -339,16 +339,16 @@ int CP2PIRAQ::cp2start(CONFIG *config,PIRAQ *piraq, PPACKET * pkt)
 
 
 	/* start the DSP */
-	pkt->cmd.flag = 0; // clear location
+	pkt->data.info.flag = 0; // clear location
 	piraq->StartDsp();
 #if WAIT_FOR_PIRAQ
-	printf("waiting for pkt->cmd.flag = 1\n");
+	printf("waiting for pkt->data.info.flag = 1\n");
 	i = 0; 
-	while((pkt->cmd.flag != 1) && (i++ < 10)) { // wait for DSP program to set it
-		printf("still waiting for pkt->cmd.flag = 1\n"); Sleep(500); 
+	while((pkt->data.info.flag != 1) && (i++ < 10)) { // wait for DSP program to set it
+		printf("still waiting for pkt->data.info.flag = 1\n"); Sleep(500); 
 	} 
 #else
-	printf("NOT waiting for pkt->cmd.flag = 1\n");
+	printf("NOT waiting for pkt->data.info.flag = 1\n");
 #endif
 
 	//!!!   if (pkt->cmd.flag != 1) return(FALSE); // DSP program not yet ready

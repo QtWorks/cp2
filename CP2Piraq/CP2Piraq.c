@@ -269,7 +269,8 @@ void initTask(void)
 	*pci_cfg_ptr = 0x50000;           /* INTCSR */
 
 	pkt = (PPACKETHEADER *)((char *)Fifo + Fifo->header_off);
-	pkt->cmd.flag = 0;  // Immediately shut off the ready flag
+//	pkt->cmd.flag = 0;  // Immediately shut off the ready flag
+	pkt->info.flag = 0;  // Immediately shut off the ready flag
 			
 	/* Clear DMA interrupt -- just in case */	
 
@@ -283,7 +284,8 @@ void initTask(void)
 	*fifoclr = 0;	/* Clear i,q input fifo */
 	WriteCE1(HIGH_SPEED_MODE);	 /* re-enable high speed mode */
 	HWI_enable();   /* Enable Hardware Interrupts */
-	pkt->cmd.flag = 1;
+//	pkt->cmd.flag = 1;
+	pkt->info.flag = 1;
 
 }
 

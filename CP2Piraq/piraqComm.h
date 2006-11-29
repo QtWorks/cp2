@@ -54,14 +54,10 @@ typedef	struct
 	int	head,tail;	/* indexes to the head and tail records */
 	} CircularBuffer;
 
-typedef struct pcommand {
-	int		type;
-	int		flag;		/* done, new, old, handshake, whatever, ..... */
-	}	PCOMMAND;
-#pragma STRUCT_ALIGN (PCOMMAND, 8);
-		
 typedef struct pinfoheader
 {   
+	int		type;
+	int		flag;		/* done, new, old, handshake, whatever, ..... */
 	char desc[4];			/* "DWLX" */
     uint4 channel;          ///< board number
     /*
@@ -115,13 +111,11 @@ typedef struct pdatablock {		/* data that's in the PIRAQ1 FIFO */
 #pragma STRUCT_ALIGN (PDATABLOCK, 8);
 
 typedef struct ppacket {
-	PCOMMAND		cmd;
 	PDATABLOCK	data;
     } PPACKET;
 #pragma STRUCT_ALIGN (PPACKET, 8);
 
 typedef struct ppacket_header {			/* this structure must match the non-data portion of the PACKET structure */
-	PCOMMAND		cmd;
 	PINFOHEADER	info;
 	} PPACKETHEADER;
 #pragma STRUCT_ALIGN (PPACKETHEADER, 8);
