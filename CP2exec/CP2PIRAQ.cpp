@@ -78,8 +78,8 @@ CP2PIRAQ::init(char* configFname, char* dspObjFname)
 	// CP2: data packets sized at runtime.  + BUFFER_EPSILON
 	cp2piraq_fifo_init(
 		pFifo,"/PRQDATA", 
-		PHEADERSIZE, 
-		Nhits * (PHEADERSIZE + (_config.gatesa * bytespergate)), 
+		sizeof(PINFOHEADER), 
+		Nhits * (sizeof(PINFOHEADER) + (_config.gatesa * bytespergate)), 
 		PIRAQ_FIFO_NUM); 
 
 	if (!pFifo) { 
@@ -92,10 +92,10 @@ CP2PIRAQ::init(char* configFname, char* dspObjFname)
 	// Not sure what the following is about; maybe the 
 	// piraq will read this information?
 	_pConfigPacket = (PPACKET *)pfifo_get_header_address(pFifo); 
-	_pConfigPacket->data.info.flag = 0;                    // Preset the flags just in case
-	_pConfigPacket->data.info.channel = 0;			// set BOARD number
+	_pConfigPacket->info.flag = 0;                    // Preset the flags just in case
+	_pConfigPacket->info.channel = 0;			// set BOARD number
 
-	cp2struct_init(&_pConfigPacket->data.info, configFname);   /* initialize the info structure */
+	cp2struct_init(&_pConfigPacket->info, configFname);   /* initialize the info structure */
 
 	r_c = this->LoadDspCode(dspObjFname); // load entered DSP executable filename
 	printf("loading %s: this->LoadDspCode returns %d\n", dspObjFname, r_c);  
@@ -110,9 +110,9 @@ int
 CP2PIRAQ::start(__int64 firstPulseNum,
 				__int64 firstBeamNum) 
 {
-	_pConfigPacket->data.info.pulse_num = firstPulseNum;	// set UNIX epoch pulsenum just before starting
-	_pConfigPacket->data.info.beam_num = firstBeamNum; 
-	_pConfigPacket->data.info.packetflag = 1;			// set to piraq: get header! 
+	_pConfigPacket->info.pulse_num = firstPulseNum;	// set UNIX epoch pulsenum just before starting
+	_pConfigPacket->info.beam_num = firstBeamNum; 
+	_pConfigPacket->info.packetflag = 1;			// set to piraq: get header! 
 	// start the PIRAQ: also points the piraq to the fifo structure 
 	if (!cp2start(&_config, this, _pConfigPacket))
 	{
@@ -141,7 +141,7 @@ CP2PIRAQ::poll()
 		PPACKET* pFifoPiraq = (PPACKET *)pfifo_get_read_address(pFifo, 0); 
 
 		// set the data size
-		pFifoPiraq->data.info.bytespergate = bytespergate; // Staggered PRT ABPDATA
+		pFifoPiraq->info.bytespergate = bytespergate; // Staggered PRT ABPDATA
 
 		// bogus up pointing information for right now.
 		az += 0.5;  
@@ -154,16 +154,16 @@ CP2PIRAQ::poll()
 				volume++; // finish volume
 			}
 		} 
-		pFifoPiraq->data.info.az = az;  
-		pFifoPiraq->data.info.el = el; // set in packet 
+		pFifoPiraq->info.az = az;  
+		pFifoPiraq->info.el = el; // set in packet 
 		//////////////////////////////////////////////////////////////////////////
 		//
 		// check for pulse numbers out of sequence.
 		for (int i = 0; i < Nhits; i++) { // all hits in the packet 
 			// compute pointer to datum in an individual hit, dereference and print. 
 			// CP2 PCI Bus transfer size: Nhits * (PHEADERSIZE + (config1->gatesa * bytespergate))
-			__int64 thisPulseNumber = *(__int64 *)((char *)&pFifoPiraq->data.info.pulse_num + 
-				i*((PHEADERSIZE + 
+			__int64 thisPulseNumber = *(__int64 *)((char *)&pFifoPiraq->info.pulse_num + 
+				i*((sizeof(PINFOHEADER) + 
 				(_config.gatesa * bytespergate)))); 
 
 			if (_lastPulseNumber != thisPulseNumber - 1) { // PNs not sequential
@@ -179,13 +179,13 @@ CP2PIRAQ::poll()
 		// send data out on the socket
 
 		// This assumes that the number of gates does not change
-		int gates = pFifoPiraq->data.info.gates;
-		int bytespergates = pFifoPiraq->data.info.bytespergate;
-		int hits = pFifoPiraq->data.info.hits;
-		float prt = pFifoPiraq->data.info.prt;
+		int gates = pFifoPiraq->info.gates;
+		int bytespergates = pFifoPiraq->info.bytespergate;
+		int hits = pFifoPiraq->info.hits;
+		float prt = pFifoPiraq->info.prt;
 		char desc[4];
 		for(int c = 0; c < 4; c++)
-			desc[c] = pFifoPiraq->data.info.desc[4];
+			desc[c] = pFifoPiraq->info.desc[c];
 
 		int piraqPacketSize = 
 //			sizeof(PCOMMAND) + 
@@ -201,7 +201,7 @@ CP2PIRAQ::poll()
 
 		for (int i = 0; i < Nhits; i++) {
 
-			PPACKET* ppacket = (PPACKET*)((char*)&pFifoPiraq->data.info + i*piraqPacketSize);
+			PPACKET* ppacket = (PPACKET*)((char*)&pFifoPiraq->info + i*piraqPacketSize);
 			PACKET*   packet = (PACKET*) (udpOut + i*udpPacketSize);
 
 			packet->udp.type = UDPTYPE_PIRAQ_CP2_TIMESERIES;
@@ -216,7 +216,7 @@ CP2PIRAQ::poll()
 				packet->data.info.desc[c] = desc[c];
 
 			for (int j = 0; j < 2*gates; j++) {
-				packet->data.data[j] = ppacket->data.data[j];
+				packet->data.data[j] = ppacket->data[j];
 			}
 		}
 
@@ -243,13 +243,13 @@ CP2PIRAQ::poll()
 float
 CP2PIRAQ::prt()
 {
-	return _pConfigPacket->data.info.prt;
+	return _pConfigPacket->info.prt;
 }
 
 PINFOHEADER
 CP2PIRAQ::info()
 {
-	return _pConfigPacket->data.info;
+	return _pConfigPacket->info;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -339,16 +339,16 @@ int CP2PIRAQ::cp2start(CONFIG *config,PIRAQ *piraq, PPACKET * pkt)
 
 
 	/* start the DSP */
-	pkt->data.info.flag = 0; // clear location
+	pkt->info.flag = 0; // clear location
 	piraq->StartDsp();
 #if WAIT_FOR_PIRAQ
 	printf("waiting for pkt->data.info.flag = 1\n");
 	i = 0; 
-	while((pkt->data.info.flag != 1) && (i++ < 10)) { // wait for DSP program to set it
+	while((pkt->info.flag != 1) && (i++ < 10)) { // wait for DSP program to set it
 		printf("still waiting for pkt->data.info.flag = 1\n"); Sleep(500); 
 	} 
 #else
-	printf("NOT waiting for pkt->data.info.flag = 1\n");
+	printf("NOT waiting for pkt->info.flag = 1\n");
 #endif
 
 	//!!!   if (pkt->cmd.flag != 1) return(FALSE); // DSP program not yet ready

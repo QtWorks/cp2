@@ -105,7 +105,7 @@ void A2DFifoISR(void) {
 
    	if(temp & 0x3C000) {  /* if any of the lower 4 bits of the EOF are high */
 		*pLed1 = 0; /* turn on the EOF fault LED */
-		CurPkt->data.info.packetflag = 0xffffffffU;  // Tell PC Host got EOF!
+		CurPkt->info.packetflag = 0xffffffffU;  // Tell PC Host got EOF!
 	}
 	else {
 		*pLed1 = 1; /* Turn off the LED */
@@ -128,8 +128,8 @@ void A2DFifoISR(void) {
 	// write an integer ramp across raw data -- see what happens in the host. 
 	fp_dbg_dst = (float *)CurPkt->data.data;
 	for (i = 0, j = 0; i < gates; i++) { // all data 2 channels: add offset to distinguish data source
-		*fp_dbg_dst++ = (float)4194304*j+src->data.info.channel; j++; 	
-		*fp_dbg_dst++ = (float)4194304*j+src->data.info.channel; j++;
+		*fp_dbg_dst++ = (float)4194304*j+src->info.channel; j++; 	
+		*fp_dbg_dst++ = (float)4194304*j+src->info.channel; j++;
 	}
 #endif
 #ifdef	CP2_TEST_SINUSOID		// CP2 test sine wave along pulse in timeseries data
@@ -147,16 +147,16 @@ void A2DFifoISR(void) {
 	setPulseAndBeamNumbers(CurPkt);
 	
 	// process 2-channel hwData into 1-channel data: channel-select, gate by gate. data destination CurPkt->data.data
-	ChannelSelect(gates, (float *)a2dFifoBuffer, (float *)CurPkt->data.data, channelMode); 
+	ChannelSelect(gates, (float *)a2dFifoBuffer, (float *)CurPkt->data, channelMode); 
 
 	// move CurPkt w/combined data from DSP-internal memory to sbsRamBuffer in sbsram: 
 	sbsRamDst = (int *)((char *)sbsRamBuffer 
-		+ (sbsram_hits * (PHEADERSIZE + (gates * bytespergate))));
+		+ (sbsram_hits * (sizeof(PINFOHEADER) + (gates * bytespergate))));
 
 	dmaTransfer(0, 
 		(int*)CurPkt, 
 		sbsRamDst,  
-		(PHEADERSIZE + (gates * bytespergate)), 
+		(sizeof(PINFOHEADER) + (gates * bytespergate)), 
 		0); 
 
 	if	(burstready && (sbsram_hits == 1*boardnumber))	{	
@@ -234,8 +234,8 @@ void    setPulseAndBeamNumbers(PPACKET* pPkt)
 	/* keep track of the 64 bit pulsenumber: works here -- commented out in int_half_full() */
 	if(!(++pulse_num_low))
 		pulse_num_high++;
-	pPkt->data.info.pulse_num_low = pulse_num_low;
-	pPkt->data.info.pulse_num_high = pulse_num_high;
+	pPkt->info.pulse_num_low = pulse_num_low;
+	pPkt->info.pulse_num_high = pulse_num_high;
 
    	// update beam number when samplectr number
 	// of hits has been accumulated.
@@ -243,8 +243,8 @@ void    setPulseAndBeamNumbers(PPACKET* pPkt)
 		/* Update the beam number */
 		if(!(++beam_num_low))
 			beam_num_high++;
-		pPkt->data.info.beam_num_low = beam_num_low;
-		pPkt->data.info.beam_num_high = beam_num_high;
+		pPkt->info.beam_num_low = beam_num_low;
+		pPkt->info.beam_num_high = beam_num_high;
 		   
 		*pLed0 = led0flag ^= 1;	// Toggle the blinkin' LED
 	

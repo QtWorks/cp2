@@ -192,13 +192,13 @@ void initTask(void)
 
 	// allocate a complete 1-channel PACKET; it contains current pulse, 
 	// header plus data, post channel-select
-	CurPkt = (PPACKET *)malloc((PHEADERSIZE + (gates * bytespergate)));
+	CurPkt = (PPACKET *)malloc((sizeof(PINFOHEADER) + (gates * bytespergate)));
 	
 	// method using DSP-internal PACKET for header parameter maintenance
 	dst = (unsigned int *)CurPkt;	
 		 
 	// /4: move header as integers
-	for(i = 0; i < PHEADERSIZE/4; i++)	 
+	for(i = 0; i < sizeof(PINFOHEADER)/4; i++)	 
 		*dst++ = *src++;
 
 	// sbsRamBuffer PACKET pointer to one hit in sbsram N-hit alloc
@@ -206,7 +206,7 @@ void initTask(void)
 
 	// PACKET pointer to one hit in sbsram N-hit alloc
 	sbsRamBuffer = (PPACKET *)MEM_alloc(sbsram_seg, 
-				nPacketsPerBlock * (PHEADERSIZE + (gates * bytespergate)),
+				nPacketsPerBlock * (sizeof(PINFOHEADER) + (gates * bytespergate)),
 				0); 
 
 	// hwData DSP-internal 2-channel hwFIFO data array, interleaved I1, Q1, I2, Q2
@@ -224,14 +224,14 @@ void initTask(void)
 #endif
 
 	/* Initialize pulse and beam counters */
-	pulse_num_low  = CurPkt->data.info.pulse_num_low;
-	pulse_num_high = CurPkt->data.info.pulse_num_high;
-	beam_num_high  = CurPkt->data.info.beam_num_high;
-	beam_num_low   = CurPkt->data.info.beam_num_low;
+	pulse_num_low  = CurPkt->info.pulse_num_low;
+	pulse_num_high = CurPkt->info.pulse_num_high;
+	beam_num_high  = CurPkt->info.beam_num_high;
+	beam_num_low   = CurPkt->info.beam_num_low;
 		
 	//	Calculate DC offset normalization
 	// CP2 nix hits in normalization.
-	sumnorm = 1.0/((float)CurPkt->data.info.gates);  
+	sumnorm = 1.0/((float)CurPkt->info.gates);  
 
 	/* Clear the PCI FIFO */
 
@@ -296,10 +296,10 @@ void fillBurstFifoTask(void)
 	/* Fill burst fifo from SBSRAM */
 	while(1) {
  		SEM_pend(&FillBurstFifo,SYS_FOREVER);
-		CurPkt->data.info.pulse_num_low = pulse_num_low;
-		CurPkt->data.info.pulse_num_high = pulse_num_high;
+		CurPkt->info.pulse_num_low = pulse_num_low;
+		CurPkt->info.pulse_num_high = pulse_num_high;
 		if (sbsram_hits == nPacketsPerBlock) { // full load
-			Tfer_sz = nPacketsPerBlock * (PHEADERSIZE + (gates * bytespergate));  /* in bytes */
+			Tfer_sz = nPacketsPerBlock * (sizeof(PINFOHEADER) + (gates * bytespergate));  /* in bytes */
 		    // Disable A2D half-full fifo interrupts during data xfer */
 			IRQ_Disable(IRQ_EVT_EXTINT5);		
 			dma_fifo(Tfer_sz,(unsigned int )sbsRamBuffer);       /* DMA sbsRamBuffer to PCI Burst FIFO */
@@ -335,7 +335,7 @@ void pciTransferTask()
 		// wait for the StartPciTransfer semaphore, which
 		// signals that the burst fifo is ready to be transferred.
  		SEM_pend(&StartPciTransfer,SYS_FOREVER);
-		Tfer_sz = nPacketsPerBlock * (PHEADERSIZE + (gates * bytespergate));  /* in bytes */
+		Tfer_sz = nPacketsPerBlock * (sizeof(PINFOHEADER) + (gates * bytespergate));  /* in bytes */
 
 		// Disable A2D Fifo interrupt during data xfer */
 		IRQ_Disable(IRQ_EVT_EXTINT5);

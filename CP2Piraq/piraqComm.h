@@ -12,12 +12,6 @@
 #define	PIRAQ_DEVICE_ID 	0x9054
 #define	PIRAQ_VENDOR_ID		0x10B5   
 
-#define	true	1
-#define	false	0
-
-
-#define	PUDPSENDSIZE	(unsigned int)65536	//	size of N-hit packets in system: PIRAQ through Qt applications
-
 // 3 modes of data transfer from PIRAQ to host: first 2 are diagnostic
 #define	SEND_CHA		0		// send CHA
 #define	SEND_CHB		1		// send CHB
