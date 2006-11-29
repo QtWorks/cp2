@@ -182,13 +182,11 @@ CP2PIRAQ::poll()
 		int gates = pFifoPiraq->info.gates;
 		int bytespergates = pFifoPiraq->info.bytespergate;
 		int hits = pFifoPiraq->info.hits;
-		float prt = pFifoPiraq->info.prt;
 		char desc[4];
 		for(int c = 0; c < 4; c++)
 			desc[c] = pFifoPiraq->info.desc[c];
 
 		int piraqPacketSize = 
-//			sizeof(PCOMMAND) + 
 			sizeof(PINFOHEADER) + 
 			gates*bytespergate;
 
@@ -210,7 +208,7 @@ CP2PIRAQ::poll()
 			packet->data.info.gates = gates;
 			packet->data.info.bytespergate = bytespergate;
 			packet->data.info.hits = hits;
-			packet->data.info.prt[0] = prt;
+			packet->data.info.prt[0] = _prt;
 
 			for(int c = 0; c < 4; c++)
 				packet->data.info.desc[c] = desc[c];
@@ -243,7 +241,7 @@ CP2PIRAQ::poll()
 float
 CP2PIRAQ::prt()
 {
-	return _pConfigPacket->info.prt;
+	return _prt;
 }
 
 PINFOHEADER
@@ -298,9 +296,11 @@ CP2PIRAQ::cp2struct_init(PINFOHEADER *h, char *fname)
 
 	channel = h->channel * 2; /* here h->channel = board#; = channel# in channel-separated data */ 
 	h->gates 		= config->gatesa;
-	h->hits			= config->hits;
-	h->rcvr_pulsewidth	= (float)config->rcvr_pulsewidth * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
-	h->prt			= (float)config->prt * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
+	h->hits			= config->hits;//
+//	h->xmit_pulsewidth = config->xmit_pulsewidth;
+//	h->prt			= (float)config->prt * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
+	_xmit_pulsewidth = config->xmit_pulsewidth;
+	_prt			= (float)config->prt * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
 	h->bytespergate = 2*sizeof(float); // CP2: 2 fp I,Q per gate
 	h->packetflag	= 0;	// clear: set to -1 by piraq on hardware EOF detect 
 	strncpy(h->desc,radar->desc,PX_MAX_RADAR_DESC);

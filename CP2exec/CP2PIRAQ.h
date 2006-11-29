@@ -59,6 +59,11 @@ protected:
 	/// the number of hits in each block transfer
 	/// from the piraq.
 	unsigned int Nhits;
+    
+	float _prt;				///< The prt, set by the host. Not sure why we need this here.
+
+	float _xmit_pulsewidth;	///< The transmit pulsewidth, set by the host. Not sure why we need this here.
+
 	void cp2piraq_fifo_init(CircularBuffer * fifo, char *name, int headersize, int recordsize, int recordnum);
 	void cp2struct_init(PINFOHEADER *h, char *fname);
 	int cp2start(CONFIG *config,PIRAQ *piraq, PPACKET * pkt);

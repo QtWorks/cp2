@@ -85,12 +85,8 @@ typedef struct pinfoheader
     uint4  hits;			///< The number of hits in a beam, set by the host. Used
 							///< to calculate beam number from pulse numbers.
     uint4  bytespergate;	///< The number of bytes per gate (2*sizeof(float)),  set by the host.
-    float4 rcvr_pulsewidth;	///< The receiver pulsewidth, set by the host. Not sure why we need this here.
-    float4 prt;				///< The prt, set by the host. Not sure why we need this here.
     float4 az;				///< The azimuth, set by Piraq.
     float4 el;				///< The elevation, set by Piraq.
-    float4 frequency;		///< The radar frequency, set by the host. Not sure why we need this here.
-    float4 xmit_pulsewidth;	///< The transmit pulsewidth, set by the host. Not sure why we need this here.
 #ifdef _TMS320C6X			///        TI doesn't support long long 
     uint4 pulse_num_low;	///< Pulse number least significant word, on Piraq
     uint4 pulse_num_high;	///< Pulse number most significant word, on Piraq

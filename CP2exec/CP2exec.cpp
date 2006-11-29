@@ -28,13 +28,13 @@ static char THIS_FILE[] = __FILE__;
 
 static	int	FIRSTIMER=1;
 #define	OFFSET	10
-int cp2timer_config(TIMER *timer, PINFOHEADER *info);
-int   cp2timer_init(TIMER *timer, int boardnumber);
+int  cp2timer_config(TIMER *timer, PINFOHEADER *info, float radar_prt, float xmit_pulsewidth);
+int  cp2timer_init(TIMER *timer, int boardnumber);
 void cp2timer_reset(TIMER *timer);
 void cp2timer_set(TIMER *timer);
 void cp2timer_start(TIMER *timer);
 void cp2timer_stop(TIMER *timer);
-int	cp2timer_test(TIMER *timer);
+int	 cp2timer_test(TIMER *timer);
 
 
 int   cp2timer_init(TIMER *timer, int boardnumber)
@@ -86,7 +86,7 @@ int   cp2timer_init(TIMER *timer, int boardnumber)
    }
    /* fill the timer structure based on the infoheader */
 /* Return 0 on failure, 1 on success */
-int cp2timer_config(TIMER *timer, PINFOHEADER *info)
+int cp2timer_config(TIMER *timer, PINFOHEADER *info, float radar_prt, float xmit_pulsewidth)
    {
    int		i,dualprt;
    HILO		delay,width,prt;
@@ -105,7 +105,7 @@ int cp2timer_config(TIMER *timer, PINFOHEADER *info)
    /* now set the pulsewidths a delays for the 6 timers */
    /* set timers to stagger delay the six frequencies */
    /* using the specified pulsewidth */
-   width.hilo = COUNTFREQ * info->xmit_pulsewidth + 0.5;
+   width.hilo = COUNTFREQ * xmit_pulsewidth + 0.5;
    for(i=0; i<MAXTESTPULSE; i++)
       {
       delay.hilo = OFFSET + i * width.hilo;
@@ -115,9 +115,8 @@ int cp2timer_config(TIMER *timer, PINFOHEADER *info)
       timer->tp[i].width.byte.hi = width.byte.hi;
       }
    
-//   timer->seqlen = info->polarization;   /* the sequence based on the sequence length */
    timer->seqlen = 1;   /* for now the sequence will always be 1 deep */
-   prt.hilo = info->prt  * COUNTFREQ + 0.5;		/* compute prt */
+   prt.hilo = radar_prt  * COUNTFREQ + 0.5;		/* compute prt */
 
    /* check sanity of request */
    if(timer->seqlen > 12 || timer->seqlen < 1)	{printf("TIMER_CONFIG: invalid sequence length %d\n",timer->seqlen); return(0);}
@@ -498,8 +497,7 @@ main(int argc, char* argv[], char* envp[])
 
 	PINFOHEADER info;
 	info = piraq3->info();
-//	start_timer_card(&ext_timer, &info);  
-	cp2timer_config(&ext_timer,&info);
+	cp2timer_config(&ext_timer, &info, config3->prt, config3->xmit_pulsewidth);
     cp2timer_set(&ext_timer);		// put the timer structure into the timer DPRAM 
     cp2timer_reset(&ext_timer);	// tell the timer to initialize with the values from DPRAM 
     cp2timer_start(&ext_timer);	// start timer 
