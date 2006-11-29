@@ -24,12 +24,11 @@
 /// by the pfifo_ routines.
 typedef	struct 
 	{
-	int	size;			/* total size of allocated memory for this FIFO */
-	int	header_off;		/* offset to the user header (can't use absolute address here) */
-	int	fifobuf_off;	/* offset to fifo base address */
-	int	record_size;	/* size in bytes of each FIFO record */
-	int	record_num;		/* number of records in FIFO buffer */
-	int	head,tail;		/* indices to the head and tail records */
+	int	header_off;		///< offset to the user header (can't use absolute address here) 
+	int	fifobuf_off;	///< offset to fifo base address 
+	int	record_size;	///< size in bytes of each FIFO record 
+	int	record_num;		///< number of records in FIFO buffer 
+	int	head,tail;		///< indices to the head and tail records 
 	} CircularBuffer;
 
 ///
