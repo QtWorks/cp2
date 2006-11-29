@@ -19,7 +19,8 @@ PIRAQ(),
 Nhits(Nhits_), 
 outport(outputPort_), 
 bytespergate(2 * sizeof(float)),
-_lastPulseNumber(0)
+_lastPulseNumber(0),
+_totalHits(0)
 {
 
 	if((outsock = open_udp_out(destIP)) ==  ERROR)			/* open one socket */
@@ -136,6 +137,9 @@ CP2PIRAQ::poll()
 	{ 
 		// fifo hits ready: save #hits pending 
 		cycle_fifo_hits++; 
+		_totalHits++;
+		if (!(_totalHits % 200))
+			printf("piraq %d packets %d\n", _pConfigPacket->info.channel, _totalHits);
 
 		// get the next packet in the circular buffer
 		PPACKET* pFifoPiraq = (PPACKET *)pfifo_get_read_address(pFifo, 0); 
