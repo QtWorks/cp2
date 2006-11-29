@@ -241,7 +241,7 @@ void initTask(void)
 	// set up the dma channels
 	initializeDma();
 
-/* Re-configure Asynchronous interface for CE1 */
+	/* Re-configure Asynchronous interface for CE1 */
 	/* Increase cycle length to talk to PLX chip */
     
 	WriteCE1(PLX_CFG_MODE);

@@ -54,11 +54,6 @@ typedef	struct
 	int	head,tail;	/* indexes to the head and tail records */
 	} CircularBuffer;
 
-typedef struct pudp_header{
-    int totalsize;      /* total amount of data only (don't count the size of this header) */
-} PUDPHEADER;
-#pragma STRUCT_ALIGN (PUDPHEADER, 8);
-
 typedef struct pcommand {
 	int		type;
 	int		flag;		/* done, new, old, handshake, whatever, ..... */
@@ -120,14 +115,12 @@ typedef struct pdatablock {		/* data that's in the PIRAQ1 FIFO */
 #pragma STRUCT_ALIGN (PDATABLOCK, 8);
 
 typedef struct ppacket {
-	PUDPHEADER	udp;
 	PCOMMAND		cmd;
 	PDATABLOCK	data;
     } PPACKET;
 #pragma STRUCT_ALIGN (PPACKET, 8);
 
 typedef struct ppacket_header {			/* this structure must match the non-data portion of the PACKET structure */
-	PUDPHEADER	udp;
 	PCOMMAND		cmd;
 	PINFOHEADER	info;
 	} PPACKETHEADER;

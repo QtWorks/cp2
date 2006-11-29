@@ -187,7 +187,7 @@ CP2PIRAQ::poll()
 		for(int c = 0; c < 4; c++)
 			desc[c] = pFifoPiraq->data.info.desc[4];
 
-		int piraqPacketSize = sizeof(PUDPHEADER)+
+		int piraqPacketSize = 
 			sizeof(PCOMMAND) + 
 			sizeof(PINFOHEADER) + 
 			gates*bytespergate;
@@ -201,7 +201,7 @@ CP2PIRAQ::poll()
 
 		for (int i = 0; i < Nhits; i++) {
 
-			PPACKET* ppacket = (PPACKET*)((char*)&pFifoPiraq->udp + i*piraqPacketSize);
+			PPACKET* ppacket = (PPACKET*)((char*)&pFifoPiraq->cmd + i*piraqPacketSize);
 			PACKET*   packet = (PACKET*) (udpOut + i*udpPacketSize);
 
 			packet->udp.type = UDPTYPE_PIRAQ_CP2_TIMESERIES;
