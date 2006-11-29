@@ -139,7 +139,7 @@ void initTask(void)
 	int 			i;
 	volatile int 	ii,j;
 	int 			sbsram_seg;
-	PPACKETHEADER	*pkt;
+	PINFOHEADER	*pkt;
 	unsigned int	*src, *dst;
 
 /* Initialize Essential DSP Control Registers */
@@ -183,12 +183,12 @@ void initTask(void)
 
 	/* Transfer packet header to current buffer */
     src              = (unsigned int *)pfifo_get_header_address(Fifo);
-    pkt              = (PPACKETHEADER *)src; 
-	gates            = pkt->info.gates; 
-	hits             = pkt->info.hits; 
-	bytespergate     = pkt->info.bytespergate;
-	boardnumber      =  pkt->info.channel;
-	nPacketsPerBlock = pkt->info.packetsPerBlock;
+    pkt              = (PINFOHEADER *)src; 
+	gates            = pkt->gates; 
+	hits             = pkt->hits; 
+	bytespergate     = pkt->bytespergate;
+	boardnumber      = pkt->channel;
+	nPacketsPerBlock = pkt->packetsPerBlock;
 
 	// allocate a complete 1-channel PACKET; it contains current pulse, 
 	// header plus data, post channel-select
@@ -268,9 +268,8 @@ void initTask(void)
 	pci_cfg_ptr = (volatile unsigned int *)0x14000E8; 
 	*pci_cfg_ptr = 0x50000;           /* INTCSR */
 
-	pkt = (PPACKETHEADER *)((char *)Fifo + Fifo->header_off);
-//	pkt->cmd.flag = 0;  // Immediately shut off the ready flag
-	pkt->info.flag = 0;  // Immediately shut off the ready flag
+	pkt = (PINFOHEADER *)((char *)Fifo + Fifo->header_off);
+	pkt->flag = 0;  // Immediately shut off the ready flag
 			
 	/* Clear DMA interrupt -- just in case */	
 
@@ -284,8 +283,7 @@ void initTask(void)
 	*fifoclr = 0;	/* Clear i,q input fifo */
 	WriteCE1(HIGH_SPEED_MODE);	 /* re-enable high speed mode */
 	HWI_enable();   /* Enable Hardware Interrupts */
-//	pkt->cmd.flag = 1;
-	pkt->info.flag = 1;
+	pkt->flag = 1;
 
 }
 

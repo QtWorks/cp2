@@ -115,12 +115,7 @@ typedef struct ppacket {
     } PPACKET;
 #pragma STRUCT_ALIGN (PPACKET, 8);
 
-typedef struct ppacket_header {			/* this structure must match the non-data portion of the PACKET structure */
-	PINFOHEADER	info;
-	} PPACKETHEADER;
-#pragma STRUCT_ALIGN (PPACKETHEADER, 8);
-	
-#define	PHEADERSIZE		sizeof(PPACKETHEADER)
+#define	PHEADERSIZE		sizeof(PINFOHEADER)
 #define	PRECORDLEN(a)  (sizeof(PINFOHEADER) + (PDATASIZE(a)))
 #define	PDATASIZE(a)   (a->data.info.gates * a->data.info.bytespergate)
 #ifdef __cplusplus
