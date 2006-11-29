@@ -115,9 +115,7 @@ typedef struct ppacket {
     } PPACKET;
 #pragma STRUCT_ALIGN (PPACKET, 8);
 
-#define	PHEADERSIZE		sizeof(PINFOHEADER)
-#define	PRECORDLEN(a)  (sizeof(PINFOHEADER) + (PDATASIZE(a)))
-#define	PDATASIZE(a)   (a->data.info.gates * a->data.info.bytespergate)
+//#define	PHEADERSIZE		sizeof(PINFOHEADER)
 #ifdef __cplusplus
 extern "C" {  // only need to export C interface if
               // used by C++ source code
