@@ -455,9 +455,9 @@ main(int argc, char* argv[], char* envp[])
 	//    are found in succesion, even if we will not be collecting data 
 	//    from all of them.
 
-	piraq1 = new CP2PIRAQ(destIP, outport,   fname1, argv[1], Nhits);
-	piraq2 = new CP2PIRAQ(destIP, outport+1, fname2, argv[1], Nhits);
-	piraq3 = new CP2PIRAQ(destIP, outport+2, fname3, argv[1], Nhits);
+	piraq1 = new CP2PIRAQ(destIP, outport,   fname1, argv[1], Nhits, 0);
+	piraq2 = new CP2PIRAQ(destIP, outport+1, fname2, argv[1], Nhits, 1);
+	piraq3 = new CP2PIRAQ(destIP, outport+2, fname3, argv[1], Nhits, 2);
 
 	///////////////////////////////////////////////////////////////////////////
 	//

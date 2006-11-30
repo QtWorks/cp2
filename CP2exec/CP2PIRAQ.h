@@ -12,7 +12,8 @@ public:
 		int outputPort,
 		char* configFname,
 		char* dspObjFnamefloat,
-		unsigned int Nhits
+		unsigned int Nhits,
+		int boardnum
 		);
 
 	~CP2PIRAQ();
@@ -65,6 +66,8 @@ protected:
 	float _xmit_pulsewidth;	///< The transmit pulsewidth, set by the host. Not sure why we need this here.
 
 	unsigned int _totalHits;
+
+	int _boardnum;
 
 	void cp2piraq_fifo_init(CircularBuffer * fifo, char *name, int headersize, int recordsize, int recordnum);
 	void cp2struct_init(PINFOHEADER *h, char *fname);

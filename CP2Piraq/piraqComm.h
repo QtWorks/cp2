@@ -127,8 +127,8 @@ typedef struct ppacket {
 extern "C" {  // only need to export C interface if
               // used by C++ source code
 #endif
-CircularBuffer* cb_create(char *name, int headersize, int recordsize, int recordnum);
-CircularBuffer* cb_open(char *name);
+CircularBuffer* cb_create(int headersize, int recordsize, int recordnum);
+CircularBuffer* cb_open();
 int             cb_close(CircularBuffer *cb);
 void*           cb_get_last_address(CircularBuffer *cb);
 int             cb_increment_head(CircularBuffer *cb);

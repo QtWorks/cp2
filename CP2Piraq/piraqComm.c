@@ -24,10 +24,10 @@
 #define	FP	fp->header
 
 /* Allocate memory for a new cb buffer. */
-/* If the FIFO is already open, then just use it */
-/* This assumes that a FIFO with a specific name is always */
+/* If the cb is already open, then just use it */
+/* This assumes that a cb with a specific name is always */
 /* used the same way by any task (i.e. size, structure type, etc.) */
-CircularBuffer *cb_create(char *name, int headersize, int recordsize, int recordnum)
+CircularBuffer *cb_create(int headersize, int recordsize, int recordnum)
    {
 
    CircularBuffer	*cb;
@@ -50,12 +50,10 @@ CircularBuffer *cb_create(char *name, int headersize, int recordsize, int record
 /* Get a pointer to the next available CircularBuffer. */
 /* Returns NULL if none available (already allocated */
 /* by cb_create). */
-CircularBuffer *cb_open(char *name)
+CircularBuffer *cb_open()
    {
    CircularBuffer	*cb;
-//   cb = (CircularBuffer *)shared_mem_open(name);
    cb = (CircularBuffer *)PCIBASE;
-//   cb = (CircularBuffer *)(volatile unsigned int *)0x14000C8; /* PLX Mailbox 2 */
    return(cb);
    }
 
@@ -93,11 +91,9 @@ int cb_increment_head(CircularBuffer *cb)
    if(!cb)	return(-1);
 
    /* this code throws away oldest data */
-//   cb->head = (cb->head + 1) % cb->record_num;		   /* increment head */
    cb->head = ((cb->head) + 1) % cb->record_num;		   /* increment head */
    if(cb->head == cb->tail)   /* if you are about to overwrote some data */
       {
-//      printf("CircularBuffer overflow (%s)\n",cb->name);
       cb->tail = (cb->tail + 1) % cb->record_num;	/* increment tail */
       }
 

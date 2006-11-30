@@ -14,13 +14,15 @@ CP2PIRAQ::CP2PIRAQ(char* destIP,
 				   int outputPort_, 
 				   char* configFname, 
 				   char* dspObjFname,
-				   unsigned int Nhits_):
+				   unsigned int Nhits_,
+				   int boardnum):
 PIRAQ(),
 Nhits(Nhits_), 
 outport(outputPort_), 
 bytespergate(2 * sizeof(float)),
 _lastPulseNumber(0),
-_totalHits(0)
+_totalHits(0),
+_boardnum(boardnum)
 {
 
 	if((outsock = open_udp_out(destIP)) ==  ERROR)			/* open one socket */
@@ -89,20 +91,20 @@ CP2PIRAQ::init(char* configFname, char* dspObjFname)
 	printf("pFifo = %p, recordsize = %d\n", pFifo, pFifo->record_size); 
 
 	//////////////////////////////////////////////////////////////////
-	//
-	// Not sure what the following is about; maybe the 
-	// piraq will read this information?
+
+	// Get the start of the PCI memory space. The packet metadata will
+	// be placed there for the Piraq to read.
 	_pConfigPacket = (PPACKET *)cb_get_header_address(pFifo); 
-	_pConfigPacket->info.flag = 0;                    // Preset the flags just in case
-	_pConfigPacket->info.channel = 0;			// set BOARD number
 
-	cp2struct_init(&_pConfigPacket->info, configFname);   /* initialize the info structure */
+	cp2struct_init(&_pConfigPacket->info, configFname);		// initialize the info structure
+	_pConfigPacket->info.flag = 0;							// Preset the flags just in case
+	_pConfigPacket->info.channel = _boardnum;				// set BOARD number
 
-	r_c = this->LoadDspCode(dspObjFname); // load entered DSP executable filename
+	r_c = this->LoadDspCode(dspObjFname);					// load entered DSP executable filename
 	printf("loading %s: this->LoadDspCode returns %d\n", dspObjFname, r_c);  
-	timerset(&_config, this); // !note: also programs pll and FIR filter. 
+	timerset(&_config, this);								// !note: also programs pll and FIR filter. 
 
-	this->SetCP2PIRAQTestAction(SEND_CHA);	//	send CHA by default; SEND_COMBINED after dynamic-range extension implemented 
+	this->SetCP2PIRAQTestAction(SEND_CHA);					//	send CHA by default; SEND_COMBINED after dynamic-range extension implemented 
 	return 0;
 }
 
@@ -268,7 +270,7 @@ CP2PIRAQ::cp2piraq_fifo_init(CircularBuffer * cb, char *name, int headersize, in
 	if(cb)
 	{
 		/* initialize the fifo structure */
-		cb->header_off = sizeof(FIFO);						/* pointer to the user header */
+		cb->header_off = sizeof(CircularBuffer);						/* pointer to the user header */
 		cb->cbbuf_off = cb->header_off + headersize;		/* pointer to cb base address */
 		cb->record_size = recordsize;						/* size in bytes of each cb record */
 		cb->record_num = recordnum;							/* number of records in cb buffer */
@@ -285,7 +287,6 @@ CP2PIRAQ::cp2struct_init(PINFOHEADER *h, char *fname)
 	FILE * SynthAngleInfo; 
 
 	int  i; 
-	unsigned int channel; // radar channel for channel-specific parameters (RapidDOW) 
 
 	h->packetsPerBlock = Nhits;
 
@@ -297,12 +298,8 @@ CP2PIRAQ::cp2struct_init(PINFOHEADER *h, char *fname)
 
 	h->gates 		= config->gatesa;
 	h->hits			= config->hits;
-
-	channel = h->channel * 2; /* here h->channel = board#; = channel# in channel-separated data */ 
 	h->gates 		= config->gatesa;
 	h->hits			= config->hits;//
-//	h->xmit_pulsewidth = config->xmit_pulsewidth;
-//	h->prt			= (float)config->prt * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
 	_xmit_pulsewidth = config->xmit_pulsewidth;
 	_prt			= (float)config->prt * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
 	h->bytespergate = 2*sizeof(float); // CP2: 2 fp I,Q per gate

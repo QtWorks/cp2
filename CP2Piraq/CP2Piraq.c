@@ -179,7 +179,7 @@ void initTask(void)
 	
 	fifoclr = (int *)FIFOCLR;
 
-	Fifo = cb_open("PRQDATA");  /* the argument is not used */
+	Fifo = cb_open();  /* the argument is not used */
 
 	/* Transfer packet header to current buffer */
     src              = (unsigned int *)cb_get_header_address(Fifo);
