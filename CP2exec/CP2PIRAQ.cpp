@@ -22,7 +22,8 @@ outport(outputPort_),
 bytespergate(2 * sizeof(float)),
 _lastPulseNumber(0),
 _totalHits(0),
-_boardnum(boardnum)
+_boardnum(boardnum),
+PNerrors(0)
 {
 
 	if((outsock = open_udp_out(destIP)) ==  ERROR)			/* open one socket */
@@ -141,13 +142,14 @@ CP2PIRAQ::poll()
 		cycle_fifo_hits++; 
 		_totalHits++;
 		if (!(_totalHits % 200))
-			printf("piraq %d packets %d\n", _pConfigPacket->info.channel, _totalHits);
+			printf("piraq %d packets %d (seq errors %d)\n", 
+			_pConfigPacket->info.channel, 
+			_totalHits,
+			PNerrors);
 
 		// get the next packet in the circular buffer
 		PPACKET* pFifoPiraq = (PPACKET *)cb_get_read_address(pFifo, 0); 
-
-		// set the data size
-		pFifoPiraq->info.bytespergate = bytespergate; // Staggered PRT ABPDATA
+//		pFifoPiraq->info.bytespergate = bytespergate; 
 
 		// bogus up pointing information for right now.
 		az += 0.5;  
