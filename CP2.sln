@@ -21,6 +21,18 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CP2Scope", "CP2Scope\CP2Sco
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "test\test.vcproj", "{2EA9C765-3678-47D9-9595-55DA73C59644}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test1", "test1\test1.vcproj", "{6CF90A9B-0DED-4130-A0D2-F6A0FDD8A8AE}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Moments", "Moments\Moments.vcproj", "{B4F88715-7416-4BF0-BB8F-E424FD428262}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -47,6 +59,18 @@ Global
 		{7E9275A6-2DE5-4F34-8305-A8BC31999076}.Debug.Build.0 = Debug|Win32
 		{7E9275A6-2DE5-4F34-8305-A8BC31999076}.Release.ActiveCfg = Release|Win32
 		{7E9275A6-2DE5-4F34-8305-A8BC31999076}.Release.Build.0 = Release|Win32
+		{2EA9C765-3678-47D9-9595-55DA73C59644}.Debug.ActiveCfg = Debug|Win32
+		{2EA9C765-3678-47D9-9595-55DA73C59644}.Debug.Build.0 = Debug|Win32
+		{2EA9C765-3678-47D9-9595-55DA73C59644}.Release.ActiveCfg = Release|Win32
+		{2EA9C765-3678-47D9-9595-55DA73C59644}.Release.Build.0 = Release|Win32
+		{6CF90A9B-0DED-4130-A0D2-F6A0FDD8A8AE}.Debug.ActiveCfg = Debug|Win32
+		{6CF90A9B-0DED-4130-A0D2-F6A0FDD8A8AE}.Debug.Build.0 = Debug|Win32
+		{6CF90A9B-0DED-4130-A0D2-F6A0FDD8A8AE}.Release.ActiveCfg = Release|Win32
+		{6CF90A9B-0DED-4130-A0D2-F6A0FDD8A8AE}.Release.Build.0 = Release|Win32
+		{B4F88715-7416-4BF0-BB8F-E424FD428262}.Debug.ActiveCfg = Debug|Win32
+		{B4F88715-7416-4BF0-BB8F-E424FD428262}.Debug.Build.0 = Debug|Win32
+		{B4F88715-7416-4BF0-BB8F-E424FD428262}.Release.ActiveCfg = Release|Win32
+		{B4F88715-7416-4BF0-BB8F-E424FD428262}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
