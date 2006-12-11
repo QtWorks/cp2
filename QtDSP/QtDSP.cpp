@@ -379,8 +379,8 @@ QtDSP::SABPgen(int rcvChan) {	//	generate S-band ABPs on rcvChan data
 
 	if	(!_SABPgenBeginPN)	{	//	first time: get a suitable PN to begin beam calculations (need BN-2 so two lags are correct)
 		while(1)	{	//	until  PN = (BN * _hits) - 2 is found
-			if (rcvChannel[rcvChan]._fifo->size() < 2)
-				return;
+//			if (rcvChannel[rcvChan]._fifo->size() < 2)
+//				return;
 			buf = &(rcvChannel[rcvChan]._fifo->fpfront()[0]);	//	refer to oldest FIFO entry
 			PNptr = (uint8*)((char *)(&buf[0]) + _PNOffset);	//	compute PN offset in it
 			PN = *PNptr; 
