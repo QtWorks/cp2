@@ -172,6 +172,9 @@
 				RelativePath="CP2exec.rc">
 			</File>
 			<File
+				RelativePath=".\CP2Net.cpp">
+			</File>
+			<File
 				RelativePath=".\CP2PIRAQ.cpp">
 			</File>
 			<File

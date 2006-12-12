@@ -1,6 +1,8 @@
 #ifndef CP2NETDATAINC_
 #define CP2NETDATAINC_
 
+#include <vector>
+
 /// A header for each beam of data
 typedef struct CP2NetBeamHeader {
     int  channel;			///< 
@@ -23,7 +25,7 @@ typedef struct CP2NetBeam {
 /// Multiple CP2NetBeams are combined into one packet.
 /// Consecutive beams do not need to have the same
 /// data member length.
-typdef struct CP2NetPacket {
+typedef struct CP2NetPacket {
 	int numBeams;					///< The number of following beams in this packet
 	CP2NetBeam* cp2NetBeams;		///< a vector of CP2NetBeams
 } CP2NetPacket;
@@ -35,6 +37,7 @@ typdef struct CP2NetPacket {
 class CP2Packet{
 public:
 	CP2Packet();
+	virtual ~CP2Packet();
 	/// Add a data beam to the packet
 	void addBeam(
 		CP2NetBeamHeader& header,   ///< The beam header information
@@ -55,5 +58,5 @@ protected:
 	/// are only done as necessary to met the maximum requested
 	/// size.
 	std::vector<unsigned char> _packetData;
-}
+};
 #endif
