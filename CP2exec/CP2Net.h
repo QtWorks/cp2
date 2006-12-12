@@ -4,7 +4,7 @@
 #include <vector>
 
 /// A header for each beam of data
-typedef struct CP2NetBeamHeader {
+typedef struct CP2BeamHeader {
     int  channel;			///< 
     int  gates;				///< The number of gates, set by the host.
     int  hits;				///< The number of hits in a beam, set by the host. Used
@@ -16,19 +16,11 @@ typedef struct CP2NetBeamHeader {
 } CP2NetBeamHeader;
 
 /// A header and data are combined to make one beam.
-typedef struct CP2NetBeam {
+typedef struct CP2Beam {
 	CP2NetBeamHeader header;///< The beam header.
 	int numDataValues;		///< The number of data values (note: not a byte count)
 	float* data;			///< An array of data values will start here.
 } CP2NetBeam;
-
-/// Multiple CP2NetBeams are combined into one packet.
-/// Consecutive beams do not need to have the same
-/// data member length.
-typedef struct CP2NetPacket {
-	int numBeams;					///< The number of following beams in this packet
-	CP2NetBeam* cp2NetBeams;		///< a vector of CP2NetBeams
-} CP2NetPacket;
 
 /// Interface for working with CP2 network data
 /// transmission. When constructed, an area for
@@ -46,10 +38,18 @@ public:
 		);
 	/// Empty the packet of data.
 	void clear();
-	/// @return The size (in bytes) of the CP2NetPacket.
-	int size();
-	/// @return A pointer to the begining of the CP2NetPacket array.
-	CP2NetPacket* data();
+	/// @return The size (in bytes) of the CP2Packet.
+	int packetSize();
+	/// @return A pointer to the begining of the CP2Beam array.
+	void* packetData();
+	/// @return The number of beams in the packet
+	int numBeams();
+	/// Fetch a beam
+	/// @param i The beam index. It must be less than 
+	/// the value returned by numBeams(). 
+	/// @return A pointer to beam i. If the index
+	/// is illeagal, null is returned.
+	CP2Beam* getBeam(int index);
 
 protected:
 	/// The vector that will be expanded with beam data when 
@@ -58,5 +58,9 @@ protected:
 	/// are only done as necessary to met the maximum requested
 	/// size.
 	std::vector<unsigned char> _packetData;
+	/// The amount of data currently in the _packet data
+	int _dataSize;
+	/// The offset to each beam in the packet
+	std::vector<int> _beamOffset;
 };
 #endif

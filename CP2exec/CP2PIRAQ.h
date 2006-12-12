@@ -68,7 +68,7 @@ protected:
 	/// socket file descriptor
 	int _socketFd;
 
-	CP2NetPacket* _pOutCp2Packet;
+	CP2Packet _cp2Packet;
 
 	float _prt;				///< The prt, set by the host. Not sure why we need this here.
 

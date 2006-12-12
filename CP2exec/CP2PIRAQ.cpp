@@ -203,7 +203,26 @@ CP2PIRAQ::poll()
 			sizeof(PINFOHEADER) + 
 			gates*bytespergate;
 
-		int bytesSent = sendData(Nhits*piraqPacketSize, (void*) pFifoPiraq);
+		// set up a header
+		CP2NetBeamHeader header;
+		header.channel = _boardnum;
+		
+		// empty the packet
+		_cp2Packet.clear();
+
+		// add all beams
+		for (int i = 0; i < Nhits; i++) {
+			PPACKET* ppacket = (PPACKET*)((char*)&pFifoPiraq->info + i*piraqPacketSize);
+			header.az        = 10.0;
+			header.el        = 3.2;
+			header.beam_num  = ppacket->info.beam_num;
+			header.pulse_num = ppacket->info.pulse_num;
+			header.gates     = ppacket->info.gates;
+			header.hits      = ppacket->info.hits;
+			_cp2Packet.addBeam(header, header.gates*2, ppacket->data);
+		}
+
+		int bytesSent = sendData(_cp2Packet.packetSize(),_cp2Packet.packetData());
 
 		int udpPacketSize = sizeof(UDPHEADER)+
 			sizeof(COMMAND) + 
