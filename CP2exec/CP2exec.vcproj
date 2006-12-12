@@ -207,6 +207,9 @@
 				RelativePath="CP2exec.h">
 			</File>
 			<File
+				RelativePath=".\CP2Net.h">
+			</File>
+			<File
 				RelativePath=".\CP2PIRAQ.h">
 			</File>
 			<File

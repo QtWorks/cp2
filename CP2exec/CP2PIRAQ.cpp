@@ -1,4 +1,4 @@
-//#include <winsock2.h>
+#include <winsock2.h>
 #include "CP2PIRAQ.h"
 #include "../include/proto.h"
 #include "piraqComm.h"
@@ -10,13 +10,18 @@
 #define CYCLE_HITS 20
 
 ///////////////////////////////////////////////////////////////////////////
-CP2PIRAQ::CP2PIRAQ(char* destIP,
-				   int outputPort_, 
-				   char* configFname, 
-				   char* dspObjFname,
-				   unsigned int Nhits_,
-				   int boardnum):
+CP2PIRAQ::CP2PIRAQ(
+struct sockaddr_in sockAddr,
+	int socketFd,
+	char* destIP,
+	int outputPort_, 
+	char* configFname, 
+	char* dspObjFname,
+	unsigned int Nhits_,
+	int boardnum):
 PIRAQ(),
+_sockAddr(sockAddr),
+_socketFd(socketFd),
 Nhits(Nhits_), 
 outport(outputPort_), 
 bytespergate(2 * sizeof(float)),
@@ -26,12 +31,11 @@ _boardnum(boardnum),
 PNerrors(0)
 {
 
-	if((outsock = open_udp_out(destIP)) ==  ERROR)			/* open one socket */
-	{
-		printf("Could not open output socket\n"); 
-		exit(0);
-	}
-
+	//	if((outsock = open_udp_out(destIP)) ==  ERROR)			/* open one socket */
+	//	{
+	//		printf("Could not open output socket\n"); 
+	//		exit(0);
+	//	}
 	init(configFname, dspObjFname);
 }
 
@@ -125,6 +129,7 @@ CP2PIRAQ::start(__int64 firstPulseNum,
 	}
 	return 0;
 }
+
 /////////////////////////////////////////////////////////////////////////////
 int
 CP2PIRAQ::poll() 
@@ -149,7 +154,7 @@ CP2PIRAQ::poll()
 
 		// get the next packet in the circular buffer
 		PPACKET* pFifoPiraq = (PPACKET *)cb_get_read_address(pFifo, 0); 
-//		pFifoPiraq->info.bytespergate = bytespergate; 
+		//		pFifoPiraq->info.bytespergate = bytespergate; 
 
 		// bogus up pointing information for right now.
 		az += 0.5;  
@@ -198,6 +203,8 @@ CP2PIRAQ::poll()
 			sizeof(PINFOHEADER) + 
 			gates*bytespergate;
 
+		int bytesSent = sendData(Nhits*piraqPacketSize, (void*) pFifoPiraq);
+
 		int udpPacketSize = sizeof(UDPHEADER)+
 			sizeof(COMMAND) + 
 			sizeof(INFOHEADER) + 
@@ -231,7 +238,7 @@ CP2PIRAQ::poll()
 		// we start triming down PUDPHEADER, we will need to 
 		// put a translation from PUDPHEADER to UDPHEADER. Better
 		// yet, jut plan to broadcast PUDPHEADER. 
-		seq = send_udp_packet(outsock, outport, seq, (UDPHEADER*)udpOut); 
+//		seq = send_udp_packet(outsock, outport, seq, (UDPHEADER*)udpOut); 
 
 		delete []udpOut;
 
@@ -245,6 +252,42 @@ CP2PIRAQ::poll()
 
 	return 0;
 }
+
+///////////////////////////////////////////////////////////////////////////
+int 
+CP2PIRAQ::sendData(int size, 
+				   void* data)
+{
+
+	DWORD bytesSent;
+
+	// send the datagram
+	WSABUF DataBuf[1];
+	DataBuf[0].buf = (char *)data;
+	DataBuf[0].len = size; 
+	int iError = WSASendTo(
+		_socketFd,
+		&DataBuf[0],
+		1,
+		&bytesSent,
+		0,
+		(sockaddr *)&_sockAddr,
+		sizeof(_sockAddr),
+		NULL,
+		NULL);
+
+	// check for an error
+	if (iError != 0) { // send error, print it
+		printf("Error:%d, size:%d Bytes: %d\n", iError, bytesSent, size);
+		iError = WSAGetLastError ();
+		printf("WSASendTo(): iError = 0x%x\n",iError);
+		bytesSent = -1;
+	}
+
+	// return the number of bytes sent, or -1 if an error.
+	return bytesSent;
+}
+
 ///////////////////////////////////////////////////////////////////////////
 float
 CP2PIRAQ::prt()

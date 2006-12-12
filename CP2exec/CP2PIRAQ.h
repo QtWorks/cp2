@@ -2,12 +2,15 @@
 #define CP2PIRAQINC_
 #include "../include/proto.h"
 #include "piraqComm.h"
+#include "CP2Net.h"
 
 class CP2PIRAQ: public PIRAQ {
 
 public:
 
 	CP2PIRAQ( 
+		struct sockaddr_in sockAddr,
+			int socketFd,
 		char* ipDestination,
 		int outputPort,
 		char* configFname,
@@ -60,7 +63,13 @@ protected:
 	/// the number of hits in each block transfer
 	/// from the piraq.
 	unsigned int Nhits;
-    
+	/// Socket specifications for datagrams
+	struct sockaddr_in  _sockAddr;
+	/// socket file descriptor
+	int _socketFd;
+
+	CP2NetPacket* _pOutCp2Packet;
+
 	float _prt;				///< The prt, set by the host. Not sure why we need this here.
 
 	float _xmit_pulsewidth;	///< The transmit pulsewidth, set by the host. Not sure why we need this here.
@@ -72,6 +81,7 @@ protected:
 	void cp2piraq_fifo_init(CircularBuffer * fifo, char *name, int headersize, int recordsize, int recordnum);
 	void cp2struct_init(PINFOHEADER *h, char *fname);
 	int cp2start(CONFIG *config,PIRAQ *piraq, PPACKET * pkt);
+	int sendData(int size, void* data);
 
 };
 
