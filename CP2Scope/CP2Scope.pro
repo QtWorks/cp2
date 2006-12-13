@@ -10,10 +10,13 @@ CONFIG += debug
 FORMS	= .\CP2ScopeBase.ui
 
 SOURCES += CP2Scope.cpp
+SOURCES += ../CP2exec/CP2Net.cpp
 SOURCES += main.cpp
 
 HEADERS += CP2Scope.h
+HEADERS += ../CP2exec/CP2Net.h
 
+INCLUDEPATH += ../CP2exec
 INCLUDEPATH += ../../
 INCLUDEPATH += ../../QtToolbox
 INCLUDEPATH += ../../fftw3.1

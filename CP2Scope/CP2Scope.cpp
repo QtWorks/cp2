@@ -13,6 +13,8 @@
 //#include <winsock2.h>
 #include <iostream>
 
+#include "CP2Net.h"
+
 CP2Scope::CP2Scope():
 m_pDataSocket(0),    
 m_pDataSocketNotifier(0),
@@ -20,6 +22,7 @@ m_pSocketBuf(0),
 _plotType(ScopePlot::TIMESERIES)
 {
 	m_dataGramPort	= QTDSP_BASE_PORT;
+	m_dataGramPort	= 3100;
 	m_packetCount	= 0; 
 	// create the socket that receives packets from WinDSP  
 	initializeSocket();	
@@ -369,6 +372,9 @@ CP2Scope::getParameters( CP2_PIRAQ_DATA_TYPE[] )
 void 
 CP2Scope::dataSocketActivatedSlot(int socket)
 {
+
+	CP2Packet packet;
+
 	static int errcount = 0;
 	static int lasterrcount = 0;
 	static int readBufLen, lastreadBufLen;
@@ -385,6 +391,18 @@ CP2Scope::dataSocketActivatedSlot(int socket)
 
 	m_packetCount++; 
 	readBufLen = m_pDataSocket->readBlock((char *)m_pSocketBuf, sizeof(short)*1000000);
+
+	packet.setData(readBufLen, m_pSocketBuf);
+	printf("packet has %d beams\n", packet.numBeams());
+	for (int i = 0; i < packet.numBeams(); i++) {
+		CP2Beam* pBeam = packet.getBeam(i);
+		long long pulseNum = pBeam->header.pulse_num;
+		long long beamNum = pBeam->header.beam_num;
+		printf("beam num %i64, pulse num %i64\n", beamNum, pulseNum);
+	}
+
+	return;
+
 	if	(readBufLen != lastreadBufLen)	{	//	packet size changed: hmmmmm .... could be all right if CP2exec stop/start so generalize to cover this. 
 		errcount++;  
 	}

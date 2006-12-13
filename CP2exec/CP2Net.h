@@ -18,7 +18,6 @@ typedef struct CP2BeamHeader {
 /// A header and data are combined to make one beam.
 typedef struct CP2Beam {
 	CP2BeamHeader header;///< The beam header.
-	int numDataValues;		///< The number of data values (note: not a byte count)
 	float* data;			///< An array of data values will start here.
 } CP2Beam;
 
