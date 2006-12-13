@@ -54,7 +54,7 @@
 #define	COUNTFREQ	8000000
 #endif
 
-typedef struct  {float x,y;}   complex;
+typedef struct COMPLEX {float x,y;}   complex;
 
 #define K2      0.93
 #define C       2.99792458E8
@@ -176,7 +176,7 @@ typedef struct  {float x,y;}   complex;
 /* set up the infra structure for software FIFO's  */
 /****************************************************/
 #pragma pack(4) // set 4-byte alignment of structures for compatibility w/destination computers
-typedef	struct
+typedef	struct FIFO
 {
 	char	name[80];	///< name that identifies the type of FIFO buffer 
 	int	magic;	        ///< magic number indicating the FIFO has been initialized 
@@ -192,7 +192,7 @@ typedef	struct
 	int clients;
 } FIFO;
 
-typedef struct {
+typedef struct UDPHEADER {
 	uint4 magic;          ///< must be 'MAGIC' value above 
 	uint4 type;           ///< e.g. DATA_SIMPLEPP, defined in piraq.h 
 	uint4 sequence_num;   ///< increments every beam 
@@ -207,19 +207,19 @@ typedef struct {
 /* set up the infrastructure for intraprocess communication */
 /****************************************************/
 
-typedef struct {
+typedef struct COMMAND {
 	int		type;
 	int		count;
 	int		flag;		/* done, new, old, handshake, whatever, ..... */
 	int		arg[5];
 } COMMAND;
 
-typedef struct {
+typedef struct UDPPACKET {
 	UDPHEADER   udphdr;
 	char        buf[MAXPACKET];
 } UDPPACKET;
 
-typedef struct {
+typedef struct FIFORING {
 	UDPHEADER  udphdr;
 	int        cnt;
 } FIFORING;
@@ -243,7 +243,7 @@ typedef struct {
 
 //#define PIRAQX_CURRENT_REVISION 1
 //struct piraqX_header_rev1
-typedef struct 
+typedef struct INFOHEADER
 {
 	/* all elements start on 4-byte boundaries
 	* 8-byte elements start on 8-byte boundaries
@@ -441,19 +441,19 @@ typedef struct piraqX_header_rev1 PIRAQX;
 
 /// now use this infrastructure to define the records in the
 /// various types of FIFO's used for interprocess communication 
-typedef struct {		/* data that's in the PIRAQ1 FIFO */
+typedef struct DATABLOCK {		/* data that's in the PIRAQ1 FIFO */
 	INFOHEADER		info;
 	float				data[MAXGATES * 12];
 } DATABLOCK;
 
-typedef struct {
+typedef struct PACKET {
 	UDPHEADER	udp;
 	COMMAND		cmd;
 	DATABLOCK	data;
 } PACKET;
 
 /// this structure must match the non-data portion of the PACKET structure 
-typedef struct {			
+typedef struct PACKETHEADER {			
 	UDPHEADER	udp;
 	COMMAND		cmd;
 	INFOHEADER	info;
@@ -491,7 +491,7 @@ struct synth {
 #define	MAXTESTPULSE  6
 
 typedef 
-union 
+union HIMEDLO
 {	
 	unsigned int		himedlo;
 	struct 
@@ -501,7 +501,7 @@ union
 } HIMEDLO;
 
 typedef 
-union {	
+union HILO {	
 	unsigned short	hilo;
 	struct
 	{
@@ -509,7 +509,7 @@ union {
 	} byte;
 } HILO;
 
-typedef	struct {
+typedef	struct SEQUENCE {
 	HILO		period;
 	int		pulseenable;
 	int		polarization;
@@ -517,12 +517,12 @@ typedef	struct {
 	int		index;
 } SEQUENCE;
 
-typedef	struct {
+typedef	struct TESTPULSE {
 	HILO		delay;
 	HILO		width;
 } TESTPULSE;
 
-typedef	struct {
+typedef	struct TIMER {
 	SEQUENCE    seq[MAXSEQUENCE];
 	TESTPULSE   tp[8];
 	HILO        seqdelay,sync;
@@ -541,7 +541,7 @@ typedef	struct {
 
 /// structure to completely define the operation of the PIRAQ */
 /// and data system at the lowest level */
-typedef struct
+typedef struct CONFIG
 {
 	int             gatesa, gatesb, hits, rcvr_pulsewidth, timeseries, gate0mode, startgate;
 	int             prt, timingmode, delay, sync;
@@ -564,7 +564,7 @@ typedef struct
 
 /// structure gets filled from a file to specify default radar parameters
 /// modified: channel-specific receiver gain, noise power, etc. vreceiver_gain, etc., removed 1-10-05 mp 
-typedef struct  {
+typedef struct RADAR {
 	char    desc[4];
 	short   recordlen;
 	short   rev;
@@ -610,7 +610,7 @@ typedef struct  {
 #define MAXPLANES       22   ///< number of display planes (there is one for the overlay and one for the screen) 
 
 ///structure that defines communication parameters to the display 
-typedef struct
+typedef struct DISPLAY
 {
 	int     displayparm,fakeangles,recording,type;
 	double  threshold,rgpp,offset;

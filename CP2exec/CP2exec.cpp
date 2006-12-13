@@ -479,7 +479,7 @@ main(int argc, char* argv[], char* envp[])
 	/// NOTE- packetsPerPciXfer is computed here from the size of the PPACKET packet, such that
 	/// it will be smaller than 64K. This must hold true for the PCI 
 	/// bus transfers. 
-	int blocksize = sizeof(pinfoheader)+
+	int blocksize = sizeof(PINFOHEADER)+
 		config1->gatesa * 2 * sizeof(float);
 	packetsPerPciXfer = 65536 / blocksize; 
 	if	(packetsPerPciXfer % 2)	//	computed odd #hits

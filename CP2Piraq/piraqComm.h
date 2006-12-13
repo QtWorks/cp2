@@ -24,7 +24,7 @@
 /// records are added, and the host will increment tail whenever 
 /// they are removed. Management of this structure is performed
 /// by the cb_ routines.
-typedef	struct 
+typedef	struct CircularBuffer
 	{
 	int	header_off;		///< offset to the user header (can't use absolute address here) 
 	int	cbbuf_off;		///< offset to cb base address 
@@ -70,7 +70,7 @@ typedef	struct
 /// Beamnumber is the number of beams since Jan 1,1970.
 /// The first beam (beamnumber = 0) was completed exactly
 /// at the epoch. beamnumber = pulsenumber / hits. 
-typedef struct pinfoheader
+typedef struct PINFOHEADER
 {   
 	int	   flag;			///< command indicator: done, new, old, handshake, whatever, ..... 
     uint4  packetflag;		///< Flag for communicating status back to host.
@@ -96,7 +96,7 @@ typedef struct pinfoheader
 #pragma STRUCT_ALIGN (PINFOHEADER, 8);
 
 /// PPACKET combines the header info from PINFOHEADER with the data array.
-typedef struct ppacket {
+typedef struct PPACKET {
 	PINFOHEADER		info;		///< The header information in the packet.
 	float			data[2];	///< place holder for the data array.
 } PPACKET;

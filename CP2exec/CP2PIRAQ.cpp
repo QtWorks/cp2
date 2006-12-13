@@ -195,7 +195,7 @@ CP2PIRAQ::poll()
 			pFifoPiraq->info.gates*pFifoPiraq->info.bytespergate;
 
 		// set up a header
-		CP2NetBeamHeader header;
+		CP2BeamHeader header;
 		header.channel = _boardnum;
 		
 		// empty the packet
@@ -214,6 +214,16 @@ CP2PIRAQ::poll()
 		}
 
 		int bytesSent = sendData(_cp2Packet.packetSize(),_cp2Packet.packetData());
+
+		CP2Packet readBack;
+		readBack.setData(_cp2Packet.packetSize(), _cp2Packet.packetData());
+		for (int i = 0; i < readBack.numBeams(); i++) {
+			CP2Beam* pBeam = readBack.getBeam(i);
+			long long pulse = pBeam->header.pulse_num;
+			long long beam = pBeam->header.beam_num;
+			double az = pBeam->header.az;
+			double el = pBeam->header.el;
+		}
 
 		//////////////////////////////////////////////////////////////////////////
 		//

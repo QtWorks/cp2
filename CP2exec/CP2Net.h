@@ -5,22 +5,22 @@
 
 /// A header for each beam of data
 typedef struct CP2BeamHeader {
+    long long pulse_num;	///< Pulse number
+    long long beam_num;		///< Beam number
+    double az;				///< The azimuth, set by Piraq.
+    double el;				///< The elevation, set by Piraq.
     int  channel;			///< 
     int  gates;				///< The number of gates, set by the host.
     int  hits;				///< The number of hits in a beam, set by the host. Used
 							///< to calculate beam number from pulse numbers.
-    double az;				///< The azimuth, set by Piraq.
-    double el;				///< The elevation, set by Piraq.
-    long long pulse_num;	///< Pulse number
-    long long beam_num;		///< Beam number
-} CP2NetBeamHeader;
+} CP2BeamHeader;
 
 /// A header and data are combined to make one beam.
 typedef struct CP2Beam {
-	CP2NetBeamHeader header;///< The beam header.
+	CP2BeamHeader header;///< The beam header.
 	int numDataValues;		///< The number of data values (note: not a byte count)
 	float* data;			///< An array of data values will start here.
-} CP2NetBeam;
+} CP2Beam;
 
 /// Interface for working with CP2 network data
 /// transmission. When constructed, an area for
@@ -30,11 +30,20 @@ class CP2Packet{
 public:
 	CP2Packet();
 	virtual ~CP2Packet();
-	/// Add a data beam to the packet
+	/// Add a data beam to the packet. This is used for constructing
+	/// a packet.
 	void addBeam(
-		CP2NetBeamHeader& header,   ///< The beam header information
+		CP2BeamHeader& header,       ///< The beam header information
 		int numDataValues,			///< The number of data values.
 		float* data					///< The data for the beam
+		);
+	/// Deconstruct a data packet. This is used when 
+	/// extracting beams from a datagram.
+	/// @return False if the data structure was self consistent, true if an
+	/// error was detected.
+	bool setData(
+		int size,					///< Size in bytes of the data packet
+		void* data					///< The data packet
 		);
 	/// Empty the packet of data.
 	void clear();
