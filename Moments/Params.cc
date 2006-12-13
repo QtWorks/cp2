@@ -26,7 +26,7 @@ Params::Params()
   zdr_correction = 0.0; // dB
   ldr_correction = 0.0; // dB
 
-  index_beams_in_azimuth = true;
+  index_beams_in_azimuth = false;
   azimuth_resolution = 1.0; // for indexed beams
 
   // radar params
@@ -64,7 +64,7 @@ Params::Params()
   n_moments_params = 2;
   moments_params = new moments_params_t[n_moments_params];
  
-  moments_params[0].n_samples = 32;
+  moments_params[0].n_samples = 10;
   moments_params[0].lower_prf = 0;
   moments_params[0].upper_prf = 500;
   moments_params[0].start_range = 0.075;
