@@ -15,7 +15,7 @@ public:
 		int outputPort,
 		char* configFname,
 		char* dspObjFnamefloat,
-		unsigned int Nhits,
+		unsigned int packetsPerPciXfer,
 		int boardnum
 		);
 
@@ -62,7 +62,7 @@ protected:
 	int bytespergate;
 	/// the number of hits in each block transfer
 	/// from the piraq.
-	unsigned int Nhits;
+	unsigned int packetsPerPciXfer;
 	/// Socket specifications for datagrams
 	struct sockaddr_in  _sockAddr;
 	/// socket file descriptor

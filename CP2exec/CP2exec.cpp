@@ -13,7 +13,6 @@
 #include "CP2exec.h" 
 #include "CP2PIRAQ.h"
 #include "../CP2Piraq/piraqComm.h"
-#include "../include/proto.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -412,14 +411,14 @@ main(int argc, char* argv[], char* envp[])
 	char* destIP = "192.168.3.255";
 
 	// set/compute #hits combined by piraq: equal in both piraq executable (CP2_DCCS3_1.out) and CP2exec.exe 
-	unsigned int Nhits; 
+	unsigned int packetsPerPciXfer; 
 	int outport;
 	char c;
 	int piraqs = 0;   // board count -- default to single board operation 
 	FILE * dspEXEC; 
 
-	__int64 pulsenum;
-	__int64 beamnum; 
+	long long pulsenum;
+	long long beamnum; 
 
 	int	PIRAQadjustAmplitude = 0; 
 	int	PIRAQadjustFrequency = 1; 
@@ -468,7 +467,8 @@ main(int argc, char* argv[], char* envp[])
 	struct sockaddr_in sockAddr;
 	int sock = initNetwork(destIP, outport, sockAddr);
 
-	cp2timer_stop(&ext_timer); // stop timer card 
+	// stop timer card
+	cp2timer_stop(&ext_timer);  
 
 	// read in fname.dsp, or use configX.dsp if NULL passed. set up all parameters
 	readconfig(fname1, config1);    
@@ -476,42 +476,37 @@ main(int argc, char* argv[], char* envp[])
 	readconfig(fname3, config3);   
 
 	///@todo
-	/// NOTE- Nhits is computed here from the size of the udp packet, such that
-	/// it will be smaller than 64K. This must also hold true for the PCI 
-	/// bus transfers. Since Nhits is used in both plces, this logic will fail
-	/// if the udo packet overhead is ever smaller than the PCI packet overhead.
-	///
-	/// The logic needs to be rewritten such that Nhits does not allow the PCI
-	/// block size, nor the udp block size, to exceed 64K.
-	int blocksize = sizeof(UDPHEADER)+
-		sizeof(COMMAND) + 
-		sizeof(INFOHEADER) + 
+	/// NOTE- packetsPerPciXfer is computed here from the size of the PPACKET packet, such that
+	/// it will be smaller than 64K. This must hold true for the PCI 
+	/// bus transfers. 
+	int blocksize = sizeof(pinfoheader)+
 		config1->gatesa * 2 * sizeof(float);
+	packetsPerPciXfer = 65536 / blocksize; 
+	if	(packetsPerPciXfer % 2)	//	computed odd #hits
+		packetsPerPciXfer--;	//	make it even
 
-	Nhits = 65536 / blocksize; 
-	if	(Nhits % 2)	//	computed odd #hits
-		Nhits--;	//	make it even
 	///////////////////////////////////////////////////////////////////////////
 	//
 	//    Create piraqs. They all have to be created, so that all boards
 	//    are found in succesion, even if we will not be collecting data 
 	//    from all of them.
 
-	piraq1 = new CP2PIRAQ(sockAddr, sock, destIP, outport,   fname1, argv[1], Nhits, 0);
-	piraq2 = new CP2PIRAQ(sockAddr, sock, destIP, outport+1, fname2, argv[1], Nhits, 1);
-	piraq3 = new CP2PIRAQ(sockAddr, sock, destIP, outport+2, fname3, argv[1], Nhits, 2);
+	piraq1 = new CP2PIRAQ(sockAddr, sock, destIP, outport,   fname1, argv[1], packetsPerPciXfer, 0);
+	piraq2 = new CP2PIRAQ(sockAddr, sock, destIP, outport+1, fname2, argv[1], packetsPerPciXfer, 1);
+	piraq3 = new CP2PIRAQ(sockAddr, sock, destIP, outport+2, fname3, argv[1], packetsPerPciXfer, 2);
 
 	///////////////////////////////////////////////////////////////////////////
 	//
-	//     Calculate starting beam and pulse numbers. I think 
-	//     that these are passed on to the piraqs
+	//     Calculate starting beam and pulse numbers. 
+	//     These are passed on to the piraqs, so that they all
+	//     start with the same beam and pulse number.
 
 	float prt;
 	prt = piraq3->prt();
 	unsigned int pri; 
 	pri = (unsigned int)((((float)COUNTFREQ)/(float)(1/prt)) + 0.5); 
 	time_t now = time(&now);
-	pulsenum = ((((__int64)(now+2)) * (__int64)COUNTFREQ) / pri) + 1; 
+	pulsenum = ((((long long)(now+2)) * (long long)COUNTFREQ) / pri) + 1; 
 	beamnum = pulsenum / config1->hits;
 	printf("pulsenum = %I64d\n", pulsenum); 
 	printf("beamnum  =  %I64d\n", beamnum); 
@@ -575,12 +570,8 @@ main(int argc, char* argv[], char* envp[])
 				pn_pkt->data.info.ts_end_gate -= 1;
 			}
 #endif
-			// !!!DO LATER: leave these here but do not use for now. 
-			//				if(c == '+')		TimerStartCorrection += (__int64)ExactmSecperBeam; 
-			//				if(c == '-')		TimerStartCorrection -= (__int64)ExactmSecperBeam; 
+
 #ifndef TESTING_TIMESERIES
-			//				if(c == '+')		TimerStartCorrection += (__int64)mSecperBeam; 
-			//				if(c == '-')		TimerStartCorrection -= (__int64)mSecperBeam;
 			if(c == 'A')		
 			{ 
 				PIRAQadjustAmplitude = 1; 

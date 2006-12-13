@@ -22,7 +22,7 @@ struct sockaddr_in sockAddr,
 PIRAQ(),
 _sockAddr(sockAddr),
 _socketFd(socketFd),
-Nhits(Nhits_), 
+packetsPerPciXfer(Nhits_), 
 outport(outputPort_), 
 bytespergate(2 * sizeof(float)),
 _lastPulseNumber(0),
@@ -87,7 +87,7 @@ CP2PIRAQ::init(char* configFname, char* dspObjFname)
 	cp2piraq_fifo_init(
 		pFifo,"/PRQDATA", 
 		sizeof(PINFOHEADER), 
-		Nhits * (sizeof(PINFOHEADER) + (_config.gatesa * bytespergate)), 
+		packetsPerPciXfer * (sizeof(PINFOHEADER) + (_config.gatesa * bytespergate)), 
 		PIRAQ_FIFO_NUM); 
 
 	if (!pFifo) { 
@@ -172,9 +172,9 @@ CP2PIRAQ::poll()
 		//////////////////////////////////////////////////////////////////////////
 		//
 		// check for pulse numbers out of sequence.
-		for (int i = 0; i < Nhits; i++) { // all hits in the packet 
+		for (int i = 0; i < packetsPerPciXfer; i++) { // all hits in the packet 
 			// compute pointer to datum in an individual hit, dereference and print. 
-			// CP2 PCI Bus transfer size: Nhits * (PHEADERSIZE + (config1->gatesa * bytespergate))
+			// CP2 PCI Bus transfer size: packetsPerPciXfer * (PHEADERSIZE + (config1->gatesa * bytespergate))
 			__int64 thisPulseNumber = *(__int64 *)((char *)&pFifoPiraq->info.pulse_num + 
 				i*((sizeof(PINFOHEADER) + 
 				(_config.gatesa * bytespergate)))); 
@@ -190,18 +190,9 @@ CP2PIRAQ::poll()
 		//////////////////////////////////////////////////////////////////////////
 		//
 		// send data out on the socket
-
-		// This assumes that the number of gates does not change
-		int gates = pFifoPiraq->info.gates;
-		int bytespergates = pFifoPiraq->info.bytespergate;
-		int hits = pFifoPiraq->info.hits;
-		char desc[4];
-		for(int c = 0; c < 4; c++)
-			desc[c] = pFifoPiraq->info.desc[c];
-
 		int piraqPacketSize = 
 			sizeof(PINFOHEADER) + 
-			gates*bytespergate;
+			pFifoPiraq->info.gates*pFifoPiraq->info.bytespergate;
 
 		// set up a header
 		CP2NetBeamHeader header;
@@ -211,7 +202,7 @@ CP2PIRAQ::poll()
 		_cp2Packet.clear();
 
 		// add all beams
-		for (int i = 0; i < Nhits; i++) {
+		for (int i = 0; i < packetsPerPciXfer; i++) {
 			PPACKET* ppacket = (PPACKET*)((char*)&pFifoPiraq->info + i*piraqPacketSize);
 			header.az        = 10.0;
 			header.el        = 3.2;
@@ -224,46 +215,9 @@ CP2PIRAQ::poll()
 
 		int bytesSent = sendData(_cp2Packet.packetSize(),_cp2Packet.packetData());
 
-		int udpPacketSize = sizeof(UDPHEADER)+
-			sizeof(COMMAND) + 
-			sizeof(INFOHEADER) + 
-			gates*bytespergate;
-
-		char* udpOut = new char[Nhits*udpPacketSize];
-
-		for (int i = 0; i < Nhits; i++) {
-
-			PPACKET* ppacket = (PPACKET*)((char*)&pFifoPiraq->info + i*piraqPacketSize);
-			PACKET*   packet = (PACKET*) (udpOut + i*udpPacketSize);
-
-			packet->udp.type = UDPTYPE_PIRAQ_CP2_TIMESERIES;
-			packet->udp.totalsize = Nhits*udpPacketSize; // set for all of them, although it is probably only needed for the first one?
-			packet->udp.magic = MAGIC;
-			packet->data.info.gates = gates;
-			packet->data.info.bytespergate = bytespergate;
-			packet->data.info.hits = hits;
-			packet->data.info.prt[0] = _prt;
-
-			for(int c = 0; c < 4; c++)
-				packet->data.info.desc[c] = desc[c];
-
-			for (int j = 0; j < 2*gates; j++) {
-				packet->data.data[j] = ppacket->data[j];
-			}
-		}
-
-		// for right, cast to UDPHEADER. This only works because the
-		// PUDPHEADER and UDPHEADER are currently identical. When
-		// we start triming down PUDPHEADER, we will need to 
-		// put a translation from PUDPHEADER to UDPHEADER. Better
-		// yet, jut plan to broadcast PUDPHEADER. 
-//		seq = send_udp_packet(outsock, outport, seq, (UDPHEADER*)udpOut); 
-
-		delete []udpOut;
-
 		//////////////////////////////////////////////////////////////////////////
 		//
-		// return packet to the fifo
+		// return packet to the piraq fifo
 		//
 		cb_increment_tail(pFifo);
 
@@ -352,7 +306,7 @@ CP2PIRAQ::cp2struct_init(PINFOHEADER *h, char *fname)
 
 	int  i; 
 
-	h->packetsPerBlock = Nhits;
+	h->packetsPerBlock = packetsPerPciXfer;
 
 	config  = (CONFIG *)malloc(sizeof(CONFIG));
 	radar = (RADAR *)malloc(sizeof(RADAR));
