@@ -273,10 +273,12 @@ int OpsInfo::_readPulseInfo(FILE *in)
       int count = 0;
       while (toks != NULL && count < 512) {
         toks = strtok(NULL, "= ");
-        if (sscanf(toks, "%d", &ival) == 1) {
-          _iRangeMask[count] = ival;
+        if (toks != NULL) {
+          if (sscanf(toks, "%d", &ival) == 1) {
+            _iRangeMask[count] = ival;
+          }
+          count++;
         }
-        count++;
       }
       rangeMaskFound = true;
       continue;

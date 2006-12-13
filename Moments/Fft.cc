@@ -22,8 +22,8 @@
 ////////////////////////////////////////////////////////////////
 
 #include "Fft.hh"
-#include <toolsa/toolsa_macros.h>
 #include <iostream>
+#include <cmath>
 using namespace std;
 
 // Constructor

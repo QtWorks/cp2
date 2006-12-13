@@ -10,7 +10,7 @@
  *=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*/
 ///////////////////////////////////////////////////////////////
 //
-// main for TsArchive2Dsr
+// main for MomentsCompute
 //
 // Mike Dixon, RAP, NCAR, P.O.Box 3000, Boulder, CO, 80307-3000, USA
 //
@@ -18,14 +18,12 @@
 //
 ///////////////////////////////////////////////////////////////
 //
-// TsArchive2Dsr reads Sigmet IQ TsArchive data, computes the
-// moments and writes the contents into a DsRadar FMQ.
+// MomentsCompute reads pulse data, forms the pulses into beams
+// and computes the moments.
 //
 ////////////////////////////////////////////////////////////////
 
-#include "TsArchive2Dsr.hh"
-#include <toolsa/str.h>
-#include <toolsa/port.h>
+#include "MomentsCompute.hh"
 #include <signal.h>
 #include <new>
 using namespace std;
@@ -34,9 +32,7 @@ using namespace std;
 
 static void tidy_and_exit (int sig);
 static void out_of_store();
-static TsArchive2Dsr *_prog;
-static int _argc;
-static char **_argv;
+static MomentsCompute *_prog;
 
 // main
 
@@ -44,22 +40,18 @@ int main(int argc, char **argv)
 
 {
 
-  _argc = argc;
-  _argv = argv;
-
   // create program object
 
-  _prog = new TsArchive2Dsr(argc, argv);
+  _prog = new MomentsCompute(argc, argv);
   if (!_prog->isOK) {
     return(-1);
   }
 
   // set signal handling
   
-  PORTsignal(SIGINT, tidy_and_exit);
-  PORTsignal(SIGHUP, tidy_and_exit);
-  PORTsignal(SIGTERM, tidy_and_exit);
-  PORTsignal(SIGPIPE, (PORTsigfunc)SIG_IGN);
+  signal(SIGINT, tidy_and_exit);
+  signal(SIGHUP, tidy_and_exit);
+  signal(SIGTERM, tidy_and_exit);
 
   // set new() memory failure handler function
 
@@ -97,7 +89,7 @@ static void out_of_store()
 
 {
 
-  fprintf(stderr, "FATAL ERROR - program TsArchive2Dsr\n");
+  fprintf(stderr, "FATAL ERROR - program MomentsCompute\n");
   fprintf(stderr, "  Operator new failed - out of store\n");
   exit(-1);
 

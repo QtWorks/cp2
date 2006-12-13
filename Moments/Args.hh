@@ -20,10 +20,10 @@
 #ifndef ARGS_H
 #define ARGS_H
 
+#include "Params.hh"
 #include <string>
 #include <vector>
 #include <iostream>
-#include <tdrp/tdrp.h>
 using namespace std;
 
 class Args {
@@ -33,16 +33,9 @@ public:
   Args();
   ~Args();
 
-  // parse
+  int parse(int argc, char **argv, Params &params);
 
-  int parse(int argc, char **argv, string &prog_name);
-
-  // public data
-
-  tdrp_override_t override;
-  vector<string> inputFileList;
-
-  void usage(string &prog_name, ostream &out);
+  void usage(ostream &out);
   
 protected:
   

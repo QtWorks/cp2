@@ -80,52 +80,5 @@ void Fields::initialize()
   dbzvc = missingDouble;
   dbzvx = missingDouble;
 
-  // SZ8-64 phase coding
-
-  sz_trip_flag = missingInt;
-  sz_leakage = missingDouble;
-  sz_dbzt = missingDouble;
-
-  // infilling after applying SZ
-
-  sz_zinfill = missingInt;
-  sz_itexture = missingDouble;
-  sz_dbzi = missingDouble;
-  sz_veli = missingDouble;
-  sz_widthi = missingDouble;
-
-  // CMD - Clutter Mitigation Decision
-
-  cmd = missingDouble;
-  cmd_flag = 0;
-
-  cmd_dbz_diff_sq = missingDouble;
-  cmd_spin_change = missingDouble;
-
-  cmd_tdbz = missingDouble;
-  cmd_sqrt_tdbz = missingDouble;
-  cmd_spin = missingDouble;
-  cmd_vel = missingDouble;
-  cmd_vel_sdev = missingDouble;
-  cmd_width = missingDouble;
-
-  cmd_dbz_narrow = missingDouble;
-  cmd_ratio_narrow = missingDouble;
-  cmd_ratio_wide = missingDouble;
-  cmd_wx2peak_sep = missingDouble;
-  cmd_cvar_db = missingDouble;
-
-  cmd_zdr_sdev = missingDouble;
-  cmd_rhohv_sdev = missingDouble;
-  cmd_phidp_sdev = missingDouble;
-
-  cpa = missingDouble;
-  aiq = missingDouble;
-  niq = missingDouble;
-  meani = missingDouble;
-  meanq = missingDouble;
-
-  test = missingDouble;
-  
 }
 

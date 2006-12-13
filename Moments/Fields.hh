@@ -76,57 +76,6 @@ public:
   double dbzvc;
   double dbzvx;
 
-  // SZ8-64 phase coding
-
-  int sz_trip_flag;
-  double sz_leakage;
-  double sz_dbzt;
-
-  // infilling after applying SZ
-
-  int sz_zinfill;
-  double sz_itexture;
-  double sz_dbzi;   // infilled dbz
-  double sz_veli;   // infilled velocity
-  double sz_widthi; // infilled width
-
-  // CMD - Clutter Mitigation Decision
-
-  double cmd;
-  int cmd_flag;
-  
-  double cmd_dbz_diff_sq;
-  double cmd_spin_change;
-  
-  double cmd_tdbz;
-  double cmd_sqrt_tdbz;
-  double cmd_spin;
-  double cmd_vel;
-  double cmd_vel_sdev;
-  double cmd_width;
-
-  double cmd_dbz_narrow;
-  double cmd_ratio_narrow;
-  double cmd_ratio_wide;
-  double cmd_wx2peak_sep;
-  double cmd_cvar_db;
-
-  double cmd_zdr_sdev;
-  double cmd_rhohv_sdev;
-  double cmd_phidp_sdev;
-
-  // refractivity fields
-
-  double cpa;  // clutter phase alignment
-  double aiq;
-  double niq;
-  double meani;
-  double meanq;
-
-  // for testing
-
-  double test;
-  
   static const double missingDouble;
   static const int missingInt;
 

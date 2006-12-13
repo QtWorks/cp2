@@ -32,8 +32,6 @@
 #include "Params.hh"
 #include "Pulse.hh"
 #include "Moments.hh"
-#include "GateSpectra.hh"
-#include "OpsInfo.hh"
 #include "Fields.hh"
 using namespace std;
 
@@ -46,98 +44,56 @@ public:
   
   // constructor
   
-  MomentsMgr (const string &prog_name,
-	      const Params &params,
-              const OpsInfo &opsInfo,
-	      Params::moments_params_t &moments_params,
-	      int n_samples,
-	      int max_gates);
+  MomentsMgr (const Params &params,
+	      Params::moments_params_t &moments_params);
   
   // destructor
   
   ~MomentsMgr();
   
-  // compute moments, either normal or dual pol
-  // Set combinedSpectraFile to NULL to prevent printing.
+  // compute moments - single pol
+  // IQC data is for a single-channel copolar
+  //   IQC[nGates][nPulses]
   
-  void computeMoments(time_t beamTime,
-		      double el, double az, double prt,
-		      int nGatesPulse,
-		      Complex_t **IQ,
-		      int &combinedPrintCount,
-		      FILE *combinedSpectraFile,
-                      Fields *fields,
-		      vector<GateSpectra *> gateSpectra);
+  void computeSingle(double beamTime,
+                     double el,
+                     double az,
+                     double prt,
+                     int nGates,
+                     Complex_t **IQC,
+                     Fields *fields);
   
-  void computeMomentsSz(time_t beamTime,
-			double el, double az, double prt,
-			int nGatesPulse,
-			Complex_t **IQ,
-			const Complex_t *delta12,
-			int &combinedPrintCount,
-			FILE *combinedSpectraFile,
-                        Fields *fields,
-			vector<GateSpectra *> gateSpectra);
+  void computeDualFastAlt(double beamTime,
+                          double el,
+                          double az,
+                          double prt,
+                          int nGates,
+                          Complex_t **IQHC,
+                          Complex_t **IQVC,
+                          Fields *fields);
   
-  void computeDualAlt(time_t beamTime,
-                      double el, double az, double prt,
-                      int nGatesPulse,
-                      Complex_t **IQ,
-                      Complex_t **IQH,
-                      Complex_t **IQV,
-                      int &combinedPrintCount,
-                      FILE *combinedSpectraFile,
-                      Fields *fields,
-                      vector<GateSpectra *> gateSpectra);
+  void computeDualCp2Xband(double beamTime,
+                           double el,
+                           double az,
+                           double prt,
+                           int nGates,
+                           Complex_t **IQHC,
+                           Complex_t **IQVX,
+                           Fields *fields);
   
-  void computeRefract(int nGatesPulse, int nSamples,
-                      Complex_t **IQ,
-                      Fields *fields);
-
-  void filterClutter(double prt,
-		     int nGatesPulse,
-		     Complex_t **IQ,
-                     Fields *fields,
-		     vector<GateSpectra *> gateSpectra);
-  
-  void filterClutterSz(double prt,
-		       int nGatesPulse,
-		       const Complex_t *delta12,
-                       Fields *fields,
-		       vector<GateSpectra *> gateSpectra);
-  
-  void filterClutterDualAlt(double prt,
-			    int nGatesPulse,
-			    Complex_t **IQ,
-			    Complex_t **IQH,
-			    Complex_t **IQV,
-                            Fields *fields,
-			    vector<GateSpectra *> gateSpectra);
-
   // get methods
   
-  double getLowerPrf() const { return _lowerPrf; }
-  double getUpperPrf() const { return _upperPrf; }
-  double getPulseWidth() const { return _pulseWidth; }
-
+  int getNSamples() const { return _nSamples; }
+  Params::moments_mode_t getMode() const { return _momentsParams.mode; }
   double getStartRange() const { return _startRange; }
   double getGateSpacing() const { return _gateSpacing; }
-  int getMaxGates() const { return _maxGates; }
-
-  bool getUseFft() const { return _useFft; }
-  bool getApplySz() const { return _applySz; }
-  bool getDualPol() const { return _dualPol; }
-
-  Moments::window_t getFftWindow() const { return _fftWindow; }
-
-  int getNSamples() const { return _nSamples; }
-
+  double getLowerPrf() const { return _momentsParams.lower_prf; }
+  double getUpperPrf() const { return _momentsParams.upper_prf; }
+  
   const double *getRangeCorr() const { return _rangeCorr; }
-
-  double getDbz0Chan0() const { return _dbz0Chan0; }
-  double getDbz0Chan1() const { return _dbz0Chan1; }
-  double getAtmosAtten() const { return _atmosAtten; }
-
+  
+  Moments::window_t getFftWindow() const { return _fftWindow; }
+  
   const Moments &getMoments() const { return _moments; }
 
 protected:
@@ -146,25 +102,11 @@ private:
 
   static const double _missingDbl;
 
-  string _progName;
   const Params &_params;
-  const OpsInfo &_opsInfo;
-  
-  // PRF range
-  
-  double _lowerPrf;
-  double _upperPrf;
-  double _pulseWidth;
-  
-  // geometry
-  
-  int _maxGates;
+  const Params::moments_params_t &_momentsParams;
 
-  // flags
+  // fft window
 
-  bool _useFft;
-  bool _applySz;
-  bool _dualPol;
   Moments::window_t _fftWindow;
 
   // number of pulse samples
@@ -172,34 +114,33 @@ private:
   int _nSamples;
   int _nSamplesHalf;
   
-  // range correction
-
-  double *_rangeCorr;
-  double _startRange;
-  double _gateSpacing;
-
-  // calibration
-  
-  double _atmosAtten;  // db/km
-  double _noiseFixedChan0;
-  double _noiseFixedChan1;
-  double _dbz0Chan0;
-  double _dbz0Chan1;
-
-  // compute refractivity fields
-
-  bool _computeRefract;
-
-  // Moments object
+  // Moments objects
 
   Moments _moments;
   Moments _momentsHalf; // for alternating mode dual pol
 
+  // range correction
+
+  int _nGates;
+  double _startRange;
+  double _gateSpacing;
+  double *_rangeCorr;
+
+  // calibration
+  
+  double _noiseFixedHc;
+  double _noiseFixedHx;
+  double _noiseFixedVc;
+  double _noiseFixedVx;
+
+  double _dbz0Hc;
+  double _dbz0Hx;
+  double _dbz0Vc;
+  double _dbz0Vx;
+
   // functions
 
-  void _init();
-
-  void _computeRangeCorrection();
+  void _checkRangeCorrection(int nGates);
 
   double _computeMeanVelocity(double vel1, double vel2, double nyquist) const;
   
@@ -234,7 +175,7 @@ private:
   double _computeArg(const Complex_t &cc) const;
 
   double _computeMag(const Complex_t &cc) const;
-
+  
   double _computePower(const Complex_t &cc) const;
 
   double _meanPower(const Complex_t *c1, int len) const;
@@ -248,33 +189,12 @@ private:
 
   double _computeInterest(double xx, double x0, double x1) const;
 
-  void _addSpectrumToFile(FILE *specFile, int count, time_t beamTime,
-			  double el, double az, int gateNum,
-			  double snr, double vel, double width,
-			  int nSamples, const Complex_t *iq) const;
-
-  bool _setMomentsDebugPrint(const Moments &moments, double el,
-			     double az, double range) const;
-  
-  void _applyTimeDomainFilter(const Complex_t *iq,
-			      Complex_t *filtered) const;
-
   void _computeFoldingAlt(const double *snr,
                           const double *vel,
                           int *fold,
                           int nGatesPulse,
                           double nyquist) const;
   
-  void _applyMedianFilterToVcarDb(int nGatesPulse,
-                                  Fields *fields);
-
-  void _applyMedianFilterToCPA(int nGatesPulse,
-                               Fields *fields);
-
-  void _applyMedianFilter(double *field,
-                          int fieldLen,
-                          int filterLen);
-
   static int _doubleCompare(const void *i, const void *j);
 
 };
