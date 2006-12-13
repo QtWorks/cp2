@@ -10,6 +10,7 @@
 #ifndef Params_hh
 #define Params_hh
 
+#include <vector>
 using namespace std;
 
 #include <iostream>

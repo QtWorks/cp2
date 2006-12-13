@@ -21,7 +21,7 @@
 #ifndef Complex_hh
 #define Complex_hh
 
-typedef struct {
+typedef struct Complex_t {
   double re;
   double im;
 } Complex_t;

@@ -23,7 +23,6 @@
 
 #include <cerrno>
 #include <cmath>
-#include <dataport/port_types.h>
 #include "OpsInfo.hh"
 using namespace std;
 
@@ -367,7 +366,7 @@ void OpsInfo::_deriveFromPulseInfo()
   int binEnd = 0;
 
   for (int ii = 0; ii < 512; ii++) {
-    ui16 mask = _iRangeMask[ii];
+    short mask = _iRangeMask[ii];
     if (mask) {
       for (int iBit = 0; iBit < 16; iBit++) {
         if (1 & (mask >> iBit)) {

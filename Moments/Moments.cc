@@ -20,7 +20,8 @@
 // Moments handles computation of the radar moments
 //
 ////////////////////////////////////////////////////////////////
-
+#define _USE_MATH_DEFINES
+#include <math.h>
 #include <cmath>
 #include <iomanip>
 #include <iostream>

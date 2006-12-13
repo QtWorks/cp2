@@ -24,6 +24,7 @@
 //
 ////////////////////////////////////////////////////////////////
 
+#include <time.h>
 #include <cerrno>
 #include <cmath>
 #include <iostream>

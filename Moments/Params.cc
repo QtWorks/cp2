@@ -5,6 +5,7 @@
 //
 /////////////////////////////////////////////
 
+#include <vector>
 using namespace std;
 
 #include "Params.hh"
