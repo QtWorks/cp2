@@ -154,41 +154,7 @@ CP2PIRAQ::poll()
 
 		// get the next packet in the circular buffer
 		PPACKET* pFifoPiraq = (PPACKET *)cb_get_read_address(pFifo, 0); 
-		//		pFifoPiraq->info.bytespergate = bytespergate; 
 
-		// bogus up pointing information for right now.
-		az += 0.5;  
-		if(az > 360.0) { // full scan 
-			az -= 360.0; // restart azimuth angle 
-			el += 7.0;		// step antenna up 
-			scan++; // increment scan count
-			if (el >= 21.0) {	// beyond allowed step
-				el = 0.0; // start over at horizon
-				volume++; // finish volume
-			}
-		} 
-		pFifoPiraq->info.az = az;  
-		pFifoPiraq->info.el = el; // set in packet 
-		//////////////////////////////////////////////////////////////////////////
-		//
-		// check for pulse numbers out of sequence.
-		for (int i = 0; i < packetsPerPciXfer; i++) { // all hits in the packet 
-			// compute pointer to datum in an individual hit, dereference and print. 
-			// CP2 PCI Bus transfer size: packetsPerPciXfer * (PHEADERSIZE + (config1->gatesa * bytespergate))
-			__int64 thisPulseNumber = *(__int64 *)((char *)&pFifoPiraq->info.pulse_num + 
-				i*((sizeof(PINFOHEADER) + 
-				(_config.gatesa * bytespergate)))); 
-
-			if (_lastPulseNumber != thisPulseNumber - 1) { // PNs not sequential
-				printf("pulse number out of sequence, last PN %I64d, this PN %I64d\n", 
-					_lastPulseNumber, thisPulseNumber);  
-				PNerrors++; 
-			}
-			_lastPulseNumber = thisPulseNumber; // previous hit PN
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		//
 		// send data out on the socket
 		int piraqPacketSize = 
 			sizeof(PINFOHEADER) + 
@@ -197,11 +163,11 @@ CP2PIRAQ::poll()
 		// set up a header
 		CP2BeamHeader header;
 		header.channel = _boardnum;
-		
+
 		// empty the packet
 		_cp2Packet.clear();
 
-		// add all beams
+		// add all beams to the outgoing packet
 		for (int i = 0; i < packetsPerPciXfer; i++) {
 			PPACKET* ppacket = (PPACKET*)((char*)&pFifoPiraq->info + i*piraqPacketSize);
 			header.az        = 10.0;
@@ -211,18 +177,31 @@ CP2PIRAQ::poll()
 			header.gates     = ppacket->info.gates;
 			header.hits      = ppacket->info.hits;
 			_cp2Packet.addBeam(header, header.gates*2, ppacket->data);
+
+			// check for pulse number errors
+			long long thisPulseNumber = ppacket->info.pulse_num;
+			if (_lastPulseNumber != thisPulseNumber - 1) {
+				printf("pulse number out of sequence, last PN %I64d, this PN %I64d\n", 
+					_lastPulseNumber, thisPulseNumber);  
+				PNerrors++; 
+			}
+			_lastPulseNumber = thisPulseNumber; // previous hit PN
 		}
 
 		int bytesSent = sendData(_cp2Packet.packetSize(),_cp2Packet.packetData());
 
 		CP2Packet readBack;
-		readBack.setData(_cp2Packet.packetSize(), _cp2Packet.packetData());
-		for (int i = 0; i < readBack.numBeams(); i++) {
-			CP2Beam* pBeam = readBack.getBeam(i);
-			long long pulse = pBeam->header.pulse_num;
-			long long beam = pBeam->header.beam_num;
-			double az = pBeam->header.az;
-			double el = pBeam->header.el;
+		bool error = readBack.setData(_cp2Packet.packetSize(), _cp2Packet.packetData());
+		if (error) {
+			printf("error decoding packet\n");
+		} else {
+			for (int i = 0; i < readBack.numBeams(); i++) {
+				CP2Beam* pBeam = readBack.getBeam(i);
+				long long pulse = pBeam->header.pulse_num;
+				long long beam = pBeam->header.beam_num;
+				double az = pBeam->header.az;
+				double el = pBeam->header.el;
+			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
