@@ -25,7 +25,6 @@
 #include <vector>
 #include <deque>
 #include <cstdio>
-#include "Args.hh"
 #include "Params.hh"
 #include "Pulse.hh"
 #include "Beam.hh"
@@ -41,7 +40,7 @@ public:
 
   // constructor
 
-  MomentsCompute (int argc, char **argv);
+  MomentsCompute ();
 
   // destructor
   
@@ -67,7 +66,6 @@ private:
 
   string _progName;
   Params _params;
-  Args _args;
 
   // pulse queue
 

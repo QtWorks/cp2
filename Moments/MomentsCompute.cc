@@ -37,7 +37,7 @@ const double MomentsCompute::_missingDbl = -9999.0;
 ////////////////////////////////////////////////////
 // Constructor
 
-MomentsCompute::MomentsCompute(int argc, char **argv)
+MomentsCompute::MomentsCompute()
 
 {
 
@@ -65,14 +65,7 @@ MomentsCompute::MomentsCompute(int argc, char **argv)
   
   isOK = true;
 
-  // get command line args
-  
-  if (_args.parse(argc, argv, _params)) {
-    cerr << "ERROR: " << _progName << endl;
-    cerr << "Problem with command line args" << endl;
-    isOK = false;
-    return;
-  }
+  _params.debug = Params::DEBUG_EXTRA_VERBOSE;
 
   // set up moments objects
   // This initializes the FFT package to the set number of samples.
