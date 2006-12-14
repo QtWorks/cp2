@@ -13,13 +13,16 @@
 //#include <winsock2.h>
 #include <iostream>
 
+#include <time.h>
+
 #include "CP2Net.h"
 
 CP2Scope::CP2Scope():
 m_pDataSocket(0),    
 m_pDataSocketNotifier(0),
 m_pSocketBuf(0),	
-_plotType(ScopePlot::TIMESERIES)
+_plotType(ScopePlot::TIMESERIES),
+_countSinceBeam(0)
 {
 	m_dataGramPort	= QTDSP_BASE_PORT;
 	m_dataGramPort	= 3100;
@@ -887,4 +890,81 @@ CP2Scope::terminateSocket( void )	{	//	?pass port#
 
 	if (m_pSocketBuf)
 		delete [] m_pSocketBuf;
+}
+
+//////////////////////////////////////////////////
+// Run
+
+int 
+CP2Scope::Run ()
+{
+  
+  // process pulses as they arrive
+
+  int pulseSeqNum = 0;
+
+  bool done = false;
+  while (!done) {
+
+    // at this point you need to acquire another pulse
+    // instead of using the following hard-coded values
+
+    int nGates = 1000;
+    double now = (double) time(NULL);
+    double prt = 1000.0;
+    double el = 1.0;
+    double az = pulseSeqNum % 360;
+    bool isHoriz = pulseSeqNum % 2;
+    float *iqc = new float[nGates * 2];
+    float *iqx = NULL;
+    
+    // Create a new pulse object and save a pointer to it in the
+    // _pulseBuffer array.  _pulseBuffer is a FIFO, with elements
+    // added at the end and dropped off the beginning. So if we have a
+    // full buffer delete the first element before shifting the
+    // elements to the left.
+    
+    Pulse *pulse = new Pulse(_params, pulseSeqNum, nGates, now,
+                             prt, el, az, isHoriz, iqc, iqx);
+
+    delete[] iqc;
+    
+    // add pulse to queue, managing memory appropriately
+    
+    _momentsCompute._addPulseToQueue(pulse);
+    
+    // prepare for moments computations
+    // also sets _momentsMgr as appropriate
+    
+    _momentsCompute._prepareForMoments(pulse);
+  
+    // is a beam ready?
+    
+    if (_momentsMgr != NULL && _momentsCompute._beamReady()) {
+	
+      _countSinceBeam = 0;
+      
+      // create new beam
+      double _az = 0.0;
+      Beam *beam = new Beam(_params, _pulseQueue, _az, _momentsMgr);
+      _nGatesOut = beam->getNGatesOut();
+      
+      // compute beam moments
+      
+      _momentsCompute._computeBeamMoments(beam);
+      
+      // write out beam moments here
+      
+      // writeBeam();
+      
+      delete beam;
+      
+    }
+
+    pulseSeqNum++;
+
+  } // while (true)
+
+  return 0;
+
 }

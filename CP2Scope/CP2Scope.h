@@ -8,6 +8,13 @@
 
 #include <fftw3.h>
 
+#include "MomentsCompute.hh"
+#include "MomentsMgr.hh"
+#include "Params.hh"
+#include "Pulse.hh"
+#include <deque>
+
+
 #include "../include/CP2.h"			//	CP2-wide Definitions
 #include "../include/piraqx.h"		//	CP2-piraqx Definitions
 #include "../include/dd_types.h"	//	CP2-piraqx data types
@@ -162,6 +169,23 @@ protected:
 
 	//	power correction factor applied to (uncorrected) powerSpectrum() output
 	double	_powerCorrection;	// approximate power correction to dBm 
+
+	MomentsCompute _momentsCompute;
+
+	int _countSinceBeam;
+
+	double _az;
+
+	int _nGatesOut;
+
+	MomentsMgr* _momentsMgr;
+
+	Params _params;
+
+	std::deque<Pulse *> _pulseQueue;
+
+    
+	int Run();
 
 };
 #endif
