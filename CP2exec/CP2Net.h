@@ -3,8 +3,8 @@
 
 #include <vector>
 
-/// A header for each beam of data
-typedef struct CP2BeamHeader {
+/// A header for each pulse of data
+typedef struct CP2PulseHeader {
     long long pulse_num;	///< Pulse number
     long long beam_num;		///< Beam number
     double az;				///< The azimuth, set by Piraq.
@@ -13,13 +13,13 @@ typedef struct CP2BeamHeader {
     int  gates;				///< The number of gates, set by the host.
     int  hits;				///< The number of hits in a beam, set by the host. Used
 							///< to calculate beam number from pulse numbers.
-} CP2BeamHeader;
+} CP2PulseHeader;
 
 /// A header and data are combined to make one beam.
-typedef struct CP2Beam {
-	CP2BeamHeader header;///< The beam header.
+typedef struct CP2Pulse {
+	CP2PulseHeader header;///< The beam header.
 	float* data;			///< An array of data values will start here.
-} CP2Beam;
+} CP2Pulse;
 
 /// Interface for working with CP2 network data
 /// transmission. When constructed, an area for
@@ -31,8 +31,8 @@ public:
 	virtual ~CP2Packet();
 	/// Add a data beam to the packet. This is used for constructing
 	/// a packet.
-	void addBeam(
-		CP2BeamHeader& header,       ///< The beam header information
+	void addPulse(
+		CP2PulseHeader& header,       ///< The beam header information
 		int numDataValues,			///< The number of data values.
 		float* data					///< The data for the beam
 		);
@@ -50,14 +50,14 @@ public:
 	int packetSize();
 	/// @return A pointer to the begining of the CP2Beam array.
 	void* packetData();
-	/// @return The number of beams in the packet
-	int numBeams();
+	/// @return The number of pulses in the packet
+	int numPulses();
 	/// Fetch a beam
 	/// @param i The beam index. It must be less than 
 	/// the value returned by numBeams(). 
 	/// @return A pointer to beam i. If the index
 	/// is illeagal, null is returned.
-	CP2Beam* getBeam(int index);
+	CP2Pulse* getPulse(int index);
 
 protected:
 	/// The vector that will be expanded with beam data when 
@@ -68,7 +68,7 @@ protected:
 	std::vector<unsigned char> _packetData;
 	/// The amount of data currently in the _packet data
 	int _dataSize;
-	/// The offset to each beam in the packet
-	std::vector<int> _beamOffset;
+	/// The offset to each pulse in the packet
+	std::vector<int> _pulseOffset;
 };
 #endif

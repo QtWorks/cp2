@@ -161,7 +161,7 @@ CP2PIRAQ::poll()
 			pFifoPiraq->info.gates*pFifoPiraq->info.bytespergate;
 
 		// set up a header
-		CP2BeamHeader header;
+		CP2PulseHeader header;
 		header.channel = _boardnum;
 
 		// empty the packet
@@ -176,7 +176,7 @@ CP2PIRAQ::poll()
 			header.pulse_num = ppacket->info.pulse_num;
 			header.gates     = ppacket->info.gates;
 			header.hits      = ppacket->info.hits;
-			_cp2Packet.addBeam(header, header.gates*2, ppacket->data);
+			_cp2Packet.addPulse(header, header.gates*2, ppacket->data);
 
 			// check for pulse number errors
 			long long thisPulseNumber = ppacket->info.pulse_num;
@@ -195,12 +195,12 @@ CP2PIRAQ::poll()
 		if (error) {
 			printf("error decoding packet\n");
 		} else {
-			for (int i = 0; i < readBack.numBeams(); i++) {
-				CP2Beam* pBeam = readBack.getBeam(i);
-				long long pulse = pBeam->header.pulse_num;
-				long long beam = pBeam->header.beam_num;
-				double az = pBeam->header.az;
-				double el = pBeam->header.el;
+			for (int i = 0; i < readBack.numPulses(); i++) {
+				CP2Pulse* pPulse = readBack.getPulse(i);
+				long long pulse = pPulse->header.pulse_num;
+				long long beam = pPulse->header.beam_num;
+				double az = pPulse->header.az;
+				double el = pPulse->header.el;
 			}
 		}
 
