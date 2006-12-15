@@ -116,8 +116,7 @@ public:
   receiver_t vc_receiver;
   receiver_t vx_receiver;
 
-  int n_moments_params;
-  moments_params_t *moments_params;  
+  vector<moments_params_t> moments_params;  
 
 protected:
 private:

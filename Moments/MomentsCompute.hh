@@ -40,15 +40,13 @@ public:
 
 	// constructor
 
-	MomentsCompute ();
+	MomentsCompute();
 
 	// destructor
 
 	~MomentsCompute();
 
-	// run 
-
-	int Run();
+        // process a pulse
 
 	int processPulse(
 		float* data, 
@@ -57,9 +55,20 @@ public:
 		double el, 
 		double az, 
 		long long pulseNum);
+
 	// data members
 
 	bool isOK;
+
+  // set debugging
+
+  void setDebug();
+  void setDebugVerbose();
+  void setDebugExtraVerbose();
+
+  // get params
+
+  const Params &getParams() { return _params; }
 
 protected:
 
@@ -77,9 +86,8 @@ protected:
 
 	static const double _missingDbl;
 
-	// basic
+	// parameters
 
-	string _progName;
 	Params _params;
 
 	// pulse queue

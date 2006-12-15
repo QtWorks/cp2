@@ -41,8 +41,6 @@ MomentsCompute::MomentsCompute()
 
 {
 
-  _progName = "MomentsCompute";
-
   _momentsMgr = NULL;
 
   _nSamples = 64;
@@ -68,7 +66,7 @@ MomentsCompute::MomentsCompute()
   // set up moments objects
   // This initializes the FFT package to the set number of samples.
   
-  for (int i = 0; i < _params.n_moments_params; i++) {
+  for (int i = 0; i < (int) _params.moments_params.size(); i++) {
     MomentsMgr *mgr = new MomentsMgr(_params, _params.moments_params[i]);
     _momentsMgrArray.push_back(mgr);
   }
@@ -84,7 +82,7 @@ MomentsCompute::MomentsCompute()
   // compute pulse queue size, set to 2 * maxNsamples
 
   int maxNsamples = 0;
-  for (int i = 0; i < _params.n_moments_params; i++) {
+  for (int i = 0; i < (int) _params.moments_params.size(); i++) {
     if (maxNsamples < _params.moments_params[i].n_samples) {
       maxNsamples = _params.moments_params[i].n_samples;
     }
@@ -119,80 +117,19 @@ MomentsCompute::~MomentsCompute()
 
 }
 
-//////////////////////////////////////////////////
-// Run
+// set debugging
 
-int MomentsCompute::Run ()
+void MomentsCompute::setDebug()
 {
-  
-  // process pulses as they arrive
-
-  int pulseSeqNum = 0;
-
-  bool done = false;
-  while (!done) {
-
-    // at this point you need to acquire another pulse
-    // instead of using the following hard-coded values
-
-    int nGates = 1000;
-    double now = (double) time(NULL);
-    double prt = 1000.0;
-    double el = 1.0;
-    double az = pulseSeqNum % 360;
-    bool isHoriz = pulseSeqNum % 2;
-    float *iqc = new float[nGates * 2];
-    float *iqx = NULL;
-    
-    // Create a new pulse object and save a pointer to it in the
-    // _pulseBuffer array.  _pulseBuffer is a FIFO, with elements
-    // added at the end and dropped off the beginning. So if we have a
-    // full buffer delete the first element before shifting the
-    // elements to the left.
-    
-    Pulse *pulse = new Pulse(_params, pulseSeqNum, nGates, now,
-                             prt, el, az, isHoriz, iqc, iqx);
-
-    delete[] iqc;
-    
-    // add pulse to queue, managing memory appropriately
-    
-    _addPulseToQueue(pulse);
-    
-    // prepare for moments computations
-    // also sets _momentsMgr as appropriate
-    
-    _prepareForMoments(pulse);
-  
-    // is a beam ready?
-    
-    if (_momentsMgr != NULL && _beamReady()) {
-	
-      _countSinceBeam = 0;
-      
-      // create new beam
-      
-      Beam *beam = new Beam(_params, _pulseQueue, _az, _momentsMgr);
-      _nGatesOut = beam->getNGatesOut();
-      
-      // compute beam moments
-      
-      _computeBeamMoments(beam);
-      
-      // write out beam moments here
-      
-      // writeBeam();
-      
-      delete beam;
-      
-    }
-
-    pulseSeqNum++;
-
-  } // while (true)
-
-  return 0;
-
+  _params.debug = Params::DEBUG_NORM;
+}
+void MomentsCompute::setDebugVerbose()
+{
+  _params.debug = Params::DEBUG_VERBOSE;
+}
+void MomentsCompute::setDebugExtraVerbose()
+{
+  _params.debug = Params::DEBUG_EXTRA_VERBOSE;
 }
 
 /////////////////////////////////////////////////
@@ -432,10 +369,12 @@ MomentsCompute::processPulse(
 					   double az, 
 					   long long pulseNum)
 {
+
 	// process pulses as they arrive
 
 	double now = (double) time(NULL);
 	bool isHoriz = pulseNum % 2;
+
 	// Create a new pulse object and save a pointer to it in the
 	// _pulseBuffer array.  _pulseBuffer is a FIFO, with elements
 	// added at the end and dropped off the beginning. So if we have a
@@ -459,6 +398,8 @@ MomentsCompute::processPulse(
 
 	if (_momentsMgr != NULL && _beamReady()) {
 
+                _countSinceBeam = 0;
+
 		// create new beam
 		double _az = 0.0;
 		Beam *beam = new Beam(_params, 
@@ -468,7 +409,9 @@ MomentsCompute::processPulse(
 
 		// compute beam moments
 
-//		_computeBeamMoments(beam);
+		_computeBeamMoments(beam);
+
+  cerr << "--->> computing moments, el, az: " << el << ", " << az << endl;
 
 		// write out beam moments here
 
@@ -481,3 +424,4 @@ MomentsCompute::processPulse(
 	return 0;
 
 }
+

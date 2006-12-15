@@ -61,26 +61,29 @@ Params::Params()
 
   // moments manager params
 
-  n_moments_params = 2;
-  moments_params = new moments_params_t[n_moments_params];
- 
-  moments_params[0].n_samples = 10;
-  moments_params[0].lower_prf = 0;
-  moments_params[0].upper_prf = 500;
-  moments_params[0].start_range = 0.075;
-  moments_params[0].start_range = 0.150;
-  moments_params[0].algorithm = ALG_FFT;
-  moments_params[0].window = WINDOW_BLACKMAN;
-  moments_params[0].mode = SINGLE_POL;
+  moments_params_t mparams;
 
-  moments_params[1].n_samples = 64;
-  moments_params[1].lower_prf = 500;
-  moments_params[1].upper_prf = 2000;
-  moments_params[1].start_range = 0.075;
-  moments_params[1].start_range = 0.150;
-  moments_params[1].algorithm = ALG_FFT;
-  moments_params[1].window = WINDOW_HANNING;
-  moments_params[1].mode = DUAL_FAST_ALT;
+  mparams.n_samples = 10;
+  mparams.lower_prf = 0;
+  mparams.upper_prf = 500;
+  mparams.start_range = 0.075;
+  mparams.start_range = 0.150;
+  mparams.algorithm = ALG_FFT;
+  mparams.window = WINDOW_BLACKMAN;
+  mparams.mode = SINGLE_POL;
+
+  moments_params.push_back(mparams);
+
+  mparams.n_samples = 64;
+  mparams.lower_prf = 500;
+  mparams.upper_prf = 2000;
+  mparams.start_range = 0.075;
+  mparams.start_range = 0.150;
+  mparams.algorithm = ALG_FFT;
+  mparams.window = WINDOW_HANNING;
+  mparams.mode = DUAL_FAST_ALT;
+
+  moments_params.push_back(mparams);
 
 }
 
@@ -92,9 +95,5 @@ Params::~Params()
   
 {
 
-  if (moments_params) {
-    delete moments_params;
-  }
-  
 }
 
