@@ -21,8 +21,7 @@ CP2Scope::CP2Scope():
 m_pDataSocket(0),    
 m_pDataSocketNotifier(0),
 m_pSocketBuf(0),	
-_plotType(ScopePlot::TIMESERIES),
-_countSinceBeam(0)
+_plotType(ScopePlot::TIMESERIES)
 {
 	m_dataGramPort	= QTDSP_BASE_PORT;
 	m_dataGramPort	= 3100;
@@ -45,10 +44,10 @@ _countSinceBeam(0)
 	//	set up fft for power calculations: 
 	m_fft_blockSize = 256;	//	temp constant for initial proving 
 	// allocate the data space for fftw
-    _fftwData  = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * m_fft_blockSize);
-    // create the plan.
-    _fftwPlan = fftw_plan_dft_1d(m_fft_blockSize, _fftwData, _fftwData,
-				 FFTW_FORWARD, FFTW_ESTIMATE);
+	_fftwData  = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * m_fft_blockSize);
+	// create the plan.
+	_fftwPlan = fftw_plan_dft_1d(m_fft_blockSize, _fftwData, _fftwData,
+		FFTW_FORWARD, FFTW_ESTIMATE);
 	//	power correction factor applied to (uncorrected) powerSpectrum() output:
 	_powerCorrection = 0.0;	//	use for power correction to dBm
 	//	allocate S-band APB packet storage
@@ -65,7 +64,7 @@ _countSinceBeam(0)
 	m_datagramPortBase			= QTDSP_BASE_PORT;	//	default timeseries data  
 	m_dataChannel				= 1;			//	default to board-select spinner: get value from it
 
-m_DataSetGate = 50;		//!get spinner value
+	m_DataSetGate = 50;		//!get spinner value
 	_productType = 0; 
 
 }
@@ -90,11 +89,11 @@ CP2Scope::timerEvent(QTimerEvent *e) {
 	int	i;
 	int	hit;	//	hit in packet to display
 
-return;	//!
+	return;	//!
 	if	(m_packetCount == 0)	//	no data
 		return;
-//	hit	= (pow(2,16)/(sizeof(PACKETHEADER) + 8*_gates)) - 1;	//	data set PULSE: display LAST pulse in this N-hit packet
-hit	= _Nhits - 1;	//	data set PULSE: display LAST pulse in this N-hit packet
+	//	hit	= (pow(2,16)/(sizeof(PACKETHEADER) + 8*_gates)) - 1;	//	data set PULSE: display LAST pulse in this N-hit packet
+	hit	= _Nhits - 1;	//	data set PULSE: display LAST pulse in this N-hit packet
 	float* p = ((float*)(m_pSocketBuf)) + _pulseStride*hit + (sizeof(PACKETHEADER)/sizeof(float));	//	
 
 	if	(_plotType < ScopePlot::PRODUCT)	{	//	timeseries data
@@ -136,7 +135,7 @@ CP2Scope::plotTypeSlot(bool b)
 			this->yScaleKnob->setTitle("Power Corr"); 
 			this->yScaleKnob->setRange(-30.0, 30.0); 
 			break;
-		//	distiguish the various producs, within one _plotType
+			//	distiguish the various producs, within one _plotType
 		case 3:
 			_plotType = ScopePlot::PRODUCT;
 			_productType = SVHVP; 
@@ -156,52 +155,52 @@ CP2Scope::plotTypeSlot(bool b)
 			_productType = SVEL; 
 			//	set knob for Power correction: 
 			this->yScaleKnob->setTitle("N/A"); 
-//			this->yScaleKnob->setRange(-30.0, 30.0); 
+			//			this->yScaleKnob->setRange(-30.0, 30.0); 
 			break;
 		case 6:
 			_plotType = ScopePlot::PRODUCT;
 			_productType = SNCP; 
 			//	set knob for Power correction: 
 			this->yScaleKnob->setTitle("N/A"); 
-//			this->yScaleKnob->setRange(-30.0, 30.0); 
+			//			this->yScaleKnob->setRange(-30.0, 30.0); 
 			break;
 		case 7:
 			_plotType = ScopePlot::PRODUCT;
 			_productType = SWIDTH; 
 			//	set knob for Power correction: 
 			this->yScaleKnob->setTitle("N/A"); 
-//			this->yScaleKnob->setRange(-30.0, 30.0); 
+			//			this->yScaleKnob->setRange(-30.0, 30.0); 
 			break;
 		case 8:
 			_plotType = ScopePlot::PRODUCT;
 			_productType = SPHIDP; 
 			//	set knob for Power correction: 
 			this->yScaleKnob->setTitle("N/A"); 
-//			this->yScaleKnob->setRange(-30.0, 30.0); 
+			//			this->yScaleKnob->setRange(-30.0, 30.0); 
 			break;
 		case 9:
 			_plotType = ScopePlot::PRODUCT;
 			_productType = VREFL; 
 			//	set knob for Power correction: 
 			this->yScaleKnob->setTitle("N/A"); 
-//			this->yScaleKnob->setRange(-30.0, 30.0); 
+			//			this->yScaleKnob->setRange(-30.0, 30.0); 
 			break;
 		case 10:
 			_plotType = ScopePlot::PRODUCT;
 			_productType = HREFL; 
 			//	set knob for Power correction: 
 			this->yScaleKnob->setTitle("N/A"); 
-//			this->yScaleKnob->setRange(-30.0, 30.0); 
+			//			this->yScaleKnob->setRange(-30.0, 30.0); 
 			break;
 		case 11:
 			_plotType = ScopePlot::PRODUCT;
 			_productType = ZDR; 
 			//	set knob for Power correction: 
 			this->yScaleKnob->setTitle("N/A"); 
-//			this->yScaleKnob->setRange(-30.0, 30.0); 
+			//			this->yScaleKnob->setRange(-30.0, 30.0); 
 			break;
 		default: {}
-   }
+	}
 	//	plot type changed timeseries to products or vice versa
 	//	define separator value more generally:
 	if	(((_plotType <= ScopePlot::SPECTRUM) && (_prevplotType > ScopePlot::SPECTRUM)) || ((_plotType > ScopePlot::SPECTRUM) && (_prevplotType <= ScopePlot::SPECTRUM)))
@@ -234,17 +233,17 @@ void CP2Scope::resizeDataVectors()	{
 		I.resize(m_fft_blockSize);	//	resize timeseries arrays, x-axis
 		Q.resize(m_fft_blockSize);
 		_dataSetSize = m_fft_blockSize; 
-//	disable x-scale spinner
+		//	disable x-scale spinner
 	}
 	else if	(_plotType >= ScopePlot::PRODUCT)	{	//	current product to display
 		ProductData.resize(m_xFullScale); 
-//	enable x-scale spinner
+		//	enable x-scale spinner
 	}
 	else	{	//	timeseries-type or product
 		I.resize(m_xFullScale);	//	resize timeseries arrays, x-axis
 		Q.resize(m_xFullScale);
 		_dataSetSize = m_xFullScale; 
-//	enable x-scale spinner
+		//	enable x-scale spinner
 	}
 }
 
@@ -267,7 +266,7 @@ void CP2Scope::yScaleKnob_valueChanged( double yScaleKnobSetting)	{
 		case 2:	//	power spectrum display
 			_powerCorrection = yScaleKnobSetting; 
 			break;
-		//	add products displays
+			//	add products displays
 	}
 }
 
@@ -279,7 +278,7 @@ void CP2Scope::DataChannelSpinBox_valueChanged( int dataChannel )	{
 		m_dataGramPort    = m_datagramPortBase + (dataChannel - 1);	//	 
 	else	//	product-type display
 		m_dataGramPort    = m_datagramPortBase + (dataChannel - 1) + 3;	//	3 = PIRAQs 
-//was here:	terminateSocket();
+	//was here:	terminateSocket();
 	m_packetCount = 0;		//	clear packet count
 	_parametersSet = 0;		//	request get parameters for this data channel
 
@@ -395,13 +394,19 @@ CP2Scope::dataSocketActivatedSlot(int socket)
 	m_packetCount++; 
 	readBufLen = m_pDataSocket->readBlock((char *)m_pSocketBuf, sizeof(short)*1000000);
 
+	// put this datagram into a packet
 	packet.setData(readBufLen, m_pSocketBuf);
-	printf("packet has %d beams\n", packet.numBeams());
-	for (int i = 0; i < packet.numBeams(); i++) {
-		CP2Beam* pBeam = packet.getBeam(i);
-		long long pulseNum = pBeam->header.pulse_num;
-		long long beamNum = pBeam->header.beam_num;
-		printf("beam num %i64, pulse num %i64\n", beamNum, pulseNum);
+
+	// extract the pulses and send to the moments processor
+	for (int i = 0; i < packet.numPulses(); i++) {
+		CP2Pulse* pPulse = packet.getPulse(i);
+		float* data = &(pPulse->data[0]);
+		_momentsCompute.processPulse(data, 
+			pPulse->header.gates,
+			1.0e-6, 
+			pPulse->header.el, 
+			pPulse->header.az, 
+			pPulse->header.pulse_num);
 	}
 
 	return;
@@ -412,12 +417,12 @@ CP2Scope::dataSocketActivatedSlot(int socket)
 	if	(!_parametersSet)	{	//	piraqx parameters need to be initialized from received data
 		r_c = getParameters( m_pSocketBuf );	//	 
 		if	(r_c == 1)	{		//	success
-//			_parametersSet = 1; 
+			//			_parametersSet = 1; 
 			if	(_plotType < ScopePlot::PRODUCT)	{	//	timeseries type display (presently 0, 1, or 2)
 			}
 			else if (_plotType >= ScopePlot::PRODUCT)	{	//	S-band ABPs: compute products 
-//				SABP.resize(8*_gates + sizeof(PACKETHEADER)/4);	//	define 8; S-band "ABPABPAB" data + ample for piraqx header 
-//				ProductData.resize(_gates);		//	one power per gate 
+				//				SABP.resize(8*_gates + sizeof(PACKETHEADER)/4);	//	define 8; S-band "ABPABPAB" data + ample for piraqx header 
+				//				ProductData.resize(_gates);		//	one power per gate 
 			}
 		}
 	}
@@ -491,7 +496,7 @@ CP2Scope::displayData()
 {
 	// display data -- called on decimation interval if pulse set, or fft size assembled if gate set. 
 
-    double zeroMoment; 
+	double zeroMoment; 
 	unsigned int j; 
 	CP2_PIRAQ_DATA_TYPE * SVHData;	//	 
 
@@ -528,11 +533,11 @@ CP2Scope::displayData()
 		case ScopePlot::SPECTRUM:
 			_spectrum.resize(m_fft_blockSize);	//	probably belongs somewhere else
 			for(j = 0; j < m_fft_blockSize; j++)	{
-			// transfer the data to the fftw input space
+				// transfer the data to the fftw input space
 				_fftwData[j][0] = I[j];
 				_fftwData[j][1] = Q[j];
 			}
-		    zeroMoment = powerSpectrum();
+			zeroMoment = powerSpectrum();
 			// correct unscaled power data using knob setting: 
 			for(j = 0; j < m_fft_blockSize; j++)	{
 				_spectrum[j] += _powerCorrection;
@@ -543,244 +548,244 @@ CP2Scope::displayData()
 		case ScopePlot::PRODUCT:
 			//	proliferate product types here:
 			switch(_productType)	{
-				case SVHVP:		//	compute S-band VH V Power in dBm for display
-					OffsetTo_dBm = _data_sys_sat - _vreceiver_gain + 10.0 * log10(2.0);	// correct for half power measurement 
-					// compute "uncorrected" noise power -- noise power on raw scale, from config'd dBm: 
-					rawNoisePower = (_vnoise_power > -10.0) ? 0.0 : pow(10.0,((_vnoise_power - OffsetTo_dBm)/10.0)); 
-					SVHData = SABP + _IQdataOffset/sizeof(float) + 2;	//	+2 offset to V pulse raw Power
-					for (j = 0; j < m_xFullScale; j++)	{	//	all gates to display
-//						SVP_ = *SVHData;
-//						ProductData[j] -= rawNoisePower;	//	correct the raw power ... rawNoisePower just not visible in debugger
+		case SVHVP:		//	compute S-band VH V Power in dBm for display
+			OffsetTo_dBm = _data_sys_sat - _vreceiver_gain + 10.0 * log10(2.0);	// correct for half power measurement 
+			// compute "uncorrected" noise power -- noise power on raw scale, from config'd dBm: 
+			rawNoisePower = (_vnoise_power > -10.0) ? 0.0 : pow(10.0,((_vnoise_power - OffsetTo_dBm)/10.0)); 
+			SVHData = SABP + _IQdataOffset/sizeof(float) + 2;	//	+2 offset to V pulse raw Power
+			for (j = 0; j < m_xFullScale; j++)	{	//	all gates to display
+				//						SVP_ = *SVHData;
+				//						ProductData[j] -= rawNoisePower;	//	correct the raw power ... rawNoisePower just not visible in debugger
 #if 0	//	as it was:
-						if	(ProductData[j] <= 0.0)		//	corrected to negative value
-							ProductData[j] = pow(10.0,((NOISE_FLOOR - OffsetTo_dBm) / 10.0)); // put in something small: gets NOISE_LIMIT dBm
-						ProductData[j] = (double)(10.0*log10(*SVHData) + OffsetTo_dBm);	//	scale result to dBm 
+				if	(ProductData[j] <= 0.0)		//	corrected to negative value
+					ProductData[j] = pow(10.0,((NOISE_FLOOR - OffsetTo_dBm) / 10.0)); // put in something small: gets NOISE_LIMIT dBm
+				ProductData[j] = (double)(10.0*log10(*SVHData) + OffsetTo_dBm);	//	scale result to dBm 
 #else
-						SVP_ = *SVHData;
-						*SVHData -= rawNoisePower;	//	correct the raw power ... rawNoisePower just not visible in debugger
-						if	(*SVHData <= 0.0)		//	corrected to negative value
-							*SVHData = pow(10.0,((NOISE_FLOOR - OffsetTo_dBm) / 10.0)); // put in something small: gets NOISE_LIMIT dBm
-						else
-							ProductData[j] = (double)(10.0*log10(*SVHData) + OffsetTo_dBm);	//	scale result to dBm 
+				SVP_ = *SVHData;
+				*SVHData -= rawNoisePower;	//	correct the raw power ... rawNoisePower just not visible in debugger
+				if	(*SVHData <= 0.0)		//	corrected to negative value
+					*SVHData = pow(10.0,((NOISE_FLOOR - OffsetTo_dBm) / 10.0)); // put in something small: gets NOISE_LIMIT dBm
+				else
+					ProductData[j] = (double)(10.0*log10(*SVHData) + OffsetTo_dBm);	//	scale result to dBm 
 #endif
-						SVHData += SVHABP_STRIDE;	//	index next gate
-					}
-					_scopePlot->Product(ProductData, _productType, -80, 20.0, m_xFullScale, "Gate", "S V Power (dBm)"); 
-					break;
-				case SVHHP:		//	compute S-band VH H Power in dBm for display
-					OffsetTo_dBm = _data_sys_sat - _receiver_gain + 10.0 * log10(2.0);	//	log10(2.0): correct for half power measurement 
-					// compute "uncorrected" noise power -- noise power on raw scale, from config'd dBm: 
-					rawNoisePower = (_noise_power > -10.0) ? 0.0 : pow(10.0,((_noise_power - OffsetTo_dBm)/10.0)); 
-					SVHData = SABP + _IQdataOffset/sizeof(float) + 5;	//	+5 offset to H pulse raw Power
-					for (j = 0; j < m_xFullScale; j++)	{	//	all gates to display
-//						SVP_ = *SVHData;
-//						ProductData[j] -= rawNoisePower;	//	correct the raw power ... rawNoisePower just not visible in debugger
-						if	(ProductData[j] <= 0.0)		//	corrected to negative value
-							ProductData[j] = pow(10.0,((NOISE_FLOOR - OffsetTo_dBm) / 10.0)); // put in something small: gets NOISE_LIMIT dBm
-						ProductData[j] = (double)(10.0*log10(*SVHData) + OffsetTo_dBm);	//	scale result to dBm 
-						SVHData += SVHABP_STRIDE;	//	index next gate
-					}
-					_scopePlot->Product(ProductData, _productType, -80, 20.0, m_xFullScale, "Gate", "S H Power (dBm)"); 
-					break;
-				case SVEL:		//	compute S-band velocity using V and H data
-					angle_to_velocity_scale_factor = C / (2.0 * _frequency * 2.0 * M_PI * _prt);
-					ph_off = _noise_phase_offset * M_PI / 180.0;	//	SPol sets this phase offset to 20 deg 
-					SVHData = SABP + _IQdataOffset/sizeof(float);	//	point to data
-					//	+1 offset to V pulse B
-					for (j = 0; j < m_xFullScale; j++)	{	//	all gates to display
-						//	Hubbert method: 
-						a = *(SVHData + 3); b = *(SVHData + 4); c = *(SVHData + 0); d = *(SVHData + 1);
-						phidp = atan2( (-(a*d) + b*c), (a*c + b*d)) / 2.0; 
-						alpha = cos(phidp); beta = sin(phidp); 
-						phivelocity = atan2( (b*alpha - (a*beta)), (a*alpha + b*beta)); 
+				SVHData += SVHABP_STRIDE;	//	index next gate
+			}
+			_scopePlot->Product(ProductData, _productType, -80, 20.0, m_xFullScale, "Gate", "S V Power (dBm)"); 
+			break;
+		case SVHHP:		//	compute S-band VH H Power in dBm for display
+			OffsetTo_dBm = _data_sys_sat - _receiver_gain + 10.0 * log10(2.0);	//	log10(2.0): correct for half power measurement 
+			// compute "uncorrected" noise power -- noise power on raw scale, from config'd dBm: 
+			rawNoisePower = (_noise_power > -10.0) ? 0.0 : pow(10.0,((_noise_power - OffsetTo_dBm)/10.0)); 
+			SVHData = SABP + _IQdataOffset/sizeof(float) + 5;	//	+5 offset to H pulse raw Power
+			for (j = 0; j < m_xFullScale; j++)	{	//	all gates to display
+				//						SVP_ = *SVHData;
+				//						ProductData[j] -= rawNoisePower;	//	correct the raw power ... rawNoisePower just not visible in debugger
+				if	(ProductData[j] <= 0.0)		//	corrected to negative value
+					ProductData[j] = pow(10.0,((NOISE_FLOOR - OffsetTo_dBm) / 10.0)); // put in something small: gets NOISE_LIMIT dBm
+				ProductData[j] = (double)(10.0*log10(*SVHData) + OffsetTo_dBm);	//	scale result to dBm 
+				SVHData += SVHABP_STRIDE;	//	index next gate
+			}
+			_scopePlot->Product(ProductData, _productType, -80, 20.0, m_xFullScale, "Gate", "S H Power (dBm)"); 
+			break;
+		case SVEL:		//	compute S-band velocity using V and H data
+			angle_to_velocity_scale_factor = C / (2.0 * _frequency * 2.0 * M_PI * _prt);
+			ph_off = _noise_phase_offset * M_PI / 180.0;	//	SPol sets this phase offset to 20 deg 
+			SVHData = SABP + _IQdataOffset/sizeof(float);	//	point to data
+			//	+1 offset to V pulse B
+			for (j = 0; j < m_xFullScale; j++)	{	//	all gates to display
+				//	Hubbert method: 
+				a = *(SVHData + 3); b = *(SVHData + 4); c = *(SVHData + 0); d = *(SVHData + 1);
+				phidp = atan2( (-(a*d) + b*c), (a*c + b*d)) / 2.0; 
+				alpha = cos(phidp); beta = sin(phidp); 
+				phivelocity = atan2( (b*alpha - (a*beta)), (a*alpha + b*beta)); 
 
-						/* velocity in m/s */
-						ProductData[j] = phivelocity * angle_to_velocity_scale_factor; 
-						SVHData += SVHABP_STRIDE;	//	index next gate
-					}
+				/* velocity in m/s */
+				ProductData[j] = phivelocity * angle_to_velocity_scale_factor; 
+				SVHData += SVHABP_STRIDE;	//	index next gate
+			}
 #if 0
-					//	+1 offset to V pulse B
-					for (j = 0; j < m_xFullScale; j++)	{	//	all gates to display
-						//	Mitch method: 
-						/* subtract out the system phase from v1a */
-						v1a = atan2(*(SVHData + 1),*(SVHData + 0));	//	S-band H-V B,A
-						v2a = atan2(*(SVHData + 4),*(SVHData + 3));	//	S-band V-H B,A
-						v1a -= _phaseoffset;
-						if	(v1a < -M_PI)	
-							v1a += 2.0 * M_PI;
-						else if (v1a > M_PI)
-							v1a -= 2.0 * M_PI;
-						/* add in the system phase to v2a */
-						v2a += _phaseoffset;
-						if	(v2a < -M_PI)
-							v2a += 2.0 * M_PI;
-						else if (v2a > M_PI)
-							v2a -= 2.0 * M_PI;
-						/* compute the total difference */
-						theta = v2a - v1a;
-						if (theta > M_PI)
-							theta -= 2.0 * M_PI;
-						else if (theta < -M_PI)
-							theta += 2.0 * M_PI;      
-						/* figure the differential phase (from - 20 to +160) */
-						dp = theta * 0.5;
-						if (dp < -ph_off)
-							dp += M_PI;
-						/* note: dp cannot be greater than +160, range is +/- 90 */        
-						/* compute the velocity */
-						v = v1a + dp;
-						if (v < -M_PI)
-							v += 2.0 * M_PI;
-						else if (v > M_PI)
-							v -= 2.0 * M_PI;
-						/* velocity in m/s */
-						ProductData[j] = v * angle_to_velocity_scale_factor; 
-						SVHData += SVABP_STRIDE;	//	index next gate
-					}
+			//	+1 offset to V pulse B
+			for (j = 0; j < m_xFullScale; j++)	{	//	all gates to display
+				//	Mitch method: 
+				/* subtract out the system phase from v1a */
+				v1a = atan2(*(SVHData + 1),*(SVHData + 0));	//	S-band H-V B,A
+				v2a = atan2(*(SVHData + 4),*(SVHData + 3));	//	S-band V-H B,A
+				v1a -= _phaseoffset;
+				if	(v1a < -M_PI)	
+					v1a += 2.0 * M_PI;
+				else if (v1a > M_PI)
+					v1a -= 2.0 * M_PI;
+				/* add in the system phase to v2a */
+				v2a += _phaseoffset;
+				if	(v2a < -M_PI)
+					v2a += 2.0 * M_PI;
+				else if (v2a > M_PI)
+					v2a -= 2.0 * M_PI;
+				/* compute the total difference */
+				theta = v2a - v1a;
+				if (theta > M_PI)
+					theta -= 2.0 * M_PI;
+				else if (theta < -M_PI)
+					theta += 2.0 * M_PI;      
+				/* figure the differential phase (from - 20 to +160) */
+				dp = theta * 0.5;
+				if (dp < -ph_off)
+					dp += M_PI;
+				/* note: dp cannot be greater than +160, range is +/- 90 */        
+				/* compute the velocity */
+				v = v1a + dp;
+				if (v < -M_PI)
+					v += 2.0 * M_PI;
+				else if (v > M_PI)
+					v -= 2.0 * M_PI;
+				/* velocity in m/s */
+				ProductData[j] = v * angle_to_velocity_scale_factor; 
+				SVHData += SVABP_STRIDE;	//	index next gate
+			}
 #endif
-					//	compute velocity limits from prt, frequency: 
-					_scopePlot->Product(ProductData, _productType, -30.0, 30.0, m_xFullScale, "Gate", "Velocity (m/s)"); 
-					break;
-				case SNCP:		//	compute S-band NCP using calculation A2*A2+B2*B2/Pv+Ph
-					SVHData = SABP + _IQdataOffset/sizeof(float);	//	point to data
-					for (j = 0; j < m_xFullScale; j++)	{	//	all gates to display
-						//	calculate S-band NCP:
-						A2 = *(SVHData + 6); B2 = *(SVHData + 7); Pv = *(SVHData + 2); Ph = *(SVHData + 5);	//	
-						ProductData[j] = sqrt(A2*A2 + B2*B2) / (Pv + Ph);
-						SVHData += SVHABP_STRIDE;	//	index next gate
-					}
-					_scopePlot->Product(ProductData, _productType, 0.0, 2.0, m_xFullScale, "Gate", "NCP"); 
-					break;
-				case SWIDTH:
-				//	compute S-band spectral width 
-					SVHData = SABP + _IQdataOffset/sizeof(float);	//	point to data
-					widthconst = (C / _frequency) / _prt / (4.0 * sqrt(2.0) * M_PI); 
-					for (j = 0; j < m_xFullScale; j++)	{	//	all gates to display
-						//	calculate S-band Spectral Width:
-						A2 = *(SVHData + 6); B2 = *(SVHData + 7); Pv = *(SVHData + 2); Ph = *(SVHData + 5);	//	
-						NCP = sqrt(A2*A2 + B2*B2) / (Pv + Ph);	//	calculate NCP
-						if	(log(NCP) > 0.0)
-							NCP = 1.0; 
-						ProductData[j] = widthconst * sqrt(-log(NCP));
-						SVHData += SVHABP_STRIDE;	//	index next gate
-					}
-					_scopePlot->Product(ProductData, _productType, 0.0, 30.0, m_xFullScale, "Gate", "Spectral Width"); 
-					break;			
-				case SPHIDP:
-				//	compute S-band phidp 
-					SVHData = SABP + _IQdataOffset/sizeof(float);	//	point to data
-					ph_off = _noise_phase_offset * M_PI / 180.0;	//	SPol sets phase offset to be 20 deg */
-					//	+1 offset to V pulse B
-					for (j = 0; j < m_xFullScale; j++)	{	//	all gates to display
-						//	Hubbert method: 
-						a = *(SVHData + 3); b = *(SVHData + 4); c = *(SVHData + 0); d = *(SVHData + 1);
-						phidp = atan2( (-(a*d) + b*c), (a*c + b*d)) / 2.0; 
-						alpha = cos(phidp); beta = sin(phidp); 
-						/* phidp in degrees */
-						ProductData[j] = phidp * 180.0 / M_PI;; 
-						SVHData += SVHABP_STRIDE;	//	index next gate
-					}
+			//	compute velocity limits from prt, frequency: 
+			_scopePlot->Product(ProductData, _productType, -30.0, 30.0, m_xFullScale, "Gate", "Velocity (m/s)"); 
+			break;
+		case SNCP:		//	compute S-band NCP using calculation A2*A2+B2*B2/Pv+Ph
+			SVHData = SABP + _IQdataOffset/sizeof(float);	//	point to data
+			for (j = 0; j < m_xFullScale; j++)	{	//	all gates to display
+				//	calculate S-band NCP:
+				A2 = *(SVHData + 6); B2 = *(SVHData + 7); Pv = *(SVHData + 2); Ph = *(SVHData + 5);	//	
+				ProductData[j] = sqrt(A2*A2 + B2*B2) / (Pv + Ph);
+				SVHData += SVHABP_STRIDE;	//	index next gate
+			}
+			_scopePlot->Product(ProductData, _productType, 0.0, 2.0, m_xFullScale, "Gate", "NCP"); 
+			break;
+		case SWIDTH:
+			//	compute S-band spectral width 
+			SVHData = SABP + _IQdataOffset/sizeof(float);	//	point to data
+			widthconst = (C / _frequency) / _prt / (4.0 * sqrt(2.0) * M_PI); 
+			for (j = 0; j < m_xFullScale; j++)	{	//	all gates to display
+				//	calculate S-band Spectral Width:
+				A2 = *(SVHData + 6); B2 = *(SVHData + 7); Pv = *(SVHData + 2); Ph = *(SVHData + 5);	//	
+				NCP = sqrt(A2*A2 + B2*B2) / (Pv + Ph);	//	calculate NCP
+				if	(log(NCP) > 0.0)
+					NCP = 1.0; 
+				ProductData[j] = widthconst * sqrt(-log(NCP));
+				SVHData += SVHABP_STRIDE;	//	index next gate
+			}
+			_scopePlot->Product(ProductData, _productType, 0.0, 30.0, m_xFullScale, "Gate", "Spectral Width"); 
+			break;			
+		case SPHIDP:
+			//	compute S-band phidp 
+			SVHData = SABP + _IQdataOffset/sizeof(float);	//	point to data
+			ph_off = _noise_phase_offset * M_PI / 180.0;	//	SPol sets phase offset to be 20 deg */
+			//	+1 offset to V pulse B
+			for (j = 0; j < m_xFullScale; j++)	{	//	all gates to display
+				//	Hubbert method: 
+				a = *(SVHData + 3); b = *(SVHData + 4); c = *(SVHData + 0); d = *(SVHData + 1);
+				phidp = atan2( (-(a*d) + b*c), (a*c + b*d)) / 2.0; 
+				alpha = cos(phidp); beta = sin(phidp); 
+				/* phidp in degrees */
+				ProductData[j] = phidp * 180.0 / M_PI;; 
+				SVHData += SVHABP_STRIDE;	//	index next gate
+			}
 #if 0
-					for (j = 0; j < m_xFullScale; j++)	{	//	all gates to display
-						v1a = atan2(*(SVHData + 1),*(SVHData + 0));	//	S-band H-V B,A
-						v2a = atan2(*(SVHData + 4),*(SVHData + 3));	//	S-band V-H B,A
-						theta = v2a - v1a;
-						if (theta > M_PI)
-							theta -= 2.0 * M_PI;
-						else if (theta < -M_PI)
-							theta += 2.0 * M_PI;      
-						/* figure the differential phase (from - 20 to +160) */
-						dp = theta * 0.5;
-						if (dp < -ph_off)
-							dp += M_PI;
-						/* note: dp cannot be greater than +160, range is +/- 90 */        
-						//	calculate S-band phidp in degrees:
-						ProductData[j] = dp * 180.0 / M_PI;
-						SVHData += SVABP_STRIDE;	//	index next gate
-					}
+			for (j = 0; j < m_xFullScale; j++)	{	//	all gates to display
+				v1a = atan2(*(SVHData + 1),*(SVHData + 0));	//	S-band H-V B,A
+				v2a = atan2(*(SVHData + 4),*(SVHData + 3));	//	S-band V-H B,A
+				theta = v2a - v1a;
+				if (theta > M_PI)
+					theta -= 2.0 * M_PI;
+				else if (theta < -M_PI)
+					theta += 2.0 * M_PI;      
+				/* figure the differential phase (from - 20 to +160) */
+				dp = theta * 0.5;
+				if (dp < -ph_off)
+					dp += M_PI;
+				/* note: dp cannot be greater than +160, range is +/- 90 */        
+				//	calculate S-band phidp in degrees:
+				ProductData[j] = dp * 180.0 / M_PI;
+				SVHData += SVABP_STRIDE;	//	index next gate
+			}
 #endif
-					_scopePlot->Product(ProductData, _productType, -180.0, 180.0, m_xFullScale, "Gate", "phidp degrees"); 
-					break;			
-				case VREFL:
-				//	compute S-band V reflectivity  
-					SVHData = SABP + _IQdataOffset/sizeof(float);	//	point to data
-					v_channel_radar_constant = _rconst - 20.0 * log10(_xmit_pulsewidth / _rcvr_pulsewidth)
-												+ 10.0 * log10(_peak_power / _vxmit_power)
-												+ 2.0 * (_antenna_gain - _vantenna_gain);	
-					OffsetTo_dBm = _data_sys_sat - _vreceiver_gain + 10.0 * log10(2.0);	// correct for half power measurement 
-					// compute "uncorrected" noise power -- noise power on raw scale, from config'd dBm: 
-					rawNoisePower = (_vnoise_power > -10.0) ? 0.0 : pow(10.0,((_vnoise_power - OffsetTo_dBm)/10.0)); 
-					SVHData = SABP + _IQdataOffset/sizeof(float) + 2;	//	+2 offset to V pulse raw Power
-					for (j = 0; j < m_xFullScale; j++)	{	//	all gates to display
-						if	(j)	//	range not zero 
-							range_correction = 20.0 * log10(j * 0.0005 * C * _rcvr_pulsewidth);
-						//	calculate S-band V Power, then reflectivity: 
-						*SVHData -= rawNoisePower;	//	correct the raw power 
-						if	(*SVHData <= 0.0)		//	corrected to negative value
-							*SVHData = pow(10.0,((NOISE_FLOOR - OffsetTo_dBm) / 10.0)); // put in something small: gets NOISE_LIMIT dBm
-//						else
-							ProductData[j] = (double)(10.0*log10(*SVHData) + OffsetTo_dBm) + v_channel_radar_constant + range_correction;	//	 
-						SVHData += SVHABP_STRIDE;	//	index next gate
-					}
-					_scopePlot->Product(ProductData, _productType, -100.0, 100.0, m_xFullScale, "Gate", "V Reflectivity"); 
-					break;			
-				case HREFL:
-				//	compute S-band H reflectivity  
-					h_channel_radar_constant = _rconst - 20.0 * log10(_xmit_pulsewidth / _rcvr_pulsewidth)
-												+ 10.0 * log10(_peak_power / _xmit_power);
-					OffsetTo_dBm = _data_sys_sat - _receiver_gain + 10.0 * log10(2.0);	//	log10(2.0): correct for half power measurement 
-					// compute "uncorrected" noise power -- noise power on raw scale, from config'd dBm: 
-					rawNoisePower = (_noise_power > -10.0) ? 0.0 : pow(10.0,((_noise_power - OffsetTo_dBm)/10.0)); 
-					SVHData = SABP + _IQdataOffset/sizeof(float) + 5;	//	+5 offset to H pulse raw Power
-					for (j = 0; j < m_xFullScale; j++)	{	//	all gates to display
-						if	(j)	//	range not zero 
-							range_correction = 20.0 * log10(j * 0.0005 * C * _rcvr_pulsewidth);
-						//	calculate S-band H Power, then adjust to reflectivity: 
-						*SVHData -= rawNoisePower;	//	correct the raw power 
-						if	(*SVHData <= 0.0)		//	corrected to negative value
-							*SVHData = pow(10.0,((NOISE_FLOOR - OffsetTo_dBm) / 10.0)); // put in something small: gets NOISE_LIMIT dBm
-						else
-							ProductData[j] = (double)(10.0*log10(*SVHData) + OffsetTo_dBm) + h_channel_radar_constant + range_correction;	//	 
-						SVHData += SVHABP_STRIDE;	//	index next gate
-					}
-					_scopePlot->Product(ProductData, _productType, -100.0, 100.0, m_xFullScale, "Gate", "H Reflectivity"); 
-					break;			
-				case ZDR:
-				//	compute S-band Zdr 
-					h_channel_radar_constant = _rconst - 20.0 * log10(_xmit_pulsewidth / _rcvr_pulsewidth)
-												+ 10.0 * log10(_peak_power / _xmit_power);
-					v_channel_radar_constant = _rconst - 20.0 * log10(_xmit_pulsewidth / _rcvr_pulsewidth)
-												+ 10.0 * log10(_peak_power / _vxmit_power)
-												+ 2.0 * (_antenna_gain - _vantenna_gain);	
-					HOffsetTo_dBm = _data_sys_sat - _receiver_gain + 10.0 * log10(2.0);	// correct for half power measurement 
-					VOffsetTo_dBm = _data_sys_sat - _vreceiver_gain + 10.0 * log10(2.0);	
-					// compute "uncorrected" noise powers -- noise power on raw scale, from config'd dBm: 
-					HrawNoisePower = (_noise_power > -10.0) ? 0.0 : pow(10.0,((_noise_power - HOffsetTo_dBm)/10.0)); 
-					VrawNoisePower = (_vnoise_power > -10.0) ? 0.0 : pow(10.0,((_vnoise_power - VOffsetTo_dBm)/10.0)); 
-					//	point to H, V power data
-					SVHDataH = SABP + _IQdataOffset/sizeof(float) + 5;	
-					SVHDataV = SABP + _IQdataOffset/sizeof(float) + 2;
-					double SVZ, SHZ;	//	S-band V, H reflectivity
-					for (j = 0; j < m_xFullScale; j++)	{	//	all gates to display
-						if	(j)	//	range not zero 
-							range_correction = 20.0 * log10(j * 0.0005 * C * _rcvr_pulsewidth);
-						//	calculate S-band H and V Power, then adjust to reflectivity, and compute Zdr: 
-						*SVHDataH -= HrawNoisePower;	//	correct the raw power 
-						if	(*SVHDataH <= 0.0)		//	corrected to negative value
-							*SVHDataH = pow(10.0,((NOISE_FLOOR - HOffsetTo_dBm) / 10.0)); // put in something small: gets NOISE_LIMIT dBm
-						else
-							SHZ = (double)(10.0*log10(*SVHDataH) + HOffsetTo_dBm) + h_channel_radar_constant + range_correction;	//	 
-						*SVHDataV -= VrawNoisePower;	//	correct the raw power 
-						if	(*SVHDataV <= 0.0)		//	corrected to negative value
-							*SVHDataV = pow(10.0,((NOISE_FLOOR - VOffsetTo_dBm) / 10.0)); // put in something small: gets NOISE_LIMIT dBm
-						else
-							SVZ = (double)(10.0*log10(*SVHDataV) + VOffsetTo_dBm) + v_channel_radar_constant + range_correction;	//	 
-						//	compute Zdr
-						ProductData[j] = SHZ - SVZ + _zdr_fudge_factor + _zdr_bias;
-						SVHDataH += SVHABP_STRIDE; SVHDataV += SVHABP_STRIDE;	//	index next gate
-					}
-					_scopePlot->Product(ProductData, _productType, -10.0, 10.0, m_xFullScale, "Gate", "Zdr"); 
-					break;			
+			_scopePlot->Product(ProductData, _productType, -180.0, 180.0, m_xFullScale, "Gate", "phidp degrees"); 
+			break;			
+		case VREFL:
+			//	compute S-band V reflectivity  
+			SVHData = SABP + _IQdataOffset/sizeof(float);	//	point to data
+			v_channel_radar_constant = _rconst - 20.0 * log10(_xmit_pulsewidth / _rcvr_pulsewidth)
+				+ 10.0 * log10(_peak_power / _vxmit_power)
+				+ 2.0 * (_antenna_gain - _vantenna_gain);	
+			OffsetTo_dBm = _data_sys_sat - _vreceiver_gain + 10.0 * log10(2.0);	// correct for half power measurement 
+			// compute "uncorrected" noise power -- noise power on raw scale, from config'd dBm: 
+			rawNoisePower = (_vnoise_power > -10.0) ? 0.0 : pow(10.0,((_vnoise_power - OffsetTo_dBm)/10.0)); 
+			SVHData = SABP + _IQdataOffset/sizeof(float) + 2;	//	+2 offset to V pulse raw Power
+			for (j = 0; j < m_xFullScale; j++)	{	//	all gates to display
+				if	(j)	//	range not zero 
+					range_correction = 20.0 * log10(j * 0.0005 * C * _rcvr_pulsewidth);
+				//	calculate S-band V Power, then reflectivity: 
+				*SVHData -= rawNoisePower;	//	correct the raw power 
+				if	(*SVHData <= 0.0)		//	corrected to negative value
+					*SVHData = pow(10.0,((NOISE_FLOOR - OffsetTo_dBm) / 10.0)); // put in something small: gets NOISE_LIMIT dBm
+				//						else
+				ProductData[j] = (double)(10.0*log10(*SVHData) + OffsetTo_dBm) + v_channel_radar_constant + range_correction;	//	 
+				SVHData += SVHABP_STRIDE;	//	index next gate
+			}
+			_scopePlot->Product(ProductData, _productType, -100.0, 100.0, m_xFullScale, "Gate", "V Reflectivity"); 
+			break;			
+		case HREFL:
+			//	compute S-band H reflectivity  
+			h_channel_radar_constant = _rconst - 20.0 * log10(_xmit_pulsewidth / _rcvr_pulsewidth)
+				+ 10.0 * log10(_peak_power / _xmit_power);
+			OffsetTo_dBm = _data_sys_sat - _receiver_gain + 10.0 * log10(2.0);	//	log10(2.0): correct for half power measurement 
+			// compute "uncorrected" noise power -- noise power on raw scale, from config'd dBm: 
+			rawNoisePower = (_noise_power > -10.0) ? 0.0 : pow(10.0,((_noise_power - OffsetTo_dBm)/10.0)); 
+			SVHData = SABP + _IQdataOffset/sizeof(float) + 5;	//	+5 offset to H pulse raw Power
+			for (j = 0; j < m_xFullScale; j++)	{	//	all gates to display
+				if	(j)	//	range not zero 
+					range_correction = 20.0 * log10(j * 0.0005 * C * _rcvr_pulsewidth);
+				//	calculate S-band H Power, then adjust to reflectivity: 
+				*SVHData -= rawNoisePower;	//	correct the raw power 
+				if	(*SVHData <= 0.0)		//	corrected to negative value
+					*SVHData = pow(10.0,((NOISE_FLOOR - OffsetTo_dBm) / 10.0)); // put in something small: gets NOISE_LIMIT dBm
+				else
+					ProductData[j] = (double)(10.0*log10(*SVHData) + OffsetTo_dBm) + h_channel_radar_constant + range_correction;	//	 
+				SVHData += SVHABP_STRIDE;	//	index next gate
+			}
+			_scopePlot->Product(ProductData, _productType, -100.0, 100.0, m_xFullScale, "Gate", "H Reflectivity"); 
+			break;			
+		case ZDR:
+			//	compute S-band Zdr 
+			h_channel_radar_constant = _rconst - 20.0 * log10(_xmit_pulsewidth / _rcvr_pulsewidth)
+				+ 10.0 * log10(_peak_power / _xmit_power);
+			v_channel_radar_constant = _rconst - 20.0 * log10(_xmit_pulsewidth / _rcvr_pulsewidth)
+				+ 10.0 * log10(_peak_power / _vxmit_power)
+				+ 2.0 * (_antenna_gain - _vantenna_gain);	
+			HOffsetTo_dBm = _data_sys_sat - _receiver_gain + 10.0 * log10(2.0);	// correct for half power measurement 
+			VOffsetTo_dBm = _data_sys_sat - _vreceiver_gain + 10.0 * log10(2.0);	
+			// compute "uncorrected" noise powers -- noise power on raw scale, from config'd dBm: 
+			HrawNoisePower = (_noise_power > -10.0) ? 0.0 : pow(10.0,((_noise_power - HOffsetTo_dBm)/10.0)); 
+			VrawNoisePower = (_vnoise_power > -10.0) ? 0.0 : pow(10.0,((_vnoise_power - VOffsetTo_dBm)/10.0)); 
+			//	point to H, V power data
+			SVHDataH = SABP + _IQdataOffset/sizeof(float) + 5;	
+			SVHDataV = SABP + _IQdataOffset/sizeof(float) + 2;
+			double SVZ, SHZ;	//	S-band V, H reflectivity
+			for (j = 0; j < m_xFullScale; j++)	{	//	all gates to display
+				if	(j)	//	range not zero 
+					range_correction = 20.0 * log10(j * 0.0005 * C * _rcvr_pulsewidth);
+				//	calculate S-band H and V Power, then adjust to reflectivity, and compute Zdr: 
+				*SVHDataH -= HrawNoisePower;	//	correct the raw power 
+				if	(*SVHDataH <= 0.0)		//	corrected to negative value
+					*SVHDataH = pow(10.0,((NOISE_FLOOR - HOffsetTo_dBm) / 10.0)); // put in something small: gets NOISE_LIMIT dBm
+				else
+					SHZ = (double)(10.0*log10(*SVHDataH) + HOffsetTo_dBm) + h_channel_radar_constant + range_correction;	//	 
+				*SVHDataV -= VrawNoisePower;	//	correct the raw power 
+				if	(*SVHDataV <= 0.0)		//	corrected to negative value
+					*SVHDataV = pow(10.0,((NOISE_FLOOR - VOffsetTo_dBm) / 10.0)); // put in something small: gets NOISE_LIMIT dBm
+				else
+					SVZ = (double)(10.0*log10(*SVHDataV) + VOffsetTo_dBm) + v_channel_radar_constant + range_correction;	//	 
+				//	compute Zdr
+				ProductData[j] = SHZ - SVZ + _zdr_fudge_factor + _zdr_bias;
+				SVHDataH += SVHABP_STRIDE; SVHDataV += SVHABP_STRIDE;	//	index next gate
+			}
+			_scopePlot->Product(ProductData, _productType, -10.0, 10.0, m_xFullScale, "Gate", "Zdr"); 
+			break;			
 			}
 			break;
 	}
@@ -790,43 +795,43 @@ double
 CP2Scope::powerSpectrum()
 {
 
-  // apply the hamming window to the time series
-//  if (_doHamming)
-//    doHamming();
- 
-  // caclulate the fft
-  fftw_execute(_fftwPlan);
+	// apply the hamming window to the time series
+	//  if (_doHamming)
+	//    doHamming();
 
-  double zeroMoment = 0.0;
-  int n = m_fft_blockSize;
+	// caclulate the fft
+	fftw_execute(_fftwPlan);
 
-  // reorder and copy the results int _spectrum
-  for (int i = 0 ; i < n/2; i++) {
-    double pow =      _fftwData[i][0] * _fftwData[i][0] +
-      _fftwData[i][1] * _fftwData[i][1];
+	double zeroMoment = 0.0;
+	int n = m_fft_blockSize;
 
-    zeroMoment += pow;
+	// reorder and copy the results int _spectrum
+	for (int i = 0 ; i < n/2; i++) {
+		double pow =      _fftwData[i][0] * _fftwData[i][0] +
+			_fftwData[i][1] * _fftwData[i][1];
 
-    pow /= n*n;
-    pow = 10.0*log10(pow);
-    _spectrum[i+n/2] = pow;
-  }
+		zeroMoment += pow;
 
-  for (int i = n/2 ; i < n; i++) {
-    double pow =      _fftwData[i][0] * _fftwData[i][0] +
-      _fftwData[i][1] * _fftwData[i][1];
+		pow /= n*n;
+		pow = 10.0*log10(pow);
+		_spectrum[i+n/2] = pow;
+	}
 
-    zeroMoment += pow;
+	for (int i = n/2 ; i < n; i++) {
+		double pow =      _fftwData[i][0] * _fftwData[i][0] +
+			_fftwData[i][1] * _fftwData[i][1];
 
-    pow /= n*n;
-    pow = 10.0*log10(pow);
-    _spectrum[i - n/2] = pow;
-  }
+		zeroMoment += pow;
 
-  zeroMoment /= n*n;
-  zeroMoment = 10.0*log10(zeroMoment);
+		pow /= n*n;
+		pow = 10.0*log10(pow);
+		_spectrum[i - n/2] = pow;
+	}
 
-  return zeroMoment;
+	zeroMoment /= n*n;
+	zeroMoment = 10.0*log10(zeroMoment);
+
+	return zeroMoment;
 }
 
 void
@@ -890,81 +895,4 @@ CP2Scope::terminateSocket( void )	{	//	?pass port#
 
 	if (m_pSocketBuf)
 		delete [] m_pSocketBuf;
-}
-
-//////////////////////////////////////////////////
-// Run
-
-int 
-CP2Scope::Run ()
-{
-  
-  // process pulses as they arrive
-
-  int pulseSeqNum = 0;
-
-  bool done = false;
-  while (!done) {
-
-    // at this point you need to acquire another pulse
-    // instead of using the following hard-coded values
-
-    int nGates = 1000;
-    double now = (double) time(NULL);
-    double prt = 1000.0;
-    double el = 1.0;
-    double az = pulseSeqNum % 360;
-    bool isHoriz = pulseSeqNum % 2;
-    float *iqc = new float[nGates * 2];
-    float *iqx = NULL;
-    
-    // Create a new pulse object and save a pointer to it in the
-    // _pulseBuffer array.  _pulseBuffer is a FIFO, with elements
-    // added at the end and dropped off the beginning. So if we have a
-    // full buffer delete the first element before shifting the
-    // elements to the left.
-    
-    Pulse *pulse = new Pulse(_params, pulseSeqNum, nGates, now,
-                             prt, el, az, isHoriz, iqc, iqx);
-
-    delete[] iqc;
-    
-    // add pulse to queue, managing memory appropriately
-    
-    _momentsCompute._addPulseToQueue(pulse);
-    
-    // prepare for moments computations
-    // also sets _momentsMgr as appropriate
-    
-    _momentsCompute._prepareForMoments(pulse);
-  
-    // is a beam ready?
-    
-    if (_momentsMgr != NULL && _momentsCompute._beamReady()) {
-	
-      _countSinceBeam = 0;
-      
-      // create new beam
-      double _az = 0.0;
-      Beam *beam = new Beam(_params, _pulseQueue, _az, _momentsMgr);
-      _nGatesOut = beam->getNGatesOut();
-      
-      // compute beam moments
-      
-      _momentsCompute._computeBeamMoments(beam);
-      
-      // write out beam moments here
-      
-      // writeBeam();
-      
-      delete beam;
-      
-    }
-
-    pulseSeqNum++;
-
-  } // while (true)
-
-  return 0;
-
 }

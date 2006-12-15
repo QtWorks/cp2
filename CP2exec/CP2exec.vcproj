@@ -238,6 +238,9 @@
 	</Files>
 	<Globals>
 		<Global
+			Name="DevPartner_IsInstrumented"
+			Value="0"/>
+		<Global
 			Name="QtVersion"
 			Value="Qt3.3.5"/>
 	</Globals>

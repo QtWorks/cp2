@@ -18,7 +18,7 @@ typedef struct CP2PulseHeader {
 /// A header and data are combined to make one beam.
 typedef struct CP2Pulse {
 	CP2PulseHeader header;///< The beam header.
-	float* data;			///< An array of data values will start here.
+	float data[2];			///< An array of data values will start here.
 } CP2Pulse;
 
 /// Interface for working with CP2 network data
@@ -43,8 +43,7 @@ public:
 	bool setData(
 		int size,					///< Size in bytes of the data packet
 		void* data					///< The data packet
-		);
-	/// Empty the packet of data.
+		);	/// Empty the packet of data.
 	void clear();
 	/// @return The size (in bytes) of the CP2Packet.
 	int packetSize();

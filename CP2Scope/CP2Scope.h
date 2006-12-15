@@ -54,15 +54,15 @@ public:
 	void resizeDataVectors(); 
 
 public slots:
-    virtual void plotTypeSlot(bool);
+	virtual void plotTypeSlot(bool);
 
 	// Call when data is available on the data socket.
 	void dataSocketActivatedSlot(
 		int socket         // File descriptor of the data socket
 		);
-    virtual void yScaleKnob_valueChanged( double );	
-//	virtual void DatagramPortSpinBox_valueChanged( int ); 
-    virtual void dataSetSlot(bool);
+	virtual void yScaleKnob_valueChanged( double );	
+	//	virtual void DatagramPortSpinBox_valueChanged( int ); 
+	virtual void dataSetSlot(bool);
 	virtual void DataSetGateSpinBox_valueChanged( int ); 
 	virtual void xFullScaleBox_valueChanged( int );	
 	virtual void DataChannelSpinBox_valueChanged( int ); 
@@ -90,10 +90,10 @@ protected:
 	CP2_PIRAQ_DATA_TYPE* SABP;	//	S-band ABP data packet generated from VHVH alternating pulses
 
 	void timerEvent(QTimerEvent *e);
-   /// Plot type
-//   enum PLOTTYPE {TIMESERIES=0, IVSQ=1, SPECTRUM=2, PRODUCT=3};
-   /// Product type
-   enum PRODUCTTYPE {SVHVP=0, SVHHP=1};
+	/// Plot type
+	//   enum PLOTTYPE {TIMESERIES=0, IVSQ=1, SPECTRUM=2, PRODUCT=3};
+	/// Product type
+	enum PRODUCTTYPE {SVHVP=0, SVHHP=1};
 
 	ScopePlot::PLOTTYPE _plotType;
 	int				_productType;
@@ -104,7 +104,7 @@ protected:
 	uint4			_gates;
 	uint4			_hits;
 	uint4			_dataformat;	//	timeseries or 1 of 3 ABP types
-    float4			_prt;			//	pulse repetition time in seconds
+	float4			_prt;			//	pulse repetition time in seconds
 	//	parameters from piraqx for power calculations
 	float4			_data_sys_sat;	//	receiver saturation power in dBm
 	float4			_receiver_gain;		//	horizontal receiver gain
@@ -154,16 +154,16 @@ protected:
 	bool _doHamming;
 
 	/// the current minimum scale
-//	double _scaleMin;
+	//	double _scaleMin;
 
 	/// The current maximum scale
-//	double _scaleMax;
+	//	double _scaleMax;
 
 	/// The nominal data sample rate in sample per second.
-//	double _sampleRateHz;
+	//	double _sampleRateHz;
 
 	/// The tuning frequency in Hz
-//	double _tuningFreqHz;
+	//	double _tuningFreqHz;
 	//	fixed block size for initial cut: 
 	unsigned int m_fft_blockSize;
 
@@ -172,20 +172,16 @@ protected:
 
 	MomentsCompute _momentsCompute;
 
-	int _countSinceBeam;
-
 	double _az;
 
-	int _nGatesOut;
-
-	MomentsMgr* _momentsMgr;
-
-	Params _params;
-
-	std::deque<Pulse *> _pulseQueue;
-
-    
-	int Run();
+	int processPulse(
+		float* data, 
+		int gates, 
+		double prt, 
+		double el, 
+		double az, 
+		long long beamNum);
 
 };
+
 #endif
