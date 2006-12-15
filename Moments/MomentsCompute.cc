@@ -65,8 +65,6 @@ MomentsCompute::MomentsCompute()
   
   isOK = true;
 
-  _params.debug = Params::DEBUG_EXTRA_VERBOSE;
-
   // set up moments objects
   // This initializes the FFT package to the set number of samples.
   
@@ -223,6 +221,8 @@ void MomentsCompute::_prepareForMoments(Pulse *pulse)
     }
     _prevPrfForMoments = prf;
   } // if (fabs(prf ...
+
+  _momentsMgr = _momentsMgrArray[1];
 
 }
     
@@ -423,3 +423,61 @@ void MomentsCompute::_addPulseToQueue(Pulse *pulse)
 
 }
 
+int 
+MomentsCompute::processPulse(
+					   float* data, 
+					   int gates, 
+					   double prt, 
+					   double el, 
+					   double az, 
+					   long long pulseNum)
+{
+	// process pulses as they arrive
+
+	double now = (double) time(NULL);
+	bool isHoriz = pulseNum % 2;
+	// Create a new pulse object and save a pointer to it in the
+	// _pulseBuffer array.  _pulseBuffer is a FIFO, with elements
+	// added at the end and dropped off the beginning. So if we have a
+	// full buffer delete the first element before shifting the
+	// elements to the left.
+
+	Pulse *pulse = new Pulse(_params, 
+		pulseNum, gates, now,
+		prt, el, az, isHoriz, data, 0);
+
+	// add pulse to queue, managing memory appropriately
+
+	_addPulseToQueue(pulse);
+
+	// prepare for moments computations
+	// also sets _momentsMgr as appropriate
+
+	_prepareForMoments(pulse);
+
+	// is a beam ready?
+
+	if (_momentsMgr != NULL && _beamReady()) {
+
+		// create new beam
+		double _az = 0.0;
+		Beam *beam = new Beam(_params, 
+			_pulseQueue, 
+			_az, 
+			_momentsMgr);
+
+		// compute beam moments
+
+//		_computeBeamMoments(beam);
+
+		// write out beam moments here
+
+		// writeBeam();
+
+		delete beam;
+
+	}
+
+	return 0;
+
+}

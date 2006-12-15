@@ -28,7 +28,7 @@ using namespace std;
 // Constructor
 
 Pulse::Pulse(const Params &params,
-             int seqNum,
+             long long seqNum,
              int nGates,
              double time,
              double prt,
@@ -50,14 +50,14 @@ Pulse::Pulse(const Params &params,
 {
   _prf = 1.0 / _prt;
 
-  iqc = new float[nGates];
-  memcpy(_iqc, iqc, nGates * sizeof(float));
+  _iqc = new float[2*nGates];
+  memcpy(_iqc, iqc, 2*nGates * sizeof(float));
 
   if (iqx == NULL) {
     _iqx = NULL;
   } else {
-    iqx = new float[nGates];
-    memcpy(_iqx, iqx, nGates * sizeof(float));
+    _iqx = new float[2*nGates];
+    memcpy(_iqx, iqx, 2*nGates * sizeof(float));
   }
 
 }

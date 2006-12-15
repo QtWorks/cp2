@@ -44,7 +44,7 @@ public:
   //      Set to NULL if no cross-pol data
 
   Pulse(const Params &params,
-        int seqNum,
+        long long seqNum,
         int nGates,
         double time,
         double prt,
@@ -88,7 +88,7 @@ private:
 
   int _nClients;
 
-  int _seqNum;
+  long long _seqNum;
   int _nGates;
   double _time;
   double _prt;

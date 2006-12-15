@@ -18,7 +18,7 @@ Params::Params()
   
 {
 
-  debug = DEBUG_VERBOSE;
+  debug = Params::DEBUG_OFF;
 
   atmos_attenuation = 0.012; // db/km
   dbz_calib_correction = 0.0; // dB

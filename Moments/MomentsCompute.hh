@@ -1,13 +1,13 @@
 /*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
- ** Copyright UCAR (c) 1992 - 1999
- ** University Corporation for Atmospheric Research(UCAR)
- ** National Center for Atmospheric Research(NCAR)
- ** Research Applications Program(RAP)
- ** P.O.Box 3000, Boulder, Colorado, 80307-3000, USA
- ** All rights reserved. Licenced use only.
- ** Do not copy or distribute without authorization
- ** 1999/03/14 14:18:54
- *=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*/
+** Copyright UCAR (c) 1992 - 1999
+** University Corporation for Atmospheric Research(UCAR)
+** National Center for Atmospheric Research(NCAR)
+** Research Applications Program(RAP)
+** P.O.Box 3000, Boulder, Colorado, 80307-3000, USA
+** All rights reserved. Licenced use only.
+** Do not copy or distribute without authorization
+** 1999/03/14 14:18:54
+*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*/
 /////////////////////////////////////////////////////////////
 // MomentsCompute.hh
 //
@@ -35,81 +35,85 @@ using namespace std;
 // This class
 
 class MomentsCompute {
-  
+
 public:
 
-  // constructor
+	// constructor
 
-  MomentsCompute ();
+	MomentsCompute ();
 
-  // destructor
-  
-  ~MomentsCompute();
+	// destructor
 
-  // run 
+	~MomentsCompute();
 
-  int Run();
+	// run 
 
-  // data members
+	int Run();
 
-  bool isOK;
+	int processPulse(
+		float* data, 
+		int gates, 
+		double prt, 
+		double el, 
+		double az, 
+		long long pulseNum);
+	// data members
+
+	bool isOK;
 
 protected:
-  
-private:
 
-  // missing data value
+	void _prepareForMoments(Pulse *pulse);
 
-  static const double _missingDbl;
+	bool _beamReady();
 
-  // basic
+	int _computeBeamMoments(Beam *beam);
 
-  string _progName;
-  Params _params;
+	void _addPulseToQueue(Pulse *pulse);
 
-  // pulse queue
+	void _addBeamToQueue(Beam *beam);
 
-  deque<Pulse *> _pulseQueue;
-  int _maxPulseQueueSize;
-  long _pulseSeqNum;
-  
-  // moments computation management
+	// missing data value
 
-  vector<MomentsMgr *> _momentsMgrArray;
-  MomentsMgr *_momentsMgr;
-  double _prevPrfForMoments;
-  
-  static const int _maxGates = 4096;
-  int _nSamples;
+	static const double _missingDbl;
 
-  // beam identification
+	// basic
 
-  int _midIndex1;
-  int _midIndex2;
-  int _countSinceBeam;
-  
-  // beam time and location
-  
-  double _time;
-  double _az;
-  double _el;
-  double _prevAz;
-  double _prevEl;
-  
-  int _nGatesPulse;
-  int _nGatesOut;
+	string _progName;
+	Params _params;
 
-  // private functions
-  
-  void _prepareForMoments(Pulse *pulse);
+	// pulse queue
 
-  bool _beamReady();
+	deque<Pulse *> _pulseQueue;
+	int _maxPulseQueueSize;
+	long _pulseSeqNum;
 
-  int _computeBeamMoments(Beam *beam);
+	// moments computation management
 
-  void _addPulseToQueue(Pulse *pulse);
+	vector<MomentsMgr *> _momentsMgrArray;
+	MomentsMgr *_momentsMgr;
+	double _prevPrfForMoments;
 
-  void _addBeamToQueue(Beam *beam);
+	static const int _maxGates = 4096;
+	int _nSamples;
+
+	// beam identification
+
+	int _midIndex1;
+	int _midIndex2;
+	int _countSinceBeam;
+
+	// beam time and location
+
+	double _time;
+	double _az;
+	double _el;
+	double _prevAz;
+	double _prevEl;
+
+	int _nGatesPulse;
+	int _nGatesOut;
+
 
 };
 

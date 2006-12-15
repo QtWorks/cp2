@@ -217,9 +217,14 @@ void Beam::computeMomentsSinglePol()
 //
 // Returns 0 on success, -1 on failure
     
-void Beam::computeMomentsDualFastAlt()
-  
+static int computeCount = 0;
+
+void 
+Beam::computeMomentsDualFastAlt()
 {
+
+	if (!(computeCount++ % 200))
+		printf("compute moments %d\n", computeCount);
 
   // get pulse IQ copol data
   
@@ -241,8 +246,8 @@ void Beam::computeMomentsDualFastAlt()
     Umalloc::ucalloc2(_nGatesPulse, nHalf, sizeof(Complex_t));
   _iqvc = (Complex_t **)
     Umalloc::ucalloc2(_nGatesPulse, nHalf, sizeof(Complex_t));
-  
-  for (int igate = 0, posn = 0; igate < _nGatesPulse; igate++, posn += 2) {
+
+for (int igate = 0, posn = 0; igate < _nGatesPulse; igate++, posn += 2) {
     Complex_t *iqhc = _iqhc[igate];
     Complex_t *iqvc = _iqvc[igate];
     for (int isamp = 0; isamp < _nSamples; iqhc++, iqvc++) {

@@ -103,7 +103,7 @@ private:
   static const double _missingDbl;
 
   const Params &_params;
-  const Params::moments_params_t &_momentsParams;
+  const Params::moments_params_t _momentsParams;
 
   // fft window
 
