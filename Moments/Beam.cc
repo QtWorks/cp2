@@ -216,15 +216,9 @@ void Beam::computeMomentsSinglePol()
 // compute moments - dual pol fast alternating
 //
 // Returns 0 on success, -1 on failure
-    
-static int computeCount = 0;
-
 void 
 Beam::computeMomentsDualFastAlt()
 {
-
-	if (!(computeCount++ % 200))
-		printf("compute moments %d\n", computeCount);
 
   // get pulse IQ copol data
   

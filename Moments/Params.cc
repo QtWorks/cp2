@@ -68,7 +68,7 @@ Params::Params()
   mparams.upper_prf = 500;
   mparams.start_range = 0.075;
   mparams.start_range = 0.150;
-  mparams.algorithm = ALG_FFT;
+  mparams.algorithm = ALG_PP;
   mparams.window = WINDOW_BLACKMAN;
   mparams.mode = SINGLE_POL;
 
@@ -79,7 +79,7 @@ Params::Params()
   mparams.upper_prf = 2000;
   mparams.start_range = 0.075;
   mparams.start_range = 0.150;
-  mparams.algorithm = ALG_FFT;
+  mparams.algorithm = ALG_PP;
   mparams.window = WINDOW_HANNING;
   mparams.mode = DUAL_FAST_ALT;
 

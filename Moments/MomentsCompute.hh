@@ -56,6 +56,13 @@ public:
 		double az, 
 		long long pulseNum);
 
+	// If a new beam is available, return it.
+	// @return A pointer to the available beam. If
+	// no beam is avaiable, a null is returned. A beam 
+	// may be fetched only once. The client must 
+	// delete the Beam when finished with it.
+	Beam* getNewBeam();
+
 	// data members
 
 	bool isOK;
@@ -121,6 +128,11 @@ protected:
 
 	int _nGatesPulse;
 	int _nGatesOut;
+ 
+	// The currently computed beam, ready to 
+	// to be fetched via getNextBeam(). Once fetched,
+	// this will be set to null.
+	Beam* _currentBeam;
 
 
 };
