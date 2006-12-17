@@ -25,13 +25,8 @@ _productDisplayCount(0)
 {
 	m_dataGramPort	= 3100;
 	m_pulseCount	= 0; 
-	// create the socket that receives packets from WinDSP  
 	initializeSocket();	
 	connectDataRcv(); 
-
-	// Start a timer to tell the display to update
-	m_dataDisplayTimer = startTimer(CP2SCOPE_DISPLAY_REFRESH_INTERVAL);
-	//connect( ... do with QTimer later see Notes
 
 	//	set knob assuming TIMESERIES: 
 	this->yScaleKnob->setTitle("Y-SCALE ADJ."); 
@@ -46,10 +41,10 @@ _productDisplayCount(0)
 	Q.resize(m_xFullScale);
 	_dataSetSize = m_xFullScale;	//	size of data vector for display or calculations 
 	_dataSet = DATA_SET_PULSE;
+
 	//	display decimation, set to get ~50/sec
 	m_pulseDisplayDecimation	= 50;	//	default w/prt = 1000Hz, timeseries data 
 	m_productsDisplayDecimation	= 5;	//	default w/prt = 1000Hz, hits = 10, products data
-	m_datagramPortBase			= 3100;	//	default timeseries data  
 	m_dataChannel				= 1;			//	default to board-select spinner: get value from it
 
 	m_DataSetGate = 50;		//!get spinner value
@@ -67,8 +62,6 @@ _productDisplayCount(0)
 
 
 }
-
-
 //////////////////////////////////////////////////////////////////////
 CP2Scope::~CP2Scope() {
 	if (m_pDataSocketNotifier)
@@ -81,16 +74,6 @@ CP2Scope::~CP2Scope() {
 		delete [] m_pSocketBuf;
 
 }
-
-
-//////////////////////////////////////////////////////////////////////
-void 
-CP2Scope::timerEvent(QTimerEvent *e) {
-
-	e = e;  // so we don't get the unreferenced warning
-}
-
-
 //////////////////////////////////////////////////////////////////////
 void 
 CP2Scope::plotTypeSlot(bool b)
