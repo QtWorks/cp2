@@ -23,7 +23,7 @@ m_pSocketBuf(0),
 _plotType(ScopePlot::TIMESERIES)
 {
 	m_dataGramPort	= 3100;
-	m_packetCount	= 0; 
+	m_pulseCount	= 0; 
 	// create the socket that receives packets from WinDSP  
 	initializeSocket();	
 	connectDataRcv(); 
@@ -230,16 +230,6 @@ void CP2Scope::yScaleKnob_valueChanged( double yScaleKnobSetting)	{
 void CP2Scope::DataChannelSpinBox_valueChanged( int dataChannel )	{
 	//	change the input data channel
 	m_dataChannel = dataChannel;	
-	if	(_plotType < ScopePlot::PRODUCT)	//	timeseries-type display
-		m_dataGramPort    = m_datagramPortBase + (dataChannel - 1);	//	 
-	else	//	product-type display
-		m_dataGramPort    = m_datagramPortBase + (dataChannel - 1) + 3;	//	3 = PIRAQs 
-	//was here:	terminateSocket();
-	m_packetCount = 0;		//	clear packet count
-
-	_packetCount->setNum(m_packetCount);	// update display  
-	initializeSocket();
-	connectDataRcv(); 
 }
 
 void CP2Scope::DataSetGateSpinBox_valueChanged( int SpinBoxGate )	{
@@ -268,15 +258,23 @@ CP2Scope::dataSocketActivatedSlot(int socket)
 	CP2Packet packet;
 	int	readBufLen = m_pDataSocket->readBlock((char *)m_pSocketBuf, sizeof(short)*1000000);
 
-	// put this datagram into a packet
-	packet.setData(readBufLen, m_pSocketBuf);
+	if (readBufLen > 0) {
+		// put this datagram into a packet
+		packet.setData(readBufLen, m_pSocketBuf);
 
-	// Extract the pulses and process them.
-	// From here on out, we are divorced from the
-	// data transport.
-	for (int i = 0; i < packet.numPulses(); i++) {
-		CP2Pulse* pPulse = packet.getPulse(i);
-		processPulse(pPulse);
+		// Extract the pulses and process them.
+		// From here on out, we are divorced from the
+		// data transport.
+		for (int i = 0; i < packet.numPulses(); i++) {
+			CP2Pulse* pPulse = packet.getPulse(i);
+			if (pPulse->header.channel == m_dataChannel)
+				processPulse(pPulse);
+			m_pulseCount++;
+			if (!(m_pulseCount % 1000))
+				_pulseCount->setNum(m_pulseCount/1000);	// update cumulative packet count 
+		}
+	} else {
+		// read error. What should we do here?
 	}
 
 }
@@ -354,8 +352,6 @@ CP2Scope::processPulse(CP2Pulse* pPulse)
 
 				displayData();
 
-				m_packetCount++;
-				_packetCount->setNum(m_packetCount);	// update cumulative packet count 
 			}
 			break;
 		}

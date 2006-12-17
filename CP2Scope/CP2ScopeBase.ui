@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>993</width>
-            <height>797</height>
+            <width>1026</width>
+            <height>833</height>
         </rect>
     </property>
     <property name="caption">
@@ -34,82 +34,89 @@
         </widget>
         <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>layout68</cstring>
+                <cstring>layout12</cstring>
             </property>
             <vbox>
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
-                <widget class="QLayoutWidget">
+                <widget class="QButtonGroup">
                     <property name="name">
-                        <cstring>layout51</cstring>
+                        <cstring>channelButtons</cstring>
                     </property>
-                    <vbox>
+                    <property name="title">
+                        <string>Channel</string>
+                    </property>
+                    <hbox>
                         <property name="name">
                             <cstring>unnamed</cstring>
                         </property>
-                        <widget class="QLayoutWidget">
+                        <widget class="QRadioButton">
                             <property name="name">
-                                <cstring>layout12</cstring>
+                                <cstring>Channel0</cstring>
                             </property>
-                            <hbox>
-                                <property name="name">
-                                    <cstring>unnamed</cstring>
-                                </property>
-                                <widget class="QLabel">
-                                    <property name="name">
-                                        <cstring>datagramPort</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>Data Channel</string>
-                                    </property>
-                                </widget>
-                                <widget class="QSpinBox">
-                                    <property name="name">
-                                        <cstring>SpinBoxDataChannel</cstring>
-                                    </property>
-                                    <property name="maxValue">
-                                        <number>3</number>
-                                    </property>
-                                    <property name="minValue">
-                                        <number>1</number>
-                                    </property>
-                                </widget>
-                            </hbox>
+                            <property name="text">
+                                <string>0</string>
+                            </property>
                         </widget>
-                        <widget class="QLayoutWidget">
+                        <widget class="QRadioButton">
                             <property name="name">
-                                <cstring>layout11</cstring>
+                                <cstring>Channel1</cstring>
                             </property>
-                            <hbox>
-                                <property name="name">
-                                    <cstring>unnamed</cstring>
-                                </property>
-                                <widget class="QLabel">
-                                    <property name="name">
-                                        <cstring>textlabel6</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>x-axis scale</string>
-                                    </property>
-                                </widget>
-                                <widget class="QSpinBox">
-                                    <property name="name">
-                                        <cstring>xFullScale</cstring>
-                                    </property>
-                                    <property name="maxValue">
-                                        <number>100000</number>
-                                    </property>
-                                    <property name="minValue">
-                                        <number>-100000</number>
-                                    </property>
-                                    <property name="value">
-                                        <number>250</number>
-                                    </property>
-                                </widget>
-                            </hbox>
+                            <property name="text">
+                                <string>1</string>
+                            </property>
+                            <property name="checked">
+                                <bool>true</bool>
+                            </property>
+                            <property name="buttonGroupId">
+                                <number>1</number>
+                            </property>
                         </widget>
-                    </vbox>
+                        <widget class="QRadioButton">
+                            <property name="name">
+                                <cstring>Channel2</cstring>
+                            </property>
+                            <property name="text">
+                                <string>2</string>
+                            </property>
+                            <property name="buttonGroupId">
+                                <number>2</number>
+                            </property>
+                        </widget>
+                    </hbox>
+                </widget>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout11</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>textlabel6</cstring>
+                            </property>
+                            <property name="text">
+                                <string>x-axis scale</string>
+                            </property>
+                        </widget>
+                        <widget class="QSpinBox">
+                            <property name="name">
+                                <cstring>xFullScale</cstring>
+                            </property>
+                            <property name="maxValue">
+                                <number>100000</number>
+                            </property>
+                            <property name="minValue">
+                                <number>-100000</number>
+                            </property>
+                            <property name="value">
+                                <number>250</number>
+                            </property>
+                        </widget>
+                    </hbox>
                 </widget>
                 <widget class="QCheckBox">
                     <property name="name">
@@ -429,12 +436,12 @@ Number</string>
                                 <cstring>packetCountLabel</cstring>
                             </property>
                             <property name="text">
-                                <string>Packet Count</string>
+                                <string>K Pulses</string>
                             </property>
                         </widget>
                         <widget class="QLabel">
                             <property name="name">
-                                <cstring>_packetCount</cstring>
+                                <cstring>_pulseCount</cstring>
                             </property>
                             <property name="text">
                                 <string>0</string>
@@ -481,7 +488,7 @@ Number</string>
                     <property name="sizeHint">
                         <size>
                             <width>20</width>
-                            <height>28</height>
+                            <height>16</height>
                         </size>
                     </property>
                 </spacer>
@@ -545,12 +552,6 @@ Number</string>
         <slot>plotTypeSlot(bool)</slot>
     </connection>
     <connection>
-        <sender>SpinBoxDataChannel</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>CP2ScopeBase</receiver>
-        <slot>DataChannelSpinBox_valueChanged(int)</slot>
-    </connection>
-    <connection>
         <sender>HdBmButton</sender>
         <signal>toggled(bool)</signal>
         <receiver>CP2ScopeBase</receiver>
@@ -597,6 +598,12 @@ Number</string>
         <signal>toggled(bool)</signal>
         <receiver>CP2ScopeBase</receiver>
         <slot>plotTypeSlot(bool)</slot>
+    </connection>
+    <connection>
+        <sender>channelButtons</sender>
+        <signal>released(int)</signal>
+        <receiver>CP2ScopeBase</receiver>
+        <slot>DataChannelSpinBox_valueChanged(int)</slot>
     </connection>
 </connections>
 <includes>

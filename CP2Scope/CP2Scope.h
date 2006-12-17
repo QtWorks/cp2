@@ -68,7 +68,7 @@ protected:
 	int				m_datagramPortBase;	//	
 	int				m_dataChannel;		//	board source of data CP2 PIRAQ 1-3 
 	int				m_DataSetGate;		//	gate in packet to display 
-	int				m_packetCount;		//	cumulative packet count on current socket 
+	int				m_pulseCount;		//	cumulative pulse count
 	int				m_dataDisplayTimer; 
 	double _powerCorrection;
 	unsigned int	m_pulseDisplayDecimation;	//	decimation factor for along range (DATA_SET_PULSE) display: currently set 50
