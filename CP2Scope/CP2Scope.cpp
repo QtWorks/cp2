@@ -1,21 +1,20 @@
 
 #include "CP2Scope.h"
 #include <ScopePlot/ScopePlot.h>
+#include <Knob/Knob.h>
+
 #include <qbuttongroup.h>
 #include <qlabel.h>
 #include <qtimer.h>
 #include <qspinbox.h>	
 #include <qlcdnumber.h>
 
-#include <Knob/Knob.h>
 
 #include <winsock.h>
-//#include <winsock2.h>
 #include <iostream>
-
 #include <time.h>
 
-
+//////////////////////////////////////////////////////////////////////
 CP2Scope::CP2Scope():
 m_pDataSocket(0),    
 m_pDataSocketNotifier(0),
@@ -69,6 +68,8 @@ _productDisplayCount(0)
 
 }
 
+
+//////////////////////////////////////////////////////////////////////
 CP2Scope::~CP2Scope() {
 	if (m_pDataSocketNotifier)
 		delete m_pDataSocketNotifier;
@@ -81,12 +82,16 @@ CP2Scope::~CP2Scope() {
 
 }
 
+
+//////////////////////////////////////////////////////////////////////
 void 
 CP2Scope::timerEvent(QTimerEvent *e) {
 
 	e = e;  // so we don't get the unreferenced warning
 }
 
+
+//////////////////////////////////////////////////////////////////////
 void 
 CP2Scope::plotTypeSlot(bool b)
 {
@@ -181,6 +186,8 @@ CP2Scope::plotTypeSlot(bool b)
 	resizeDataVectors();	//	resize data vectors
 }
 
+
+//////////////////////////////////////////////////////////////////////
 void 
 CP2Scope::dataSetSlot(bool b)	{
 	b = b;  // so we don't get the unreferenced warning
@@ -198,6 +205,8 @@ CP2Scope::dataSetSlot(bool b)	{
 	resizeDataVectors();	//	resize data vectors
 }
 
+
+//////////////////////////////////////////////////////////////////////
 //	set data array sizes based on plot type, UI x-scale max setting
 void CP2Scope::resizeDataVectors()	{	
 	//	resize data vectors to x-axis max, not gates: fft size if that is the plot type. 
@@ -212,6 +221,7 @@ void CP2Scope::resizeDataVectors()	{
 	}
 }
 
+//////////////////////////////////////////////////////////////////////
 void CP2Scope::yScaleKnob_valueChanged( double yScaleKnobSetting)	{	
 	switch (_plotType) {
 		case 0:	//	timeseries displays
@@ -235,17 +245,24 @@ void CP2Scope::yScaleKnob_valueChanged( double yScaleKnobSetting)	{
 	}
 }
 
-void CP2Scope::DataChannelSpinBox_valueChanged( int dataChannel )	{
+//////////////////////////////////////////////////////////////////////
+void 
+CP2Scope::DataChannelSpinBox_valueChanged( int dataChannel )	
+{
 	//	change the data channel
 	m_dataChannel = dataChannel;	
 }
 
-void CP2Scope::DataSetGateSpinBox_valueChanged( int SpinBoxGate )	{
+
+//////////////////////////////////////////////////////////////////////
+void 
+CP2Scope::DataSetGateSpinBox_valueChanged( int SpinBoxGate )	{
 	//	change the gate for assembling data sets 
 	m_DataSetGate    = SpinBoxGate;
 }
-
-void CP2Scope::xFullScaleBox_valueChanged( int xFullScale )	{
+//////////////////////////////////////////////////////////////////////
+void 
+CP2Scope::xFullScaleBox_valueChanged( int xFullScale )	{
 	//	change the gate for assembling data sets 
 	if	(_plotType == ScopePlot::SPECTRUM)	//	fft: disable spinner
 		return;
@@ -253,12 +270,16 @@ void CP2Scope::xFullScaleBox_valueChanged( int xFullScale )	{
 	resizeDataVectors();	//	resize data vectors
 }
 
+
+//////////////////////////////////////////////////////////////////////
 void
 CP2Scope::connectDataRcv()	// connect notifier to data-receive slot 
 {
 	connect(m_pDataSocketNotifier, SIGNAL(activated(int)), this, SLOT(dataSocketActivatedSlot(int)));
 }
 
+
+//////////////////////////////////////////////////////////////////////
 void 
 CP2Scope::dataSocketActivatedSlot(int socket)
 {
@@ -291,6 +312,8 @@ CP2Scope::dataSocketActivatedSlot(int socket)
 	}
 }
 
+
+//////////////////////////////////////////////////////////////////////
 void
 CP2Scope::processPulse(CP2Pulse* pPulse) 
 {
@@ -355,6 +378,7 @@ CP2Scope::processPulse(CP2Pulse* pPulse)
 	}
 }
 
+//////////////////////////////////////////////////////////////////////
 void 
 CP2Scope::getProduct(Beam* pBeam, int gates, int productType) 
 {
@@ -408,6 +432,8 @@ CP2Scope::getProduct(Beam* pBeam, int gates, int productType)
 		break;
 	}
 }
+
+//////////////////////////////////////////////////////////////////////
 void
 CP2Scope::displayData() 
 {
@@ -463,6 +489,7 @@ CP2Scope::displayData()
 	}
 }
 
+//////////////////////////////////////////////////////////////////////
 void
 CP2Scope::initializeSocket()	{	//	?pass port#
 	m_pDataSocket = new QSocketDevice(QSocketDevice::Datagram);
@@ -513,6 +540,7 @@ CP2Scope::initializeSocket()	{	//	?pass port#
 	m_pDataSocketNotifier = new QSocketNotifier(m_pDataSocket->socket(), QSocketNotifier::Read);
 }
 
+//////////////////////////////////////////////////////////////////////
 double
 CP2Scope::powerSpectrum()
 {
