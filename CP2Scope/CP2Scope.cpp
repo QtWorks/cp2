@@ -20,7 +20,9 @@ CP2Scope::CP2Scope():
 m_pDataSocket(0),    
 m_pDataSocketNotifier(0),
 m_pSocketBuf(0),	
-_plotType(ScopePlot::TIMESERIES)
+_plotType(ScopePlot::TIMESERIES),
+_tsDisplayCount(0),
+_productDisplayCount(0)
 {
 	m_dataGramPort	= 3100;
 	m_pulseCount	= 0; 
@@ -54,6 +56,17 @@ _plotType(ScopePlot::TIMESERIES)
 	m_DataSetGate = 50;		//!get spinner value
 	_productType = 0; 
 
+	//	set up fft for power calculations: 
+	m_fft_blockSize = 256;	//	temp constant for initial proving 
+	// allocate the data space for fftw
+	_fftwData  = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * m_fft_blockSize);
+	// create the plan.
+	_fftwPlan = fftw_plan_dft_1d(m_fft_blockSize, _fftwData, _fftwData,
+		FFTW_FORWARD, FFTW_ESTIMATE);
+	//	power correction factor applied to (uncorrected) powerSpectrum() output:
+	_powerCorrection = 0.0;	//	use for power correction to dBm
+
+
 }
 
 CP2Scope::~CP2Scope() {
@@ -78,9 +91,6 @@ void
 CP2Scope::plotTypeSlot(bool b)
 {
 	b = b;  // so we don't get the unreferenced warning
-
-	static int	_prevplotType = ScopePlot::TIMESERIES;
-
 	switch (buttonGroup->selectedId()) {
 		case 0:
 			_plotType = ScopePlot::TIMESERIES;
@@ -169,7 +179,6 @@ CP2Scope::plotTypeSlot(bool b)
 	}
 
 	resizeDataVectors();	//	resize data vectors
-	_prevplotType = _plotType;
 }
 
 void 
@@ -200,7 +209,6 @@ void CP2Scope::resizeDataVectors()	{
 		I.resize(m_xFullScale);	//	resize timeseries arrays, x-axis
 		Q.resize(m_xFullScale);
 		_dataSetSize = m_xFullScale; 
-		//	enable x-scale spinner
 	}
 }
 
@@ -228,7 +236,7 @@ void CP2Scope::yScaleKnob_valueChanged( double yScaleKnobSetting)	{
 }
 
 void CP2Scope::DataChannelSpinBox_valueChanged( int dataChannel )	{
-	//	change the input data channel
+	//	change the data channel
 	m_dataChannel = dataChannel;	
 }
 
@@ -260,31 +268,32 @@ CP2Scope::dataSocketActivatedSlot(int socket)
 
 	if (readBufLen > 0) {
 		// put this datagram into a packet
-		packet.setData(readBufLen, m_pSocketBuf);
+		bool packetBad = packet.setData(readBufLen, m_pSocketBuf);
 
 		// Extract the pulses and process them.
+		// Observe paranoia for validating packets and pulses.
 		// From here on out, we are divorced from the
 		// data transport.
-		for (int i = 0; i < packet.numPulses(); i++) {
-			CP2Pulse* pPulse = packet.getPulse(i);
-			if (pPulse->header.channel == m_dataChannel)
-				processPulse(pPulse);
-			m_pulseCount++;
-			if (!(m_pulseCount % 1000))
-				_pulseCount->setNum(m_pulseCount/1000);	// update cumulative packet count 
+		if (!packetBad) {
+			for (int i = 0; i < packet.numPulses(); i++) {
+				CP2Pulse* pPulse = packet.getPulse(i);
+				if (pPulse) {
+					if (pPulse->header.channel == m_dataChannel)
+						processPulse(pPulse);
+					m_pulseCount++;
+					if (!(m_pulseCount % 1000))
+						_pulseCount->setNum(m_pulseCount/1000);	// update cumulative packet count 
+				}
+			}
 		}
 	} else {
 		// read error. What should we do here?
 	}
-
 }
 
 void
 CP2Scope::processPulse(CP2Pulse* pPulse) 
 {
-	static int displayHit = 0; 
-	static int displayProduct = 0; 
-
 	float* data = &(pPulse->data[0]);
 
 	switch (_plotType) {
@@ -300,78 +309,105 @@ CP2Scope::processPulse(CP2Pulse* pPulse)
 
 			Beam* pBeam = _momentsCompute.getNewBeam();
 			if (pBeam) {
-				const Fields* fields = pBeam->getFields();
-				int i;
-				switch(_productType)	
-				{
-				case SVHVP:		//	compute S-band VH V Power in dBm for display
-					for (i = 0; i < pPulse->header.gates; i++) {
-						ProductData[i] = fields[i].dbmvc;
-					}
-					break;
-				case SVHHP:		//	compute S-band VH H Power in dBm for display
-					for (i = 0; i < pPulse->header.gates; i++) {
-						ProductData[i] = fields[i].dbmhc;
-					}
-					break;
-				case SVEL:		//	compute S-band velocity using V and H data
-					for (i = 0; i < pPulse->header.gates; i++) {
-						ProductData[i] = fields[i].vel;
-					}
-					break;
-				case SNCP:		//	compute S-band NCP using calculation A2*A2+B2*B2/Pv+Ph
-					break;
-				case SWIDTH:	//  compute S-band width
-					for (i = 0; i < pPulse->header.gates; i++) {
-						ProductData[i] = fields[i].width;
-					}
-					break;			
-				case SPHIDP:	//	compute S-band phidp 
-					for (i = 0; i < pPulse->header.gates; i++) {
-						ProductData[i] = fields[i].phidp;
-					}
-					break;			
-				case VREFL:		//	compute S-band V reflectivity  
-					for (i = 0; i < pPulse->header.gates; i++) {
-						ProductData[i] = fields[i].dbzvc;
-					}
-					break;			
-				case HREFL:		//	compute S-band H reflectivity  
-					for (i = 0; i < pPulse->header.gates; i++) {
-						ProductData[i] = fields[i].dbzhc;
-					}
-					break;			
-				case ZDR:		//	compute S-band Zdr 
-					for (i = 0; i < pPulse->header.gates; i++) {
-						ProductData[i] = fields[i].zdr;
-					}
-					break;			
-				}
-
+				// copy the selected product to the productDisplay
+				// vector
+				// return the beam
+				getProduct(pBeam, pPulse->header.gates, _productType);
+				// return the beam
 				delete pBeam;
-
+				// update the display
 				displayData();
-
 			}
 			break;
 		}
-
+	case ScopePlot::SPECTRUM:
+		{
+			_tsDisplayCount++;
+			if	(_tsDisplayCount >= m_pulseDisplayDecimation)	{	
+				_spectrum.resize(m_fft_blockSize);	//	probably belongs somewhere else
+				for( int j = 0; j < m_fft_blockSize; j++)	{
+					// transfer the data to the fftw input space
+					_fftwData[j][0] = pPulse->data[2*j]*PIRAQ3D_SCALE;
+					_fftwData[j][1] = pPulse->data[2*j+1]*PIRAQ3D_SCALE;
+				}
+				double zeroMoment = powerSpectrum();
+				// correct unscaled power data using knob setting: 
+				for(j = 0; j < m_fft_blockSize; j++)	{
+					_spectrum[j] += _powerCorrection;
+				}
+				displayData();	
+				_tsDisplayCount = 0; 
+			}
+			break;
+		}
 	default:
 		{
-			displayHit++;
-			if	(displayHit >= m_pulseDisplayDecimation)	{	//	
-				displayHit = displayHit % m_pulseDisplayDecimation;	//	index Nth hit since last display
+			_tsDisplayCount++;
+			if	(_tsDisplayCount >= m_pulseDisplayDecimation)	{	//	
 				for (int i = 0; i < 2*m_xFullScale; i+=2) {	
 					I[i/2] = pPulse->data[i]*PIRAQ3D_SCALE;
 					Q[i/2] = pPulse->data[i+1]*PIRAQ3D_SCALE;
 				}
 				displayData();	
-				displayHit = 0; 
+				_tsDisplayCount = 0; 
 			}
 		}
 	}
 }
 
+void 
+CP2Scope::getProduct(Beam* pBeam, int gates, int productType) 
+{
+	const Fields* fields = pBeam->getFields();
+	int i;
+	switch(productType)	
+	{
+	case SVHVP:		//	compute S-band VH V Power in dBm for display
+		for (i = 0; i < gates; i++) {
+			ProductData[i] = fields[i].dbmvc;
+		}
+		break;
+	case SVHHP:		//	compute S-band VH H Power in dBm for display
+		for (i = 0; i < gates; i++) {
+			ProductData[i] = fields[i].dbmhc;
+		}
+		break;
+	case SVEL:		//	compute S-band velocity using V and H data
+		for (i = 0; i < gates; i++) {
+			ProductData[i] = fields[i].vel;
+		}
+		break;
+	case SNCP:		//	compute S-band NCP using calculation A2*A2+B2*B2/Pv+Ph
+		break;
+	case SWIDTH:	//  compute S-band width
+		for (i = 0; i < gates; i++) {
+			ProductData[i] = fields[i].width;
+		}
+		break;			
+	case SPHIDP:	//	compute S-band phidp 
+		for (i = 0; i < gates; i++) {
+			ProductData[i] = fields[i].phidp;
+		}
+		break;			
+	case VREFL:		//	compute S-band V reflectivity  
+		for (i = 0; i < gates; i++) {
+			ProductData[i] = fields[i].dbzvc;
+		}
+		break;			
+	case HREFL:		//	compute S-band H reflectivity  
+		for (i = 0; i < gates; i++) {
+			ProductData[i] = fields[i].dbzhc;
+		}
+		break;			
+	case ZDR:		//	compute S-band Zdr 
+		for (i = 0; i < gates; i++) {
+			ProductData[i] = fields[i].zdr;
+		}
+		break;		
+	default:
+		break;
+	}
+}
 void
 CP2Scope::displayData() 
 {
@@ -385,12 +421,8 @@ CP2Scope::displayData()
 		_scopePlot->IvsQ(I, Q, -m_display_yScale, m_display_yScale, 1); 
 		break;
 	case ScopePlot::SPECTRUM:
-		// correct unscaled power data using knob setting: 
-		//			for(j = 0; j < m_fft_blockSize; j++)	{
-		//				_spectrum[j] += _powerCorrection;
-		//			}
 		//	use Spectrum() w/linear limits, linear data on y-axis:
-		_scopePlot->Spectrum(ProductData, -100, 20.0, 1000000, false, "Frequency (Hz)", "Power (dB)");	
+		_scopePlot->Spectrum(_spectrum, -100, 20.0, 1000000, false, "Frequency (Hz)", "Power (dB)");	
 		break;
 	case ScopePlot::PRODUCT:
 		//	proliferate product types here:
@@ -479,4 +511,48 @@ CP2Scope::initializeSocket()	{	//	?pass port#
 	}
 
 	m_pDataSocketNotifier = new QSocketNotifier(m_pDataSocket->socket(), QSocketNotifier::Read);
+}
+
+double
+CP2Scope::powerSpectrum()
+{
+	// apply the hamming window to the time series
+	//  if (_doHamming)
+	//    doHamming();
+
+	// caclulate the fft
+	fftw_execute(_fftwPlan);
+
+	double zeroMoment = 0.0;
+	int n = m_fft_blockSize;
+
+	// reorder and copy the results into _spectrum
+	for (int i = 0 ; i < n/2; i++) {
+		double pow = 
+			_fftwData[i][0] * _fftwData[i][0] +
+			_fftwData[i][1] * _fftwData[i][1];
+
+		zeroMoment += pow;
+
+		pow /= n*n;
+		pow = 10.0*log10(pow);
+		_spectrum[i+n/2] = pow;
+	}
+
+	for (int i = n/2 ; i < n; i++) {
+		double pow =      
+			_fftwData[i][0] * _fftwData[i][0] +
+			_fftwData[i][1] * _fftwData[i][1];
+
+		zeroMoment += pow;
+
+		pow /= n*n;
+		pow = 10.0*log10(pow);
+		_spectrum[i - n/2] = pow;
+	}
+
+	zeroMoment /= n*n;
+	zeroMoment = 10.0*log10(zeroMoment);
+
+	return zeroMoment;
 }
