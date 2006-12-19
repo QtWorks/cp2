@@ -23,11 +23,6 @@ void CP2ScopeBase::dataSocketActivatedSlot( int )
 }
 
 
-void CP2ScopeBase::yScaleKnob_valueChanged( double )
-{
-
-}
-
 
 
 
@@ -55,6 +50,30 @@ void CP2ScopeBase::xFullScaleBox_valueChanged( int )
 
 
 void CP2ScopeBase::DataChannelSpinBox_valueChanged( int )
+{
+
+}
+
+
+void CP2ScopeBase::gainChangeSlot( double )
+{
+
+}
+
+
+void CP2ScopeBase::offsetChangeSlot( double )
+{
+
+}
+
+
+void CP2ScopeBase::gainChangeSlot( int )
+{
+
+}
+
+
+void CP2ScopeBase::offsetChangeSlot( int )
 {
 
 }

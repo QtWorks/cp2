@@ -37,6 +37,6 @@ IMAGES	= images/editcopy \
 	images/undo
 
 LIBS += ../../Qttoolbox/ScopePlot/Debug/ScopePlot.lib
-LIBS += ../../Qttoolbox/Knob/Debug/Knob.lib
+LIBS += ../../Qttoolbox/TwoKnobs/Debug/TwoKnobs.lib
 LIBS += ../../fftw3.1/libfftw3-3.lib
 LIBS += ../Moments/Debug/Moments.lib

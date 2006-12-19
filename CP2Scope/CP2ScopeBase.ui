@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>1026</width>
-            <height>833</height>
+            <width>907</width>
+            <height>579</height>
         </rect>
     </property>
     <property name="caption">
@@ -34,444 +34,395 @@
         </widget>
         <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>layout12</cstring>
+                <cstring>layout39</cstring>
             </property>
             <vbox>
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
-                <widget class="QButtonGroup">
-                    <property name="name">
-                        <cstring>channelButtons</cstring>
-                    </property>
-                    <property name="title">
-                        <string>Channel</string>
-                    </property>
-                    <hbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="QRadioButton">
-                            <property name="name">
-                                <cstring>Channel0</cstring>
-                            </property>
-                            <property name="text">
-                                <string>0</string>
-                            </property>
-                        </widget>
-                        <widget class="QRadioButton">
-                            <property name="name">
-                                <cstring>Channel1</cstring>
-                            </property>
-                            <property name="text">
-                                <string>1</string>
-                            </property>
-                            <property name="checked">
-                                <bool>true</bool>
-                            </property>
-                            <property name="buttonGroupId">
-                                <number>1</number>
-                            </property>
-                        </widget>
-                        <widget class="QRadioButton">
-                            <property name="name">
-                                <cstring>Channel2</cstring>
-                            </property>
-                            <property name="text">
-                                <string>2</string>
-                            </property>
-                            <property name="buttonGroupId">
-                                <number>2</number>
-                            </property>
-                        </widget>
-                    </hbox>
-                </widget>
                 <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>layout11</cstring>
+                        <cstring>layout23</cstring>
                     </property>
                     <hbox>
                         <property name="name">
                             <cstring>unnamed</cstring>
                         </property>
-                        <widget class="QLabel">
+                        <widget class="QLayoutWidget">
                             <property name="name">
-                                <cstring>textlabel6</cstring>
-                            </property>
-                            <property name="text">
-                                <string>x-axis scale</string>
-                            </property>
-                        </widget>
-                        <widget class="QSpinBox">
-                            <property name="name">
-                                <cstring>xFullScale</cstring>
-                            </property>
-                            <property name="maxValue">
-                                <number>100000</number>
-                            </property>
-                            <property name="minValue">
-                                <number>-100000</number>
-                            </property>
-                            <property name="value">
-                                <number>250</number>
-                            </property>
-                        </widget>
-                    </hbox>
-                </widget>
-                <widget class="QCheckBox">
-                    <property name="name">
-                        <cstring>pauseButton</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Pause</string>
-                    </property>
-                    <property name="toolTip" stdset="0">
-                        <string>pause the display</string>
-                    </property>
-                </widget>
-                <widget class="QLayoutWidget">
-                    <property name="name">
-                        <cstring>layout61</cstring>
-                    </property>
-                    <hbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="QCheckBox">
-                            <property name="name">
-                                <cstring>yGrid</cstring>
-                            </property>
-                            <property name="text">
-                                <string>Y Grid</string>
-                            </property>
-                            <property name="checked">
-                                <bool>true</bool>
-                            </property>
-                        </widget>
-                        <widget class="QCheckBox">
-                            <property name="name">
-                                <cstring>xGrid</cstring>
-                            </property>
-                            <property name="text">
-                                <string>X Grid</string>
-                            </property>
-                            <property name="checked">
-                                <bool>true</bool>
-                            </property>
-                        </widget>
-                    </hbox>
-                </widget>
-                <widget class="QLayoutWidget">
-                    <property name="name">
-                        <cstring>layout50</cstring>
-                    </property>
-                    <hbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="QButtonGroup">
-                            <property name="name">
-                                <cstring>buttonGroup2</cstring>
-                            </property>
-                            <property name="title">
-                                <string>Data Set</string>
-                            </property>
-                            <property name="selectedId" stdset="0">
-                                <number>0</number>
+                                <cstring>layout22</cstring>
                             </property>
                             <vbox>
                                 <property name="name">
                                     <cstring>unnamed</cstring>
                                 </property>
-                                <widget class="QRadioButton">
+                                <widget class="QButtonGroup">
                                     <property name="name">
-                                        <cstring>dataSetPulse</cstring>
+                                        <cstring>channelButtons</cstring>
                                     </property>
-                                    <property name="text">
-                                        <string>Pulse</string>
+                                    <property name="title">
+                                        <string>Channel</string>
                                     </property>
-                                    <property name="checked">
-                                        <bool>true</bool>
-                                    </property>
-                                    <property name="buttonGroupId">
-                                        <number>0</number>
-                                    </property>
+                                    <hbox>
+                                        <property name="name">
+                                            <cstring>unnamed</cstring>
+                                        </property>
+                                        <widget class="QRadioButton">
+                                            <property name="name">
+                                                <cstring>Channel0</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>0</string>
+                                            </property>
+                                        </widget>
+                                        <widget class="QRadioButton">
+                                            <property name="name">
+                                                <cstring>Channel1</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>1</string>
+                                            </property>
+                                            <property name="checked">
+                                                <bool>true</bool>
+                                            </property>
+                                            <property name="buttonGroupId">
+                                                <number>1</number>
+                                            </property>
+                                        </widget>
+                                        <widget class="QRadioButton">
+                                            <property name="name">
+                                                <cstring>Channel2</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>2</string>
+                                            </property>
+                                            <property name="buttonGroupId">
+                                                <number>2</number>
+                                            </property>
+                                        </widget>
+                                    </hbox>
                                 </widget>
-                                <widget class="QRadioButton">
+                                <widget class="QLayoutWidget">
                                     <property name="name">
-                                        <cstring>dataSetGate</cstring>
+                                        <cstring>layout11</cstring>
                                     </property>
-                                    <property name="text">
-                                        <string>Gate</string>
-                                    </property>
-                                    <property name="buttonGroupId">
-                                        <number>1</number>
-                                    </property>
+                                    <hbox>
+                                        <property name="name">
+                                            <cstring>unnamed</cstring>
+                                        </property>
+                                        <widget class="QLabel">
+                                            <property name="name">
+                                                <cstring>textlabel6</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>x-axis scale</string>
+                                            </property>
+                                        </widget>
+                                        <widget class="QSpinBox">
+                                            <property name="name">
+                                                <cstring>xFullScale</cstring>
+                                            </property>
+                                            <property name="maxValue">
+                                                <number>100000</number>
+                                            </property>
+                                            <property name="minValue">
+                                                <number>-100000</number>
+                                            </property>
+                                            <property name="value">
+                                                <number>250</number>
+                                            </property>
+                                        </widget>
+                                    </hbox>
                                 </widget>
                             </vbox>
                         </widget>
                         <widget class="QLayoutWidget">
                             <property name="name">
-                                <cstring>layout49</cstring>
+                                <cstring>layout50</cstring>
                             </property>
-                            <vbox>
+                            <hbox>
                                 <property name="name">
                                     <cstring>unnamed</cstring>
                                 </property>
-                                <widget class="QLabel">
+                                <widget class="QButtonGroup">
                                     <property name="name">
-                                        <cstring>textLabel2</cstring>
+                                        <cstring>buttonGroup2</cstring>
                                     </property>
-                                    <property name="text">
-                                        <string>Gate
+                                    <property name="title">
+                                        <string>Data Set</string>
+                                    </property>
+                                    <property name="selectedId" stdset="0">
+                                        <number>0</number>
+                                    </property>
+                                    <vbox>
+                                        <property name="name">
+                                            <cstring>unnamed</cstring>
+                                        </property>
+                                        <widget class="QRadioButton">
+                                            <property name="name">
+                                                <cstring>dataSetPulse</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>Pulse</string>
+                                            </property>
+                                            <property name="checked">
+                                                <bool>true</bool>
+                                            </property>
+                                            <property name="buttonGroupId">
+                                                <number>0</number>
+                                            </property>
+                                        </widget>
+                                        <widget class="QRadioButton">
+                                            <property name="name">
+                                                <cstring>dataSetGate</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>Gate</string>
+                                            </property>
+                                            <property name="buttonGroupId">
+                                                <number>1</number>
+                                            </property>
+                                        </widget>
+                                    </vbox>
+                                </widget>
+                                <widget class="QLayoutWidget">
+                                    <property name="name">
+                                        <cstring>layout49</cstring>
+                                    </property>
+                                    <vbox>
+                                        <property name="name">
+                                            <cstring>unnamed</cstring>
+                                        </property>
+                                        <widget class="QLabel">
+                                            <property name="name">
+                                                <cstring>textLabel2</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>Gate
 Number</string>
-                                    </property>
+                                            </property>
+                                        </widget>
+                                        <widget class="QSpinBox">
+                                            <property name="name">
+                                                <cstring>SpinBoxGate</cstring>
+                                            </property>
+                                            <property name="maxValue">
+                                                <number>2000</number>
+                                            </property>
+                                            <property name="value">
+                                                <number>10</number>
+                                            </property>
+                                        </widget>
+                                    </vbox>
                                 </widget>
-                                <widget class="QSpinBox">
-                                    <property name="name">
-                                        <cstring>SpinBoxGate</cstring>
-                                    </property>
-                                    <property name="maxValue">
-                                        <number>2000</number>
-                                    </property>
-                                    <property name="value">
-                                        <number>10</number>
-                                    </property>
-                                </widget>
-                            </vbox>
+                            </hbox>
                         </widget>
                     </hbox>
                 </widget>
-                <widget class="Knob">
-                    <property name="name">
-                        <cstring>yScaleKnob</cstring>
-                    </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>1</hsizetype>
-                            <vsizetype>1</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="toolTip" stdset="0">
-                        <string>use mouse: drag then scroll for fine adjust. rescales by 10 at extremes.</string>
-                    </property>
-                </widget>
                 <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>layout25</cstring>
+                        <cstring>layout20</cstring>
                     </property>
                     <hbox>
                         <property name="name">
                             <cstring>unnamed</cstring>
                         </property>
-                        <widget class="QButtonGroup">
+                        <widget class="QCheckBox">
                             <property name="name">
-                                <cstring>buttonGroup</cstring>
+                                <cstring>pauseButton</cstring>
                             </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>1</hsizetype>
-                                    <vsizetype>1</vsizetype>
-                                    <horstretch>0</horstretch>
-                                    <verstretch>0</verstretch>
-                                </sizepolicy>
+                            <property name="text">
+                                <string>Pause</string>
                             </property>
-                            <property name="title">
-                                <string>Plot</string>
+                            <property name="toolTip" stdset="0">
+                                <string>pause the display</string>
                             </property>
-                            <vbox>
+                        </widget>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout61</cstring>
+                            </property>
+                            <hbox>
                                 <property name="name">
                                     <cstring>unnamed</cstring>
                                 </property>
-                                <widget class="QRadioButton">
+                                <widget class="QCheckBox">
                                     <property name="name">
-                                        <cstring>tsButton</cstring>
+                                        <cstring>yGrid</cstring>
                                     </property>
                                     <property name="text">
-                                        <string>Time Series</string>
+                                        <string>Y Grid</string>
                                     </property>
                                     <property name="checked">
                                         <bool>true</bool>
                                     </property>
-                                    <property name="buttonGroupId">
-                                        <number>0</number>
-                                    </property>
                                 </widget>
-                                <widget class="QRadioButton">
+                                <widget class="QCheckBox">
                                     <property name="name">
-                                        <cstring>xyButton</cstring>
+                                        <cstring>xGrid</cstring>
                                     </property>
                                     <property name="text">
-                                        <string>I vs Q</string>
+                                        <string>X Grid</string>
                                     </property>
-                                    <property name="buttonGroupId">
-                                        <number>1</number>
-                                    </property>
-                                </widget>
-                                <widget class="QRadioButton">
-                                    <property name="name">
-                                        <cstring>specButton</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>Power Spectrum</string>
-                                    </property>
-                                    <property name="buttonGroupId">
-                                        <number>2</number>
+                                    <property name="checked">
+                                        <bool>true</bool>
                                     </property>
                                 </widget>
-                                <widget class="QRadioButton">
-                                    <property name="name">
-                                        <cstring>VdBmButton</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>V Power(dBm)</string>
-                                    </property>
-                                </widget>
-                                <widget class="QRadioButton">
-                                    <property name="name">
-                                        <cstring>HdBmButton</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>H Power(dBm)</string>
-                                    </property>
-                                </widget>
-                                <widget class="QRadioButton">
-                                    <property name="name">
-                                        <cstring>velocityButton</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>Velocity(m/s)</string>
-                                    </property>
-                                </widget>
-                                <widget class="QRadioButton">
-                                    <property name="name">
-                                        <cstring>NCPButton</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>NCP</string>
-                                    </property>
-                                </widget>
-                                <widget class="QRadioButton">
-                                    <property name="name">
-                                        <cstring>SpectralWidthButton</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>Spectral Width(m/s)</string>
-                                    </property>
-                                </widget>
-                                <widget class="QRadioButton">
-                                    <property name="name">
-                                        <cstring>phidpButton</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>phidp</string>
-                                    </property>
-                                </widget>
-                                <widget class="QRadioButton">
-                                    <property name="name">
-                                        <cstring>VReflectivityButton</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>V Reflectivity</string>
-                                    </property>
-                                </widget>
-                                <widget class="QRadioButton">
-                                    <property name="name">
-                                        <cstring>HReflectivityButton</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>H Reflectivity</string>
-                                    </property>
-                                </widget>
-                                <widget class="QRadioButton">
-                                    <property name="name">
-                                        <cstring>ZdrButton</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>Zdr</string>
-                                    </property>
-                                </widget>
-                            </vbox>
+                            </hbox>
                         </widget>
                     </hbox>
                 </widget>
                 <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>layout40</cstring>
+                        <cstring>layout38</cstring>
                     </property>
                     <hbox>
                         <property name="name">
                             <cstring>unnamed</cstring>
                         </property>
-                        <widget class="QLabel">
+                        <widget class="TwoKnobs">
                             <property name="name">
-                                <cstring>m_pTextIPname</cstring>
-                            </property>
-                            <property name="text">
-                                <string>IP Name</string>
+                                <cstring>_gainOffsetKnobs</cstring>
                             </property>
                         </widget>
-                        <widget class="QLabel">
+                        <widget class="QLayoutWidget">
                             <property name="name">
-                                <cstring>m_pTextIPaddress</cstring>
+                                <cstring>layout25</cstring>
                             </property>
-                            <property name="text">
-                                <string>xxx.xxx.xxx.xxx</string>
-                            </property>
-                        </widget>
-                    </hbox>
-                </widget>
-                <widget class="QLayoutWidget">
-                    <property name="name">
-                        <cstring>layout39</cstring>
-                    </property>
-                    <hbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>packetCountLabel</cstring>
-                            </property>
-                            <property name="text">
-                                <string>K Pulses</string>
-                            </property>
-                        </widget>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>_pulseCount</cstring>
-                            </property>
-                            <property name="text">
-                                <string>0</string>
-                            </property>
-                        </widget>
-                    </hbox>
-                </widget>
-                <widget class="QLayoutWidget">
-                    <property name="name">
-                        <cstring>layout41</cstring>
-                    </property>
-                    <hbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>PN_errors</cstring>
-                            </property>
-                            <property name="text">
-                                <string>PN errors</string>
-                            </property>
-                        </widget>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>_PNerrors</cstring>
-                            </property>
-                            <property name="text">
-                                <string>0</string>
-                            </property>
+                            <hbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QButtonGroup">
+                                    <property name="name">
+                                        <cstring>buttonGroup</cstring>
+                                    </property>
+                                    <property name="sizePolicy">
+                                        <sizepolicy>
+                                            <hsizetype>3</hsizetype>
+                                            <vsizetype>1</vsizetype>
+                                            <horstretch>0</horstretch>
+                                            <verstretch>0</verstretch>
+                                        </sizepolicy>
+                                    </property>
+                                    <property name="title">
+                                        <string>Plot</string>
+                                    </property>
+                                    <vbox>
+                                        <property name="name">
+                                            <cstring>unnamed</cstring>
+                                        </property>
+                                        <widget class="QRadioButton">
+                                            <property name="name">
+                                                <cstring>tsButton</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>Time Series</string>
+                                            </property>
+                                            <property name="checked">
+                                                <bool>true</bool>
+                                            </property>
+                                            <property name="buttonGroupId">
+                                                <number>0</number>
+                                            </property>
+                                        </widget>
+                                        <widget class="QRadioButton">
+                                            <property name="name">
+                                                <cstring>xyButton</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>I vs Q</string>
+                                            </property>
+                                            <property name="buttonGroupId">
+                                                <number>1</number>
+                                            </property>
+                                        </widget>
+                                        <widget class="QRadioButton">
+                                            <property name="name">
+                                                <cstring>specButton</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>Power Spectrum</string>
+                                            </property>
+                                            <property name="buttonGroupId">
+                                                <number>2</number>
+                                            </property>
+                                        </widget>
+                                        <widget class="QRadioButton">
+                                            <property name="name">
+                                                <cstring>VdBmButton</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>V Power(dBm)</string>
+                                            </property>
+                                        </widget>
+                                        <widget class="QRadioButton">
+                                            <property name="name">
+                                                <cstring>HdBmButton</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>H Power(dBm)</string>
+                                            </property>
+                                        </widget>
+                                        <widget class="QRadioButton">
+                                            <property name="name">
+                                                <cstring>velocityButton</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>Velocity(m/s)</string>
+                                            </property>
+                                        </widget>
+                                        <widget class="QRadioButton">
+                                            <property name="name">
+                                                <cstring>NCPButton</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>NCP</string>
+                                            </property>
+                                        </widget>
+                                        <widget class="QRadioButton">
+                                            <property name="name">
+                                                <cstring>SpectralWidthButton</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>Spectral Width(m/s)</string>
+                                            </property>
+                                        </widget>
+                                        <widget class="QRadioButton">
+                                            <property name="name">
+                                                <cstring>phidpButton</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>phidp</string>
+                                            </property>
+                                        </widget>
+                                        <widget class="QRadioButton">
+                                            <property name="name">
+                                                <cstring>VReflectivityButton</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>V Reflectivity</string>
+                                            </property>
+                                        </widget>
+                                        <widget class="QRadioButton">
+                                            <property name="name">
+                                                <cstring>HReflectivityButton</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>H Reflectivity</string>
+                                            </property>
+                                        </widget>
+                                        <widget class="QRadioButton">
+                                            <property name="name">
+                                                <cstring>ZdrButton</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>Zdr</string>
+                                            </property>
+                                        </widget>
+                                    </vbox>
+                                </widget>
+                            </hbox>
                         </widget>
                     </hbox>
                 </widget>
@@ -488,10 +439,98 @@ Number</string>
                     <property name="sizeHint">
                         <size>
                             <width>20</width>
-                            <height>16</height>
+                            <height>36</height>
                         </size>
                     </property>
                 </spacer>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout21</cstring>
+                    </property>
+                    <grid>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLayoutWidget" row="0" column="1">
+                            <property name="name">
+                                <cstring>layout39</cstring>
+                            </property>
+                            <hbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>packetCountLabel</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>K Pulses</string>
+                                    </property>
+                                </widget>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>_pulseCount</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>0</string>
+                                    </property>
+                                </widget>
+                            </hbox>
+                        </widget>
+                        <widget class="QLayoutWidget" row="0" column="0">
+                            <property name="name">
+                                <cstring>layout41</cstring>
+                            </property>
+                            <hbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>PN_errors</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>PN errors</string>
+                                    </property>
+                                </widget>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>_PNerrors</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>0</string>
+                                    </property>
+                                </widget>
+                            </hbox>
+                        </widget>
+                        <widget class="QLayoutWidget" row="1" column="0">
+                            <property name="name">
+                                <cstring>layout40</cstring>
+                            </property>
+                            <hbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>m_pTextIPname</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>IP Name</string>
+                                    </property>
+                                </widget>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>m_pTextIPaddress</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>xxx.xxx.xxx.xxx</string>
+                                    </property>
+                                </widget>
+                            </hbox>
+                        </widget>
+                    </grid>
+                </widget>
             </vbox>
         </widget>
     </hbox>
@@ -526,12 +565,6 @@ Number</string>
         <signal>toggled(bool)</signal>
         <receiver>CP2ScopeBase</receiver>
         <slot>dataSetSlot(bool)</slot>
-    </connection>
-    <connection>
-        <sender>yScaleKnob</sender>
-        <signal>valueChanged(double)</signal>
-        <receiver>CP2ScopeBase</receiver>
-        <slot>yScaleKnob_valueChanged(double)</slot>
     </connection>
     <connection>
         <sender>specButton</sender>
@@ -605,6 +638,18 @@ Number</string>
         <receiver>CP2ScopeBase</receiver>
         <slot>DataChannelSpinBox_valueChanged(int)</slot>
     </connection>
+    <connection>
+        <sender>_gainOffsetKnobs</sender>
+        <signal>knobOneChanged(double)</signal>
+        <receiver>CP2ScopeBase</receiver>
+        <slot>gainChangeSlot(double)</slot>
+    </connection>
+    <connection>
+        <sender>_gainOffsetKnobs</sender>
+        <signal>knobTwoChanged(double)</signal>
+        <receiver>CP2ScopeBase</receiver>
+        <slot>offsetChangeSlot(double)</slot>
+    </connection>
 </connections>
 <includes>
     <include location="local" impldecl="in implementation">CP2ScopeBase.ui.h</include>
@@ -612,15 +657,20 @@ Number</string>
 <slots>
     <slot>plotTypeSlot( bool )</slot>
     <slot>dataSocketActivatedSlot( int )</slot>
-    <slot>yScaleKnob_valueChanged( double )</slot>
     <slot>dataSetSlot( bool )</slot>
     <slot>DataSetGateSpinBox_valueChanged( int )</slot>
     <slot>xFullScaleBox_valueChanged( int )</slot>
     <slot>DataChannelSpinBox_valueChanged( int )</slot>
+    <slot>gainChangeSlot(double)</slot>
+    <slot>offsetChangeSlot(double)</slot>
+    <slot>gainChangeSlot(int)</slot>
+    <slot>offsetChangeSlot(int)</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 <includehints>
     <includehint>ScopePlot/ScopePlot.h</includehint>
+    <includehint>TwoKnobs/TwoKnobs.h</includehint>
+    <includehint>Knob/Knob.h</includehint>
     <includehint>Knob/Knob.h</includehint>
 </includehints>
 </UI>

@@ -1,13 +1,14 @@
 
 #include "CP2Scope.h"
 #include <ScopePlot/ScopePlot.h>
-#include <Knob/Knob.h>
+#include <TwoKnobs/TwoKnobs.h>
 
 #include <qbuttongroup.h>
 #include <qlabel.h>
 #include <qtimer.h>
 #include <qspinbox.h>	
 #include <qlcdnumber.h>
+#include <qslider.h>
 
 
 #include <winsock.h>
@@ -28,16 +29,16 @@ _collator(30)
 {
 	m_dataGramPort	= 3100;
 	m_pulseCount	= 0; 
+
+	// intialize the data reception socket
 	initializeSocket();	
+	// 
 	connectDataRcv(); 
 
-	//	set knob assuming TIMESERIES: 
-	this->yScaleKnob->setTitle("Y-SCALE ADJ."); 
-	m_display_yScale = ySCALEMAX / 10.0;	// start off reasonable
-	m_yScaleMin = ySCALEMIN;	// set initial y-scale min, max
-	m_yScaleMax	= ySCALEMAX;	
-
-	this->yScaleKnob->setRange(m_yScaleMin, m_yScaleMax); 
+	_gainOffsetKnobs->setRanges(-5, 5, -10, 10);
+	_gainOffsetKnobs->setTitles("Gain", "Offset");
+	_scopeGain = 1;
+	_scopeOffset = 0.0;
 
 	m_xFullScale = 980;
 	I.resize(m_xFullScale);			//	default timeseries array size full range at 1KHz
@@ -92,86 +93,49 @@ CP2Scope::plotTypeSlot(bool b)
 	switch (buttonGroup->selectedId()) {
 		case 0:
 			_plotType = ScopePlot::TIMESERIES;
-			//	set knob for TIMESERIES: 
-			this->yScaleKnob->setTitle("Ampl. Scale"); 
-			m_display_yScale = m_yScaleMax / 10.0;	// start off reasonable
-			this->yScaleKnob->setRange(m_yScaleMin, m_yScaleMax); 
 			break;
 		case 1:
 			_plotType = ScopePlot::IVSQ;
-			this->yScaleKnob->setTitle("Ampl. Scale"); 
-			m_display_yScale = m_yScaleMax / 10.0;	// start off reasonable
-			this->yScaleKnob->setRange(m_yScaleMin, m_yScaleMax); 
 			break;
 		case 2:
 			_plotType = ScopePlot::SPECTRUM;
-			//	set knob for Power correction: 
-			this->yScaleKnob->setTitle("Power Corr"); 
-			this->yScaleKnob->setRange(-30.0, 30.0); 
 			break;
 			//	distiguish the various producs, within one _plotType
 		case 3:
 			_plotType = ScopePlot::PRODUCT;
 			_productType = SVHVP; 
-			//	set knob for Power correction: 
-			this->yScaleKnob->setTitle("dBm Corr"); 
-			this->yScaleKnob->setRange(-30.0, 30.0); 
 			break;
 		case 4:
 			_plotType = ScopePlot::PRODUCT;
 			_productType = SVHHP; 
-			//	set knob for Power correction: 
-			this->yScaleKnob->setTitle("dBm Corr"); 
-			this->yScaleKnob->setRange(-30.0, 30.0); 
 			break;
 		case 5:
 			_plotType = ScopePlot::PRODUCT;
 			_productType = SVEL; 
-			//	set knob for Power correction: 
-			this->yScaleKnob->setTitle("N/A"); 
-			//			this->yScaleKnob->setRange(-30.0, 30.0); 
 			break;
 		case 6:
 			_plotType = ScopePlot::PRODUCT;
 			_productType = SNCP; 
-			//	set knob for Power correction: 
-			this->yScaleKnob->setTitle("N/A"); 
-			//			this->yScaleKnob->setRange(-30.0, 30.0); 
 			break;
 		case 7:
 			_plotType = ScopePlot::PRODUCT;
 			_productType = SWIDTH; 
-			//	set knob for Power correction: 
-			this->yScaleKnob->setTitle("N/A"); 
-			//			this->yScaleKnob->setRange(-30.0, 30.0); 
 			break;
 		case 8:
 			_plotType = ScopePlot::PRODUCT;
 			_productType = SPHIDP; 
-			//	set knob for Power correction: 
-			this->yScaleKnob->setTitle("N/A"); 
-			//			this->yScaleKnob->setRange(-30.0, 30.0); 
 			break;
 		case 9:
 			_plotType = ScopePlot::PRODUCT;
 			_productType = VREFL; 
-			//	set knob for Power correction: 
-			this->yScaleKnob->setTitle("N/A"); 
-			//			this->yScaleKnob->setRange(-30.0, 30.0); 
 			break;
 		case 10:
 			_plotType = ScopePlot::PRODUCT;
 			_productType = HREFL; 
-			//	set knob for Power correction: 
-			this->yScaleKnob->setTitle("N/A"); 
-			//			this->yScaleKnob->setRange(-30.0, 30.0); 
 			break;
 		case 11:
 			_plotType = ScopePlot::PRODUCT;
 			_productType = ZDR; 
-			//	set knob for Power correction: 
-			this->yScaleKnob->setTitle("N/A"); 
-			//			this->yScaleKnob->setRange(-30.0, 30.0); 
 			break;
 		default: {}
 	}
@@ -215,28 +179,14 @@ void CP2Scope::resizeDataVectors()	{
 }
 
 //////////////////////////////////////////////////////////////////////
-void CP2Scope::yScaleKnob_valueChanged( double yScaleKnobSetting)	{	
-	switch (_plotType) {
-		default:
-		case 0:	//	timeseries displays
-		case 1:
-			if (yScaleKnobSetting == 0.0)	{	//	y-scale set to minimum
-				m_yScaleMax *= 0.1;				//	re-scale /10
-				m_display_yScale = m_yScaleMax / 10.0; 
-				yScaleKnob->setRange(m_yScaleMin, m_yScaleMax);	//
-			}
-			else if (yScaleKnobSetting == m_yScaleMax)	{	//	max'd y-scale
-				m_yScaleMax *= 10.0;	//	re-scale *10
-				yScaleKnob->setRange(m_yScaleMin, m_yScaleMax);
-			}
-			else
-				m_display_yScale = yScaleKnobSetting; 
-			break;
-		case 2:	//	power spectrum display
-			_powerCorrection = yScaleKnobSetting; 
-			break;
-			//	add products displays
-	}
+void CP2Scope::gainChangeSlot(double gain)	{	
+		_powerCorrection = gain; 
+		_scopeGain = pow(10.0,-gain);
+}
+
+//////////////////////////////////////////////////////////////////////
+void CP2Scope::offsetChangeSlot(double offset)	{
+	_scopeOffset = _scopeGain*offset;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -473,10 +423,10 @@ CP2Scope::displayData()
 
 	switch (_plotType) {
 	case ScopePlot::TIMESERIES:
-		_scopePlot->TimeSeries(I, Q, -m_display_yScale, m_display_yScale, 1);
+		_scopePlot->TimeSeries(I, Q, -_scopeGain+_scopeOffset, _scopeGain+_scopeOffset, 1);
 		break;
 	case ScopePlot::IVSQ:
-		_scopePlot->IvsQ(I, Q, -m_display_yScale, m_display_yScale, 1); 
+		_scopePlot->IvsQ(I, Q, -_scopeGain+_scopeOffset, _scopeGain+_scopeOffset, 1); 
 		break;
 	case ScopePlot::SPECTRUM:
 		//	use Spectrum() w/linear limits, linear data on y-axis:
@@ -486,19 +436,19 @@ CP2Scope::displayData()
 		//	proliferate product types here:
 		switch(_productType)	{
 	case SVHVP:		//	compute S-band VH V Power in dBm for display
-		_scopePlot->Product(ProductData, _productType, -80, 20.0, m_xFullScale, "Gate", "S V Power (dBm)"); 
+		_scopePlot->Product(ProductData, _productType, -_scopeGain+_scopeOffset, _scopeGain+_scopeOffset, m_xFullScale, "Gate", "S V Power (dBm)"); 
 		break;
 	case SVHHP:		//	compute S-band VH H Power in dBm for display
-		_scopePlot->Product(ProductData, _productType, -80, 20.0, m_xFullScale, "Gate", "S H Power (dBm)"); 
+		_scopePlot->Product(ProductData, _productType, -_scopeGain+_scopeOffset, _scopeGain+_scopeOffset, m_xFullScale, "Gate", "S H Power (dBm)"); 
 		break;
 	case SVEL:		//	compute S-band velocity using V and H data
-		_scopePlot->Product(ProductData, _productType, -30.0, 30.0, m_xFullScale, "Gate", "Velocity (m/s)"); 
+		_scopePlot->Product(ProductData, _productType, -_scopeGain+_scopeOffset, _scopeGain+_scopeOffset, m_xFullScale, "Gate", "Velocity (m/s)"); 
 		break;
 	case SNCP:		//	compute S-band NCP using calculation A2*A2+B2*B2/Pv+Ph
-		_scopePlot->Product(ProductData, _productType, 0.0, 2.0, m_xFullScale, "Gate", "NCP"); 
+		_scopePlot->Product(ProductData, _productType, -_scopeGain+_scopeOffset, _scopeGain+_scopeOffset, m_xFullScale, "Gate", "NCP"); 
 		break;
 	case SWIDTH:
-		_scopePlot->Product(ProductData, _productType, -m_display_yScale, m_display_yScale, m_xFullScale, "Gate", "Spectral Width"); 
+		_scopePlot->Product(ProductData, _productType, -_scopeGain+_scopeOffset, _scopeGain+_scopeOffset, m_xFullScale, "Gate", "Spectral Width"); 
 		break;			
 	case SPHIDP:
 		//	compute S-band phidp 
@@ -506,15 +456,15 @@ CP2Scope::displayData()
 		break;			
 	case VREFL:
 		//	compute S-band V reflectivity  
-		_scopePlot->Product(ProductData, _productType, -100.0, 100.0, m_xFullScale, "Gate", "V Reflectivity"); 
+		_scopePlot->Product(ProductData, _productType, -_scopeGain+_scopeOffset, _scopeGain+_scopeOffset, m_xFullScale, "Gate", "V Reflectivity"); 
 		break;			
 	case HREFL:
 		//	compute S-band H reflectivity  
-		_scopePlot->Product(ProductData, _productType, -100.0, 100.0, m_xFullScale, "Gate", "H Reflectivity"); 
+		_scopePlot->Product(ProductData, _productType, -_scopeGain+_scopeOffset, _scopeGain+_scopeOffset, m_xFullScale, "Gate", "H Reflectivity"); 
 		break;			
 	case ZDR:
 		//	compute S-band Zdr 
-		_scopePlot->Product(ProductData, _productType, -10.0, 10.0, m_xFullScale, "Gate", "Zdr"); 
+		_scopePlot->Product(ProductData, _productType, -_scopeGain+_scopeOffset, _scopeGain+_scopeOffset, m_xFullScale, "Gate", "Zdr"); 
 		break;			
 		}
 		break;
@@ -523,7 +473,8 @@ CP2Scope::displayData()
 
 //////////////////////////////////////////////////////////////////////
 void
-CP2Scope::initializeSocket()	{	//	?pass port#
+CP2Scope::initializeSocket()	
+{
 	m_pDataSocket = new QSocketDevice(QSocketDevice::Datagram);
 
 	QHostAddress qHost;

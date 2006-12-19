@@ -70,7 +70,8 @@ public slots:
 	void dataSocketActivatedSlot(
 		int socket         ///< File descriptor of the data socket
 		);
-	virtual void yScaleKnob_valueChanged( double );	
+	virtual void gainChangeSlot( double );	
+	virtual void offsetChangeSlot( double );	
 	virtual void dataSetSlot(bool);
 	virtual void DataSetGateSpinBox_valueChanged( int ); 
 	virtual void xFullScaleBox_valueChanged( int );	
@@ -85,8 +86,8 @@ protected:
 	int				m_pulseCount;					///<	cumulative pulse count
 	unsigned int	m_pulseDisplayDecimation;		///<	decimation factor for along range (DATA_SET_PULSE) display: currently set 50
 	unsigned int	m_productsDisplayDecimation;	///<	decimation factor for products display: currently set 50
-	double			m_display_yScale;				///<	y-scale factor for plotting timeseries data
-	double			m_yScaleMin, m_yScaleMax;		///<	y-scale min, max	
+	double			_scopeGain;						///<	
+	double			_scopeOffset;						///<	
 	double			m_xFullScale;					///<	x-scale max
 
 	std::vector<double> I;		//	timeseries arrays for display
