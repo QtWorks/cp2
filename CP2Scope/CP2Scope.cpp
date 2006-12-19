@@ -21,7 +21,10 @@ m_pDataSocketNotifier(0),
 m_pSocketBuf(0),	
 _plotType(ScopePlot::TIMESERIES),
 _tsDisplayCount(0),
-_productDisplayCount(0)
+_productDisplayCount(0),
+_Sparams(Params::DUAL_FAST_ALT),
+_Xparams(Params::DUAL_CP2_XBAND),
+_collator(30)
 {
 	m_dataGramPort	= 3100;
 	m_pulseCount	= 0; 
@@ -60,6 +63,9 @@ _productDisplayCount(0)
 	//	power correction factor applied to (uncorrected) powerSpectrum() output:
 	_powerCorrection = 0.0;	//	use for power correction to dBm
 
+	_momentsSCompute = new MomentsCompute(_Sparams);
+	_momentsXCompute = new MomentsCompute(_Xparams);
+
 
 }
 //////////////////////////////////////////////////////////////////////
@@ -72,6 +78,10 @@ CP2Scope::~CP2Scope() {
 
 	if (m_pSocketBuf)
 		delete [] m_pSocketBuf;
+
+	delete _momentsSCompute;
+
+	delete _momentsXCompute;
 
 }
 //////////////////////////////////////////////////////////////////////
@@ -207,6 +217,7 @@ void CP2Scope::resizeDataVectors()	{
 //////////////////////////////////////////////////////////////////////
 void CP2Scope::yScaleKnob_valueChanged( double yScaleKnobSetting)	{	
 	switch (_plotType) {
+		default:
 		case 0:	//	timeseries displays
 		case 1:
 			if (yScaleKnobSetting == 0.0)	{	//	y-scale set to minimum
@@ -282,8 +293,7 @@ CP2Scope::dataSocketActivatedSlot(int socket)
 			for (int i = 0; i < packet.numPulses(); i++) {
 				CP2Pulse* pPulse = packet.getPulse(i);
 				if (pPulse) {
-					if (pPulse->header.channel == m_dataChannel)
-						processPulse(pPulse);
+					processPulse(pPulse);
 					m_pulseCount++;
 					if (!(m_pulseCount % 1000))
 						_pulseCount->setNum(m_pulseCount/1000);	// update cumulative packet count 
@@ -302,18 +312,53 @@ CP2Scope::processPulse(CP2Pulse* pPulse)
 {
 	float* data = &(pPulse->data[0]);
 
+	// beam will point to computed moments when they are ready,
+	// or null if not ready
+	Beam* pBeam = 0;
+
 	switch (_plotType) {
 
 	case ScopePlot::PRODUCT:
 		{
-			_momentsCompute.processPulse(data, 
-				pPulse->header.gates,
-				1.0e-6, 
-				pPulse->header.el, 
-				pPulse->header.az, 
-				pPulse->header.pulse_num);	
+			if (pPulse->header.channel == 0) {
+				if(_productType ==  SPHIDP) {
+					bool horizontal = (pPulse->header.pulse_num %2);
+					_momentsSCompute->processPulse(data,
+						0,
+						pPulse->header.gates,
+						1.0e-6, 
+						pPulse->header.el, 
+						pPulse->header.az, 
+						pPulse->header.pulse_num,
+						horizontal);	
+					pBeam = _momentsSCompute->getNewBeam();
+				}
+			} else {
+				if(_productType !=  SPHIDP) {
+					// copy the pulse data, since we have to save it for collation
+					CP2FullPulse* pFullPulse = new CP2FullPulse(pPulse);
+					// send the pulse to the collator
+					_collator.addPulse(pFullPulse, pFullPulse->header()->channel - 1);
+					
+					// now see if we have some matching beams
+					CP2FullPulse* pHPulse;
+					CP2FullPulse* pVPulse;
+					if (_collator.gotMatch(&pHPulse, &pVPulse)) {
+						_momentsXCompute->processPulse(pHPulse->data(), 
+							pVPulse->data(),
+							pPulse->header.gates,
+							1.0e-6, 
+							pPulse->header.el, 
+							pPulse->header.az, 
+							pPulse->header.pulse_num,
+							true);	
+						delete pHPulse;
+						delete pVPulse;
+						pBeam = _momentsXCompute->getNewBeam();
+					}
+				}
+			}
 
-			Beam* pBeam = _momentsCompute.getNewBeam();
 			if (pBeam) {
 				// copy the selected product to the productDisplay
 				// vector
@@ -328,6 +373,8 @@ CP2Scope::processPulse(CP2Pulse* pPulse)
 		}
 	case ScopePlot::SPECTRUM:
 		{
+			if (pPulse->header.channel != m_dataChannel)
+				break;
 			_tsDisplayCount++;
 			if	(_tsDisplayCount >= m_pulseDisplayDecimation)	{	
 				_spectrum.resize(m_fft_blockSize);	//	probably belongs somewhere else
@@ -348,6 +395,8 @@ CP2Scope::processPulse(CP2Pulse* pPulse)
 		}
 	default:
 		{
+			if (pPulse->header.channel != m_dataChannel)
+				break;
 			_tsDisplayCount++;
 			if	(_tsDisplayCount >= m_pulseDisplayDecimation)	{	//	
 				for (int i = 0; i < 2*m_xFullScale; i+=2) {	
@@ -449,7 +498,7 @@ CP2Scope::displayData()
 		_scopePlot->Product(ProductData, _productType, 0.0, 2.0, m_xFullScale, "Gate", "NCP"); 
 		break;
 	case SWIDTH:
-		_scopePlot->Product(ProductData, _productType, 0.0, 30.0, m_xFullScale, "Gate", "Spectral Width"); 
+		_scopePlot->Product(ProductData, _productType, -m_display_yScale, m_display_yScale, m_xFullScale, "Gate", "Spectral Width"); 
 		break;			
 	case SPHIDP:
 		//	compute S-band phidp 

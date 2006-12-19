@@ -214,6 +214,9 @@ void MomentsMgr::computeDualFastAlt(double beamTime,
     if (power_h <= _noiseFixedHc) {
       power_h = _noiseFixedHc + 1.0e-20;
     }
+
+	fields[igate].dbmhc = dbm_h;
+
     snr_h = 10.0 * log10((power_h - _noiseFixedHc) / _noiseFixedHc);
     
     double snr_v = _missingDbl;
@@ -221,7 +224,10 @@ void MomentsMgr::computeDualFastAlt(double beamTime,
     if (power_v <= _noiseFixedVc) {
       power_v = _noiseFixedVc + 1.0e-20;
     }
-    snr_v = 10.0 * log10((power_v - _noiseFixedVc) / _noiseFixedVc);
+ 
+	fields[igate].dbmvc = dbm_v;
+
+	snr_v = 10.0 * log10((power_v - _noiseFixedVc) / _noiseFixedVc);
     
     // average power and SNR
     
@@ -233,6 +239,8 @@ void MomentsMgr::computeDualFastAlt(double beamTime,
     double dbz_h = snr_h + _dbz0Hc + _rangeCorr[igate];
     double dbz_v = snr_v + _dbz0Vc + _rangeCorr[igate];
     fields[igate].dbz = (dbz_h + dbz_v) / 2.0;
+	fields[igate].dbzhc = dbz_h;
+	fields[igate].dbzvc = dbz_v;
 
     // width from half-spectra
     
@@ -331,6 +339,7 @@ void MomentsMgr::computeDualCp2Xband(double beamTime,
     if (power_hc != _missingDbl) {
       double dbm_hc = 10.0 * log10(power_hc);
       fields[igate].dbm = dbm_hc;
+      fields[igate].dbmhc = dbm_hc;
       if (power_hc <= _noiseFixedHc) {
         power_hc = _noiseFixedHc + 1.0e-20;
       }
@@ -340,6 +349,7 @@ void MomentsMgr::computeDualCp2Xband(double beamTime,
       dbz_hc =
         snr_hc + _params.hc_receiver.dbz0 + _rangeCorr[igate];
       fields[igate].dbz = dbz_hc;
+      fields[igate].dbzhc = dbz_hc;
     }
     
     fields[igate].vel = vel_hc;
@@ -353,12 +363,15 @@ void MomentsMgr::computeDualCp2Xband(double beamTime,
     if (power_vx != _missingDbl) {
       if (power_vx <= _noiseFixedVx) {
         power_vx = _noiseFixedVx + 1.0e-20;
-      }
+     }
+      double dbm_vx = 10.0 * log10(power_vx);
+	  fields[igate].dbmvx = dbm_vx;
       double snr_vx =
         10.0 * log10((power_vx - _noiseFixedVx) / _noiseFixedVx);
       double dbz_vx =
         snr_vx + _params.vx_receiver.dbz0 + _rangeCorr[igate];
-      double ldr = dbz_vx - dbz_hc + _params.ldr_correction;
+       fields[igate].dbzvx = dbz_vx;
+     double ldr = dbz_vx - dbz_hc + _params.ldr_correction;
       fields[igate].ldrh = ldr;
    }
         

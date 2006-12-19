@@ -40,7 +40,7 @@ public:
 
 	// constructor
 
-	MomentsCompute();
+	MomentsCompute(Params params);
 
 	// destructor
 
@@ -50,11 +50,13 @@ public:
 
 	int processPulse(
 		float* data, 
+		float* crossdata,
 		int gates, 
 		double prt, 
 		double el, 
 		double az, 
-		long long pulseNum);
+		long long pulseNum,
+		bool horizontal);
 
 	// If a new beam is available, return it.
 	// @return A pointer to the available beam. If
@@ -105,8 +107,8 @@ protected:
 
 	// moments computation management
 
-	vector<MomentsMgr *> _momentsMgrArray;
 	MomentsMgr *_momentsMgr;
+
 	double _prevPrfForMoments;
 
 	static const int _maxGates = 4096;

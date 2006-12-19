@@ -88,6 +88,8 @@ public:
 
   Params ();
 
+  Params (moments_mode_t mode);
+
   ////////////////////////////////////////////
   // Destructor
   //
@@ -102,7 +104,6 @@ public:
 
   double atmos_attenuation;
   double dbz_calib_correction;
-  double moments_snr_threshold;
   double zdr_correction;
   double ldr_correction;
 
@@ -116,9 +117,11 @@ public:
   receiver_t vc_receiver;
   receiver_t vx_receiver;
 
-  vector<moments_params_t> moments_params;  
+  moments_params_t moments_params;  
 
 protected:
+	void setDefault();
+
 private:
 
 };

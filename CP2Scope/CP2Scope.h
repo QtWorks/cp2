@@ -19,6 +19,9 @@
 // CP2 timeseries network transfer protocol.
 #include "CP2Net.h"
 
+// CP2 pulse collator
+#include "CP2PulseCollator.h"
+
 // Clases used in the moments computatons:
 #include "MomentsCompute.hh"
 #include "MomentsMgr.hh"
@@ -48,6 +51,7 @@ enum	{
 	ZDR	
 }; 
 
+//
 
 class CP2Scope : public CP2ScopeBase {
 	Q_OBJECT
@@ -119,10 +123,21 @@ protected:
 	/// Set true if the Hamming window should be applied
 	bool _doHamming;
 
-	/// The moment computation engine.  Pulses
+	/// Moment computation parameters for S band
+	Params _Sparams;
+
+	/// Moment computation parameters for X band
+	Params _Xparams;
+
+	/// The S band moment computation engine.  Pulses
 	/// are passed to _momentsCompute. It will make a beam 
 	/// available when enough beams have been provided.
-	MomentsCompute _momentsCompute;
+	MomentsCompute* _momentsSCompute;
+
+	/// The X band moment computation engine.  Pulses
+	/// are passed to _momentsCompute. It will make a beam 
+	/// available when enough beams have been provided.
+	MomentsCompute* _momentsXCompute;
 
 	double _az;
 
@@ -152,6 +167,13 @@ protected:
 	/// _spectrum[]
 	/// @return The zero moment
 	double powerSpectrum();
+
+	/// Collator collects and matches time tags
+	/// from H and V Xband channels
+	CP2PulseCollator _collator;
+	std::vector<CP2FullPulse*> _xHPulses;
+	std::vector<CP2FullPulse*> _xVPulses;
+
 
 };
 

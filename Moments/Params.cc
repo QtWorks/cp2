@@ -17,12 +17,31 @@ using namespace std;
 Params::Params()
   
 {
+   setDefault();
+}
 
+Params::Params(moments_mode_t mode)
+{
+  setDefault();
+  moments_params.mode = mode;
+}
+
+////////////////////////////////////////////
+// Destructor
+//
+
+Params::~Params()
+  
+{
+
+}
+void
+Params::setDefault()
+{
   debug = Params::DEBUG_OFF;
 
   atmos_attenuation = 0.012; // db/km
   dbz_calib_correction = 0.0; // dB
-  moments_snr_threshold = 3.0; // dB
   zdr_correction = 0.0; // dB
   ldr_correction = 0.0; // dB
 
@@ -60,40 +79,12 @@ Params::Params()
   vx_receiver.dbz0 = -48.0;
 
   // moments manager params
-
-  moments_params_t mparams;
-
-  mparams.n_samples = 10;
-  mparams.lower_prf = 0;
-  mparams.upper_prf = 500;
-  mparams.start_range = 0.075;
-  mparams.start_range = 0.150;
-  mparams.algorithm = ALG_PP;
-  mparams.window = WINDOW_BLACKMAN;
-  mparams.mode = SINGLE_POL;
-
-  moments_params.push_back(mparams);
-
-  mparams.n_samples = 64;
-  mparams.lower_prf = 500;
-  mparams.upper_prf = 2000;
-  mparams.start_range = 0.075;
-  mparams.start_range = 0.150;
-  mparams.algorithm = ALG_PP;
-  mparams.window = WINDOW_HANNING;
-  mparams.mode = DUAL_FAST_ALT;
-
-  moments_params.push_back(mparams);
-
-}
-
-////////////////////////////////////////////
-// Destructor
-//
-
-Params::~Params()
-  
-{
-
+  moments_params.n_samples = 64;
+  moments_params.lower_prf = 500;
+  moments_params.upper_prf = 2000;
+  moments_params.start_range = 0.075;
+  moments_params.start_range = 0.150;
+  moments_params.algorithm = ALG_PP;
+  moments_params.window = WINDOW_HANNING;
 }
 

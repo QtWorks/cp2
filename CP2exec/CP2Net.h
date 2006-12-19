@@ -1,6 +1,7 @@
-#ifndef CP2NETDATAINC_
-#define CP2NETDATAINC_
+#ifndef CP2NETINC_
+#define CP2NETINC_
 
+#include <map>
 #include <vector>
 
 /// A header for each pulse of data
@@ -20,6 +21,22 @@ typedef struct CP2Pulse {
 	CP2PulseHeader header;///< The beam header.
 	float data[2];			///< An array of data values will start here.
 } CP2Pulse;
+
+/// Use this class when the full pulse, with
+/// a filled data array, needs to be preserved. 
+/// Usually a pointer to CP2Pulse just points into
+/// a CP2Packet which is going to be deleted, making
+/// the CP2Pulse* invalid
+class CP2FullPulse {
+public:
+	CP2FullPulse(CP2Pulse* pPulse);
+	~CP2FullPulse();
+	float* data();
+	CP2PulseHeader* header();
+protected:
+	CP2Pulse* _cp2Pulse;
+
+};
 
 /// Interface for working with CP2 network data
 /// transmission. When constructed, an area for
@@ -70,4 +87,32 @@ protected:
 	/// The offset to each pulse in the packet
 	std::vector<int> _pulseOffset;
 };
+
+#ifndef PULSECOLLATORINC_
+#define PULSECOLLATORINC_
+
+
+#define PulseMap std::map<long long, CP2FullPulse*>
+
+/// will delete pulses when the queue eceeds the queue size limit.
+/// matching pulses are poped from the queue and it is up to the
+/// caller to delete them.
+class CP2PulseCollator {
+public:
+	CP2PulseCollator(int maxQueueSize);
+	virtual ~CP2PulseCollator();
+	void addPulse(CP2FullPulse* pPulse, int queueNumber);
+	bool gotMatch(CP2FullPulse** pulse0, CP2FullPulse** pulse1);
+
+protected:
+	int _maxQueueSize;
+
+	PulseMap _queue0;
+	PulseMap _queue1;
+
+};
+
+
+#endif
+
 #endif

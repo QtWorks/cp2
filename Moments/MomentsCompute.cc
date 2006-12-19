@@ -37,8 +37,9 @@ const double MomentsCompute::_missingDbl = -9999.0;
 ////////////////////////////////////////////////////
 // Constructor
 
-MomentsCompute::MomentsCompute():
-_currentBeam(0)
+MomentsCompute::MomentsCompute(Params params):
+_currentBeam(0),
+_params(params)
 {
 
 	_momentsMgr = NULL;
@@ -66,27 +67,11 @@ _currentBeam(0)
 	// set up moments objects
 	// This initializes the FFT package to the set number of samples.
 
-	for (int i = 0; i < (int) _params.moments_params.size(); i++) {
-		MomentsMgr *mgr = new MomentsMgr(_params, _params.moments_params[i]);
-		_momentsMgrArray.push_back(mgr);
-	}
-	if (_momentsMgrArray.size() < 1) {
-		cerr << "ERROR: MomentsCompute::MomentsCompute." << endl;
-		cerr << "  No algorithm geometry specified."; 
-		cerr << "  The param moments_menuetry must have at least 1 entry."
-			<< endl;
-		isOK = false;
-		return;
-	}
+	_momentsMgr = new MomentsMgr(_params, _params.moments_params);
 
 	// compute pulse queue size, set to 2 * maxNsamples
 
-	int maxNsamples = 0;
-	for (int i = 0; i < (int) _params.moments_params.size(); i++) {
-		if (maxNsamples < _params.moments_params[i].n_samples) {
-			maxNsamples = _params.moments_params[i].n_samples;
-		}
-	}
+	int maxNsamples = _params.moments_params.n_samples;
 	_maxPulseQueueSize = maxNsamples * 2 + 2;
 	if (_params.debug >= Params::DEBUG_VERBOSE) {
 		cerr << "_maxPulseQueueSize: " << _maxPulseQueueSize << endl;
@@ -102,11 +87,6 @@ _currentBeam(0)
 MomentsCompute::~MomentsCompute()
 
 {
-
-	for (size_t ii = 0; ii < _momentsMgrArray.size(); ii++) {
-		delete _momentsMgrArray[ii];
-	}
-	_momentsMgrArray.clear();
 
 	for (size_t ii = 0; ii < _pulseQueue.size(); ii++) {
 		if (_pulseQueue[ii]->removeClient("MomentsCompute destructor") == 0) {
@@ -138,29 +118,10 @@ void MomentsCompute::setDebugExtraVerbose()
 void MomentsCompute::_prepareForMoments(Pulse *pulse)
 
 {
-
 	// set properties from pulse
 
 	_nGatesPulse = pulse->getNGates();
 	double prf = 1.0 / pulse->getPrt();
-
-	// find moments manager, based on PRF
-
-	if (fabs(prf - _prevPrfForMoments) > 0.1) {
-		_momentsMgr = NULL;
-		for (int i = 0; i < (int) _momentsMgrArray.size(); i++) {
-			if (prf >= _momentsMgrArray[i]->getLowerPrf() &&
-				prf <= _momentsMgrArray[i]->getUpperPrf()) {
-					_momentsMgr = _momentsMgrArray[i];
-					_nSamples = _momentsMgr->getNSamples();
-					break;
-				}
-		}
-		_prevPrfForMoments = prf;
-	} // if (fabs(prf ...
-
-	_momentsMgr = _momentsMgrArray[1];
-
 }
 
 /////////////////////////////////////////////////
@@ -364,18 +325,20 @@ void MomentsCompute::_addPulseToQueue(Pulse *pulse)
 
 int 
 MomentsCompute::processPulse(
-							 float* data, 
+							 float* data,
+							 float* crossdata,
 							 int gates, 
 							 double prt, 
 							 double el, 
 							 double az, 
-							 long long pulseNum)
+							 long long pulseNum,
+							 bool horizontal)
 {
 
 	// process pulses as they arrive
 
 	double now = (double) time(NULL);
-	bool isHoriz = pulseNum % 2;
+	bool isHoriz = horizontal;
 
 	// Create a new pulse object and save a pointer to it in the
 	// _pulseBuffer array.  _pulseBuffer is a FIFO, with elements
@@ -385,7 +348,7 @@ MomentsCompute::processPulse(
 
 	Pulse *pulse = new Pulse(_params, 
 		pulseNum, gates, now,
-		prt, el, az, isHoriz, data, 0);
+		prt, el, az, isHoriz, data, crossdata);
 
 	// add pulse to queue, managing memory appropriately
 
