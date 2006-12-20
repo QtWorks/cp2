@@ -1,10 +1,13 @@
-#include "PlotType.h"
+#include "PlotInfo.h"
 
 ////////////////////////////////////////////////////////
-PlotType::PlotType(int id, 
+PlotInfo::PlotInfo(int id, int displayType, std::string shortName, std::string longName,
 		double gainMin, double gainMax, double gainCurrent, 
 		double offsetMin, double offsetMax, double offsetCurrent):
 _id(id),
+_displayType(displayType),
+_shortName(shortName),
+_longName(longName),
 _gainMin(gainMin),
 _gainMax(gainMax),
 _gainCurrent(gainCurrent),
@@ -16,13 +19,13 @@ _offsetCurrent(offsetCurrent)
 
 ////////////////////////////////////////////////////////
 
-PlotType::~PlotType()
+PlotInfo::~PlotInfo()
 {
 }
 
 ////////////////////////////////////////////////////////
 void
-PlotType::setGain(double min, double max, double current)
+PlotInfo::setGain(double min, double max, double current)
 {
 	_gainMin = min;
 	_gainMax = max;
@@ -31,7 +34,7 @@ PlotType::setGain(double min, double max, double current)
 
 ////////////////////////////////////////////////////////
 void
-PlotType::setOffset(double min, double max, double current)
+PlotInfo::setOffset(double min, double max, double current)
 {
 	_offsetMin = min;
 	_offsetMax = max;
@@ -40,42 +43,58 @@ PlotType::setOffset(double min, double max, double current)
 
 ////////////////////////////////////////////////////////
 double 
-PlotType::getGainMin()
+PlotInfo::getGainMin()
 {
 	return _gainMin;
 }
 
 ////////////////////////////////////////////////////////
 double 
-PlotType::getGainMax()
+PlotInfo::getGainMax()
 {
 	return _gainMax;
 }
 
 ////////////////////////////////////////////////////////
 double 
-PlotType::getGainCurrent()
+PlotInfo::getGainCurrent()
 {
 	return _gainCurrent;
 }
 
 ////////////////////////////////////////////////////////
 double 
-PlotType::getOffsetMin()
+PlotInfo::getOffsetMin()
 {
 	return _offsetMin;
 }
 
 ////////////////////////////////////////////////////////
 double 
-PlotType::getOffsetMax()
+PlotInfo::getOffsetMax()
 {
 	return _offsetMax;
 }
 
 ////////////////////////////////////////////////////////
 double 
-PlotType::getOffsetCurrent()
+PlotInfo::getOffsetCurrent()
 {
 	return _offsetCurrent;
 }
+
+////////////////////////////////////////////////////////
+std::string 
+PlotInfo::getShortName()
+{
+	return _shortName;
+}
+
+////////////////////////////////////////////////////////
+std::string 
+PlotInfo::getLongName()
+{
+	return _longName;
+}
+
+
