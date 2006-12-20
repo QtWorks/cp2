@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>907</width>
-            <height>579</height>
+            <width>899</width>
+            <height>663</height>
         </rect>
     </property>
     <property name="caption">
@@ -34,7 +34,7 @@
         </widget>
         <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>layout39</cstring>
+                <cstring>layout17</cstring>
             </property>
             <vbox>
                 <property name="name">
@@ -274,7 +274,7 @@ Number</string>
                 </widget>
                 <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>layout38</cstring>
+                        <cstring>layout16</cstring>
                     </property>
                     <hbox>
                         <property name="name">
@@ -285,144 +285,23 @@ Number</string>
                                 <cstring>_gainOffsetKnobs</cstring>
                             </property>
                         </widget>
-                        <widget class="QLayoutWidget">
+                        <widget class="QTabWidget">
                             <property name="name">
-                                <cstring>layout25</cstring>
+                                <cstring>_typeTab</cstring>
                             </property>
-                            <hbox>
+                            <widget class="QWidget">
                                 <property name="name">
-                                    <cstring>unnamed</cstring>
+                                    <cstring>Channels</cstring>
                                 </property>
-                                <widget class="QButtonGroup">
+                                <attribute name="title">
+                                    <string>Chan</string>
+                                </attribute>
+                                <vbox>
                                     <property name="name">
-                                        <cstring>buttonGroup</cstring>
+                                        <cstring>unnamed</cstring>
                                     </property>
-                                    <property name="sizePolicy">
-                                        <sizepolicy>
-                                            <hsizetype>3</hsizetype>
-                                            <vsizetype>1</vsizetype>
-                                            <horstretch>0</horstretch>
-                                            <verstretch>0</verstretch>
-                                        </sizepolicy>
-                                    </property>
-                                    <property name="title">
-                                        <string>Plot</string>
-                                    </property>
-                                    <vbox>
-                                        <property name="name">
-                                            <cstring>unnamed</cstring>
-                                        </property>
-                                        <widget class="QRadioButton">
-                                            <property name="name">
-                                                <cstring>tsButton</cstring>
-                                            </property>
-                                            <property name="text">
-                                                <string>Time Series</string>
-                                            </property>
-                                            <property name="checked">
-                                                <bool>true</bool>
-                                            </property>
-                                            <property name="buttonGroupId">
-                                                <number>0</number>
-                                            </property>
-                                        </widget>
-                                        <widget class="QRadioButton">
-                                            <property name="name">
-                                                <cstring>xyButton</cstring>
-                                            </property>
-                                            <property name="text">
-                                                <string>I vs Q</string>
-                                            </property>
-                                            <property name="buttonGroupId">
-                                                <number>1</number>
-                                            </property>
-                                        </widget>
-                                        <widget class="QRadioButton">
-                                            <property name="name">
-                                                <cstring>specButton</cstring>
-                                            </property>
-                                            <property name="text">
-                                                <string>Power Spectrum</string>
-                                            </property>
-                                            <property name="buttonGroupId">
-                                                <number>2</number>
-                                            </property>
-                                        </widget>
-                                        <widget class="QRadioButton">
-                                            <property name="name">
-                                                <cstring>VdBmButton</cstring>
-                                            </property>
-                                            <property name="text">
-                                                <string>V Power(dBm)</string>
-                                            </property>
-                                        </widget>
-                                        <widget class="QRadioButton">
-                                            <property name="name">
-                                                <cstring>HdBmButton</cstring>
-                                            </property>
-                                            <property name="text">
-                                                <string>H Power(dBm)</string>
-                                            </property>
-                                        </widget>
-                                        <widget class="QRadioButton">
-                                            <property name="name">
-                                                <cstring>velocityButton</cstring>
-                                            </property>
-                                            <property name="text">
-                                                <string>Velocity(m/s)</string>
-                                            </property>
-                                        </widget>
-                                        <widget class="QRadioButton">
-                                            <property name="name">
-                                                <cstring>NCPButton</cstring>
-                                            </property>
-                                            <property name="text">
-                                                <string>NCP</string>
-                                            </property>
-                                        </widget>
-                                        <widget class="QRadioButton">
-                                            <property name="name">
-                                                <cstring>SpectralWidthButton</cstring>
-                                            </property>
-                                            <property name="text">
-                                                <string>Spectral Width(m/s)</string>
-                                            </property>
-                                        </widget>
-                                        <widget class="QRadioButton">
-                                            <property name="name">
-                                                <cstring>phidpButton</cstring>
-                                            </property>
-                                            <property name="text">
-                                                <string>phidp</string>
-                                            </property>
-                                        </widget>
-                                        <widget class="QRadioButton">
-                                            <property name="name">
-                                                <cstring>VReflectivityButton</cstring>
-                                            </property>
-                                            <property name="text">
-                                                <string>V Reflectivity</string>
-                                            </property>
-                                        </widget>
-                                        <widget class="QRadioButton">
-                                            <property name="name">
-                                                <cstring>HReflectivityButton</cstring>
-                                            </property>
-                                            <property name="text">
-                                                <string>H Reflectivity</string>
-                                            </property>
-                                        </widget>
-                                        <widget class="QRadioButton">
-                                            <property name="name">
-                                                <cstring>ZdrButton</cstring>
-                                            </property>
-                                            <property name="text">
-                                                <string>Zdr</string>
-                                            </property>
-                                        </widget>
-                                    </vbox>
-                                </widget>
-                            </hbox>
+                                </vbox>
+                            </widget>
                         </widget>
                     </hbox>
                 </widget>
@@ -439,7 +318,7 @@ Number</string>
                     <property name="sizeHint">
                         <size>
                             <width>20</width>
-                            <height>36</height>
+                            <height>120</height>
                         </size>
                     </property>
                 </spacer>
@@ -543,12 +422,6 @@ Number</string>
         <slot>xFullScaleBox_valueChanged(int)</slot>
     </connection>
     <connection>
-        <sender>VdBmButton</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>CP2ScopeBase</receiver>
-        <slot>plotTypeSlot(bool)</slot>
-    </connection>
-    <connection>
         <sender>SpinBoxGate</sender>
         <signal>valueChanged(int)</signal>
         <receiver>CP2ScopeBase</receiver>
@@ -565,72 +438,6 @@ Number</string>
         <signal>toggled(bool)</signal>
         <receiver>CP2ScopeBase</receiver>
         <slot>dataSetSlot(bool)</slot>
-    </connection>
-    <connection>
-        <sender>specButton</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>CP2ScopeBase</receiver>
-        <slot>plotTypeSlot(bool)</slot>
-    </connection>
-    <connection>
-        <sender>xyButton</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>CP2ScopeBase</receiver>
-        <slot>plotTypeSlot(bool)</slot>
-    </connection>
-    <connection>
-        <sender>tsButton</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>CP2ScopeBase</receiver>
-        <slot>plotTypeSlot(bool)</slot>
-    </connection>
-    <connection>
-        <sender>HdBmButton</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>CP2ScopeBase</receiver>
-        <slot>plotTypeSlot(bool)</slot>
-    </connection>
-    <connection>
-        <sender>velocityButton</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>CP2ScopeBase</receiver>
-        <slot>plotTypeSlot(bool)</slot>
-    </connection>
-    <connection>
-        <sender>NCPButton</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>CP2ScopeBase</receiver>
-        <slot>plotTypeSlot(bool)</slot>
-    </connection>
-    <connection>
-        <sender>SpectralWidthButton</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>CP2ScopeBase</receiver>
-        <slot>plotTypeSlot(bool)</slot>
-    </connection>
-    <connection>
-        <sender>phidpButton</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>CP2ScopeBase</receiver>
-        <slot>plotTypeSlot(bool)</slot>
-    </connection>
-    <connection>
-        <sender>VReflectivityButton</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>CP2ScopeBase</receiver>
-        <slot>plotTypeSlot(bool)</slot>
-    </connection>
-    <connection>
-        <sender>HReflectivityButton</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>CP2ScopeBase</receiver>
-        <slot>plotTypeSlot(bool)</slot>
-    </connection>
-    <connection>
-        <sender>ZdrButton</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>CP2ScopeBase</receiver>
-        <slot>plotTypeSlot(bool)</slot>
     </connection>
     <connection>
         <sender>channelButtons</sender>

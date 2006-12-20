@@ -1,6 +1,20 @@
 #include "PlotInfo.h"
 
 ////////////////////////////////////////////////////////
+PlotInfo::PlotInfo():
+_id(0),
+_displayType(0),
+_shortName(""),
+_longName(""),
+_gainMin(-1),
+_gainMax(1),
+_gainCurrent(0),
+_offsetMin(-1),
+_offsetMax(1),
+_offsetCurrent(0)
+{
+}
+////////////////////////////////////////////////////////
 PlotInfo::PlotInfo(int id, int displayType, std::string shortName, std::string longName,
 		double gainMin, double gainMax, double gainCurrent, 
 		double offsetMin, double offsetMax, double offsetCurrent):
@@ -96,5 +110,19 @@ PlotInfo::getLongName()
 {
 	return _longName;
 }
+////////////////////////////////////////////////////////
+int 
+PlotInfo::getId()
+{
+	return _id;
+}
+////////////////////////////////////////////////////////
+int 
+PlotInfo::getDisplayType()
+{
+	return _displayType;
+}
+
+
 
 

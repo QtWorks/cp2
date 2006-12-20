@@ -9,6 +9,13 @@
 #include <qspinbox.h>	
 #include <qlcdnumber.h>
 #include <qslider.h>
+#include <qlayout.h>
+#include <qtabwidget.h>
+#include <qwidget.h>
+#include <qradiobutton.h>
+#include <qbuttongroup.h>
+#include <qvbox.h>
+#include <qframe.h>
 
 
 #include <winsock.h>
@@ -20,7 +27,6 @@ CP2Scope::CP2Scope():
 m_pDataSocket(0),    
 m_pDataSocketNotifier(0),
 m_pSocketBuf(0),	
-_plotType(ScopePlot::TIMESERIES),
 _tsDisplayCount(0),
 _productDisplayCount(0),
 _Sparams(Params::DUAL_FAST_ALT),
@@ -29,11 +35,14 @@ _collator(30)
 {
 	m_dataGramPort	= 3100;
 	m_pulseCount	= 0; 
+	_plotType = S_TIMESERIES;
 
 	// intialize the data reception socket
 	initializeSocket();	
 	// 
 	connectDataRcv(); 
+
+	initPlots();
 
 	_gainOffsetKnobs->setRanges(-5, 5, -10, 10);
 	_gainOffsetKnobs->setTitles("Gain", "Offset");
@@ -52,7 +61,6 @@ _collator(30)
 	m_dataChannel				= 1;			//	default to board-select spinner: get value from it
 
 	m_DataSetGate = 50;		//!get spinner value
-	_productType = 0; 
 
 	//	set up fft for power calculations: 
 	m_fft_blockSize = 256;	//	temp constant for initial proving 
@@ -90,55 +98,6 @@ void
 CP2Scope::plotTypeSlot(bool b)
 {
 	b = b;  // so we don't get the unreferenced warning
-	switch (buttonGroup->selectedId()) {
-		case 0:
-			_plotType = ScopePlot::TIMESERIES;
-			break;
-		case 1:
-			_plotType = ScopePlot::IVSQ;
-			break;
-		case 2:
-			_plotType = ScopePlot::SPECTRUM;
-			break;
-			//	distiguish the various producs, within one _plotType
-		case 3:
-			_plotType = ScopePlot::PRODUCT;
-			_productType = SVHVP; 
-			break;
-		case 4:
-			_plotType = ScopePlot::PRODUCT;
-			_productType = SVHHP; 
-			break;
-		case 5:
-			_plotType = ScopePlot::PRODUCT;
-			_productType = SVEL; 
-			break;
-		case 6:
-			_plotType = ScopePlot::PRODUCT;
-			_productType = SNCP; 
-			break;
-		case 7:
-			_plotType = ScopePlot::PRODUCT;
-			_productType = SWIDTH; 
-			break;
-		case 8:
-			_plotType = ScopePlot::PRODUCT;
-			_productType = SPHIDP; 
-			break;
-		case 9:
-			_plotType = ScopePlot::PRODUCT;
-			_productType = VREFL; 
-			break;
-		case 10:
-			_plotType = ScopePlot::PRODUCT;
-			_productType = HREFL; 
-			break;
-		case 11:
-			_plotType = ScopePlot::PRODUCT;
-			_productType = ZDR; 
-			break;
-		default: {}
-	}
 
 	resizeDataVectors();	//	resize data vectors
 }
@@ -180,8 +139,8 @@ void CP2Scope::resizeDataVectors()	{
 
 //////////////////////////////////////////////////////////////////////
 void CP2Scope::gainChangeSlot(double gain)	{	
-		_powerCorrection = gain; 
-		_scopeGain = pow(10.0,-gain);
+	_powerCorrection = gain; 
+	_scopeGain = pow(10.0,-gain);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -266,46 +225,44 @@ CP2Scope::processPulse(CP2Pulse* pPulse)
 	// or null if not ready
 	Beam* pBeam = 0;
 
-	switch (_plotType) {
+	PlotInfo* pi = &_plotInfo[_plotType];
+	switch (pi->getDisplayType()) 
+	{
 
 	case ScopePlot::PRODUCT:
 		{
 			if (pPulse->header.channel == 0) {
-				if(_productType ==  SPHIDP) {
-					bool horizontal = (pPulse->header.pulse_num %2);
-					_momentsSCompute->processPulse(data,
-						0,
+				bool horizontal = (pPulse->header.pulse_num %2);
+				_momentsSCompute->processPulse(data,
+					0,
+					pPulse->header.gates,
+					1.0e-6, 
+					pPulse->header.el, 
+					pPulse->header.az, 
+					pPulse->header.pulse_num,
+					horizontal);	
+				pBeam = _momentsSCompute->getNewBeam();
+			} else {
+				// copy the pulse data, since we have to save it for collation
+				CP2FullPulse* pFullPulse = new CP2FullPulse(pPulse);
+				// send the pulse to the collator
+				_collator.addPulse(pFullPulse, pFullPulse->header()->channel - 1);
+
+				// now see if we have some matching beams
+				CP2FullPulse* pHPulse;
+				CP2FullPulse* pVPulse;
+				if (_collator.gotMatch(&pHPulse, &pVPulse)) {
+					_momentsXCompute->processPulse(pHPulse->data(), 
+						pVPulse->data(),
 						pPulse->header.gates,
 						1.0e-6, 
 						pPulse->header.el, 
 						pPulse->header.az, 
 						pPulse->header.pulse_num,
-						horizontal);	
-					pBeam = _momentsSCompute->getNewBeam();
-				}
-			} else {
-				if(_productType !=  SPHIDP) {
-					// copy the pulse data, since we have to save it for collation
-					CP2FullPulse* pFullPulse = new CP2FullPulse(pPulse);
-					// send the pulse to the collator
-					_collator.addPulse(pFullPulse, pFullPulse->header()->channel - 1);
-					
-					// now see if we have some matching beams
-					CP2FullPulse* pHPulse;
-					CP2FullPulse* pVPulse;
-					if (_collator.gotMatch(&pHPulse, &pVPulse)) {
-						_momentsXCompute->processPulse(pHPulse->data(), 
-							pVPulse->data(),
-							pPulse->header.gates,
-							1.0e-6, 
-							pPulse->header.el, 
-							pPulse->header.az, 
-							pPulse->header.pulse_num,
-							true);	
-						delete pHPulse;
-						delete pVPulse;
-						pBeam = _momentsXCompute->getNewBeam();
-					}
+						true);	
+					delete pHPulse;
+					delete pVPulse;
+					pBeam = _momentsXCompute->getNewBeam();
 				}
 			}
 
@@ -313,7 +270,7 @@ CP2Scope::processPulse(CP2Pulse* pPulse)
 				// copy the selected product to the productDisplay
 				// vector
 				// return the beam
-				getProduct(pBeam, pPulse->header.gates, _productType);
+				getProduct(pBeam, pPulse->header.gates);
 				// return the beam
 				delete pBeam;
 				// update the display
@@ -343,7 +300,8 @@ CP2Scope::processPulse(CP2Pulse* pPulse)
 			}
 			break;
 		}
-	default:
+	case TIMESERIES:
+	case IVSQ:
 		{
 			if (pPulse->header.channel != m_dataChannel)
 				break;
@@ -362,56 +320,42 @@ CP2Scope::processPulse(CP2Pulse* pPulse)
 
 //////////////////////////////////////////////////////////////////////
 void 
-CP2Scope::getProduct(Beam* pBeam, int gates, int productType) 
+CP2Scope::getProduct(Beam* pBeam, int gates) 
 {
 	const Fields* fields = pBeam->getFields();
 	int i;
-	switch(productType)	
+	switch(_plotType)	
 	{
-	case SVHVP:		//	compute S-band VH V Power in dBm for display
-		for (i = 0; i < gates; i++) {
-			ProductData[i] = fields[i].dbmvc;
-		}
-		break;
-	case SVHHP:		//	compute S-band VH H Power in dBm for display
-		for (i = 0; i < gates; i++) {
-			ProductData[i] = fields[i].dbmhc;
-		}
-		break;
-	case SVEL:		//	compute S-band velocity using V and H data
-		for (i = 0; i < gates; i++) {
-			ProductData[i] = fields[i].vel;
-		}
-		break;
-	case SNCP:		//	compute S-band NCP using calculation A2*A2+B2*B2/Pv+Ph
-		break;
-	case SWIDTH:	//  compute S-band width
-		for (i = 0; i < gates; i++) {
-			ProductData[i] = fields[i].width;
-		}
-		break;			
-	case SPHIDP:	//	compute S-band phidp 
-		for (i = 0; i < gates; i++) {
-			ProductData[i] = fields[i].phidp;
-		}
-		break;			
-	case VREFL:		//	compute S-band V reflectivity  
-		for (i = 0; i < gates; i++) {
-			ProductData[i] = fields[i].dbzvc;
-		}
-		break;			
-	case HREFL:		//	compute S-band H reflectivity  
-		for (i = 0; i < gates; i++) {
-			ProductData[i] = fields[i].dbzhc;
-		}
-		break;			
-	case ZDR:		//	compute S-band Zdr 
-		for (i = 0; i < gates; i++) {
-			ProductData[i] = fields[i].zdr;
-		}
-		break;		
-	default:
-		break;
+	case S_DBMHC:	///< S-band dBm horizontal co-planar
+		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].dbmhc;  } break;
+	case S_DBMVC:	///< S-band dBm vertical co-planar
+		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].dbmvc;  } break;
+	case S_DBZHC:	///< S-band dBz horizontal co-planar
+		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].dbzhc;  } break;
+	case S_DBZVC:	///< S-band dBz vertical co-planar
+		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].dbzvc;  } break;
+	case S_RHOHV:	///< S-band rhohv
+		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].rhohv;  } break;
+	case S_WIDTH:	///< S-band spectral width
+		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].width;  } break;
+	case S_VEL:		///< S-band velocity
+		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].vel;    } break;
+	case S_SNR:		///< S-band SNR
+		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].snr;    } break;
+	case X_DBMHC:	///< X-band dBm horizontal co-planar
+		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].dbmhc;  } break;
+	case X_DBMVX:	///< X-band dBm vertical cross-planar
+		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].dbmvx;  } break;
+	case X_DBZHC:	///< X-band dBz horizontal co-planar
+		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].dbzhc;  } break;
+	case X_WIDTH:	///< X-band spectral width
+		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].width;  } break;
+	case X_VEL:		///< X-band velocity
+		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].vel;    } break;
+	case X_SNR:		///< X-band SNR
+		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].snr;    } break;
+	case X_LDR:		///< X-band LDR
+		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].ldrh;   } break;
 	}
 }
 
@@ -421,7 +365,10 @@ CP2Scope::displayData()
 {
 	// display data -- called on decimation interval if pulse set, or fft size assembled if gate set. 
 
-	switch (_plotType) {
+	PlotInfo* pi = &_plotInfo[_plotType];
+
+	switch (pi->getDisplayType())
+	{
 	case ScopePlot::TIMESERIES:
 		_scopePlot->TimeSeries(I, Q, -_scopeGain+_scopeOffset, _scopeGain+_scopeOffset, 1);
 		break;
@@ -429,44 +376,10 @@ CP2Scope::displayData()
 		_scopePlot->IvsQ(I, Q, -_scopeGain+_scopeOffset, _scopeGain+_scopeOffset, 1); 
 		break;
 	case ScopePlot::SPECTRUM:
-		//	use Spectrum() w/linear limits, linear data on y-axis:
 		_scopePlot->Spectrum(_spectrum, -100, 20.0, 1000000, false, "Frequency (Hz)", "Power (dB)");	
 		break;
 	case ScopePlot::PRODUCT:
-		//	proliferate product types here:
-		switch(_productType)	{
-	case SVHVP:		//	compute S-band VH V Power in dBm for display
-		_scopePlot->Product(ProductData, _productType, -_scopeGain+_scopeOffset, _scopeGain+_scopeOffset, m_xFullScale, "Gate", "S V Power (dBm)"); 
-		break;
-	case SVHHP:		//	compute S-band VH H Power in dBm for display
-		_scopePlot->Product(ProductData, _productType, -_scopeGain+_scopeOffset, _scopeGain+_scopeOffset, m_xFullScale, "Gate", "S H Power (dBm)"); 
-		break;
-	case SVEL:		//	compute S-band velocity using V and H data
-		_scopePlot->Product(ProductData, _productType, -_scopeGain+_scopeOffset, _scopeGain+_scopeOffset, m_xFullScale, "Gate", "Velocity (m/s)"); 
-		break;
-	case SNCP:		//	compute S-band NCP using calculation A2*A2+B2*B2/Pv+Ph
-		_scopePlot->Product(ProductData, _productType, -_scopeGain+_scopeOffset, _scopeGain+_scopeOffset, m_xFullScale, "Gate", "NCP"); 
-		break;
-	case SWIDTH:
-		_scopePlot->Product(ProductData, _productType, -_scopeGain+_scopeOffset, _scopeGain+_scopeOffset, m_xFullScale, "Gate", "Spectral Width"); 
-		break;			
-	case SPHIDP:
-		//	compute S-band phidp 
-		_scopePlot->Product(ProductData, _productType, -180.0, 180.0, m_xFullScale, "Gate", "phidp degrees"); 
-		break;			
-	case VREFL:
-		//	compute S-band V reflectivity  
-		_scopePlot->Product(ProductData, _productType, -_scopeGain+_scopeOffset, _scopeGain+_scopeOffset, m_xFullScale, "Gate", "V Reflectivity"); 
-		break;			
-	case HREFL:
-		//	compute S-band H reflectivity  
-		_scopePlot->Product(ProductData, _productType, -_scopeGain+_scopeOffset, _scopeGain+_scopeOffset, m_xFullScale, "Gate", "H Reflectivity"); 
-		break;			
-	case ZDR:
-		//	compute S-band Zdr 
-		_scopePlot->Product(ProductData, _productType, -_scopeGain+_scopeOffset, _scopeGain+_scopeOffset, m_xFullScale, "Gate", "Zdr"); 
-		break;			
-		}
+		_scopePlot->Product(ProductData, pi->getId(), -_scopeGain+_scopeOffset, _scopeGain+_scopeOffset, 1);
 		break;
 	}
 }
@@ -566,4 +479,189 @@ CP2Scope::powerSpectrum()
 	zeroMoment = 10.0*log10(zeroMoment);
 
 	return zeroMoment;
+}
+////////////////////////////////////////////////////////////////////
+void
+CP2Scope::initPlots()
+{
+
+	// Here are all of the possible plot types:
+	//	S_TIMESERIES,	// S time series
+	//	XH_TIMESERIES,	// Xh time series
+	//	XV_TIMESERIES,	// Xv time series
+	//	S_IQ,			// S IQ
+	//	XH_IQ,			// Xh IQ
+	//	XV_IQ,			// Xv IQ
+	//	S_SPECTRUM,		// S spectrum 
+	//	XH_SPECTRUM,	// Xh spectrum 
+	//	XV_SPECTRUM,	// Xv spectrum 
+	//	S_DBMHC,	// S-band dBm horizontal co-planar
+	//	S_DBMVC,	// S-band dBm vertical co-planar
+	//	S_DBZHC,	// S-band dBz horizontal co-planar
+	//	S_DBZVC,	// S-band dBz vertical co-planar
+	//	S_RHOHV,	// S-band rhohv
+	//	S_WIDTH,	// S-band spectral width
+	//	S_VEL,		// S-band velocity
+	//	S_SNR,		// S-band SNR
+	//	X_DBMHC,	// X-band dBm horizontal co-planar
+	//	X_DBMVX,	// X-band dBm vertical cross-planar
+	//	X_DBZHC,	// X-band dBz horizontal co-planar
+	//	X_SNR,		// X-band SNR
+	//	X_WIDTH,	// X-band spectral width
+	//	X_VEL,		// X-band velocity
+	//	X_SNR,		// X-band SNR
+	//	X_LDR		// X-band LDR
+
+	_timeSeriesPlots.insert(S_TIMESERIES);
+	_timeSeriesPlots.insert(XH_TIMESERIES);
+	_timeSeriesPlots.insert(XV_TIMESERIES);
+
+	_iqPlots.insert(S_IQ);
+	_iqPlots.insert(XH_IQ);
+	_iqPlots.insert(XV_IQ);
+
+	_spectrumPlots.insert(S_SPECTRUM);
+	_spectrumPlots.insert(XH_SPECTRUM);
+	_spectrumPlots.insert(XV_SPECTRUM);
+
+	_momentsPlots.insert(S_DBMHC);
+	_momentsPlots.insert(S_DBMVC);
+	_momentsPlots.insert(S_DBZHC);
+	_momentsPlots.insert(S_DBZVC);
+	_momentsPlots.insert(S_RHOHV);
+	_momentsPlots.insert(S_WIDTH);
+	_momentsPlots.insert(S_VEL);
+	_momentsPlots.insert(S_SNR);
+	_momentsPlots.insert(X_DBMHC);
+	_momentsPlots.insert(X_DBMVX);
+	_momentsPlots.insert(X_DBZHC);
+	_momentsPlots.insert(X_SNR);
+	_momentsPlots.insert(X_WIDTH);
+	_momentsPlots.insert(X_VEL);
+	_momentsPlots.insert(X_SNR);
+	_momentsPlots.insert(X_LDR);
+
+	_sMomentsPlots.insert(S_DBMHC);
+	_sMomentsPlots.insert(S_DBMVC);
+	_sMomentsPlots.insert(S_DBZHC);
+	_sMomentsPlots.insert(S_DBZVC);
+	_sMomentsPlots.insert(S_RHOHV);
+	_sMomentsPlots.insert(S_WIDTH);
+	_sMomentsPlots.insert(S_VEL);
+	_sMomentsPlots.insert(S_SNR);
+
+	_xMomentsPlots.insert(X_DBMHC);
+	_xMomentsPlots.insert(X_DBMVX);
+	_xMomentsPlots.insert(X_DBZHC);
+	_xMomentsPlots.insert(X_SNR);
+	_xMomentsPlots.insert(X_WIDTH);
+	_xMomentsPlots.insert(X_VEL);
+	_xMomentsPlots.insert(X_SNR);
+	_xMomentsPlots.insert(X_LDR);
+
+	_plotInfo[S_TIMESERIES]  = PlotInfo( S_TIMESERIES, TIMESERIES, "S band", "S Band I&Q", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_plotInfo[XH_TIMESERIES] = PlotInfo(XH_TIMESERIES, TIMESERIES, "S band", "S Band I vs Q", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_plotInfo[XV_TIMESERIES] = PlotInfo(XV_TIMESERIES, TIMESERIES, "S band", "S Band Power Spectrum", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_plotInfo[S_IQ]          = PlotInfo(         S_IQ,       IVSQ, "S band", "S band", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_plotInfo[XH_IQ]         = PlotInfo(        XH_IQ,       IVSQ, "S band", "S band", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_plotInfo[XV_IQ]         = PlotInfo(        XV_IQ,       IVSQ, "S band", "S band", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_plotInfo[S_SPECTRUM]    = PlotInfo(   S_SPECTRUM,   SPECTRUM, "S band", "S band", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_plotInfo[XH_SPECTRUM]   = PlotInfo(  XH_SPECTRUM,   SPECTRUM, "S band", "S band", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_plotInfo[XV_SPECTRUM]   = PlotInfo(  XV_SPECTRUM,   SPECTRUM, "S band", "S band", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_plotInfo[S_DBMHC]       = PlotInfo(      S_DBMHC,    PRODUCT, "S band", "S band", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_plotInfo[S_DBMVC]       = PlotInfo(      S_DBMVC,    PRODUCT, "S band", "S band", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_plotInfo[S_DBZHC]       = PlotInfo(      S_DBZHC,    PRODUCT, "S band", "S band", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_plotInfo[S_DBZVC]       = PlotInfo(      S_DBZVC,    PRODUCT, "S band", "S band", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_plotInfo[S_RHOHV]       = PlotInfo(      S_RHOHV,    PRODUCT, "S band", "S band", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_plotInfo[S_WIDTH]       = PlotInfo(      S_WIDTH,    PRODUCT, "S band", "S band", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_plotInfo[S_VEL]         = PlotInfo(        S_VEL,    PRODUCT, "S band", "S band", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_plotInfo[S_SNR]         = PlotInfo(        S_SNR,    PRODUCT, "S band", "S band", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_plotInfo[X_DBMHC]       = PlotInfo(      X_DBMHC,    PRODUCT, "S band", "S band", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_plotInfo[X_DBMVX]       = PlotInfo(      X_DBMVX,    PRODUCT, "S band", "S band", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_plotInfo[X_DBZHC]       = PlotInfo(      X_DBZHC,    PRODUCT, "S band", "S band", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_plotInfo[X_SNR]         = PlotInfo(        X_SNR,    PRODUCT, "S band", "S band", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_plotInfo[X_WIDTH]       = PlotInfo(      X_WIDTH,    PRODUCT, "S band", "S band", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_plotInfo[X_VEL]         = PlotInfo(        X_VEL,    PRODUCT, "S band", "S band", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_plotInfo[X_SNR]         = PlotInfo(        X_SNR,    PRODUCT, "S band", "S band", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_plotInfo[X_LDR]         = PlotInfo(        X_LDR,    PRODUCT, "S band", "S band", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+
+	QWidget* pPage;
+	QButtonGroup* pGroup;
+	QVBoxLayout* pVbox;
+	QVBoxLayout* pButtonVbox;
+	QRadioButton* pRadio;
+	QFrame* pFrame;
+
+/**
+    Xproducts = new QWidget( _typeTab, "Xproducts" );
+    XproductsLayout = new QVBoxLayout( Xproducts, 11, 6, "XproductsLayout"); 
+
+	buttonGroup7 = new QButtonGroup( Xproducts, "buttonGroup7" );
+    buttonGroup7->setColumnLayout(0, Qt::Vertical );
+    buttonGroup7->layout()->setSpacing( 6 );
+    buttonGroup7->layout()->setMargin( 11 );
+    buttonGroup7Layout = new QVBoxLayout( buttonGroup7->layout() );
+    buttonGroup7Layout->setAlignment( Qt::AlignTop );
+
+    radioButton19 = new QRadioButton( buttonGroup7, "radioButton19" );
+    buttonGroup7Layout->addWidget( radioButton19 );
+
+    radioButton20 = new QRadioButton( buttonGroup7, "radioButton20" );
+    buttonGroup7Layout->addWidget( radioButton20 );
+
+    radioButton21 = new QRadioButton( buttonGroup7, "radioButton21" );
+    buttonGroup7Layout->addWidget( radioButton21 );
+    XproductsLayout->addWidget( buttonGroup7 );
+    _typeTab->insertTab( Xproducts, QString::fromLatin1("") );
+**/
+
+	_typeTab->removePage(_typeTab->page(0));
+
+	pPage = new QWidget(_typeTab, "Chan");
+	pVbox = new QVBoxLayout(pPage);
+
+	pGroup = new QButtonGroup(pPage);
+    pGroup->setColumnLayout(0, Qt::Vertical );
+    pGroup->layout()->setSpacing( 6 );
+    pGroup->layout()->setMargin( 11 );
+
+	pButtonVbox = new QVBoxLayout(pGroup->layout());
+    pButtonVbox->setAlignment( Qt::AlignTop );
+
+	std::set<PLOTTYPE>::iterator i;
+	for (i = _timeSeriesPlots.begin(); i != _timeSeriesPlots.end(); i++) 
+	{
+		int id = _plotInfo[*i].getId();
+		pRadio = new QRadioButton(pGroup);
+		pGroup->insert(pRadio, id);
+		const QString label = _plotInfo[*i].getLongName().c_str();
+		pRadio->setText(label);
+		pButtonVbox->addWidget(pRadio);
+	}
+
+	for (i = _iqPlots.begin(); i != _iqPlots.end(); i++) 
+	{
+		int id = _plotInfo[*i].getId();
+		pRadio = new QRadioButton(pGroup);
+		pGroup->insert(pRadio, id);
+		const QString label = _plotInfo[*i].getLongName().c_str();
+		pRadio->setText(label);
+		pButtonVbox->addWidget(pRadio);
+	}
+
+	for (i = _spectrumPlots.begin(); i != _spectrumPlots.end(); i++) 
+	{
+		int id = _plotInfo[*i].getId();
+		pRadio = new QRadioButton(pGroup);
+		pGroup->insert(pRadio, id);
+		const QString label = _plotInfo[*i].getLongName().c_str();
+		pRadio->setText(label);
+		pButtonVbox->addWidget(pRadio);
+	}
+
+
+	pVbox->addWidget(pGroup);
+	_typeTab->insertTab(pPage, "my tab");
+
+
 }

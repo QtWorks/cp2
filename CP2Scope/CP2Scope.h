@@ -6,6 +6,8 @@
 #include <qsocketnotifier.h>
 #include <qevent.h>
 #include <deque>
+#include <set>
+#include <map>
 
 // the fastest fft in the west; used for power spectrum calcs.
 #include <fftw3.h>
@@ -21,6 +23,9 @@
 
 // CP2 pulse collator
 #include "CP2PulseCollator.h"
+
+// PlotInfo knows the characteristics of a plot
+#include "PlotInfo.h"
 
 // Clases used in the moments computatons:
 #include "MomentsCompute.hh"
@@ -38,20 +43,42 @@ enum	{
 	DATA_SETS	
 }; 
 
-//	product types:
-enum	{	
-	SVHVP,	
-	SVHHP,	
-	SVEL,	
-	SNCP,	
-	SWIDTH,	
-	SPHIDP,	
-	VREFL,	
-	HREFL,	
-	ZDR	
+// product types:
+enum	PLOTTYPE {	
+	S_TIMESERIES,	///< S time series
+	XH_TIMESERIES,	///< Xh time series
+	XV_TIMESERIES,	///< Xv time series
+	S_IQ,			///< S IQ
+	XH_IQ,			///< Xh IQ
+	XV_IQ,			///< Xv IQ
+	S_SPECTRUM,		///< S spectrum 
+	XH_SPECTRUM,	///< Xh spectrum 
+	XV_SPECTRUM,	///< Xv spectrum 
+	S_DBMHC,	///< S-band dBm horizontal co-planar
+	S_DBMVC,	///< S-band dBm vertical co-planar
+	S_DBZHC,	///< S-band dBz horizontal co-planar
+	S_DBZVC,	///< S-band dBz vertical co-planar
+	S_RHOHV,	///< S-band rhohv
+	S_WIDTH,	///< S-band spectral width
+	S_VEL,		///< S-band velocity
+	S_SNR,		///< S-band SNR
+	X_DBMHC,	///< X-band dBm horizontal co-planar
+	X_DBMVX,	///< X-band dBm vertical cross-planar
+	X_DBZHC,	///< X-band dBz horizontal co-planar
+	X_WIDTH,	///< X-band spectral width
+	X_VEL,		///< X-band velocity
+	X_SNR,		///< X-band SNR
+	X_LDR		///< X-band LDR
 }; 
 
-//
+// types of plots available
+enum SCOPEPLOTTYPE {
+	TIMESERIES,
+	IVSQ,
+	SPECTRUM,
+	PRODUCT
+};
+
 
 class CP2Scope : public CP2ScopeBase {
 	Q_OBJECT
@@ -97,9 +124,7 @@ protected:
 
 	char*   m_pSocketBuf;
 
-	//   enum PLOTTYPE {TIMESERIES=0, IVSQ=1, SPECTRUM=2, PRODUCT=3};
-	ScopePlot::PLOTTYPE _plotType;
-	int				_productType;
+	PLOTTYPE        _plotType;
 	int				_dataSet;		//	data grouping for scope displays: along pulse, or gate
 	unsigned int	_dataSetSize;	//	size of data vector for display or calculations 
 
@@ -147,12 +172,12 @@ protected:
 	/// @param pPulse The pulse to be processed.
 	void processPulse(CP2Pulse* pPulse);
 
-	/// copy the selected product from the beam
-	/// into the _productData vector.
+	/// copy the selected product from the beam moments
+	/// into the _productData vector. _plotType will determine
+	/// which field to use from the moments.
 	/// @param pBeam The beam containing the moment results
 	/// @param gates The number of gates
-	/// @param product type
-	void getProduct(Beam* pBeam, int gates, int productType);
+	void getProduct(Beam* pBeam, int gates);
 
 	/// Counter of time series, used for decimating 
 	/// the timeseries (and I/Q and Spectrum)
@@ -175,6 +200,30 @@ protected:
 	std::vector<CP2FullPulse*> _xHPulses;
 	std::vector<CP2FullPulse*> _xVPulses;
 
+	/// For each PLOTTYPE, there will be an entry in this map.
+	std::map<PLOTTYPE, PlotInfo> _plotInfo;
+
+	/// This set contains PLOTTYPEs for all timeseries plots
+	std::set<PLOTTYPE> _timeSeriesPlots;
+
+	/// This set contains PLOTTYPEs for all IQ plots
+	std::set<PLOTTYPE> _iqPlots;
+
+	/// This set contains PLOTTYPEs for all spectrum plots
+	std::set<PLOTTYPE> _spectrumPlots;
+
+	/// This set contains PLOTTYPEs for all moments plots
+	std::set<PLOTTYPE> _momentsPlots;
+
+	/// This set contains PLOTTYPEs for all S moments plots
+	std::set<PLOTTYPE> _sMomentsPlots;
+
+	/// This set contains PLOTTYPEs for all X moments plots
+	std::set<PLOTTYPE> _xMomentsPlots;
+
+	/// initialize all of the book keeping structures
+	/// for the various plots.
+	void initPlots();
 
 };
 
