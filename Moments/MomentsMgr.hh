@@ -86,10 +86,7 @@ public:
   int getNSamples() const { return _nSamples; }
   Params::moments_mode_t getMode() const { return _momentsParams.mode; }
   double getStartRange() const { return _startRange; }
-  double getGateSpacing() const { return _gateSpacing; }
-  double getLowerPrf() const { return _momentsParams.lower_prf; }
-  double getUpperPrf() const { return _momentsParams.upper_prf; }
-  
+  double getGateSpacing() const { return _gateSpacing; }  
   const double *getRangeCorr() const { return _rangeCorr; }
   
   Moments::window_t getFftWindow() const { return _fftWindow; }

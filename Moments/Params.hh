@@ -69,8 +69,6 @@ public:
 
   typedef struct {
     int n_samples;
-    double lower_prf;
-    double upper_prf;
     double start_range;
     double gate_spacing;
     algorithm_t algorithm;
