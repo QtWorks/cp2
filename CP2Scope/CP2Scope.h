@@ -62,6 +62,8 @@ enum	PLOTTYPE {
 	S_VEL,		///< S-band velocity
 	S_WIDTH,	///< S-band spectral width
 	S_RHOHV,	///< S-band rhohv
+	S_PHIDP,	///< S-band phidp
+	S_ZDR,		///< S-band zdr
 	X_DBMHC,	///< X-band dBm horizontal co-planar
 	X_DBMVX,	///< X-band dBm vertical cross-planar
 	X_DBZHC,	///< X-band dBz horizontal co-planar

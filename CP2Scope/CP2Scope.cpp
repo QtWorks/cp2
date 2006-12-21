@@ -349,6 +349,10 @@ CP2Scope::getProduct(Beam* pBeam, int gates)
 		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].dbzvc;  } break;
 	case S_RHOHV:	///< S-band rhohv
 		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].rhohv;  } break;
+	case S_PHIDP:	///< S-band phidp
+		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].phidp;  } break;
+	case S_ZDR:	///< S-band phidp
+		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].zdr;  } break;
 	case S_WIDTH:	///< S-band spectral width
 		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].width;  } break;
 	case S_VEL:		///< S-band velocity
@@ -547,33 +551,6 @@ void
 CP2Scope::initPlots()
 {
 
-	// Here are all of the possible plot types:
-	//	S_TIMESERIES,	// S time series
-	//	XH_TIMESERIES,	// Xh time series
-	//	XV_TIMESERIES,	// Xv time series
-	//	S_IQ,			// S IQ
-	//	XH_IQ,			// Xh IQ
-	//	XV_IQ,			// Xv IQ
-	//	S_SPECTRUM,		// S spectrum 
-	//	XH_SPECTRUM,	// Xh spectrum 
-	//	XV_SPECTRUM,	// Xv spectrum 
-	//	S_DBMHC,	// S-band dBm horizontal co-planar
-	//	S_DBMVC,	// S-band dBm vertical co-planar
-	//	S_DBZHC,	// S-band dBz horizontal co-planar
-	//	S_DBZVC,	// S-band dBz vertical co-planar
-	//	S_RHOHV,	// S-band rhohv
-	//	S_WIDTH,	// S-band spectral width
-	//	S_VEL,		// S-band velocity
-	//	S_SNR,		// S-band SNR
-	//	X_DBMHC,	// X-band dBm horizontal co-planar
-	//	X_DBMVX,	// X-band dBm vertical cross-planar
-	//	X_DBZHC,	// X-band dBz horizontal co-planar
-	//	X_SNR,		// X-band SNR
-	//	X_WIDTH,	// X-band spectral width
-	//	X_VEL,		// X-band velocity
-	//	X_SNR,		// X-band SNR
-	//	X_LDR		// X-band LDR
-
 	_rawPlots.insert(S_TIMESERIES);
 	_rawPlots.insert(XH_TIMESERIES);
 	_rawPlots.insert(XV_TIMESERIES);
@@ -590,10 +567,12 @@ CP2Scope::initPlots()
 	_sMomentsPlots.insert(S_DBMVC);
 	_sMomentsPlots.insert(S_DBZHC);
 	_sMomentsPlots.insert(S_DBZVC);
-	_sMomentsPlots.insert(S_RHOHV);
 	_sMomentsPlots.insert(S_WIDTH);
 	_sMomentsPlots.insert(S_VEL);
 	_sMomentsPlots.insert(S_SNR);
+	_sMomentsPlots.insert(S_RHOHV);
+	_sMomentsPlots.insert(S_PHIDP);
+	_sMomentsPlots.insert(S_ZDR);
 
 	_xMomentsPlots.insert(X_DBMHC);
 	_xMomentsPlots.insert(X_DBMVX);
@@ -617,10 +596,12 @@ CP2Scope::initPlots()
 	_plotInfo[S_DBMVC]       = PlotInfo(      S_DBMVC,    PRODUCT, "V Dbm", "Sv: Dbm", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
 	_plotInfo[S_DBZHC]       = PlotInfo(      S_DBZHC,    PRODUCT, "H Dbz", "Sh: Dbz", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
 	_plotInfo[S_DBZVC]       = PlotInfo(      S_DBZVC,    PRODUCT, "V Dbz", "Sv: Dbz", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_plotInfo[S_RHOHV]       = PlotInfo(      S_RHOHV,    PRODUCT, "Rhohv", "S:  Rhohv", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
 	_plotInfo[S_WIDTH]       = PlotInfo(      S_WIDTH,    PRODUCT, "Width", "S:  Width", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
 	_plotInfo[S_VEL]         = PlotInfo(        S_VEL,    PRODUCT, "Velocity", "S:  Velocity", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
 	_plotInfo[S_SNR]         = PlotInfo(        S_SNR,    PRODUCT, "SNR", "S:  SNR", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_plotInfo[S_RHOHV]       = PlotInfo(      S_RHOHV,    PRODUCT, "Rhohv", "S:  Rhohv", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_plotInfo[S_PHIDP]       = PlotInfo(      S_RHOHV,    PRODUCT, "Phidp", "S:  Phidp", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_plotInfo[S_ZDR]         = PlotInfo(      S_ZDR,      PRODUCT, "Zdr", "S:  Zdr", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
 	_plotInfo[X_DBMHC]       = PlotInfo(      X_DBMHC,    PRODUCT, "H Dbm", "Xh: Dbm", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
 	_plotInfo[X_DBMVX]       = PlotInfo(      X_DBMVX,    PRODUCT, "V Cross Dbm", "Xv: Dbm", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
 	_plotInfo[X_DBZHC]       = PlotInfo(      X_DBZHC,    PRODUCT, "H Dbz", "Xh: Dbz", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
