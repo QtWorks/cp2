@@ -79,7 +79,7 @@ Params::setDefault()
   vx_receiver.dbz0 = -48.0;
 
   // moments manager params
-  moments_params.n_samples = 32;
+  moments_params.n_samples = 64;
   moments_params.start_range = 0.075;
   moments_params.start_range = 0.150;
   moments_params.algorithm = ALG_PP;

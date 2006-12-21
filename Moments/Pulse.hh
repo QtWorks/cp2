@@ -63,7 +63,7 @@ public:
   // get methods
 
   int getNGates() const { return _nGates; }
-  long getSeqNum() const { return _seqNum; }
+  long long getSeqNum() const { return _seqNum; }
   double getTime() const { return _time; } // secs in decimal
   double getPrt() const { return _prt; }
   double getPrf() const { return _prf; }

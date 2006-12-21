@@ -44,7 +44,7 @@ _params(params)
 
 	_momentsMgr = NULL;
 
-	_nSamples = 64;
+	_nSamples = _params.moments_params.n_samples;
 	_maxPulseQueueSize = 0;
 
 	_midIndex1 = 0;
