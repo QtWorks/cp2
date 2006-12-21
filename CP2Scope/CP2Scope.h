@@ -97,6 +97,9 @@ public slots:
 	void dataSocketActivatedSlot(
 		int socket         ///< File descriptor of the data socket
 		);
+	virtual void plotTypeSlot(int plotType);
+	void tabChangeSlot(QWidget* w);
+
 	virtual void gainChangeSlot( double );	
 	virtual void offsetChangeSlot( double );	
 	virtual void dataSetSlot(bool);
@@ -113,6 +116,8 @@ protected:
 	int				m_pulseCount;					///<	cumulative pulse count
 	unsigned int	m_pulseDisplayDecimation;		///<	decimation factor for along range (DATA_SET_PULSE) display: currently set 50
 	unsigned int	m_productsDisplayDecimation;	///<	decimation factor for products display: currently set 50
+	double          _gain;
+	double          _offset;
 	double			_scopeGain;						///<	
 	double			_scopeOffset;						///<	
 	double			m_xFullScale;					///<	x-scale max
@@ -206,24 +211,33 @@ protected:
 	/// This set contains PLOTTYPEs for all timeseries plots
 	std::set<PLOTTYPE> _timeSeriesPlots;
 
-	/// This set contains PLOTTYPEs for all IQ plots
-	std::set<PLOTTYPE> _iqPlots;
+	/// This set contains PLOTTYPEs for all raw data plots
+	std::set<PLOTTYPE> _rawPlots;
 
-	/// This set contains PLOTTYPEs for all spectrum plots
-	std::set<PLOTTYPE> _spectrumPlots;
-
-	/// This set contains PLOTTYPEs for all moments plots
-	std::set<PLOTTYPE> _momentsPlots;
-
-	/// This set contains PLOTTYPEs for all S moments plots
+	/// This set contains PLOTTYPEs for all S band moments plots
 	std::set<PLOTTYPE> _sMomentsPlots;
 
-	/// This set contains PLOTTYPEs for all X moments plots
+	/// This set contains PLOTTYPEs for all X band moments plots
 	std::set<PLOTTYPE> _xMomentsPlots;
+
+	/// save the button group for each tab,
+	/// so that we can find the selected button
+	/// and change the plot type when tabs are switched.
+	std::vector<QButtonGroup*> _tabButtonGroups;
 
 	/// initialize all of the book keeping structures
 	/// for the various plots.
 	void initPlots();
+	/// add a tab to the plot type selection tab widget.
+	/// Radio buttons are created for all of specified
+	/// plty types, and grouped into one button group.
+	/// _plotInfo provides the label information for
+	/// the radio buttons.
+	/// @param tabName The title for the tab.
+	/// @param types A set of the desired PLOTTYPE types 
+	/// @return The button group that the inserted buttons
+	/// belong to.
+	QButtonGroup* addPlotTypeTab(std::string tabName, std::set<PLOTTYPE> types);
 
 };
 
