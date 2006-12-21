@@ -32,29 +32,29 @@ _tsDisplayCount(0),
 _productDisplayCount(0),
 _Sparams(Params::DUAL_FAST_ALT),
 _Xparams(Params::DUAL_CP2_XBAND),
-_collator(30)
+_collator(1000)
 {
 	m_dataGramPort	= 3100;
 	m_pulseCount	= 0; 
 	_plotType = S_TIMESERIES;
 
-	// intialize the data reception socket
+	// intialize the data reception socket.
+	// set up the ocket notifier and connect it
+	// to the data reception slot
 	initializeSocket();	
-	// 
-	connectDataRcv(); 
 
 	// initialize the book keeping for the plots.
 	// This also sets up the radio buttons 
 	// in the plot type tab widget
-		initPlots();
-
-	// set the intial plot type
-	plotTypeSlot(S_TIMESERIES);
+	initPlots();
 
 	_gainOffsetKnobs->setRanges(-5, 5, -10, 10);
 	_gainOffsetKnobs->setTitles("Gain", "Offset");
 	_scopeGain = 1;
 	_scopeOffset = 0.0;
+
+	// set the intial plot type
+	plotTypeSlot(S_TIMESERIES);
 
 	m_xFullScale = 980;
 	I.resize(m_xFullScale);			//	default timeseries array size full range at 1KHz
@@ -63,7 +63,7 @@ _collator(30)
 	_dataSet = DATA_SET_PULSE;
 
 	//	display decimation, set to get ~50/sec
-	m_pulseDisplayDecimation	= 50;	//	default w/prt = 1000Hz, timeseries data 
+	m_pulseDisplayDecimation	= 10;	//	default w/prt = 1000Hz, timeseries data 
 	m_productsDisplayDecimation	= 5;	//	default w/prt = 1000Hz, hits = 10, products data
 
 	m_DataSetGate = 50;		//!get spinner value
@@ -78,7 +78,10 @@ _collator(30)
 	//	power correction factor applied to (uncorrected) powerSpectrum() output:
 	_powerCorrection = 0.0;	//	use for power correction to dBm
 
+	// create the moment compute engine for S band
 	_momentsSCompute = new MomentsCompute(_Sparams);
+
+	// create the moment compute engine for X band
 	_momentsXCompute = new MomentsCompute(_Xparams);
 
 
@@ -181,15 +184,6 @@ CP2Scope::xFullScaleBox_valueChanged( int xFullScale )	{
 	resizeDataVectors();	//	resize data vectors
 }
 
-
-//////////////////////////////////////////////////////////////////////
-void
-CP2Scope::connectDataRcv()	// connect notifier to data-receive slot 
-{
-	connect(m_pDataSocketNotifier, SIGNAL(activated(int)), this, SLOT(dataSocketActivatedSlot(int)));
-}
-
-
 //////////////////////////////////////////////////////////////////////
 void 
 CP2Scope::dataSocketActivatedSlot(int socket)
@@ -227,6 +221,7 @@ CP2Scope::dataSocketActivatedSlot(int socket)
 void
 CP2Scope::processPulse(CP2Pulse* pPulse) 
 {
+	static int outCount = 0;
 	float* data = &(pPulse->data[0]);
 
 	// beam will point to computed moments when they are ready,
@@ -237,40 +232,86 @@ CP2Scope::processPulse(CP2Pulse* pPulse)
 	switch (pi->getDisplayType()) 
 	{
 
+		// for a product display, send the pulse to the moments compute engine.
+		// and then send the moments to the display when a Beam is ready.
 	case ScopePlot::PRODUCT:
 		{
+			// S band pulses: are successive coplaner H and V pulses
+			// this horizontal switch is a hack for now; we really
+			// need to find the h/v flag in the pulse header.
 			if (pPulse->header.channel == 0) {
-				bool horizontal = (pPulse->header.pulse_num %2);
-				_momentsSCompute->processPulse(data,
-					0,
-					pPulse->header.gates,
-					1.0e-6, 
-					pPulse->header.el, 
-					pPulse->header.az, 
-					pPulse->header.pulse_num,
-					horizontal);	
-				pBeam = _momentsSCompute->getNewBeam();
-			} else {
-				// copy the pulse data, since we have to save it for collation
-				CP2FullPulse* pFullPulse = new CP2FullPulse(pPulse);
-				// send the pulse to the collator
-				_collator.addPulse(pFullPulse, pFullPulse->header()->channel - 1);
-
-				// now see if we have some matching beams
-				CP2FullPulse* pHPulse;
-				CP2FullPulse* pVPulse;
-				if (_collator.gotMatch(&pHPulse, &pVPulse)) {
-					_momentsXCompute->processPulse(pHPulse->data(), 
-						pVPulse->data(),
+				if (_sMomentsPlots.find(_plotType) != _sMomentsPlots.end())
+				{
+					bool horizontal = (pPulse->header.pulse_num %2);
+					_momentsSCompute->processPulse(data,
+						0,
 						pPulse->header.gates,
 						1.0e-6, 
 						pPulse->header.el, 
 						pPulse->header.az, 
 						pPulse->header.pulse_num,
-						true);	
-					delete pHPulse;
-					delete pVPulse;
-					pBeam = _momentsXCompute->getNewBeam();
+						horizontal);	
+					// ask for a completed beam. The return value will be
+					// 0 if nothing is ready yet.
+					pBeam = _momentsSCompute->getNewBeam();
+				} else {
+					pBeam = 0;
+				}
+			} else {
+				if (_sMomentsPlots.find(_plotType)==_sMomentsPlots.end())
+				{
+
+					// X band will have H coplanar pulse on channel 1
+					// and V cross planar pulses on channel 2. We need
+					// to buffer up the data from the pulses and send it to 
+					// the collator to match beam numbers, since matching
+					// pulses (i.e. identical pulse numbers) are required
+					// for the moments calculations.
+
+					// create a CP2FullPuse, which is a class that will
+					// hold the IQ data.
+					CP2FullPulse* pFullPulse = new CP2FullPulse(pPulse);
+
+					// send the pulse to the collator. The collator finds matching 
+					// pulses. If orphan pulses are detected, they are deleted
+					// by the collator. Otherwise, matching pulses returned from
+					// the collator can be deleted here.
+					_collator.addPulse(pFullPulse, pFullPulse->header()->channel - 1);
+//					if(outCount++ < 1000)
+//						std::cout <<"add chan " << pFullPulse->header()->channel << " " 
+//						<< pFullPulse->header()->pulse_num << "\n";
+
+					// now see if we have some matching pulses
+					CP2FullPulse* pHPulse;
+					CP2FullPulse* pVPulse;
+					if (_collator.gotMatch(&pHPulse, &pVPulse)) {
+						//if(outCount++ < 1000)
+						//	std::cout <<"  match " 
+						//	<< pHPulse->header()->pulse_num << "\n";
+						// a matching pair was found. Send them to the X band
+						// moments compute engine.
+						_momentsXCompute->processPulse(
+							pHPulse->data(), 
+							pVPulse->data(),
+							pPulse->header.gates,
+							1.0e-6, 
+							pPulse->header.el, 
+							pPulse->header.az, 
+							pPulse->header.pulse_num,
+							true);	
+						// finished with these pulses, so delete them.
+						delete pHPulse;
+						delete pVPulse;
+						// ask for a completed beam. The return value will be
+						// 0 if nothing is ready yet.
+						pBeam = _momentsXCompute->getNewBeam();
+						//if (pBeam){
+						//	if(outCount++ < 1000)
+						//		std::cout << "    *** beam\n";
+						//}
+					}else {
+						pBeam = 0;
+					}
 				}
 			}
 
@@ -396,7 +437,7 @@ CP2Scope::displayData()
 		_scopePlot->Spectrum(_spectrum, -100, 20.0, 1000000, false, "Frequency (Hz)", "Power (dB)");	
 		break;
 	case ScopePlot::PRODUCT:
-		_scopePlot->Product(ProductData, pi->getId(), -_scopeGain+_scopeOffset, _scopeGain+_scopeOffset, 1);
+		_scopePlot->Product(ProductData, pi->getId(), -_scopeGain+_scopeOffset, _scopeGain+_scopeOffset, ProductData.size());
 		break;
 	}
 }
@@ -451,6 +492,8 @@ CP2Scope::initializeSocket()
 	}
 
 	m_pDataSocketNotifier = new QSocketNotifier(m_pDataSocket->socket(), QSocketNotifier::Read);
+
+	connect(m_pDataSocketNotifier, SIGNAL(activated(int)), this, SLOT(dataSocketActivatedSlot(int)));
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -506,7 +549,7 @@ CP2Scope::plotTypeSlot(int newPlotType)
 	}
 
 	PlotInfo* pi;
-	
+
 	// save the gain and offset of the existing plot type
 	pi = &_plotInfo[_plotType];
 	pi->setGain(pi->getGainMin(), pi->getGainMax(), _gain);

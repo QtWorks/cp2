@@ -88,7 +88,6 @@ public:
 	CP2Scope();
 	~CP2Scope();
 	void initializeSocket(); 
-	void connectDataRcv();
 	void displayData(); 
 	void resizeDataVectors(); 
 
@@ -176,7 +175,7 @@ protected:
 
 	/// Process the pulse, feeding it to the moments processor
 	/// if a product display is requested.
-	/// @param pPulse The pulse to be processed.
+	/// @param pPulse The pulse to be processed. 
 	void processPulse(CP2Pulse* pPulse);
 
 	/// copy the selected product from the beam moments
