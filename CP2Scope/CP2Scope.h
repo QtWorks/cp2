@@ -58,16 +58,16 @@ enum	PLOTTYPE {
 	S_DBMVC,	///< S-band dBm vertical co-planar
 	S_DBZHC,	///< S-band dBz horizontal co-planar
 	S_DBZVC,	///< S-band dBz vertical co-planar
-	S_RHOHV,	///< S-band rhohv
-	S_WIDTH,	///< S-band spectral width
-	S_VEL,		///< S-band velocity
 	S_SNR,		///< S-band SNR
+	S_VEL,		///< S-band velocity
+	S_WIDTH,	///< S-band spectral width
+	S_RHOHV,	///< S-band rhohv
 	X_DBMHC,	///< X-band dBm horizontal co-planar
 	X_DBMVX,	///< X-band dBm vertical cross-planar
 	X_DBZHC,	///< X-band dBz horizontal co-planar
-	X_WIDTH,	///< X-band spectral width
-	X_VEL,		///< X-band velocity
 	X_SNR,		///< X-band SNR
+	X_VEL,		///< X-band velocity
+	X_WIDTH,	///< X-band spectral width
 	X_LDR		///< X-band LDR
 }; 
 
