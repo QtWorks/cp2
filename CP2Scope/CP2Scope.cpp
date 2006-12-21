@@ -50,6 +50,11 @@ _collator(1000)
 
 	_gainOffsetKnobs->setRanges(-5, 5, -10, 10);
 	_gainOffsetKnobs->setTitles("Gain", "Offset");
+
+	// set the minor ticks
+	_gainOffsetKnobs->setScaleMaxMinor(1, 5);
+	_gainOffsetKnobs->setScaleMaxMinor(2, 5);
+
 	_scopeGain = 1;
 	_scopeOffset = 0.0;
 
@@ -63,7 +68,7 @@ _collator(1000)
 	_dataSet = DATA_SET_PULSE;
 
 	//	display decimation, set to get ~50/sec
-	m_pulseDisplayDecimation	= 10;	//	default w/prt = 1000Hz, timeseries data 
+	m_pulseDisplayDecimation	= 20;	//	default w/prt = 1000Hz, timeseries data 
 	m_productsDisplayDecimation	= 5;	//	default w/prt = 1000Hz, hits = 10, products data
 
 	m_DataSetGate = 50;		//!get spinner value
@@ -392,7 +397,7 @@ CP2Scope::getProduct(Beam* pBeam, int gates)
 		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].rhohv;  } break;
 	case S_PHIDP:	///< S-band phidp
 		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].phidp;  } break;
-	case S_ZDR:	///< S-band phidp
+	case S_ZDR:	///< S-band zdr
 		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].zdr;  } break;
 	case S_WIDTH:	///< S-band spectral width
 		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].width;  } break;
