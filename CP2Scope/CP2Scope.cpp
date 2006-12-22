@@ -68,7 +68,7 @@ _collator(1000)
 	_dataSet = DATA_SET_PULSE;
 
 	//	display decimation, set to get ~50/sec
-	m_pulseDisplayDecimation	= 20;	//	default w/prt = 1000Hz, timeseries data 
+	m_pulseDisplayDecimation	= 50;	//	default w/prt = 1000Hz, timeseries data 
 	m_productsDisplayDecimation	= 5;	//	default w/prt = 1000Hz, hits = 10, products data
 
 	m_DataSetGate = 50;		//!get spinner value

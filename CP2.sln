@@ -21,6 +21,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Moments", "Moments\Moments.
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "CP2 Viz Installer", "CP2 Viz Installer\CP2 Viz Installer.vdproj", "{2ABE0A08-3094-41C2-B102-47FBA42B601B}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -47,6 +51,8 @@ Global
 		{B4F88715-7416-4BF0-BB8F-E424FD428262}.Debug.Build.0 = Debug|Win32
 		{B4F88715-7416-4BF0-BB8F-E424FD428262}.Release.ActiveCfg = Release|Win32
 		{B4F88715-7416-4BF0-BB8F-E424FD428262}.Release.Build.0 = Release|Win32
+		{2ABE0A08-3094-41C2-B102-47FBA42B601B}.Debug.ActiveCfg = Debug
+		{2ABE0A08-3094-41C2-B102-47FBA42B601B}.Release.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
