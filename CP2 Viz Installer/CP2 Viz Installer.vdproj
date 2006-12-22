@@ -33,6 +33,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_69367BA78F38471BA9DEC467FD3B1E15"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_82A6DD3B245C483980101ADFF6976724"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -179,6 +185,26 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_69367BA78F38471BA9DEC467FD3B1E15"
+            {
+            "SourcePath" = "8:C:\\WINDOWS\\system32\\Knob.dll"
+            "TargetName" = "8:Knob.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_C7DAD24611884AD08C4089C0A401A891"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{A582A373-4685-4296-BEFE-614B80A702C3}:_82A6DD3B245C483980101ADFF6976724"
             {
             "SourcePath" = "8:C:\\WINDOWS\\system32\\qwt500.dll"
@@ -315,7 +341,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:CP2 Viz Installer"
         "ProductCode" = "8:{FB176745-98EB-4D9B-B14E-E0142928767E}"
-        "PackageCode" = "8:{B6B476FD-9238-4CBC-9A86-A48F53B37CF2}"
+        "PackageCode" = "8:{55E99580-F4EB-46EF-B715-3B263503D4E6}"
         "UpgradeCode" = "8:{B8207D36-F91A-4961-A90F-08F0DE8B2D24}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
