@@ -83,7 +83,6 @@ protected:
 
 	int _boardnum;
 
-	void cp2piraq_fifo_init(CircularBuffer * fifo, int headersize, int recordsize, int numRecords);
 	int cp2start(PIRAQ *piraq, PPACKET * pkt);
 	int sendData(int size, void* data);
 

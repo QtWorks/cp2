@@ -61,7 +61,6 @@ CP2PIRAQ::init(char* configFname, char* dspObjFname)
 	_bytespergate    = 2*sizeof(float); // CP2: 2 fp I,Q per gate
 
 	int r_c;   // generic return code
-	int y;
 
 	r_c = this->Init(PIRAQ_VENDOR_ID,PIRAQ_DEVICE_ID); 
 	printf("this->Init() r_c = %d\n", r_c); 
@@ -73,34 +72,36 @@ CP2PIRAQ::init(char* configFname, char* dspObjFname)
 	}
 
 	/* put the DSP into a known state where HPI reads/writes will work */
-	this->ResetPiraq(); // !!!redundant? 
+	this->ResetPiraq();  
 	this->GetControl()->UnSetBit_StatusRegister0(STAT0_SW_RESET);
 	Sleep(1);
 	this->GetControl()->SetBit_StatusRegister0(STAT0_SW_RESET);
 	Sleep(1);
-	printf("this reset\n"); 
+
+	// read and print the eprom values
 	unsigned int EPROM1[128]; 
 	this->ReadEPROM(EPROM1);
-	for(y = 0; y < 16; y++) {
+	for(int y = 0; y < 16; y++) {
 		printf("%08lX %08lX %08lX %08lX\n",EPROM1[y*4],EPROM1[y*4+1],EPROM1[y*4+2],EPROM1[y*4+3]); 
 	}
 
-	this->SetCP2PIRAQTestAction(SEND_CHA);	//	send CHA by default; SEND_COMBINED after dynamic-range extension implemented 
+	//	send CHA by default; SEND_COMBINED after dynamic-range extension implemented
+	this->SetCP2PIRAQTestAction(SEND_CHA);	 
 	stop_piraq(&_config, this);
 
-	// create the data fifo.
+	// create the data fifo and initialize members.
 	pFifo = (CircularBuffer *)this->GetBuffer(); 
-
-	// CP2: data packets sized at runtime.  + BUFFER_EPSILON
-	cp2piraq_fifo_init(
-		pFifo, 
-		sizeof(PINFOHEADER), 
-		_pulsesPerPciXfer * (sizeof(PINFOHEADER) + (_gates * _bytespergate)), 
-		PIRAQ_FIFO_NUM); 
-
 	if (!pFifo) { 
 		printf("this fifo_create failed\n"); exit(0);
 	}
+
+	pFifo->header_off = sizeof(CircularBuffer);						/* pointer to the user header */
+	pFifo->cbbuf_off = pFifo->header_off + sizeof(PINFOHEADER);		/* pointer to cb base address */
+	pFifo->record_size = _pulsesPerPciXfer * (sizeof(PINFOHEADER) 
+		+ (_gates * _bytespergate));    /* size in bytes of each cb record */
+	pFifo->record_num = PIRAQ_FIFO_NUM;							/* number of records in cb buffer */
+	pFifo->head = pFifo->tail = 0;							/* indexes to the head and tail records */
+
 	printf("pFifo = %p, recordsize = %d\n", pFifo, pFifo->record_size); 
 
 	//////////////////////////////////////////////////////////////////
@@ -280,22 +281,6 @@ CP2PIRAQ::stop()
 {
 	stop_piraq(&_config, this);
 }
-
-///////////////////////////////////////////////////////////////////////////
-void 
-CP2PIRAQ::cp2piraq_fifo_init(CircularBuffer * cb, int headersize, int recordsize, int recordnum)
-{
-	if(cb)
-	{
-		/* initialize the fifo structure */
-		cb->header_off = sizeof(CircularBuffer);						/* pointer to the user header */
-		cb->cbbuf_off = cb->header_off + headersize;		/* pointer to cb base address */
-		cb->record_size = recordsize;						/* size in bytes of each cb record */
-		cb->record_num = recordnum;							/* number of records in cb buffer */
-		cb->head = cb->tail = 0;							/* indexes to the head and tail records */
-	}
-}
-
 
 #ifdef NCAR_DRX				// NCAR drx: one piraq, no PMAC, no timer card, go.exe wait for piraq in subs.cpp\start()
 #define WAIT_FOR_PIRAQ	TRUE	// start() waits for piraq to begin executing
