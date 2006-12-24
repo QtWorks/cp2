@@ -23,14 +23,14 @@ PIRAQ(),
 _sockAddr(sockAddr),
 _socketFd(socketFd),
 _pulsesPerPciXfer(pulsesPerPciXfer), 
-outport(outputPort_),
+_outport(outputPort_),
 _lastPulseNumber(0),
 _totalHits(0),
 _boardnum(boardnum),
-PNerrors(0)
+_PNerrors(0)
 {
 
-	//	if((outsock = open_udp_out(destIP)) ==  ERROR)			/* open one socket */
+	//	if((_outsock = open_udp_out(destIP)) ==  ERROR)			/* open one socket */
 	//	{
 	//		printf("Could not open output socket\n"); 
 	//		exit(0);
@@ -90,25 +90,25 @@ CP2PIRAQ::init(char* configFname, char* dspObjFname)
 	stop_piraq(&_config, this);
 
 	// create the data fifo and initialize members.
-	pFifo = (CircularBuffer *)this->GetBuffer(); 
-	if (!pFifo) { 
+	_pFifo = (CircularBuffer *)this->GetBuffer(); 
+	if (!_pFifo) { 
 		printf("this fifo_create failed\n"); exit(0);
 	}
 
-	pFifo->header_off = sizeof(CircularBuffer);						/* pointer to the user header */
-	pFifo->cbbuf_off = pFifo->header_off + sizeof(PINFOHEADER);		/* pointer to cb base address */
-	pFifo->record_size = _pulsesPerPciXfer * (sizeof(PINFOHEADER) 
+	_pFifo->header_off = sizeof(CircularBuffer);						/* pointer to the user header */
+	_pFifo->cbbuf_off = _pFifo->header_off + sizeof(PINFOHEADER);		/* pointer to cb base address */
+	_pFifo->record_size = _pulsesPerPciXfer * (sizeof(PINFOHEADER) 
 		+ (_gates * _bytespergate));    /* size in bytes of each cb record */
-	pFifo->record_num = PIRAQ_FIFO_NUM;							/* number of records in cb buffer */
-	pFifo->head = pFifo->tail = 0;							/* indexes to the head and tail records */
+	_pFifo->record_num = PIRAQ_FIFO_NUM;							/* number of records in cb buffer */
+	_pFifo->head = _pFifo->tail = 0;							/* indexes to the head and tail records */
 
-	printf("pFifo = %p, recordsize = %d\n", pFifo, pFifo->record_size); 
+	printf("_pFifo = %p, recordsize = %d\n", _pFifo, _pFifo->record_size); 
 
 	//////////////////////////////////////////////////////////////////
 
 	// Get the start of the PCI memory space. The packet metadata will
 	// be placed there for the Piraq to read.
-	_pConfigPacket = (PPACKET *)cb_get_header_address(pFifo); 
+	_pConfigPacket = (PPACKET *)cb_get_header_address(_pFifo); 
 
 	_pConfigPacket->info.gates = _gates;
 	_pConfigPacket->info.hits  = _hits;
@@ -133,10 +133,10 @@ CP2PIRAQ::poll()
 	// sleep for a ms
 	Sleep(1);
 	int cycle_fifo_hits = 0;
-	PPACKET* p = (PPACKET *)cb_get_read_address(pFifo, 0); 
+	PPACKET* p = (PPACKET *)cb_get_read_address(_pFifo, 0); 
 	// take CYCLE_HITS beams from piraq:
 	while((
-		(cb_hit(pFifo)) > 0) && 
+		(cb_hit(_pFifo)) > 0) && 
 		(cycle_fifo_hits < CYCLE_HITS)) 
 	{ 
 		// fifo hits ready: save #hits pending 
@@ -146,15 +146,15 @@ CP2PIRAQ::poll()
 			printf("piraq %d packets %d (seq errors %d)\n", 
 			_pConfigPacket->info.channel, 
 			_totalHits,
-			PNerrors);
+			_PNerrors);
 
 		// get the next packet in the circular buffer
-		PPACKET* pFifoPiraq = (PPACKET *)cb_get_read_address(pFifo, 0); 
+		PPACKET* _pFifoPiraq = (PPACKET *)cb_get_read_address(_pFifo, 0); 
 
 		// send data out on the socket
 		int piraqPacketSize = 
 			sizeof(PINFOHEADER) + 
-			pFifoPiraq->info.gates*pFifoPiraq->info.bytespergate;
+			_pFifoPiraq->info.gates*_pFifoPiraq->info.bytespergate;
 
 		// set up a header
 		CP2PulseHeader header;
@@ -165,7 +165,7 @@ CP2PIRAQ::poll()
 
 		// add all beams to the outgoing packet
 		for (int i = 0; i < _pulsesPerPciXfer; i++) {
-			PPACKET* ppacket = (PPACKET*)((char*)&pFifoPiraq->info + i*piraqPacketSize);
+			PPACKET* ppacket = (PPACKET*)((char*)&_pFifoPiraq->info + i*piraqPacketSize);
 			header.az        = 10.0;
 			header.el        = 3.2;
 			header.beam_num  = ppacket->info.beam_num;
@@ -179,7 +179,7 @@ CP2PIRAQ::poll()
 			if (_lastPulseNumber != thisPulseNumber - 1) {
 				printf("pulse number out of sequence, last PN %I64d, this PN %I64d\n", 
 					_lastPulseNumber, thisPulseNumber);  
-				PNerrors++; 
+				_PNerrors++; 
 			}
 			_lastPulseNumber = thisPulseNumber; // previous hit PN
 		}
@@ -204,7 +204,7 @@ CP2PIRAQ::poll()
 		//
 		// return packet to the piraq fifo
 		//
-		cb_increment_tail(pFifo);
+		cb_increment_tail(_pFifo);
 
 	} // end	while(fifo_hit()
 
@@ -270,9 +270,6 @@ CP2PIRAQ::stop()
 #define WAIT_FOR_PIRAQ	TRUE	// start() waits for piraq to begin executing
 #endif
 
-/* start a data session */
-/* wait for a DSP reset signal so no data is missed */
-//!!!int start(CONFIG *config,PIRAQ *piraq)
 int CP2PIRAQ::start(long long firstPulseNum,
 					long long firstBeamNum)
 {
@@ -314,16 +311,6 @@ int CP2PIRAQ::start(long long firstPulseNum,
 	printf("NOT waiting for pkt->info.flag = 1\n");
 #endif
 
-	//!!!   if (pkt->cmd.flag != 1) return(FALSE); // DSP program not yet ready
-	/* clear the fifo */
-	//   *piraq->fifoclr = 0;
-
-	/* take timer state machine out of reset */
-	//   STATSET(STAT0_TRESET);
-
-	//temp = *piraq->status0;
-	//delay(1);
-	//*piraq->status0 = temp | STAT0_TRESET;
 	this->GetControl()->SetBit_StatusRegister0(STAT0_TRESET);
 
 	switch(_timing_mode)

@@ -36,29 +36,23 @@ protected:
 	/// a supplied file name
 	CONFIG _config;
 	/// The FIFO that is used for data transfering from piraq to host
-	CircularBuffer*   pFifo;
+	CircularBuffer*   _pFifo;
 	/// This will be the first packet in the fifo. It appears that
 	/// the piraq may read this structure?
 	PPACKET* _pConfigPacket;
 	/// The destination data port
-	int outport;
+	int _outport;
 	/// The socket for output data
-	int outsock;
+	int _outsock;
 	/// The last pulse number received. Used to detect
 	/// dropped pulses.
-	__int64 _lastPulseNumber; 
+	long long _lastPulseNumber; 
 	/// Cumulative pulse number errors
-	int PNerrors;
+	int _PNerrors;
 	/// current azimuth
 	float az;
 	/// current elevation
 	float el; 
-	/// current scan
-	unsigned int scan;
-	/// current volume
-	unsigned int volume;
-	/// current sequence
-	unsigned int seq;
 	/// the number of bytes per gate
 	int _bytespergate;
 	/// the number of hits in each block transfer
@@ -68,19 +62,14 @@ protected:
 	struct sockaddr_in  _sockAddr;
 	/// socket file descriptor
 	int _socketFd;
-
 	CP2Packet _cp2Packet;
-
-	float _prt;				///< The prt, set by the host. Not sure why we need this here.
+	float _prt;				
 	int _prt2;   
 	int _timing_mode;
 	int _gates;
 	int _hits;
-
-	float _xmit_pulsewidth;	///< The transmit pulsewidth, set by the host. Not sure why we need this here.
-
+	float _xmit_pulsewidth;	
 	unsigned int _totalHits;
-
 	int _boardnum;
 
 	int sendData(int size, void* data);
