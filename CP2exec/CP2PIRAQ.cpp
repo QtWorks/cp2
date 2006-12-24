@@ -17,14 +17,13 @@ struct sockaddr_in sockAddr,
 	int outputPort_, 
 	char* configFname, 
 	char* dspObjFname,
-	unsigned int Nhits_,
+	unsigned int pulsesPerPciXfer,
 	int boardnum):
 PIRAQ(),
 _sockAddr(sockAddr),
 _socketFd(socketFd),
-packetsPerPciXfer(Nhits_), 
-outport(outputPort_), 
-bytespergate(2 * sizeof(float)),
+_pulsesPerPciXfer(pulsesPerPciXfer), 
+outport(outputPort_),
 _lastPulseNumber(0),
 _totalHits(0),
 _boardnum(boardnum),
@@ -51,6 +50,15 @@ CP2PIRAQ::init(char* configFname, char* dspObjFname)
 {
 
 	readconfig(configFname, &_config);    
+
+	_timing_mode     = _config.timingmode;
+	_prt2            = _config.prt2;
+	_prt             = _config.prt;
+	_gates  	     = _config.gatesa;
+	_hits		     = _config.hits;
+	_xmit_pulsewidth = _config.xmit_pulsewidth;
+	_prt			 = (float)_config.prt * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
+	_bytespergate    = 2*sizeof(float); // CP2: 2 fp I,Q per gate
 
 	int r_c;   // generic return code
 	int y;
@@ -85,9 +93,9 @@ CP2PIRAQ::init(char* configFname, char* dspObjFname)
 
 	// CP2: data packets sized at runtime.  + BUFFER_EPSILON
 	cp2piraq_fifo_init(
-		pFifo,"/PRQDATA", 
+		pFifo, 
 		sizeof(PINFOHEADER), 
-		packetsPerPciXfer * (sizeof(PINFOHEADER) + (_config.gatesa * bytespergate)), 
+		_pulsesPerPciXfer * (sizeof(PINFOHEADER) + (_gates * _bytespergate)), 
 		PIRAQ_FIFO_NUM); 
 
 	if (!pFifo) { 
@@ -101,9 +109,12 @@ CP2PIRAQ::init(char* configFname, char* dspObjFname)
 	// be placed there for the Piraq to read.
 	_pConfigPacket = (PPACKET *)cb_get_header_address(pFifo); 
 
-	cp2struct_init(&_pConfigPacket->info, configFname);		// initialize the info structure
-	_pConfigPacket->info.flag = 0;							// Preset the flags just in case
-	_pConfigPacket->info.channel = _boardnum;				// set BOARD number
+	_pConfigPacket->info.gates = _gates;
+	_pConfigPacket->info.hits  = _hits;
+	_pConfigPacket->info.bytespergate = 2*sizeof(float);              // CP2: 2 fp I,Q per gate
+	_pConfigPacket->info.packetsPerBlock = _pulsesPerPciXfer;
+	_pConfigPacket->info.flag = 0;							          // Preset the flags just in case
+	_pConfigPacket->info.channel = _boardnum;				          // set BOARD number
 
 	r_c = this->LoadDspCode(dspObjFname);					// load entered DSP executable filename
 	printf("loading %s: this->LoadDspCode returns %d\n", dspObjFname, r_c);  
@@ -122,7 +133,7 @@ CP2PIRAQ::start(__int64 firstPulseNum,
 	_pConfigPacket->info.beam_num = firstBeamNum; 
 	_pConfigPacket->info.packetflag = 1;			// set to piraq: get header! 
 	// start the PIRAQ: also points the piraq to the fifo structure 
-	if (!cp2start(&_config, this, _pConfigPacket))
+	if (!cp2start(this, _pConfigPacket))
 	{
 		printf("Piraq DSP program not ready: pkt->cmd.flag != TRUE (1)\n");
 		return -1;
@@ -168,7 +179,7 @@ CP2PIRAQ::poll()
 		_cp2Packet.clear();
 
 		// add all beams to the outgoing packet
-		for (int i = 0; i < packetsPerPciXfer; i++) {
+		for (int i = 0; i < _pulsesPerPciXfer; i++) {
 			PPACKET* ppacket = (PPACKET*)((char*)&pFifoPiraq->info + i*piraqPacketSize);
 			header.az        = 10.0;
 			header.el        = 3.2;
@@ -272,7 +283,7 @@ CP2PIRAQ::stop()
 
 ///////////////////////////////////////////////////////////////////////////
 void 
-CP2PIRAQ::cp2piraq_fifo_init(CircularBuffer * cb, char *name, int headersize, int recordsize, int recordnum)
+CP2PIRAQ::cp2piraq_fifo_init(CircularBuffer * cb, int headersize, int recordsize, int recordnum)
 {
 	if(cb)
 	{
@@ -284,38 +295,7 @@ CP2PIRAQ::cp2piraq_fifo_init(CircularBuffer * cb, char *name, int headersize, in
 		cb->head = cb->tail = 0;							/* indexes to the head and tail records */
 	}
 }
-///////////////////////////////////////////////////////////////////////////
-void 
-CP2PIRAQ::cp2struct_init(PINFOHEADER *h, char *fname)
-{
-	RADAR	*radar;
-	CONFIG	*config;
-	struct synth synthinfo[CHANNELS]; 
-	FILE * SynthAngleInfo; 
 
-	int  i; 
-
-	h->packetsPerBlock = packetsPerPciXfer;
-
-	config  = (CONFIG *)malloc(sizeof(CONFIG));
-	radar = (RADAR *)malloc(sizeof(RADAR));
-
-	readconfig(fname,config);   /* read in config.dsp and set up all parameters */
-	readradar(fname,radar);	/* read in the config.rdr file */   
-
-	h->gates 		= config->gatesa;
-	h->hits			= config->hits;
-	h->gates 		= config->gatesa;
-	h->hits			= config->hits;//
-	_xmit_pulsewidth = config->xmit_pulsewidth;
-	_prt			= (float)config->prt * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
-	h->bytespergate = 2*sizeof(float); // CP2: 2 fp I,Q per gate
-	h->packetflag	= 0;	// clear: set to -1 by piraq on hardware EOF detect 
-	strncpy(h->desc,radar->desc,PX_MAX_RADAR_DESC);
-
-	free(config);
-	free(radar);
-}
 
 #ifdef NCAR_DRX				// NCAR drx: one piraq, no PMAC, no timer card, go.exe wait for piraq in subs.cpp\start()
 #define WAIT_FOR_PIRAQ	TRUE	// start() waits for piraq to begin executing
@@ -324,7 +304,7 @@ CP2PIRAQ::cp2struct_init(PINFOHEADER *h, char *fname)
 /* start a data session */
 /* wait for a DSP reset signal so no data is missed */
 //!!!int start(CONFIG *config,PIRAQ *piraq)
-int CP2PIRAQ::cp2start(CONFIG *config,PIRAQ *piraq, PPACKET * pkt)
+int CP2PIRAQ::cp2start(PIRAQ *piraq, PPACKET * pkt)
 {
 	int  d,cnt1,cnt2,i,first;
 	char c;
@@ -333,7 +313,7 @@ int CP2PIRAQ::cp2start(CONFIG *config,PIRAQ *piraq, PPACKET * pkt)
 	/* stop the timer */
 	piraq->GetControl()->UnSetBit_StatusRegister0((STAT0_TRESET) | (STAT0_TMODE));
 
-	if(config->timingmode == 1)
+	if(_timing_mode == 1)
 	{ 
 		piraq->GetControl()->SetBit_StatusRegister0(STAT0_TMODE);
 	}
@@ -371,20 +351,20 @@ int CP2PIRAQ::cp2start(CONFIG *config,PIRAQ *piraq, PPACKET * pkt)
 	//*piraq->status0 = temp | STAT0_TRESET;
 	piraq->GetControl()->SetBit_StatusRegister0(STAT0_TRESET);
 
-	switch(config->timingmode)
+	switch(_timing_mode)
 	{
 	case 2:   /* continuous with sync delay */
 		first = time(NULL) + 3;   /* wait up to 3 seconds */
 		while(!STATUSRD1(piraq,STAT1_FIRST_TRIG))
 			if(time(NULL) > first)
-				::timer(1,5,config->prt2-2 ,piraq->timer);   /* odd prt (2) */
+				::timer(1,5,_prt2-2 ,piraq->timer);   /* odd prt (2) */
 		break;
 	case 0:   /* continuous (software triggered) */
 	case 1:   /* external trigger */
 		break;
 	}
 
-	if(!config->timingmode)  /* software trigger for continuous mode */
+	if(!_timing_mode)  /* software trigger for continuous mode */
 	{
 		piraq->GetControl()->SetBit_StatusRegister0(STAT0_TMODE);
 		Sleep(1);

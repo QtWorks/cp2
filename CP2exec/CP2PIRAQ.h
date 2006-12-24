@@ -1,6 +1,7 @@
 #ifndef CP2PIRAQINC_
 #define CP2PIRAQINC_
 #include "../include/proto.h"
+#include "Piraq.h"
 #include "piraqComm.h"
 #include "CP2Net.h"
 
@@ -59,10 +60,10 @@ protected:
 	/// current sequence
 	unsigned int seq;
 	/// the number of bytes per gate
-	int bytespergate;
+	int _bytespergate;
 	/// the number of hits in each block transfer
 	/// from the piraq.
-	unsigned int packetsPerPciXfer;
+	unsigned int _pulsesPerPciXfer;
 	/// Socket specifications for datagrams
 	struct sockaddr_in  _sockAddr;
 	/// socket file descriptor
@@ -71,6 +72,10 @@ protected:
 	CP2Packet _cp2Packet;
 
 	float _prt;				///< The prt, set by the host. Not sure why we need this here.
+	int _prt2;   
+	int _timing_mode;
+	int _gates;
+	int _hits;
 
 	float _xmit_pulsewidth;	///< The transmit pulsewidth, set by the host. Not sure why we need this here.
 
@@ -78,9 +83,8 @@ protected:
 
 	int _boardnum;
 
-	void cp2piraq_fifo_init(CircularBuffer * fifo, char *name, int headersize, int recordsize, int recordnum);
-	void cp2struct_init(PINFOHEADER *h, char *fname);
-	int cp2start(CONFIG *config,PIRAQ *piraq, PPACKET * pkt);
+	void cp2piraq_fifo_init(CircularBuffer * fifo, int headersize, int recordsize, int numRecords);
+	int cp2start(PIRAQ *piraq, PPACKET * pkt);
 	int sendData(int size, void* data);
 
 };
