@@ -125,22 +125,6 @@ CP2PIRAQ::init(char* configFname, char* dspObjFname)
 	return 0;
 }
 
-/////////////////////////////////////////////////////////////////////////////
-int 
-CP2PIRAQ::start(__int64 firstPulseNum,
-				__int64 firstBeamNum) 
-{
-	_pConfigPacket->info.pulse_num = firstPulseNum;	// set UNIX epoch pulsenum just before starting
-	_pConfigPacket->info.beam_num = firstBeamNum; 
-	_pConfigPacket->info.packetflag = 1;			// set to piraq: get header! 
-	// start the PIRAQ: also points the piraq to the fifo structure 
-	if (!cp2start(this, _pConfigPacket))
-	{
-		printf("Piraq DSP program not ready: pkt->cmd.flag != TRUE (1)\n");
-		return -1;
-	}
-	return 0;
-}
 
 /////////////////////////////////////////////////////////////////////////////
 int
@@ -289,22 +273,27 @@ CP2PIRAQ::stop()
 /* start a data session */
 /* wait for a DSP reset signal so no data is missed */
 //!!!int start(CONFIG *config,PIRAQ *piraq)
-int CP2PIRAQ::cp2start(PIRAQ *piraq, PPACKET * pkt)
+int CP2PIRAQ::start(long long firstPulseNum,
+					long long firstBeamNum)
 {
+	_pConfigPacket->info.pulse_num = firstPulseNum;	// set UNIX epoch pulsenum just before starting
+	_pConfigPacket->info.beam_num = firstBeamNum; 
+	_pConfigPacket->info.packetflag = 1;			// set to piraq: get header! 
+
 	int  d,cnt1,cnt2,i,first;
 	char c;
 
 	int temp;
 	/* stop the timer */
-	piraq->GetControl()->UnSetBit_StatusRegister0((STAT0_TRESET) | (STAT0_TMODE));
+	this->GetControl()->UnSetBit_StatusRegister0((STAT0_TRESET) | (STAT0_TMODE));
 
 	if(_timing_mode == 1)
 	{ 
-		piraq->GetControl()->SetBit_StatusRegister0(STAT0_TMODE);
+		this->GetControl()->SetBit_StatusRegister0(STAT0_TMODE);
 	}
 	else
 	{
-		piraq->GetControl()->UnSetBit_StatusRegister0(STAT0_TMODE);
+		this->GetControl()->UnSetBit_StatusRegister0(STAT0_TMODE);
 	}
 
 	/* make sure that all possible timer time-outs occur */
@@ -312,13 +301,14 @@ int CP2PIRAQ::cp2start(PIRAQ *piraq, PPACKET * pkt)
 
 
 	/* start the DSP */
-	pkt->info.flag = 0; // clear location
-	piraq->StartDsp();
+	_pConfigPacket->info.flag = 0; // clear location
+	this->StartDsp();
 #if WAIT_FOR_PIRAQ
 	printf("waiting for pkt->data.info.flag = 1\n");
 	i = 0; 
-	while((pkt->info.flag != 1) && (i++ < 10)) { // wait for DSP program to set it
-		printf("still waiting for pkt->data.info.flag = 1\n"); Sleep(500); 
+	while((_pConfigPacket->info.flag != 1) && (i++ < 10)) { // wait for DSP program to set it
+		printf("still waiting for pkt->data.info.flag = 1\n"); 
+		Sleep(500); 
 	} 
 #else
 	printf("NOT waiting for pkt->info.flag = 1\n");
@@ -334,15 +324,15 @@ int CP2PIRAQ::cp2start(PIRAQ *piraq, PPACKET * pkt)
 	//temp = *piraq->status0;
 	//delay(1);
 	//*piraq->status0 = temp | STAT0_TRESET;
-	piraq->GetControl()->SetBit_StatusRegister0(STAT0_TRESET);
+	this->GetControl()->SetBit_StatusRegister0(STAT0_TRESET);
 
 	switch(_timing_mode)
 	{
 	case 2:   /* continuous with sync delay */
 		first = time(NULL) + 3;   /* wait up to 3 seconds */
-		while(!STATUSRD1(piraq,STAT1_FIRST_TRIG))
+		while(!STATUSRD1(this,STAT1_FIRST_TRIG))
 			if(time(NULL) > first)
-				::timer(1,5,_prt2-2 ,piraq->timer);   /* odd prt (2) */
+				::timer(1,5,_prt2-2 ,this->timer);   /* odd prt (2) */
 		break;
 	case 0:   /* continuous (software triggered) */
 	case 1:   /* external trigger */
@@ -351,11 +341,11 @@ int CP2PIRAQ::cp2start(PIRAQ *piraq, PPACKET * pkt)
 
 	if(!_timing_mode)  /* software trigger for continuous mode */
 	{
-		piraq->GetControl()->SetBit_StatusRegister0(STAT0_TMODE);
+		this->GetControl()->SetBit_StatusRegister0(STAT0_TMODE);
 		Sleep(1);
-		piraq->GetControl()->UnSetBit_StatusRegister0(STAT0_TMODE);
+		this->GetControl()->UnSetBit_StatusRegister0(STAT0_TMODE);
 	}
 
-	return(1);  /* everything is OK */
+	return(0);  /* everything is OK */
 }
 

@@ -22,8 +22,8 @@ public:
 
 	~CP2PIRAQ();
 
-	int start(__int64 firstPulseNum,
-		      __int64 firstBeamNum);
+	int start(long long firstPulseNum,
+		      long long firstBeamNum);
 	void stop();
 	int poll();
 	float prt();
@@ -83,7 +83,6 @@ protected:
 
 	int _boardnum;
 
-	int cp2start(PIRAQ *piraq, PPACKET * pkt);
 	int sendData(int size, void* data);
 
 };
