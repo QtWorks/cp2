@@ -83,6 +83,7 @@ typedef struct PINFOHEADER
     uint4  hits;			///< The number of hits in a beam, set by the host. Used
 							///< to calculate beam number from pulse numbers.
     uint4  bytespergate;	///< The number of bytes per gate (2*sizeof(float)),  set by the host.
+	uint4  PMACdpramAddr;   ///< The PCI bus address of the PMAC dpram
     float4 az;				///< The azimuth, set by Piraq.
     float4 el;				///< The elevation, set by Piraq.
 #ifdef _TMS320C6X			///        TI doesn't support long long 
