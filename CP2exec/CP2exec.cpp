@@ -91,21 +91,20 @@ int keyvalid()
 }
 
 /////////////////////////////////////////////////////////////////////////////
-int
-findPMAC() 
+unsigned int
+findPMACdpram() 
 {
-	PCI_CARD	*pcicard;
-	unsigned int		reg_base;
-	int		i,j,error;
+	PCI_CARD*	pcicard;
+	unsigned int reg_base;
 
-	init_pci(); 
-
-	/* do the most basic PCI test */
 	pcicard = find_pci_card(0x1172,1,0);
+
 	if(!pcicard)
-		return(-1);
+		return(0);
 
 	reg_base = pcicard->phys2;
+
+	return reg_base;
 }
 /////////////////////////////////////////////////////////////////////////////
 int 
@@ -119,7 +118,6 @@ main(int argc, char* argv[], char* envp[])
 	char fname1[100]; char fname2[100]; char fname3[100]; // configuration filenames
 	char* destIP = "192.168.3.255";
 
-	// set/compute #hits combined by piraq: equal in both piraq executable (CP2_DCCS3_1.out) and CP2exec.exe 
 	unsigned int packetsPerPciXfer; 
 	int outport;
 	char c;
@@ -128,6 +126,8 @@ main(int argc, char* argv[], char* envp[])
 
 	long long pulsenum;
 	long long beamnum; 
+
+	unsigned int PMACphysAddr;
 
 	int	PIRAQadjustAmplitude = 0; 
 	int	PIRAQadjustFrequency = 1; 
@@ -193,6 +193,14 @@ main(int argc, char* argv[], char* envp[])
 	packetsPerPciXfer = 65536 / blocksize; 
 	if	(packetsPerPciXfer % 2)	//	computed odd #hits
 		packetsPerPciXfer--;	//	make it even
+
+	// find the PMAC card
+	PMACphysAddr = findPMACdpram();
+	if (PMACphysAddr == 0) {
+		printf("unable to locate PMAC dpram\n");
+		exit(-1);
+	}
+	printf("PMAC DPRAM base addr is 0x%08x\n", PMACphysAddr);
 
 	///////////////////////////////////////////////////////////////////////////
 	//
