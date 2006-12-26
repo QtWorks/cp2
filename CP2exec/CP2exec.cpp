@@ -9,6 +9,7 @@
 #include <mmsystem.h>
 #include <sys/timeb.h>
 #include <time.h>
+#include <iostream>
 
 // local includes
 #include "CP2exec.h" 
@@ -21,6 +22,12 @@
 
 // from CP2Piraq
 #include "piraqComm.h"
+
+// from PiraqIII_RevD_Driver
+#include "piraq.h"
+#include "plx.h"
+#include "control.h"
+#include "HPIB.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
