@@ -1,15 +1,11 @@
 Microsoft Visual Studio Solution File, Format Version 8.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CP2exec", "CP2exec\CP2exec.vcproj", "{EB607E6C-AF37-4668-854A-DF51A47ED484}"
 	ProjectSection(ProjectDependencies) = postProject
+		{24F92727-A227-419D-BD34-A56FC7565DB4} = {24F92727-A227-419D-BD34-A56FC7565DB4}
 		{94722C93-C44E-41E8-86BE-05288AB8A868} = {94722C93-C44E-41E8-86BE-05288AB8A868}
-		{92308F9A-E019-4D5E-8CCD-B20842731F8D} = {92308F9A-E019-4D5E-8CCD-B20842731F8D}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PiraqIII_RevD_Driver.dsp", "PiraqIII_RevD_Driver\PiraqIII_RevD_Driver.vcproj", "{94722C93-C44E-41E8-86BE-05288AB8A868}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "win32lib", "win32lib\win32lib.vcproj", "{92308F9A-E019-4D5E-8CCD-B20842731F8D}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -22,6 +18,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Moments", "Moments\Moments.
 	EndProjectSection
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "CP2 Viz Installer", "CP2 Viz Installer\CP2 Viz Installer.vdproj", "{2ABE0A08-3094-41C2-B102-47FBA42B601B}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CP2Lib", "CP2Lib\CP2Lib.vcproj", "{24F92727-A227-419D-BD34-A56FC7565DB4}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -39,10 +39,6 @@ Global
 		{94722C93-C44E-41E8-86BE-05288AB8A868}.Debug.Build.0 = Debug|Win32
 		{94722C93-C44E-41E8-86BE-05288AB8A868}.Release.ActiveCfg = Release|Win32
 		{94722C93-C44E-41E8-86BE-05288AB8A868}.Release.Build.0 = Release|Win32
-		{92308F9A-E019-4D5E-8CCD-B20842731F8D}.Debug.ActiveCfg = Debug|Win32
-		{92308F9A-E019-4D5E-8CCD-B20842731F8D}.Debug.Build.0 = Debug|Win32
-		{92308F9A-E019-4D5E-8CCD-B20842731F8D}.Release.ActiveCfg = Release|Win32
-		{92308F9A-E019-4D5E-8CCD-B20842731F8D}.Release.Build.0 = Release|Win32
 		{7E9275A6-2DE5-4F34-8305-A8BC31999076}.Debug.ActiveCfg = Debug|Win32
 		{7E9275A6-2DE5-4F34-8305-A8BC31999076}.Debug.Build.0 = Debug|Win32
 		{7E9275A6-2DE5-4F34-8305-A8BC31999076}.Release.ActiveCfg = Release|Win32
@@ -53,6 +49,10 @@ Global
 		{B4F88715-7416-4BF0-BB8F-E424FD428262}.Release.Build.0 = Release|Win32
 		{2ABE0A08-3094-41C2-B102-47FBA42B601B}.Debug.ActiveCfg = Debug
 		{2ABE0A08-3094-41C2-B102-47FBA42B601B}.Release.ActiveCfg = Release
+		{24F92727-A227-419D-BD34-A56FC7565DB4}.Debug.ActiveCfg = Debug|Win32
+		{24F92727-A227-419D-BD34-A56FC7565DB4}.Debug.Build.0 = Debug|Win32
+		{24F92727-A227-419D-BD34-A56FC7565DB4}.Release.ActiveCfg = Release|Win32
+		{24F92727-A227-419D-BD34-A56FC7565DB4}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
