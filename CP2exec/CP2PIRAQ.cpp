@@ -264,10 +264,6 @@ CP2PIRAQ::stop()
 	stop_piraq(&_config, this);
 }
 
-#ifdef NCAR_DRX				// NCAR drx: one piraq, no PMAC, no timer card, go.exe wait for piraq in subs.cpp\start()
-#define WAIT_FOR_PIRAQ	TRUE	// start() waits for piraq to begin executing
-#endif
-
 int CP2PIRAQ::start(long long firstPulseNum,
 					long long firstBeamNum)
 {
@@ -298,16 +294,14 @@ int CP2PIRAQ::start(long long firstPulseNum,
 	/* start the DSP */
 	_pConfigPacket->info.flag = 0; // clear location
 	this->StartDsp();
-#if WAIT_FOR_PIRAQ
+
+	// wait for the piraq to signal that it is ready.
 	printf("waiting for pkt->data.info.flag = 1\n");
 	i = 0; 
 	while((_pConfigPacket->info.flag != 1) && (i++ < 10)) { // wait for DSP program to set it
 		printf("still waiting for pkt->data.info.flag = 1\n"); 
 		Sleep(500); 
 	} 
-#else
-	printf("NOT waiting for pkt->info.flag = 1\n");
-#endif
 
 	this->GetControl()->SetBit_StatusRegister0(STAT0_TRESET);
 

@@ -184,7 +184,6 @@ main(int argc, char* argv[], char* envp[])
 	readconfig(fname2, config2);    
 	readconfig(fname3, config3);   
 
-	///@todo
 	/// NOTE- packetsPerPciXfer is computed here from the size of the PPACKET packet, such that
 	/// it will be smaller than 64K. This must hold true for the PCI 
 	/// bus transfers. 
@@ -244,6 +243,9 @@ main(int argc, char* argv[], char* envp[])
 		if (piraq3->start(pulsenum, beamnum)) 
 			exit(-1);
 	} 
+
+	printf("\nAll piraqs have been started. %d pulses will be \ntransmitted for each PCI bus transfer\n\n",
+		packetsPerPciXfer);
 
 	///////////////////////////////////////////////////////////////////////////
 	//
