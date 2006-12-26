@@ -626,9 +626,8 @@ CP2Scope::initPlots()
 	_xMomentsPlots.insert(X_DBMVX);
 	_xMomentsPlots.insert(X_DBZHC);
 	_xMomentsPlots.insert(X_SNR);
-	_xMomentsPlots.insert(X_WIDTH);
-	_xMomentsPlots.insert(X_VEL);
-	_xMomentsPlots.insert(X_SNR);
+//	_xMomentsPlots.insert(X_WIDTH);
+//	_xMomentsPlots.insert(X_VEL);
 	_xMomentsPlots.insert(X_LDR);
 
 	_plotInfo[S_TIMESERIES]  = PlotInfo( S_TIMESERIES, TIMESERIES, "I and Q", "S:  I and Q", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
