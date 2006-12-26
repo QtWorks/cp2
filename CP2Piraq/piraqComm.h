@@ -1,6 +1,8 @@
 #ifndef _PROTO_H_
 #define _PROTO_H_
 
+#define	PIRAQ_FIFO_NUM		120
+
 #include "dd_types.h"
 
 #define PCIBASE		0x3000000
