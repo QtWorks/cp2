@@ -21,11 +21,10 @@
 #endif // _AFX_NO_AFXCMN_SUPPORT
 
 #include <iostream>
-//#include        "../include/proto.h"
-#include "../PiraqIII_RevD_Driver/piraq.h"
-#include "../PiraqIII_RevD_Driver/plx.h"
-#include "../PiraqIII_RevD_Driver/control.h"
-#include "../PiraqIII_RevD_Driver/HPIB.h"
+#include "piraq.h"
+#include "plx.h"
+#include "control.h"
+#include "HPIB.h"
 
 // TODO: reference additional headers your program requires here
 

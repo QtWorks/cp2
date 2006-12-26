@@ -1,11 +1,16 @@
 #include <winsock2.h>
 #include "CP2PIRAQ.h"
-#include "../include/proto.h"
+
 #include "piraqComm.h"
-#include "../PiraqIII_RevD_Driver/piraq.h"
-#include "../PiraqIII_RevD_Driver/plx.h"
-#include "../PiraqIII_RevD_Driver/control.h"
-#include "../PiraqIII_RevD_Driver/HPIB.h"
+
+#include "subs.h"
+#include "timerlib.h"
+#include "subs.h"
+
+#include "piraq.h"
+#include "plx.h"
+#include "control.h"
+#include "HPIB.h"
 
 #define CYCLE_HITS 20
 
@@ -29,12 +34,6 @@ _totalHits(0),
 _boardnum(boardnum),
 _PNerrors(0)
 {
-
-	//	if((_outsock = open_udp_out(destIP)) ==  ERROR)			/* open one socket */
-	//	{
-	//		printf("Could not open output socket\n"); 
-	//		exit(0);
-	//	}
 	init(configFname, dspObjFname);
 }
 
@@ -63,11 +62,10 @@ CP2PIRAQ::init(char* configFname, char* dspObjFname)
 	int r_c;   // generic return code
 
 	r_c = this->Init(PIRAQ_VENDOR_ID,PIRAQ_DEVICE_ID); 
-	printf("this->Init() r_c = %d\n", r_c); 
-
-	if (r_c == -1) { // how to use GetErrorString() 
+	if (r_c == -1) {  
 		char errmsg[256]; 
-		this->GetErrorString(errmsg); printf("error: %s\n", errmsg); 
+		this->GetErrorString(errmsg); 
+		printf("error: %s\n", errmsg); 
 		return -1; 
 	}
 
@@ -106,7 +104,7 @@ CP2PIRAQ::init(char* configFname, char* dspObjFname)
 
 	//////////////////////////////////////////////////////////////////
 
-	// Get the start of the PCI memory space. The packet metadata will
+	// Get the start of the PCI memory space. The config packet will
 	// be placed there for the Piraq to read.
 	_pConfigPacket = (PPACKET *)cb_get_header_address(_pFifo); 
 

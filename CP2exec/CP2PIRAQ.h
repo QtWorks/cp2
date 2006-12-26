@@ -1,9 +1,10 @@
 #ifndef CP2PIRAQINC_
 #define CP2PIRAQINC_
-#include "../include/proto.h"
 #include "Piraq.h"
 #include "piraqComm.h"
 #include "CP2Net.h"
+#include "config.h"
+#include "subs.h"
 
 class CP2PIRAQ: public PIRAQ {
 
