@@ -6,9 +6,9 @@
 #include <stdio.h>
 #include <conio.h>
 
-#include "../PIRAQIII_RevD_Driver/piraq.h"
-#include "../PIRAQIII_RevD_Driver/control.h"
-#include "../PIRAQIII_RevD_Driver/hpib.h"
+#include "piraq.h"
+#include "control.h"
+#include "hpib.h"
 
 #include "subs.h"
 #include "config.h"

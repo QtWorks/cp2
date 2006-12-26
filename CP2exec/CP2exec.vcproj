@@ -84,7 +84,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="C:\Projects\cp2\CP2Lib;C:\Projects\cp2\CP2Piraq;C:\Projects\cp2\PiraqIII_RevD_Driver;C:\Plx\PciSdk\Inc;&quot;C:\Program Files\TVicSoft\TVicHW50\MSVC&quot;"
+				AdditionalIncludeDirectories="C:\Projects\cp2\CP2Lib;C:\Projects\cp2\CP2Piraq;C:\Projects\cp2\PiraqDriver;C:\Plx\PciSdk\Inc;&quot;C:\Program Files\TVicSoft\TVicHW50\MSVC&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"

@@ -2,7 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="PiraqIIIDriver"
+	Name="PiraqDriver"
+	ProjectGUID="{751C4798-1A1B-4C55-A711-D136DADA2B79}"
 	SccProjectName=""
 	SccLocalPath=".">
 	<Platforms>
