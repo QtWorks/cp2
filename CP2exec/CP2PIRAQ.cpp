@@ -154,7 +154,7 @@ CP2PIRAQ::poll()
 
 		// send data out on the socket
 		int piraqPacketSize = 
-			sizeof(PINFOHEADER) + 
+			sizeof(PINFOHEADER) +  
 			_pFifoPiraq->info.gates*_pFifoPiraq->info.bytespergate;
 
 		// set up a header
@@ -167,8 +167,13 @@ CP2PIRAQ::poll()
 		// add all beams to the outgoing packet
 		for (int i = 0; i < _pulsesPerPciXfer; i++) {
 			PPACKET* ppacket = (PPACKET*)((char*)&_pFifoPiraq->info + i*piraqPacketSize);
-			header.az        = ppacket->info.az;
-			header.el        = ppacket->info.el;
+			header.antAz     = ppacket->info.antAz;
+			header.antEl     = ppacket->info.antEl;
+			header.scanType  = ppacket->info.scanType;
+			header.volNum    = ppacket->info.volNum;
+			header.sweepNum  = ppacket->info.sweepNum;
+			header.antSize   = ppacket->info.antSize;
+			header.antTrans  = ppacket->info.antTrans;
 			header.beam_num  = ppacket->info.beam_num;
 			header.pulse_num = ppacket->info.pulse_num;
 			header.gates     = ppacket->info.gates;
@@ -196,8 +201,8 @@ CP2PIRAQ::poll()
 				CP2Pulse* pPulse = readBack.getPulse(i);
 				long long pulse = pPulse->header.pulse_num;
 				long long beam = pPulse->header.beam_num;
-				double az = pPulse->header.az;
-				double el = pPulse->header.el;
+				double az = pPulse->header.antAz;
+				double el = pPulse->header.antEl;
 			}
 		}
 

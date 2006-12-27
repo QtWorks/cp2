@@ -252,8 +252,8 @@ CP2Scope::processPulse(CP2Pulse* pPulse)
 						0,
 						pPulse->header.gates,
 						1.0e-6, 
-						pPulse->header.el, 
-						pPulse->header.az, 
+						pPulse->header.antEl, 
+						pPulse->header.antAz, 
 						pPulse->header.pulse_num,
 						horizontal);	
 					// ask for a completed beam. The return value will be
@@ -299,9 +299,9 @@ CP2Scope::processPulse(CP2Pulse* pPulse)
 							pHPulse->data(), 
 							pVPulse->data(),
 							pPulse->header.gates,
-							1.0e-6, 
-							pPulse->header.el, 
-							pPulse->header.az, 
+							1.0e-6,
+							pPulse->header.antEl, 
+							pPulse->header.antAz, 
 							pPulse->header.pulse_num,
 							true);	
 						// finished with these pulses, so delete them.

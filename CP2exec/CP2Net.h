@@ -8,8 +8,13 @@
 typedef struct CP2PulseHeader {
     long long pulse_num;	///< Pulse number
     long long beam_num;		///< Beam number
-    double az;				///< The azimuth, set by Piraq.
-    double el;				///< The elevation, set by Piraq.
+    short antAz;			///< The azimuth
+    short antEl;			///< The elevation
+	short scanType;			
+	short sweepNum;
+	short volNum;
+	short antSize;
+	short antTrans;
     int  channel;			///< 
     int  gates;				///< The number of gates, set by the host.
     int  hits;				///< The number of hits in a beam, set by the host. Used

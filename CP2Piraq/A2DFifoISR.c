@@ -295,8 +295,13 @@ readPMAC(PPACKET* pPkt)
 	*(volatile unsigned int *)0x14000A8 = (unsigned int)pPMACdpram + (dmpbam & 0xFFFF);  
 
 	// read the PMAC locations.
-	pPkt->info.az = *(unsigned short*)((unsigned char*)PCIBASE + 0);
-	pPkt->info.el = *(unsigned short*)((unsigned char*)PCIBASE + 2);
+	pPkt->info.antAz    = *(unsigned short*)((unsigned char*)PCIBASE + 0 );
+	pPkt->info.antEl    = *(unsigned short*)((unsigned char*)PCIBASE + 2 );
+	pPkt->info.scanType = *(unsigned short*)((unsigned char*)PCIBASE + 4 );
+	pPkt->info.sweepNum = *(unsigned short*)((unsigned char*)PCIBASE + 6 );
+	pPkt->info.volNum   = *(unsigned short*)((unsigned char*)PCIBASE + 8 );
+	pPkt->info.antSize  = *(unsigned short*)((unsigned char*)PCIBASE + 10);
+	pPkt->info.antTrans = *(unsigned short*)((unsigned char*)PCIBASE + 12);
 
 	// restore DMRR
 	*(volatile unsigned int *)0x140009C = dmrr;
