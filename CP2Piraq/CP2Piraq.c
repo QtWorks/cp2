@@ -70,12 +70,16 @@ static int dmaCountReloadRegB   = 0x0184002CU;
 static int dmaGlobalIndexRegA   = 0x01840030U;
 /// address of the dma  index register b
 static int dmaGlobalIndexRegB   = 0x01840034U;
+/// receives the I/Q data from the A2D fifos
+int *a2dFifoBuffer;		
+///	compute offsets for both CHA and CHB
+float IQoffset[4*NUMCHANS];	
+/// pointer to the PMAC dpram
+unsigned int* pPMACdpram;
 
-int *a2dFifoBuffer;			// receives the I/Q data from the A2D fifos.
-
-float IQoffset[4*NUMCHANS];	//	CP2: compute offsets for both CHA and CHB
-
-unsigned int *Led_ptr,DMA_base, Period;
+unsigned int *Led_ptr;
+unsigned int DMA_base;
+unsigned int Period;
 
 void initializeDma();
 void
@@ -189,6 +193,7 @@ void initTask(void)
 	bytespergate     = pkt->bytespergate;
 	boardnumber      = pkt->channel;
 	nPacketsPerBlock = pkt->packetsPerBlock;
+	pPMACdpram       = (unsigned int*)pkt->PMACdpramAddr;
 
 	// allocate a complete 1-channel PACKET; it contains current pulse, 
 	// header plus data, post channel-select

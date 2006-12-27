@@ -54,6 +54,18 @@ extern int burstready;
 extern unsigned int* pLed0;  /* LED0 */  
 extern unsigned int* pLed1;  /* LED1 */
 
+// PCI physical address of PMAC dpram.
+// wading through some old PMAC code,
+// it looks like the offsets to parameters into
+// the dpram are:
+//  0 - az
+//  2 - el
+//  4 - scan type
+//  6 - sweep
+//  8 - volume
+// 10 - size (?)
+// 12 - transition
+extern unsigned int* pPMACdpram;
 
 ///////////////////////////////////////////////////////////
 int		toFloats(int Ngates, int *pIn, float *pOut);
@@ -145,6 +157,9 @@ void A2DFifoISR(void) {
 #endif
 
 	setPulseAndBeamNumbers(CurPkt);
+
+	CurPkt->info.az = *(unsigned short*)((unsigned char*)pPMACdpram + 0);
+	CurPkt->info.el = *(unsigned short*)((unsigned char*)pPMACdpram + 2);
 	
 	// process 2-channel hwData into 1-channel data: channel-select, gate by gate. data destination CurPkt->data.data
 	ChannelSelect(gates, (float *)a2dFifoBuffer, (float *)CurPkt->data, channelMode); 
