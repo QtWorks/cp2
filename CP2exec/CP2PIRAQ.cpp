@@ -23,6 +23,7 @@ struct sockaddr_in sockAddr,
 	char* configFname, 
 	char* dspObjFname,
 	unsigned int pulsesPerPciXfer,
+	unsigned int pmacDpramAddr,
 	int boardnum):
 PIRAQ(),
 _sockAddr(sockAddr),
@@ -31,6 +32,7 @@ _pulsesPerPciXfer(pulsesPerPciXfer),
 _outport(outputPort_),
 _lastPulseNumber(0),
 _totalHits(0),
+_pmacDpramAddr(pmacDpramAddr),
 _boardnum(boardnum),
 _PNerrors(0)
 {
@@ -47,7 +49,6 @@ CP2PIRAQ::~CP2PIRAQ()
 int
 CP2PIRAQ::init(char* configFname, char* dspObjFname)	 
 {
-
 	readconfig(configFname, &_config);    
 
 	_timing_mode     = _config.timingmode;
@@ -114,6 +115,8 @@ CP2PIRAQ::init(char* configFname, char* dspObjFname)
 	_pConfigPacket->info.packetsPerBlock = _pulsesPerPciXfer;
 	_pConfigPacket->info.flag = 0;							          // Preset the flags just in case
 	_pConfigPacket->info.channel = _boardnum;				          // set BOARD number
+	// set the pmac dpram address
+	_pConfigPacket->info.PMACdpramAddr = _pmacDpramAddr;
 
 	r_c = this->LoadDspCode(dspObjFname);					// load entered DSP executable filename
 	printf("loading %s: this->LoadDspCode returns %d\n", dspObjFname, r_c);  
@@ -164,8 +167,8 @@ CP2PIRAQ::poll()
 		// add all beams to the outgoing packet
 		for (int i = 0; i < _pulsesPerPciXfer; i++) {
 			PPACKET* ppacket = (PPACKET*)((char*)&_pFifoPiraq->info + i*piraqPacketSize);
-			header.az        = 10.0;
-			header.el        = 3.2;
+			header.az        = ppacket->info.az;
+			header.el        = ppacket->info.el;
 			header.beam_num  = ppacket->info.beam_num;
 			header.pulse_num = ppacket->info.pulse_num;
 			header.gates     = ppacket->info.gates;

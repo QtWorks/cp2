@@ -18,6 +18,7 @@ public:
 		char* configFname,
 		char* dspObjFnamefloat,
 		unsigned int packetsPerPciXfer,
+		unsigned int pmacDpramBusAddr,
 		int boardnum
 		);
 
@@ -63,6 +64,13 @@ protected:
 	struct sockaddr_in  _sockAddr;
 	/// socket file descriptor
 	int _socketFd;
+	/// The pci bus address for the PMAC dpram; this
+	/// is passed to the piraq so that it can read
+	/// az and el angles directly from the PMAC.
+	unsigned int _pmacDpramAddr;
+	/// A packet that can be succesive filled with the
+	/// blocked pulse data as it is read out of the PCI
+	/// circular buffer.
 	CP2Packet _cp2Packet;
 	float _prt;				
 	int _prt2;   
