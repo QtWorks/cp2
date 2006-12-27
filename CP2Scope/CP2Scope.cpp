@@ -61,7 +61,7 @@ _collator(1000)
 	// set the intial plot type
 	plotTypeSlot(S_TIMESERIES);
 
-	m_xFullScale = 980;
+	m_xFullScale = 1000;
 	I.resize(m_xFullScale);			//	default timeseries array size full range at 1KHz
 	Q.resize(m_xFullScale);
 	_dataSetSize = m_xFullScale;	//	size of data vector for display or calculations 
@@ -361,7 +361,9 @@ CP2Scope::processPulse(CP2Pulse* pPulse)
 				break;
 			_tsDisplayCount++;
 			if	(_tsDisplayCount >= m_pulseDisplayDecimation)	{	//	
-				for (int i = 0; i < 2*m_xFullScale; i+=2) {	
+				I.resize(pPulse->header.gates);
+				Q.resize(pPulse->header.gates);
+				for (int i = 0; i < 2*pPulse->header.gates; i+=2) {	
 					I[i/2] = pPulse->data[i]*PIRAQ3D_SCALE;
 					Q[i/2] = pPulse->data[i+1]*PIRAQ3D_SCALE;
 				}
