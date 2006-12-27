@@ -204,7 +204,7 @@ int PIRAQ::Init( unsigned short shVendorID ,  unsigned short shDeviceID )
 	m_pControl = NULL;
 	m_pHpib = NULL;
 	m_pFirFilter = NULL;
-static U32 DeviceCount = 0;
+	static U32 DeviceCount = 0;
 
 	// Pointers to memory
 	m_pPiraq_BaseAddress = NULL;
@@ -253,15 +253,15 @@ static U32 DeviceCount = 0;
 
 	// Get m_pPCI_Memory which address the CommonBufferMemory that is shared
 	// between the Host application and the driver to pass data back and forth
-// PCI Memory  Structure
-//typedef struct _PCI_MEMORY
-//{
-//    U32 UserAddr;
-//    U32 PhysicalAddr;
-//    U32 Size;
-//} PCI_MEMORY;
+	// PCI Memory  Structure
+	//typedef struct _PCI_MEMORY
+	//{
+	//    U32 UserAddr;
+	//    U32 PhysicalAddr;
+	//    U32 Size;
+	//} PCI_MEMORY;
 	m_pPCI_Memory	= ((PLX*)m_pPLX)->GetPCIMemoryBaseAddress();
-printf("m_pPCI_Memory->UserAddr = 0x%x m_pPCI_Memory->PhysicalAddr = 0x%x m_pPCI_Memory->Size = 0x%x\n", ((PCI_MEMORY*)m_pPCI_Memory)->UserAddr, ((PCI_MEMORY*)m_pPCI_Memory)->PhysicalAddr, ((PCI_MEMORY*)m_pPCI_Memory)->Size); 
+	printf("m_pPCI_Memory->UserAddr = 0x%x m_pPCI_Memory->PhysicalAddr = 0x%x m_pPCI_Memory->Size = 0x%x\n", ((PCI_MEMORY*)m_pPCI_Memory)->UserAddr, ((PCI_MEMORY*)m_pPCI_Memory)->PhysicalAddr, ((PCI_MEMORY*)m_pPCI_Memory)->Size); 
 
 	if(m_pPCI_Memory == NULL)
 	{
@@ -272,8 +272,8 @@ printf("m_pPCI_Memory->UserAddr = 0x%x m_pPCI_Memory->PhysicalAddr = 0x%x m_pPCI
 	// Check size of CommonBufferMemory to make sure it allocated 8 megabytes
 	// The size is set in the NT registry
 	// The PLX PCI chip request allocation of this space at boot up.
-//	if(((PCI_MEMORY*)m_pPCI_Memory)->Size != 0x1000000) // 16MB total
-//	if(((PCI_MEMORY*)m_pPCI_Memory)->Size != 0x2000000) // 32MB total: preliminary success
+	//	if(((PCI_MEMORY*)m_pPCI_Memory)->Size != 0x1000000) // 16MB total
+	//	if(((PCI_MEMORY*)m_pPCI_Memory)->Size != 0x2000000) // 32MB total: preliminary success
 	if(((PCI_MEMORY*)m_pPCI_Memory)->Size != 0x3000000) // 48MB total: preliminary success
 	{
 		char buf[255];
@@ -283,30 +283,30 @@ printf("m_pPCI_Memory->UserAddr = 0x%x m_pPCI_Memory->PhysicalAddr = 0x%x m_pPCI
 		return(-1);
 	}
 
-DeviceCount++;	// no error return -- increment device count -- and add 8MB to 
-				// m_pCommonBufferAddressOn8MegBounderyPhysical for each successful instantiation. 
+	DeviceCount++;	// no error return -- increment device count -- and add 8MB to 
+	// m_pCommonBufferAddressOn8MegBounderyPhysical for each successful instantiation. 
 	// Due to factors of the PLX chip, we had to allocate twice as much memory (16Megabytes) 
 	// and then shift the address to use 8 Megabyes starting at and even 8 Megabyte boundery. 
-//!!!	m_pCommonBufferAddressOn8MegBounderyPhysical	= (unsigned long *)((char*)(((PCI_MEMORY*)m_pPCI_Memory)->PhysicalAddr & 0xff800000) + 0x800000);
-m_pCommonBufferAddressOn8MegBounderyPhysical	= (unsigned long *)((char*)(((PCI_MEMORY*)m_pPCI_Memory)->PhysicalAddr & 0xff800000) + (0x800000*DeviceCount));
-printf("DeviceCount = 0x%x\n", DeviceCount); 
-printf("m_pCommonBufferAddressOn8MegBounderyPhysical = 0x%x\n", m_pCommonBufferAddressOn8MegBounderyPhysical); 
+	//!!!	m_pCommonBufferAddressOn8MegBounderyPhysical	= (unsigned long *)((char*)(((PCI_MEMORY*)m_pPCI_Memory)->PhysicalAddr & 0xff800000) + 0x800000);
+	m_pCommonBufferAddressOn8MegBounderyPhysical	= (unsigned long *)((char*)(((PCI_MEMORY*)m_pPCI_Memory)->PhysicalAddr & 0xff800000) + (0x800000*DeviceCount));
+	printf("DeviceCount = 0x%x\n", DeviceCount); 
+	printf("m_pCommonBufferAddressOn8MegBounderyPhysical = 0x%x\n", m_pCommonBufferAddressOn8MegBounderyPhysical); 
 	unsigned long lDifference = (unsigned long) m_pCommonBufferAddressOn8MegBounderyPhysical - (unsigned long) ((PCI_MEMORY*)m_pPCI_Memory)->PhysicalAddr;
-printf("lDifference = 0x%x\n", lDifference); 
+	printf("lDifference = 0x%x\n", lDifference); 
 	m_pCommonBufferAddressOn8MegBounderyUser	= (unsigned long *)((char*)((PCI_MEMORY*)m_pPCI_Memory)->UserAddr + lDifference);
-printf("m_pCommonBufferAddressOn8MegBounderyUser = 0x%x\n", m_pCommonBufferAddressOn8MegBounderyUser); 
+	printf("m_pCommonBufferAddressOn8MegBounderyUser = 0x%x\n", m_pCommonBufferAddressOn8MegBounderyUser); 
 	m_lCommonBufferLength = ((PCI_MEMORY*)m_pPCI_Memory)->Size/4/2;
-//m_lCommonBufferLength = 0x200000;
-printf("m_lCommonBufferLength = 0x%x\n", m_lCommonBufferLength); 
+	//m_lCommonBufferLength = 0x200000;
+	printf("m_lCommonBufferLength = 0x%x\n", m_lCommonBufferLength); 
 
 
 	// Set the pointer to the PC system memory "CommonBufferMemory"  into PLX chip
 	// This tells the PLX PCI chip to route DSP calls to memory to this address
 	unsigned long* pPLX_DMPBAM = (unsigned long *)((unsigned char*)m_pPLX_BaseAddress + DMPBAM);
 	*pPLX_DMPBAM = (unsigned long)( (*pPLX_DMPBAM & 0x0000FFFF)  | ((unsigned long)m_pCommonBufferAddressOn8MegBounderyPhysical & 0xFFFF0000));
-printf("*pPLX_DMPBAM = 0x%x\n", *pPLX_DMPBAM); 
+	printf("*pPLX_DMPBAM = 0x%x\n", *pPLX_DMPBAM); 
 
-    // Set the pointer to  "CommonBufferMemory"in PLX chip mailbox 2 for use by DSP program
+	// Set the pointer to  "CommonBufferMemory"in PLX chip mailbox 2 for use by DSP program
 	unsigned long * pPLX_PIRAQ_MAILBOX2 = (unsigned long *)((unsigned char*)m_pPLX_BaseAddress + PIRAQ_MAILBOX2);
 	*pPLX_PIRAQ_MAILBOX2 = (unsigned long)(((unsigned long)m_pCommonBufferAddressOn8MegBounderyPhysical & 0xFFFF0000));
 
@@ -328,7 +328,7 @@ printf("*pPLX_DMPBAM = 0x%x\n", *pPLX_DMPBAM);
 
 	// Set up the timer pointer
 	timer = ((CONTROL *)m_pControl)->GetTimer();
-	
+
 	// Set up the FIRCH pointers
 	FIRCH1_I = GetFilter()->GetFIRCH1_I();
 	FIRCH1_Q = GetFilter()->GetFIRCH1_Q();
@@ -476,7 +476,7 @@ int PIRAQ::PCMemoryTest(unsigned int StartValue)
 	// Write Pattern
 	for(unsigned long i = 0; i< lSize; i++) // 256 heights * 4096 points * 2 (I&Q) - 4byte floats
 	{
-//		*pCommonBufferMemory = (0x0001 + i);
+		//		*pCommonBufferMemory = (0x0001 + i);
 		*pCommonBufferMemory = (StartValue + 4*i);
 		pCommonBufferMemory = pCommonBufferMemory + 1;
 	}
@@ -486,12 +486,12 @@ int PIRAQ::PCMemoryTest(unsigned int StartValue)
 	for(unsigned long j = 0; j< lSize; j++)
 	{
 
-//		if(*pCommonBufferMemory != (0x0001 + j))
+		//		if(*pCommonBufferMemory != (0x0001 + j))
 		if(*pCommonBufferMemory != (StartValue + 4*j))
 		{
 			// If pattern fails, return error
 			SetErrorString("Failed PC Memory Test");
-		  return (0);
+			return (0);
 		}
 
 		pCommonBufferMemory = pCommonBufferMemory + 1;
@@ -527,7 +527,7 @@ int PIRAQ::PCMemoryTest(unsigned int StartValue)
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 void PIRAQ::ReturnTimerValues(unsigned int* piCountsPerDelay,	unsigned int* piCountsForAllGates,
-																unsigned int* piCountsPerGatePulse,unsigned short* piStatus0,unsigned short* piStatus1)
+							  unsigned int* piCountsPerGatePulse,unsigned short* piStatus0,unsigned short* piStatus1)
 {
 	((CONTROL*)m_pControl)->ReturnTimerValues(piCountsPerDelay,	piCountsForAllGates, piCountsPerGatePulse,piStatus0,piStatus1);
 }
@@ -687,11 +687,11 @@ void PIRAQ::StartDsp()
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 void PIRAQ::LoadParameters(float fFrequencyHz, long lTransmitPulseWidthNs,
-													 long lPreTRNs, long lTimeDelayToFirstGateNs,
-													 long lGateSpacingNs, long lNumRangeGates,
-													 long lNumCodeBits, long lNumCoherentIntegrations,
-													 long lNumPointsInSpectrum, long lNumReceivers,
-													 int iTimerDivide, int iFilterType, long lFlip)
+						   long lPreTRNs, long lTimeDelayToFirstGateNs,
+						   long lGateSpacingNs, long lNumRangeGates,
+						   long lNumCodeBits, long lNumCoherentIntegrations,
+						   long lNumPointsInSpectrum, long lNumReceivers,
+						   int iTimerDivide, int iFilterType, long lFlip)
 {	
 
 	//	Transmit Pulse Width must be at least 300ns
@@ -719,7 +719,7 @@ void PIRAQ::LoadParameters(float fFrequencyHz, long lTransmitPulseWidthNs,
 			iGateSpacingClockCycles = iGateSpacingClockCycles + (iGateSpacingClockCycles % 2);
 		}
 		lGateSpacingNs = (long)(iGateSpacingClockCycles * (1e9/fFrequencyHz));
-		
+
 		if(iTransmitPulseWidthClockCycles & 0x1)
 		{
 			iTransmitPulseWidthClockCycles = iTransmitPulseWidthClockCycles + (iTransmitPulseWidthClockCycles % 2);
@@ -736,7 +736,7 @@ void PIRAQ::LoadParameters(float fFrequencyHz, long lTransmitPulseWidthNs,
 			iGateSpacingClockCycles = iGateSpacingClockCycles + (iGateSpacingClockCycles % 4);
 		}
 		lGateSpacingNs = (long)(iGateSpacingClockCycles * (1e9/fFrequencyHz));
-		
+
 		if(iTransmitPulseWidthClockCycles % 4)
 		{
 			iTransmitPulseWidthClockCycles = iTransmitPulseWidthClockCycles + (iTransmitPulseWidthClockCycles % 4);
@@ -752,13 +752,13 @@ void PIRAQ::LoadParameters(float fFrequencyHz, long lTransmitPulseWidthNs,
 			iGateSpacingClockCycles = iGateSpacingClockCycles + (8 - (iGateSpacingClockCycles % 8));
 		}
 		lGateSpacingNs = (long)(iGateSpacingClockCycles * (1e9/fFrequencyHz));
-					
+
 		if(iTransmitPulseWidthClockCycles % 8)
 		{
 			iTransmitPulseWidthClockCycles = iTransmitPulseWidthClockCycles + (8 - (iTransmitPulseWidthClockCycles % 8));
 		}
 		lTransmitPulseWidthNs = (long)(iTransmitPulseWidthClockCycles * (1e9/fFrequencyHz));
-					
+
 	}
 
 	// Only divide by 8 supported at this time
@@ -769,8 +769,8 @@ void PIRAQ::LoadParameters(float fFrequencyHz, long lTransmitPulseWidthNs,
 
 	// Set up the timers
 	((CONTROL*)m_pControl)->SetUpTimers(fFrequencyHz, lTransmitPulseWidthNs, lPreTRNs,
-												 lTimeDelayToFirstGateNs, lGateSpacingNs, lNumRangeGates,
-												 iTimerDivide, iGateSpacingClockCycles,lNumCodeBits);
+		lTimeDelayToFirstGateNs, lGateSpacingNs, lNumRangeGates,
+		iTimerDivide, iGateSpacingClockCycles,lNumCodeBits);
 
 
 	// Only Gaussian filter supported at this time
@@ -848,11 +848,11 @@ void PIRAQ::LoadParameters(float fFrequencyHz, long lTransmitPulseWidthNs,
 void PIRAQ::LoadFIRParameters(float sp_fFrequencyHz, long sp_lTransmitPulseWidthNs, long sp_lNumCodeBits)
 {	
 
-		// Defualt
-		// Gaussian Filter
-		((FIRFILTER*)m_pFirFilter)->Gaussian(sp_fFrequencyHz, sp_lTransmitPulseWidthNs, sp_lNumCodeBits);
+	// Defualt
+	// Gaussian Filter
+	((FIRFILTER*)m_pFirFilter)->Gaussian(sp_fFrequencyHz, sp_lTransmitPulseWidthNs, sp_lNumCodeBits);
 
-//?que es?	pParameters[FLIP]											= lFlip;
+	//?que es?	pParameters[FLIP]											= lFlip;
 
 }
 
@@ -936,7 +936,7 @@ long PIRAQ::SemaSet(int iSemaphore)
 /////////////////////////////////////////////////////////////////////////////////////////
 long  PIRAQ::SemaWait(int iSemaphore, int iTimeOutInMiliSeconds)
 {	
-	
+
 	int iCount = 0;
 	int iMaxCount = (int)ceil((iTimeOutInMiliSeconds)/(float)10);
 
@@ -976,11 +976,11 @@ long  PIRAQ::SemaWait(int iSemaphore, int iTimeOutInMiliSeconds)
 // LAST MODIFIED BY:
 //
 /////////////////////////////////////////////////////////////////////////////////////////
- 
+
 void  PIRAQ::SetPMACAntennaDPRAMAddress(unsigned int * PMACAntennaDPRAMAddress)
 {	
-	
-    // Compute pointer to  PIRAQ mailbox 4; put passed address there 
+
+	// Compute pointer to  PIRAQ mailbox 4; put passed address there 
 	unsigned long * pPLX_PIRAQ_MAILBOX4 = (unsigned long *)((unsigned char*)(GetRegisterBase()) + PIRAQ_MAILBOX4);
 	*pPLX_PIRAQ_MAILBOX4 = (unsigned long)PMACAntennaDPRAMAddress;
 
@@ -1005,11 +1005,11 @@ void  PIRAQ::SetPMACAntennaDPRAMAddress(unsigned int * PMACAntennaDPRAMAddress)
 // LAST MODIFIED BY: Milan Pipersky 3-10-06
 //
 /////////////////////////////////////////////////////////////////////////////////////////
- 
+
 unsigned int * PIRAQ::GetPMACAntennaDPRAMAddress()
 {	
-	
-    // Compute pointer to  PIRAQ mailbox 4; get PMAC DPRAM address stored there for PIRAQ use
+
+	// Compute pointer to  PIRAQ mailbox 4; get PMAC DPRAM address stored there for PIRAQ use
 	unsigned long * pPLX_PIRAQ_MAILBOX4 = (unsigned long *)((unsigned char*)(GetRegisterBase()) + PIRAQ_MAILBOX4);
 	unsigned int * PIRAQ_PMACDPRAM = (unsigned int *)*pPLX_PIRAQ_MAILBOX4; 
 	return(PIRAQ_PMACDPRAM); 
@@ -1049,7 +1049,7 @@ unsigned int * PIRAQ::GetPMACAntennaDPRAMAddress()
 // LAST MODIFIED BY: Milan Pipersky 3-10-06
 //
 /////////////////////////////////////////////////////////////////////////////////////////
- 
+
 void  PIRAQ::SetCP2PIRAQTestAction(unsigned short PIRAQTestAction)
 {	
 	// Compute pointer to  PIRAQ mailbox 5; put PIRAQ test parameter there 
