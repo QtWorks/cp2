@@ -1,6 +1,8 @@
 #ifndef _PROTO_H_
 #define _PROTO_H_
 
+// The number of entries in the circular 
+// buffer, on the host side.
 #define	PIRAQ_FIFO_NUM		120
 
 #include "dd_types.h"
@@ -84,8 +86,8 @@ typedef struct PINFOHEADER
 							///< to calculate beam number from pulse numbers.
     uint4  bytespergate;	///< The number of bytes per gate (2*sizeof(float)),  set by the host.
 	uint4  PMACdpramAddr;   ///< The PCI bus address of the PMAC dpram
-    float4 az;				///< The azimuth, set by Piraq.
-    float4 el;				///< The elevation, set by Piraq.
+    uint4  az;				///< The azimuth, set by Piraq.
+    uint4  el;				///< The elevation, set by Piraq.
 #ifdef _TMS320C6X			///        TI doesn't support long long 
     uint4 pulse_num_low;	///< Pulse number least significant word, on Piraq
     uint4 pulse_num_high;	///< Pulse number most significant word, on Piraq
