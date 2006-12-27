@@ -74,15 +74,7 @@ closeNetwork()
 	WSACleanup( );
 }
 
-
-
-//#ifdef CP2_TESTING		// switch ON test code for CP2 
-// test drx data throughput limits by varying data packet size w/o changing DSP computational load:  
-//#define			DRX_PACKET_TESTING	// define to activate data packet resizing for CP2 throughput testing. 
-//#endif
-//#define TESTING_TIMESERIES // compute test diagnostic timeseries data in one of two piraq channels: 
-//#define TESTING_TIMESERIES_RANGE	// test dynamic reassignment of timeseries start, end gate using 'U','D'
-
+/////////////////////////////////////////////////////////////////////////////
 int keyvalid() 
 {
 	while(!_kbhit()) { } // no keystroke 
@@ -207,9 +199,9 @@ main(int argc, char* argv[], char* envp[])
 	//    are found in succesion, even if we will not be collecting data 
 	//    from all of them.
 
-	piraq1 = new CP2PIRAQ(sockAddr, sock, destIP, outport,   fname1, argv[1], packetsPerPciXfer, 0);
-	piraq2 = new CP2PIRAQ(sockAddr, sock, destIP, outport+1, fname2, argv[1], packetsPerPciXfer, 1);
-	piraq3 = new CP2PIRAQ(sockAddr, sock, destIP, outport+2, fname3, argv[1], packetsPerPciXfer, 2);
+	piraq1 = new CP2PIRAQ(sockAddr, sock, destIP, outport,   fname1, argv[1], packetsPerPciXfer, PMACphysAddr, 0);
+	piraq2 = new CP2PIRAQ(sockAddr, sock, destIP, outport+1, fname2, argv[1], packetsPerPciXfer, PMACphysAddr, 1);
+	piraq3 = new CP2PIRAQ(sockAddr, sock, destIP, outport+2, fname3, argv[1], packetsPerPciXfer, PMACphysAddr, 2);
 
 	///////////////////////////////////////////////////////////////////////////
 	//
