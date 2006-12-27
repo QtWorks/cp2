@@ -54,23 +54,13 @@ extern int burstready;
 extern unsigned int* pLed0;  /* LED0 */  
 extern unsigned int* pLed1;  /* LED1 */
 
-// PCI physical address of PMAC dpram.
-// wading through some old PMAC code,
-// it looks like the offsets to parameters into
-// the dpram are:
-//  0 - az
-//  2 - el
-//  4 - scan type
-//  6 - sweep
-//  8 - volume
-// 10 - size (?)
-// 12 - transition
 extern unsigned int* pPMACdpram;
 
 ///////////////////////////////////////////////////////////
 int		toFloats(int Ngates, int *pIn, float *pOut);
 void 	sumTimeseries(int Ngates, float * restrict pIn, float *pOut);
 void    setPulseAndBeamNumbers(PPACKET* pPkt);
+void    readPMAC(PPACKET* pPkt);
 
 ///////////////////////////////////////////////////////////
 
@@ -81,7 +71,7 @@ void A2DFifoISR(void) {
 	int* fifo1I;
 	int* fifo1Q;
 	int* fifo2I;
-	int *fifo2Q;
+	int *fifo2Q;	
 
 	fifo1I   = FIFO1I;	//(int *)0x1400204;
 	fifo1Q   = FIFO1Q;	//(int *)0x140020C;
@@ -102,37 +92,37 @@ void A2DFifoISR(void) {
 
 	/* Read FIFO 1 Q */
 	dmaTransfer(1, fifo1Q, a2dFifoBuffer+1, gates, 0); 
-		
+
 	/* Read FIFO 2 I */
 	dmaTransfer(1, fifo2I, a2dFifoBuffer+2, gates, 0); 
 
 	/* Read FIFO 2 Q */
 	dmaTransfer(1, fifo2Q, a2dFifoBuffer+3, gates, 0); 
 
-    /* Read EOF's from each FIFO */
-   	temp  = *(volatile int *)fifo2I;
-   	temp |= *(volatile int *)fifo2Q;
-   	temp |= *(volatile int *)fifo1Q;
-   	temp |= *(volatile int *)fifo1I;
+	/* Read EOF's from each FIFO */
+	temp  = *(volatile int *)fifo2I;
+	temp |= *(volatile int *)fifo2Q;
+	temp |= *(volatile int *)fifo1Q;
+	temp |= *(volatile int *)fifo1I;
 
-   	if(temp & 0x3C000) {  /* if any of the lower 4 bits of the EOF are high */
+	if(temp & 0x3C000) {  /* if any of the lower 4 bits of the EOF are high */
 		*pLed1 = 0; /* turn on the EOF fault LED */
 		CurPkt->info.packetflag = 0xffffffffU;  // Tell PC Host got EOF!
 	}
 	else {
 		*pLed1 = 1; /* Turn off the LED */
 	}
-		
+
 	/* Convert I,Q integers to floats in-place */
-   	toFloats(gates, a2dFifoBuffer, (float *) a2dFifoBuffer); 
+	toFloats(gates, a2dFifoBuffer, (float *) a2dFifoBuffer); 
 
 	//  For first dwell sum timeseries to determine Piraq3 DC offset
 	if(!iqOffsets) {	//	I,Q offsets not calcuated
-	  	sumTimeseries(gates, (float *)a2dFifoBuffer, IQoffset);
-	  	ioffset0 = IQoffset[0]*sumnorm;	//	CP2: normalize to #gates only
-	  	qoffset0 = IQoffset[1]*sumnorm;
-	  	ioffset1 = IQoffset[2]*sumnorm;
-	  	qoffset1 = IQoffset[3]*sumnorm;
+		sumTimeseries(gates, (float *)a2dFifoBuffer, IQoffset);
+		ioffset0 = IQoffset[0]*sumnorm;	//	CP2: normalize to #gates only
+		qoffset0 = IQoffset[1]*sumnorm;
+		ioffset1 = IQoffset[2]*sumnorm;
+		qoffset1 = IQoffset[3]*sumnorm;
 		iqOffsets = 1;	//	now they are
 	}
 	// inject test data after channel-select
@@ -158,11 +148,12 @@ void A2DFifoISR(void) {
 
 	setPulseAndBeamNumbers(CurPkt);
 
-	CurPkt->info.az = *(unsigned short*)((unsigned char*)pPMACdpram + 0);
-	CurPkt->info.el = *(unsigned short*)((unsigned char*)pPMACdpram + 2);
-	
-	// process 2-channel hwData into 1-channel data: channel-select, gate by gate. data destination CurPkt->data.data
+	// process 2-channel hwData into 1-channel data: 
+	// channel-select, gate by gate. data destination CurPkt->data.data
 	ChannelSelect(gates, (float *)a2dFifoBuffer, (float *)CurPkt->data, channelMode); 
+
+	// read PMAC and save to the pulse
+	readPMAC(CurPkt);
 
 	// move CurPkt w/combined data from DSP-internal memory to sbsRamBuffer in sbsram: 
 	sbsRamDst = (int *)((char *)sbsRamBuffer 
@@ -182,8 +173,12 @@ void A2DFifoISR(void) {
 	}
 	sbsram_hits++; // hits in sbsram
 
-	if	(sbsram_hits == nPacketsPerBlock)	{	//	Nhit packet accumulated
-		SEM_post(&FillBurstFifo);			//	DMA from SBSRAM to PCI Burst FIFO
+	//	nPacketsPerBlock packet accumulated
+	if	(sbsram_hits == nPacketsPerBlock)	{
+		// Toggle the blinkin' LED
+		*pLed0 = led0flag ^= 1;
+		//	DMA from SBSRAM to PCI Burst FIFO
+		SEM_post(&FillBurstFifo);			
 	}
 }
 
@@ -192,28 +187,28 @@ void A2DFifoISR(void) {
 int toFloats(int ngates, int *pIn, float *pOut) {   
 	int 	i, temp;
 	int 	*iptr;
-   	int		i0i, q0i, i1i, q1i;
+	int		i0i, q0i, i1i, q1i;
 	float 	*iqptr;	
-	
+
 	// Set up pointers 
 	iptr = pIn;			// Copy Input pointer
 	iqptr = pOut;		// Copy IQ pointer
-	
+
 #pragma MUST_ITERATE(20, ,2) 		
-   	// Input all data as int's and convert to floats
-   	for(i = 0; i < ngates; i++) {
+	// Input all data as int's and convert to floats
+		for(i = 0; i < ngates; i++) {
 
-      	// Grab data into upper 18 bits
-      	i0i = (*iptr++);
-      	q0i = (*iptr++);
-      	i1i = (*iptr++);
-      	q1i = (*iptr++);
+		// Grab data into upper 18 bits
+		i0i = (*iptr++);
+		q0i = (*iptr++);
+		i1i = (*iptr++);
+		q1i = (*iptr++);
 
-	   	// Convert ints to floats and store
-	  	*iqptr++ = (float)(i0i) - ioffset0; 
-	  	*iqptr++ = (float)(q0i) - qoffset0; 
-	  	*iqptr++ = (float)(i1i) - ioffset1; 
-	  	*iqptr++ = (float)(q1i) - qoffset1;
+		// Convert ints to floats and store
+		*iqptr++ = (float)(i0i) - ioffset0; 
+		*iqptr++ = (float)(q0i) - qoffset0; 
+		*iqptr++ = (float)(i1i) - ioffset1; 
+		*iqptr++ = (float)(q1i) - qoffset1;
 
 	}
 	temp = 1 ;
@@ -226,18 +221,18 @@ void sumTimeseries(int ngates, float * restrict pIn, float *pOut) {
 
 	int 	i;
 	float 	* restrict iqptr;	
-	
+
 	iqptr = pIn;		// Copy IQ pointer
 
 #pragma MUST_ITERATE(20, ,2) 		
-   	// Input all data as int's and convert to floats
-   	for(i=0; i < ngates; i++) {
-	   	//accumulate timeseries to determine DC offset of Piraq3
-			
+	// Input all data as int's and convert to floats
+		for(i=0; i < ngates; i++) {
+		//accumulate timeseries to determine DC offset of Piraq3
+
 		pOut[0] += *iqptr++;  //i0
 		pOut[1] += *iqptr++;  //q0
-	  	pOut[2] += *iqptr++;  //i1
-	  	pOut[3] += *iqptr++;  //q1
+		pOut[2] += *iqptr++;  //i1
+		pOut[3] += *iqptr++;  //q1
 	}
 }
 
@@ -252,19 +247,65 @@ void    setPulseAndBeamNumbers(PPACKET* pPkt)
 	pPkt->info.pulse_num_low = pulse_num_low;
 	pPkt->info.pulse_num_high = pulse_num_high;
 
-   	// update beam number when samplectr number
+	// update beam number when samplectr number
 	// of hits has been accumulated.
-   	if(++samplectr >= hits) {
+	if(++samplectr >= hits) {
 		/* Update the beam number */
 		if(!(++beam_num_low))
 			beam_num_high++;
 		pPkt->info.beam_num_low = beam_num_low;
 		pPkt->info.beam_num_high = beam_num_high;
-		   
-		*pLed0 = led0flag ^= 1;	// Toggle the blinkin' LED
-	
+
 		samplectr = 0;		// Zero the sample counter
 	}
+}
+
+///////////////////////////////////////////////////////////
+void
+readPMAC(PPACKET* pPkt)
+{
+	volatile unsigned int  dmrr;
+	volatile unsigned int  dmpbam;
+
+	// PCI physical address of PMAC dpram.
+	// wading through some old PMAC code,
+	// it looks like the offsets to parameters into
+	// the dpram are:
+	//  0 - az
+	//  2 - el
+	//  4 - scan type
+	//  6 - sweep
+	//  8 - volume
+	// 10 - size
+	// 12 - transition
+
+	// set PLX chip to configuration speed
+	WriteCE1(PLX_CFG_MODE);
+
+	// save DMRR
+	dmrr = *(volatile unsigned int *)0x140009C;
+
+	// save DMPBAM
+	dmpbam = *(volatile unsigned int *)0x14000A8; 
+
+	// set DMRR for the size of the PMAC dpram
+	*(volatile unsigned int *)0x140009C = 0xffff0000; 				
+
+	// set DMPBAM to access the PMAC dpram
+	*(volatile unsigned int *)0x14000A8 = (unsigned int)pPMACdpram + (dmpbam & 0xFFFF);  
+
+	// read the PMAC locations.
+	pPkt->info.az = *(unsigned short*)((unsigned char*)PCIBASE + 0);
+	pPkt->info.el = *(unsigned short*)((unsigned char*)PCIBASE + 2);
+
+	// restore DMRR
+	*(volatile unsigned int *)0x140009C = dmrr;
+
+	// restore DMPBAM
+	*(volatile unsigned int *)0x14000A8 = dmpbam;
+
+	// restore PLX chip to high speed
+	WriteCE1(HIGH_SPEED_MODE);
 
 
 }
