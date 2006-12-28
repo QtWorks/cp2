@@ -114,11 +114,13 @@ typedef	struct CircularBuffer
 /// Beamnumber is the number of beams since Jan 1,1970.
 /// The first beam (beamnumber = 0) was completed exactly
 /// at the epoch. beamnumber = pulsenumber / hits. 
+///
+/// An EOF was detected on one of the Piraq A/D fifos.
+#define FIFO_EOF 1
 typedef struct PINFOHEADER
 {   
 	int	   flag;			///< command indicator: done, new, old, handshake, whatever, ..... 
-    uint4  packetflag;		///< Flag for communicating status back to host.
-	char   desc[4];			///< not sure what this is for; may be able to discard.
+    short  status;			///< Flag for communicating status back to host.
     uint4  channel;         ///< board number, set by the host
 	uint4  packetsPerBlock;	///< The number of PPACKETS per PCI transfer, set by the host.
     uint4  gates;			///< The number of gates, set by the host.

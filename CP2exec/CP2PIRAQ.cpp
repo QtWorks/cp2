@@ -180,6 +180,10 @@ CP2PIRAQ::poll()
 			header.pulse_num = ppacket->info.pulse_num;
 			header.gates     = ppacket->info.gates;
 			header.hits      = ppacket->info.hits;
+			header.status    = 0;
+			if (ppacket->info.status & FIFO_EOF)
+				header.status |= PIRAQ_FIFO_EOF;
+
 			_cp2Packet.addPulse(header, header.gates*2, ppacket->data);
 
 			// check for pulse number errors
@@ -271,7 +275,6 @@ int CP2PIRAQ::start(long long firstPulseNum,
 {
 	_pConfigPacket->info.pulse_num = firstPulseNum;	// set UNIX epoch pulsenum just before starting
 	_pConfigPacket->info.beam_num = firstBeamNum; 
-	_pConfigPacket->info.packetflag = 1;			// set to piraq: get header! 
 
 	int  d,cnt1,cnt2,i,first;
 	char c;

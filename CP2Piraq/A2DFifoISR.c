@@ -105,9 +105,10 @@ void A2DFifoISR(void) {
 	temp |= *(volatile int *)fifo1Q;
 	temp |= *(volatile int *)fifo1I;
 
+	CurPkt->info.status = 0;
 	if(temp & 0x3C000) {  /* if any of the lower 4 bits of the EOF are high */
 		*pLed1 = 0; /* turn on the EOF fault LED */
-		CurPkt->info.packetflag = 0xffffffffU;  // Tell PC Host got EOF!
+		CurPkt->info.status |= FIFO_EOF;  // Tell PC Host got EOF!
 	}
 	else {
 		*pLed1 = 1; /* Turn off the LED */
