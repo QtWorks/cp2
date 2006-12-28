@@ -196,15 +196,7 @@ CP2PIRAQ::poll()
 		bool error = readBack.setData(_cp2Packet.packetSize(), _cp2Packet.packetData());
 		if (error) {
 			printf("error decoding packet\n");
-		} else {
-			for (int i = 0; i < readBack.numPulses(); i++) {
-				CP2Pulse* pPulse = readBack.getPulse(i);
-				long long pulse = pPulse->header.pulse_num;
-				long long beam = pPulse->header.beam_num;
-				double az = pPulse->header.antAz;
-				double el = pPulse->header.antEl;
-			}
-		}
+		} 
 
 		//////////////////////////////////////////////////////////////////////////
 		//
