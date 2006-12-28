@@ -114,7 +114,9 @@ protected:
 	int				m_dataGramPort;
 	int				m_dataChannel;					///<	board source of data CP2 PIRAQ 1-3 
 	int				m_DataSetGate;					///<	gate in packet to display 
-	int				m_pulseCount;					///<	cumulative pulse count
+	int				m_prevPulseCount[3];			///<	prior cumulative pulse count, used for throughput calcs
+	int				m_pulseCount[3];				///<	cumulative pulse count
+	int				m_errorCount[3];				///<	cumulative error count
 	unsigned int	m_pulseDisplayDecimation;		///<	decimation factor for along range (DATA_SET_PULSE) display: currently set 50
 	unsigned int	m_productsDisplayDecimation;	///<	decimation factor for products display: currently set 50
 	double          _gain;
@@ -130,9 +132,15 @@ protected:
 
 	char*   m_pSocketBuf;
 
+	// how often to update the statistics (in seconds)
+	int _statsUpdateInterval;
+
 	PLOTTYPE        _plotType;
 	int				_dataSet;		//	data grouping for scope displays: along pulse, or gate
 	unsigned int	_dataSetSize;	//	size of data vector for display or calculations 
+
+	// The builtin timer will be used to calculate beam statistics.
+	void timerEvent(QTimerEvent*);
 
 	/// The hamming window coefficients
 	std::vector<double> _hammingCoefs;

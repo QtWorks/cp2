@@ -32,10 +32,16 @@ _tsDisplayCount(0),
 _productDisplayCount(0),
 _Sparams(Params::DUAL_FAST_ALT),
 _Xparams(Params::DUAL_CP2_XBAND),
-_collator(1000)
+_collator(1000),
+_statsUpdateInterval(5)
 {
 	m_dataGramPort	= 3100;
-	m_pulseCount	= 0; 
+	for (int i = 0; i < 3; i++) {
+		m_pulseCount[i]	= 0;
+		m_prevPulseCount[i] = 0;
+		m_errorCount[i] = 0;
+	}
+
 	_plotType = S_TIMESERIES;
 
 	// intialize the data reception socket.
@@ -89,6 +95,8 @@ _collator(1000)
 	// create the moment compute engine for X band
 	_momentsXCompute = new MomentsCompute(_Xparams);
 
+	// start the statistics timer
+	startTimer(_statsUpdateInterval*1000);
 
 }
 //////////////////////////////////////////////////////////////////////
@@ -191,9 +199,8 @@ CP2Scope::xFullScaleBox_valueChanged( int xFullScale )	{
 
 //////////////////////////////////////////////////////////////////////
 void 
-CP2Scope::dataSocketActivatedSlot(int socket)
+CP2Scope::dataSocketActivatedSlot(int)
 {
-	socket = socket;  // so we don't get the unreferenced warning
 	CP2Packet packet;
 	int	readBufLen = m_pDataSocket->readBlock((char *)m_pSocketBuf, sizeof(short)*1000000);
 
@@ -210,12 +217,14 @@ CP2Scope::dataSocketActivatedSlot(int socket)
 				CP2Pulse* pPulse = packet.getPulse(i);
 				if (pPulse) {
 					processPulse(pPulse);
-					m_pulseCount++;
-					if (!(m_pulseCount % 1000))
-						_pulseCount->setNum(m_pulseCount/1000);	// update cumulative packet count 
-				}
+					// sanity check on channel
+					int chan = pPulse->header.channel;
+					if (chan >= 0 && chan < 3) {
+						m_pulseCount[chan]++;
+					} 
+				} 
 			}
-		}
+		} 
 	} else {
 		// read error. What should we do here?
 	}
@@ -282,9 +291,9 @@ CP2Scope::processPulse(CP2Pulse* pPulse)
 					// by the collator. Otherwise, matching pulses returned from
 					// the collator can be deleted here.
 					_collator.addPulse(pFullPulse, pFullPulse->header()->channel - 1);
-//					if(outCount++ < 1000)
-//						std::cout <<"add chan " << pFullPulse->header()->channel << " " 
-//						<< pFullPulse->header()->pulse_num << "\n";
+					//					if(outCount++ < 1000)
+					//						std::cout <<"add chan " << pFullPulse->header()->channel << " " 
+					//						<< pFullPulse->header()->pulse_num << "\n";
 
 					// now see if we have some matching pulses
 					CP2FullPulse* pHPulse;
@@ -628,8 +637,8 @@ CP2Scope::initPlots()
 	_xMomentsPlots.insert(X_DBMVX);
 	_xMomentsPlots.insert(X_DBZHC);
 	_xMomentsPlots.insert(X_SNR);
-//	_xMomentsPlots.insert(X_WIDTH);
-//	_xMomentsPlots.insert(X_VEL);
+	//	_xMomentsPlots.insert(X_WIDTH);
+	//	_xMomentsPlots.insert(X_VEL);
 	_xMomentsPlots.insert(X_LDR);
 
 	_plotInfo[S_TIMESERIES]  = PlotInfo( S_TIMESERIES, TIMESERIES, "I and Q", "S:  I and Q", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
@@ -741,4 +750,25 @@ CP2Scope::addPlotTypeTab(std::string tabName, std::set<PLOTTYPE> types)
 	connect(pGroup, SIGNAL(released(int)), this, SLOT(plotTypeSlot(int)));
 
 	return pGroup;
+}
+//////////////////////////////////////////////////////////////////////
+void
+CP2Scope::timerEvent(QTimerEvent*) 
+{
+
+	int rate[3];
+	for (int i = 0; i < 3; i++) 
+	{
+		rate[i] = (m_pulseCount[i] - m_prevPulseCount[i])/_statsUpdateInterval;
+		m_prevPulseCount[i] = m_pulseCount[i];
+	}
+	_chan0pulseCount->setNum(m_pulseCount[0]/1000);
+	_chan0pulseRate->setNum(rate[0]);
+	_chan0errors->setNum(0);
+	_chan1pulseCount->setNum(m_pulseCount[1]/1000);
+	_chan1pulseRate->setNum(rate[1]);
+	_chan1errors->setNum(0);
+	_chan2pulseCount->setNum(m_pulseCount[2]/1000);
+	_chan2pulseRate->setNum(rate[2]);
+	_chan2errors->setNum(0);
 }
