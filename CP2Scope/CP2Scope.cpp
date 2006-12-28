@@ -472,6 +472,8 @@ CP2Scope::initializeSocket()
 		exit(1);
 	}
 
+	//strcpy(nameBuf, "127.0.0.1");
+
 	struct hostent* pHostEnt = gethostbyname(nameBuf);
 	if (!pHostEnt) {
 		qWarning("gethostbyname failed");

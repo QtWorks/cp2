@@ -109,6 +109,7 @@ main(int argc, char* argv[], char* envp[])
 	CONFIG *config1, *config2, *config3;
 	char fname1[100]; char fname2[100]; char fname3[100]; // configuration filenames
 	char* destIP = "192.168.3.255";
+	//destIP = "127.0.0.1";
 
 	unsigned int packetsPerPciXfer; 
 	int outport;
