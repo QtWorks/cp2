@@ -1,9 +1,49 @@
 #ifndef _PROTO_H_
 #define _PROTO_H_
 
-// The number of entries in the circular 
-// buffer, on the host side.
 #define	PIRAQ_FIFO_NUM		120
+//
+// ALL OF THE FOLLOWING SHOULD MAKE SENSE, BUT IT DOESN'T
+// WORK. IF THE CIRCULAR BUFFER IS LARGER THAN 8MB,
+// WINDOWS CRASHES. SERIOUSLY. THE GOOD OLD FASHIONED
+// BLUE SCREEN OF DEATH. SO FOR NOW, PIRAQ_FIFO_NUM = 120.
+//
+// PIRAQ_FIFO_NUM is number of entries in the 
+// circular buffer, in host ram. Recall 
+// that the circular buffer is accesed by both 
+// the host and the Piraq (via PCI).
+// 
+// The total size of the circular buffer 
+// will be PIRAQ_FIFO_NUM times the 
+// size of each PPACKET, plus the
+// (small) amount of book keeping (head and
+// tail pointer, etc.) kept at the head of the
+// circular buffer. This total must not exceed
+// 16MB (0x1000000), which is the size of the PCI 
+// address space that the Piraq can access. It also
+// can not exceed the size of the reserved ram that
+// the PLX code has reserved from windows. 
+// The amount that the PLX code will allocate
+// is specified in a registry entry, and the
+// registry is configured currently to ask for 
+// 48MB (0x3000000), but perhaps it should
+// should only ask for 16MB, since that is all that
+// the Piraq can use anyway. 
+//
+// The Piraq driver should verify that at least
+// 16MB was allocated; it doesn't currently do 
+// this, and thus unexpected system lockups 
+// can be expected if the memory cannot be allocated.
+//
+// Roughly estimating:
+//    250 * 1000 gates 
+///       * 8 pulses per packet 
+//        * 8 bytes per gate 
+//        = 16,000,000.
+// This does not account for the size of PINFOHEADER, nor
+// the circular buffer book keeping. It does seem 
+// like a reasonable margin, since
+// 16MB = 16,777,216.
 
 #include "dd_types.h"
 

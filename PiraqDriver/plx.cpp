@@ -103,10 +103,10 @@ PLX::InitPLX(  unsigned short shVendorID, unsigned short shDeviceID, unsigned sh
 	{
 		return -1;
 	}
-printf("m_pPLX_Device.SlotNumber = 0x%x\n", m_pPLX_Device.SlotNumber); 	
-printf("DeviceNum = 0x%x\n", DeviceNum); 	
-//!!!as it was:	DeviceNum=1;
-DeviceNum++; // gets a distinct value on each PLX instantiation
+	printf("Piraq PCI slotNumber = 0x%x\n", m_pPLX_Device.SlotNumber); 	
+	printf("Piraq PCI deviceNum = 0x%x\n", DeviceNum); 	
+	//!!!as it was:	DeviceNum=1;
+	DeviceNum++; // gets a distinct value on each PLX instantiation
 
 	// Open board
 	lReturnVal = PlxPciDeviceOpen( &m_pPLX_Device, &m_pPLX_Handle );
@@ -121,7 +121,7 @@ DeviceNum++; // gets a distinct value on each PLX instantiation
 	{
 		return -1;
 	}
-
+	printf("PLX common buffer memory size 0x%x\n", m_pPCI_Memory.Size);
 	// Get the base addresses of the EPROM, Regesters, Filters and Timers 
 	lReturnVal = PlxPciBaseAddressesGet(m_pPLX_Handle,&m_pVirtualAddresses);
 	if (lReturnVal!=ApiSuccess)

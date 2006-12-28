@@ -101,7 +101,9 @@ CP2PIRAQ::init(char* configFname, char* dspObjFname)
 	_pFifo->record_num = PIRAQ_FIFO_NUM;							/* number of records in cb buffer */
 	_pFifo->head = _pFifo->tail = 0;							/* indexes to the head and tail records */
 
-	printf("_pFifo = %p, recordsize = %d\n", _pFifo, _pFifo->record_size); 
+	printf("Circular buffer address is %p, recordsize = %d\n", _pFifo, _pFifo->record_size);
+	int cbTotalSize = sizeof(CircularBuffer) + PIRAQ_FIFO_NUM*_pFifo->record_size;
+	printf("Total circular buffer size = %d (0x%08x)\n", cbTotalSize, cbTotalSize); 
 
 	//////////////////////////////////////////////////////////////////
 
