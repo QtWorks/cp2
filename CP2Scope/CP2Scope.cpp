@@ -16,6 +16,8 @@
 #include <qbuttongroup.h>
 #include <qvbox.h>
 #include <qframe.h>
+#include <qpushbutton.h>
+#include <qpalette.h>
 
 #include <algorithm>
 
@@ -63,6 +65,11 @@ _statsUpdateInterval(5)
 
 	_scopeGain = 1;
 	_scopeOffset = 0.0;
+
+	// set leds to green
+	_chan0led->setBackgroundColor(QColor("green"));
+	_chan1led->setBackgroundColor(QColor("green"));
+	_chan2led->setBackgroundColor(QColor("green"));
 
 	// set the intial plot type
 	plotTypeSlot(S_TIMESERIES);
@@ -216,11 +223,25 @@ CP2Scope::dataSocketActivatedSlot(int)
 			for (int i = 0; i < packet.numPulses(); i++) {
 				CP2Pulse* pPulse = packet.getPulse(i);
 				if (pPulse) {
-					processPulse(pPulse);
-					// sanity check on channel
 					int chan = pPulse->header.channel;
 					if (chan >= 0 && chan < 3) {
+						processPulse(pPulse);
+						// sanity check on channel
 						m_pulseCount[chan]++;
+						if (pPulse->header.status & PIRAQ_FIFO_EOF) {
+							switch (chan) 
+							{
+							case 0:
+								_chan0led->setBackgroundColor(QColor("red"));
+								break;
+							case 1:
+								_chan1led->setBackgroundColor(QColor("red"));
+								break;
+							case 2:
+								_chan2led->setBackgroundColor(QColor("red"));
+								break;
+							}
+						}
 					} 
 				} 
 			}
