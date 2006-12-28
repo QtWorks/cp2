@@ -16,13 +16,19 @@
         "Entry"
         {
         "MsmKey" = "8:_140D694EF3F0FA3CC79DE43A96807A31"
-        "OwnerKey" = "8:_DA94F78ABC1C4685A637C7A23699D392"
+        "OwnerKey" = "8:_53DA620939F14FF3A6D97F1202D2BBB1"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_140D694EF3F0FA3CC79DE43A96807A31"
-        "OwnerKey" = "8:_53DA620939F14FF3A6D97F1202D2BBB1"
+        "OwnerKey" = "8:_DA94F78ABC1C4685A637C7A23699D392"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_273B421B3B284DB29BC80A1D80249D36"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -64,13 +70,13 @@
         "Entry"
         {
         "MsmKey" = "8:_AC2BA069636E973776CD2CC9D72A0BB2"
-        "OwnerKey" = "8:_DA94F78ABC1C4685A637C7A23699D392"
+        "OwnerKey" = "8:_53DA620939F14FF3A6D97F1202D2BBB1"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_AC2BA069636E973776CD2CC9D72A0BB2"
-        "OwnerKey" = "8:_53DA620939F14FF3A6D97F1202D2BBB1"
+        "OwnerKey" = "8:_DA94F78ABC1C4685A637C7A23699D392"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -167,6 +173,26 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_273B421B3B284DB29BC80A1D80249D36"
+            {
+            "SourcePath" = "8:..\\CP2Scope\\icon1.ico"
+            "TargetName" = "8:icon1.ico"
+            "Tag" = "8:"
+            "Folder" = "8:_04305C9CADE44428B7EE853F880CDD96"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
             "{A582A373-4685-4296-BEFE-614B80A702C3}:_346BD638F0C6426008E90C9B3F81A60F"
@@ -358,6 +384,17 @@
                 {
                 }
             }
+            "{78BAF5CE-F2E5-45BE-83BC-DB6AF387E941}:_9EC067D8676B4BE69683730D6B2562DB"
+            {
+            "Name" = "8:#1921"
+            "AlwaysCreate" = "11:FALSE"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Property" = "8:StartMenuFolder"
+                "Folders"
+                {
+                }
+            }
             "{78BAF5CE-F2E5-45BE-83BC-DB6AF387E941}:_FCC47DD5B92A446DB483C95BC31A5A9D"
             {
             "Name" = "8:#1919"
@@ -385,7 +422,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:CP2Soft"
         "ProductCode" = "8:{8BE8DA03-C62B-41AE-9131-BBEACC377147}"
-        "PackageCode" = "8:{B255445A-1A43-4960-9AB5-4EE53B1A9310}"
+        "PackageCode" = "8:{6B1E8DE9-853E-43E9-B9D0-0D7DB83CF7E3}"
         "UpgradeCode" = "8:{4B075FA3-178C-4A37-A747-F347AE82E93F}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
@@ -499,6 +536,34 @@
         }
         "Shortcut"
         {
+            "{478F747B-8505-45D1-9AAE-8C3B645C26E3}:_A247A3C101D64DD3BF19408927DEA900"
+            {
+            "Name" = "8:CP2Scope"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_53DA620939F14FF3A6D97F1202D2BBB1"
+            "Folder" = "8:_FCC47DD5B92A446DB483C95BC31A5A9D"
+            "WorkingFolder" = "8:_04305C9CADE44428B7EE853F880CDD96"
+            "Icon" = "8:_273B421B3B284DB29BC80A1D80249D36"
+            "Feature" = "8:"
+            }
+            "{478F747B-8505-45D1-9AAE-8C3B645C26E3}:_FC7073CA7C4F4B41911077D8B2FFF3F4"
+            {
+            "Name" = "8:CP2Scope"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_53DA620939F14FF3A6D97F1202D2BBB1"
+            "Folder" = "8:_9EC067D8676B4BE69683730D6B2562DB"
+            "WorkingFolder" = "8:_04305C9CADE44428B7EE853F880CDD96"
+            "Icon" = "8:_273B421B3B284DB29BC80A1D80249D36"
+            "Feature" = "8:"
+            }
         }
         "UserInterface"
         {

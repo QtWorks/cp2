@@ -13,15 +13,15 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Moments", "Moments\Moments.
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "CP2 Viz Installer", "CP2 Viz Installer\CP2 Viz Installer.vdproj", "{2ABE0A08-3094-41C2-B102-47FBA42B601B}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CP2Lib", "CP2Lib\CP2Lib.vcproj", "{24F92727-A227-419D-BD34-A56FC7565DB4}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PiraqDriver", "PiraqDriver\PiraqDriver.vcproj", "{751C4798-1A1B-4C55-A711-D136DADA2B79}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "CP2Soft", "CP2Soft\CP2Soft.vdproj", "{81384C12-85CE-4220-8BEA-458FE79E8C7B}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -43,8 +43,6 @@ Global
 		{B4F88715-7416-4BF0-BB8F-E424FD428262}.Debug.Build.0 = Debug|Win32
 		{B4F88715-7416-4BF0-BB8F-E424FD428262}.Release.ActiveCfg = Release|Win32
 		{B4F88715-7416-4BF0-BB8F-E424FD428262}.Release.Build.0 = Release|Win32
-		{2ABE0A08-3094-41C2-B102-47FBA42B601B}.Debug.ActiveCfg = Debug
-		{2ABE0A08-3094-41C2-B102-47FBA42B601B}.Release.ActiveCfg = Release
 		{24F92727-A227-419D-BD34-A56FC7565DB4}.Debug.ActiveCfg = Debug|Win32
 		{24F92727-A227-419D-BD34-A56FC7565DB4}.Debug.Build.0 = Debug|Win32
 		{24F92727-A227-419D-BD34-A56FC7565DB4}.Release.ActiveCfg = Release|Win32
@@ -53,6 +51,9 @@ Global
 		{751C4798-1A1B-4C55-A711-D136DADA2B79}.Debug.Build.0 = Debug|Win32
 		{751C4798-1A1B-4C55-A711-D136DADA2B79}.Release.ActiveCfg = Release|Win32
 		{751C4798-1A1B-4C55-A711-D136DADA2B79}.Release.Build.0 = Release|Win32
+		{81384C12-85CE-4220-8BEA-458FE79E8C7B}.Debug.ActiveCfg = Debug
+		{81384C12-85CE-4220-8BEA-458FE79E8C7B}.Debug.Build.0 = Debug
+		{81384C12-85CE-4220-8BEA-458FE79E8C7B}.Release.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
