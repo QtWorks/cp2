@@ -165,7 +165,7 @@ void A2DFifoISR(void) {
 		(sizeof(PINFOHEADER) + (gates * bytespergate)), 
 		0); 
 
-	if	(burstready && (sbsram_hits == 1*boardnumber))	{	
+	if	(burstready && (sbsram_hits == 2*boardnumber))	{	
 		//	complete Nhit packet in burst fifo, 
 		// and board-specific stagger elapsed
 		// enable dma transfer from burst fifo to pci bus.
