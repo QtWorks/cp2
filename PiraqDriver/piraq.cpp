@@ -288,27 +288,34 @@ int PIRAQ::Init( unsigned short shVendorID ,  unsigned short shDeviceID )
 	// Due to factors of the PLX chip, we had to allocate twice as much memory (16Megabytes) 
 	// and then shift the address to use 8 Megabyes starting at and even 8 Megabyte boundery. 
 	//!!!	m_pCommonBufferAddressOn8MegBounderyPhysical	= (unsigned long *)((char*)(((PCI_MEMORY*)m_pPCI_Memory)->PhysicalAddr & 0xff800000) + 0x800000);
-	m_pCommonBufferAddressOn8MegBounderyPhysical	= (unsigned long *)((char*)(((PCI_MEMORY*)m_pPCI_Memory)->PhysicalAddr & 0xff800000) + (0x800000*DeviceCount));
-	printf("DeviceCount = 0x%x\n", DeviceCount); 
-	printf("m_pCommonBufferAddressOn8MegBounderyPhysical = 0x%x\n", m_pCommonBufferAddressOn8MegBounderyPhysical); 
-	unsigned long lDifference = (unsigned long) m_pCommonBufferAddressOn8MegBounderyPhysical - (unsigned long) ((PCI_MEMORY*)m_pPCI_Memory)->PhysicalAddr;
-	printf("lDifference = 0x%x\n", lDifference); 
-	m_pCommonBufferAddressOn8MegBounderyUser	= (unsigned long *)((char*)((PCI_MEMORY*)m_pPCI_Memory)->UserAddr + lDifference);
-	printf("m_pCommonBufferAddressOn8MegBounderyUser = 0x%x\n", m_pCommonBufferAddressOn8MegBounderyUser); 
+	m_pCommonBufferAddressOn8MegBounderyPhysical	
+		= (unsigned long *)((char*)(((PCI_MEMORY*)m_pPCI_Memory)->PhysicalAddr & 0xff800000) 
+		+ (0x800000*DeviceCount));
+
+	unsigned long lDifference 
+		= (unsigned long) m_pCommonBufferAddressOn8MegBounderyPhysical 
+		- (unsigned long) ((PCI_MEMORY*)m_pPCI_Memory)->PhysicalAddr;
+
+	m_pCommonBufferAddressOn8MegBounderyUser	
+		= (unsigned long *)((char*)((PCI_MEMORY*)m_pPCI_Memory)->UserAddr + lDifference);
+
 	m_lCommonBufferLength = ((PCI_MEMORY*)m_pPCI_Memory)->Size/4/2;
 	//m_lCommonBufferLength = 0x200000;
-	printf("m_lCommonBufferLength = 0x%x\n", m_lCommonBufferLength); 
-
 
 	// Set the pointer to the PC system memory "CommonBufferMemory"  into PLX chip
 	// This tells the PLX PCI chip to route DSP calls to memory to this address
 	unsigned long* pPLX_DMPBAM = (unsigned long *)((unsigned char*)m_pPLX_BaseAddress + DMPBAM);
-	*pPLX_DMPBAM = (unsigned long)( (*pPLX_DMPBAM & 0x0000FFFF)  | ((unsigned long)m_pCommonBufferAddressOn8MegBounderyPhysical & 0xFFFF0000));
-	printf("*pPLX_DMPBAM = 0x%x\n", *pPLX_DMPBAM); 
+	*pPLX_DMPBAM 
+		= (unsigned long)( (*pPLX_DMPBAM & 0x0000FFFF)  
+		| ((unsigned long)m_pCommonBufferAddressOn8MegBounderyPhysical & 0xFFFF0000));
 
 	// Set the pointer to  "CommonBufferMemory"in PLX chip mailbox 2 for use by DSP program
-	unsigned long * pPLX_PIRAQ_MAILBOX2 = (unsigned long *)((unsigned char*)m_pPLX_BaseAddress + PIRAQ_MAILBOX2);
-	*pPLX_PIRAQ_MAILBOX2 = (unsigned long)(((unsigned long)m_pCommonBufferAddressOn8MegBounderyPhysical & 0xFFFF0000));
+	unsigned long* pPLX_PIRAQ_MAILBOX2 
+		= (unsigned long *)
+		((unsigned char*)m_pPLX_BaseAddress + PIRAQ_MAILBOX2);
+	*pPLX_PIRAQ_MAILBOX2 
+		= (unsigned long)
+		(((unsigned long)m_pCommonBufferAddressOn8MegBounderyPhysical & 0xFFFF0000));
 
 	// Set the length in bytes of the "CommonBufferMemory"
 	unsigned long* pPLX_DMRR = (unsigned long *)((unsigned char*)m_pPLX_BaseAddress + DMRR);
@@ -316,10 +323,23 @@ int PIRAQ::Init( unsigned short shVendorID ,  unsigned short shDeviceID )
 
 	// Set the address that the DSP will use to write to the "CommonBufferMemory"
 	// This remaps a constant address for the DSP to a changing address in PC memory
-	unsigned long* pPLX_DMLBAM = (unsigned long *)((unsigned char*)m_pPLX_BaseAddress + DMLBAM);
+	unsigned long* pPLX_DMLBAM 
+		= (unsigned long *)((unsigned char*)m_pPLX_BaseAddress + DMLBAM);
 	*pPLX_DMLBAM = 0x0;
 
-	m_pSemaphores = (unsigned long *)((unsigned char*)m_pCommonBufferAddressOn8MegBounderyUser + SEMAPHOREOFFSET);
+	m_pSemaphores 
+		= (unsigned long *)
+		((unsigned char*)m_pCommonBufferAddressOn8MegBounderyUser + SEMAPHOREOFFSET);
+
+	printf("Device number %d\n", DeviceCount); 
+	printf("PCI memory physical address 0x%08x\n", ((PCI_MEMORY*)m_pPCI_Memory)->PhysicalAddr);
+	printf("*pPLX_DMPBAM = 0x%x\n", *pPLX_DMPBAM); 
+	printf("m_pCommonBufferAddressOn8MegBounderyPhysical = 0x%08x\n", 
+		m_pCommonBufferAddressOn8MegBounderyPhysical); 
+	printf("lDifference = 0x%x\n", lDifference); 
+	printf("m_pCommonBufferAddressOn8MegBounderyUser = 0x%08x\n", 
+		m_pCommonBufferAddressOn8MegBounderyUser); 
+	printf("m_lCommonBufferLength = 0x%08x\n", m_lCommonBufferLength); 
 
 	// Create classes
 	m_pControl						= new CONTROL(m_pPiraq_BaseAddress);
