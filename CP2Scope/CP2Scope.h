@@ -109,28 +109,30 @@ public slots:
 	virtual void DataChannelSpinBox_valueChanged( int ); 
 
 protected:
-	QSocketDevice*   m_pDataSocket;
-	QSocketNotifier* m_pDataSocketNotifier;
-	int				m_dataGramPort;
-	int				m_dataChannel;					///<	board source of data CP2 PIRAQ 1-3 
-	int				m_DataSetGate;					///<	gate in packet to display 
-	int				m_prevPulseCount[3];			///<	prior cumulative pulse count, used for throughput calcs
-	int				m_pulseCount[3];				///<	cumulative pulse count
-	int				m_errorCount[3];				///<	cumulative error count
-	unsigned int	m_pulseDisplayDecimation;		///<	decimation factor for along range (DATA_SET_PULSE) display: currently set 50
-	unsigned int	m_productsDisplayDecimation;	///<	decimation factor for products display: currently set 50
+	QSocketDevice*   _pSocket;
+	QSocketNotifier* _pSocketNotifier;
+	int				_dataGramPort;
+	int				_dataChannel;					///<	board source of data CP2 PIRAQ 1-3 
+	int				_dataSetGate;					///<	gate in packet to display 
+	int				_prevPulseCount[3];			///<	prior cumulative pulse count, used for throughput calcs
+	int				_pulseCount[3];				///<	cumulative pulse count
+	int				_errorCount[3];				///<	cumulative error count
+	bool			_eof[3];						///<    set true when fifo eof occurs. Used so that we don't
+	///<    keep setting the fifo eof led.
+	unsigned int	_pulseDecimation;		///<	decimation factor for along range (DATA_SET_PULSE) display: currently set 50
+	unsigned int	_productsDecimation;	///<	decimation factor for products display: currently set 50
 	double          _gain;
 	double          _offset;
 	double			_scopeGain;						///<	
 	double			_scopeOffset;						///<	
-	double			m_xFullScale;					///<	x-scale max
+	double			_xFullScale;					///<	x-scale max
 
 	std::vector<double> I;		//	timeseries arrays for display
 	std::vector<double> Q;
 	std::vector<double> _spectrum;
-	std::vector<double> ProductData;	//	use array for displaying products.
+	std::vector<double> _ProductData;	//	use array for displaying products.
 
-	char*   m_pSocketBuf;
+	char*   _pSocketBuf;
 
 	// how often to update the statistics (in seconds)
 	int _statsUpdateInterval;
@@ -155,7 +157,7 @@ protected:
 	fftw_complex* _fftwData;
 
 	//	fixed block size for initial cut: 
-	unsigned int m_fft_blockSize;
+	unsigned int _fftBlockSize;
 
 	//	power correction factor applied to (uncorrected) powerSpectrum() output
 	double	_powerCorrection;	///< approximate power correction to dBm 

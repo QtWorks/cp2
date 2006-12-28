@@ -27,9 +27,9 @@
 
 //////////////////////////////////////////////////////////////////////
 CP2Scope::CP2Scope():
-m_pDataSocket(0),    
-m_pDataSocketNotifier(0),
-m_pSocketBuf(0),	
+_pSocket(0),    
+_pSocketNotifier(0),
+_pSocketBuf(0),	
 _tsDisplayCount(0),
 _productDisplayCount(0),
 _Sparams(Params::DUAL_FAST_ALT),
@@ -37,11 +37,12 @@ _Xparams(Params::DUAL_CP2_XBAND),
 _collator(1000),
 _statsUpdateInterval(5)
 {
-	m_dataGramPort	= 3100;
+	_dataGramPort	= 3100;
 	for (int i = 0; i < 3; i++) {
-		m_pulseCount[i]	= 0;
-		m_prevPulseCount[i] = 0;
-		m_errorCount[i] = 0;
+		_pulseCount[i]	= 0;
+		_prevPulseCount[i] = 0;
+		_errorCount[i] = 0;
+		_eof[i] = false;
 	}
 
 	_plotType = S_TIMESERIES;
@@ -74,24 +75,24 @@ _statsUpdateInterval(5)
 	// set the intial plot type
 	plotTypeSlot(S_TIMESERIES);
 
-	m_xFullScale = 1000;
-	I.resize(m_xFullScale);			//	default timeseries array size full range at 1KHz
-	Q.resize(m_xFullScale);
-	_dataSetSize = m_xFullScale;	//	size of data vector for display or calculations 
+	_xFullScale = 1000;
+	I.resize(_xFullScale);			//	default timeseries array size full range at 1KHz
+	Q.resize(_xFullScale);
+	_dataSetSize = _xFullScale;	//	size of data vector for display or calculations 
 	_dataSet = DATA_SET_PULSE;
 
 	//	display decimation, set to get ~50/sec
-	m_pulseDisplayDecimation	= 50;	//	default w/prt = 1000Hz, timeseries data 
-	m_productsDisplayDecimation	= 5;	//	default w/prt = 1000Hz, hits = 10, products data
+	_pulseDecimation	= 50;	//	default w/prt = 1000Hz, timeseries data 
+	_productsDecimation	= 5;	//	default w/prt = 1000Hz, hits = 10, products data
 
-	m_DataSetGate = 50;		//!get spinner value
+	_dataSetGate = 50;		//!get spinner value
 
 	//	set up fft for power calculations: 
-	m_fft_blockSize = 256;	//	temp constant for initial proving 
+	_fftBlockSize = 256;	//	temp constant for initial proving 
 	// allocate the data space for fftw
-	_fftwData  = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * m_fft_blockSize);
+	_fftwData  = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * _fftBlockSize);
 	// create the plan.
-	_fftwPlan = fftw_plan_dft_1d(m_fft_blockSize, _fftwData, _fftwData,
+	_fftwPlan = fftw_plan_dft_1d(_fftBlockSize, _fftwData, _fftwData,
 		FFTW_FORWARD, FFTW_ESTIMATE);
 	//	power correction factor applied to (uncorrected) powerSpectrum() output:
 	_powerCorrection = 0.0;	//	use for power correction to dBm
@@ -108,14 +109,14 @@ _statsUpdateInterval(5)
 }
 //////////////////////////////////////////////////////////////////////
 CP2Scope::~CP2Scope() {
-	if (m_pDataSocketNotifier)
-		delete m_pDataSocketNotifier;
+	if (_pSocketNotifier)
+		delete _pSocketNotifier;
 
-	if (m_pDataSocket)
-		delete m_pDataSocket;
+	if (_pSocket)
+		delete _pSocket;
 
-	if (m_pSocketBuf)
-		delete [] m_pSocketBuf;
+	if (_pSocketBuf)
+		delete [] _pSocketBuf;
 
 	delete _momentsSCompute;
 
@@ -156,13 +157,13 @@ CP2Scope::dataSetSlot(bool b)	{
 void CP2Scope::resizeDataVectors()	{	
 	//	resize data vectors to x-axis max, not gates: fft size if that is the plot type. 
 	if	(_plotType >= ScopePlot::PRODUCT)	{	//	current product to display
-		ProductData.resize(m_xFullScale); 
+		_ProductData.resize(_xFullScale); 
 		//	enable x-scale spinner
 	}
 	else	{	//	timeseries-type or product
-		I.resize(m_xFullScale);	//	resize timeseries arrays, x-axis
-		Q.resize(m_xFullScale);
-		_dataSetSize = m_xFullScale; 
+		I.resize(_xFullScale);	//	resize timeseries arrays, x-axis
+		Q.resize(_xFullScale);
+		_dataSetSize = _xFullScale; 
 	}
 }
 
@@ -184,7 +185,7 @@ void
 CP2Scope::DataChannelSpinBox_valueChanged( int dataChannel )	
 {
 	//	change the data channel
-	m_dataChannel = dataChannel;	
+	_dataChannel = dataChannel;	
 }
 
 
@@ -192,7 +193,7 @@ CP2Scope::DataChannelSpinBox_valueChanged( int dataChannel )
 void 
 CP2Scope::DataSetGateSpinBox_valueChanged( int SpinBoxGate )	{
 	//	change the gate for assembling data sets 
-	m_DataSetGate    = SpinBoxGate;
+	_dataSetGate    = SpinBoxGate;
 }
 //////////////////////////////////////////////////////////////////////
 void 
@@ -200,7 +201,7 @@ CP2Scope::xFullScaleBox_valueChanged( int xFullScale )	{
 	//	change the gate for assembling data sets 
 	if	(_plotType == ScopePlot::SPECTRUM)	//	fft: disable spinner
 		return;
-	m_xFullScale    = xFullScale;
+	_xFullScale    = xFullScale;
 	resizeDataVectors();	//	resize data vectors
 }
 
@@ -209,11 +210,11 @@ void
 CP2Scope::dataSocketActivatedSlot(int)
 {
 	CP2Packet packet;
-	int	readBufLen = m_pDataSocket->readBlock((char *)m_pSocketBuf, sizeof(short)*1000000);
+	int	readBufLen = _pSocket->readBlock((char *)_pSocketBuf, sizeof(short)*1000000);
 
 	if (readBufLen > 0) {
 		// put this datagram into a packet
-		bool packetBad = packet.setData(readBufLen, m_pSocketBuf);
+		bool packetBad = packet.setData(readBufLen, _pSocketBuf);
 
 		// Extract the pulses and process them.
 		// Observe paranoia for validating packets and pulses.
@@ -227,18 +228,27 @@ CP2Scope::dataSocketActivatedSlot(int)
 					if (chan >= 0 && chan < 3) {
 						processPulse(pPulse);
 						// sanity check on channel
-						m_pulseCount[chan]++;
+						_pulseCount[chan]++;
 						if (pPulse->header.status & PIRAQ_FIFO_EOF) {
 							switch (chan) 
 							{
 							case 0:
-								_chan0led->setBackgroundColor(QColor("red"));
+								if (!_eof[0]) {
+									_eof[0] = true;
+									_chan0led->setBackgroundColor(QColor("red"));
+								}
 								break;
 							case 1:
-								_chan1led->setBackgroundColor(QColor("red"));
+								if (!_eof[1]) {
+									_eof[1] = true;
+									_chan1led->setBackgroundColor(QColor("red"));
+								}
 								break;
 							case 2:
-								_chan2led->setBackgroundColor(QColor("red"));
+								if (!_eof[2]) {
+									_eof[2] = true;
+									_chan2led->setBackgroundColor(QColor("red"));
+								}
 								break;
 							}
 						}
@@ -364,19 +374,19 @@ CP2Scope::processPulse(CP2Pulse* pPulse)
 		}
 	case ScopePlot::SPECTRUM:
 		{
-			if (pPulse->header.channel != m_dataChannel)
+			if (pPulse->header.channel != _dataChannel)
 				break;
 			_tsDisplayCount++;
-			if	(_tsDisplayCount >= m_pulseDisplayDecimation)	{	
-				_spectrum.resize(m_fft_blockSize);	//	probably belongs somewhere else
-				for( int j = 0; j < m_fft_blockSize; j++)	{
+			if	(_tsDisplayCount >= _pulseDecimation)	{	
+				_spectrum.resize(_fftBlockSize);	//	probably belongs somewhere else
+				for( int j = 0; j < _fftBlockSize; j++)	{
 					// transfer the data to the fftw input space
 					_fftwData[j][0] = pPulse->data[2*j]*PIRAQ3D_SCALE;
 					_fftwData[j][1] = pPulse->data[2*j+1]*PIRAQ3D_SCALE;
 				}
 				double zeroMoment = powerSpectrum();
 				// correct unscaled power data using knob setting: 
-				for(j = 0; j < m_fft_blockSize; j++)	{
+				for(j = 0; j < _fftBlockSize; j++)	{
 					_spectrum[j] += _powerCorrection;
 				}
 				displayData();	
@@ -387,10 +397,10 @@ CP2Scope::processPulse(CP2Pulse* pPulse)
 	case TIMESERIES:
 	case IVSQ:
 		{
-			if (pPulse->header.channel != m_dataChannel)
+			if (pPulse->header.channel != _dataChannel)
 				break;
 			_tsDisplayCount++;
-			if	(_tsDisplayCount >= m_pulseDisplayDecimation)	{	//	
+			if	(_tsDisplayCount >= _pulseDecimation)	{	//	
 				I.resize(pPulse->header.gates);
 				Q.resize(pPulse->header.gates);
 				for (int i = 0; i < 2*pPulse->header.gates; i+=2) {	
@@ -411,46 +421,46 @@ CP2Scope::getProduct(Beam* pBeam, int gates)
 	const Fields* fields = pBeam->getFields();
 	int i;
 
-	if (ProductData.size() != gates) {
-		ProductData.resize(gates);
+	if (_ProductData.size() != gates) {
+		_ProductData.resize(gates);
 	}
 
 	switch(_plotType)	
 	{
 	case S_DBMHC:	///< S-band dBm horizontal co-planar
-		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].dbmhc;  } break;
+		for (i = 0; i < gates; i++) { _ProductData[i] = fields[i].dbmhc;  } break;
 	case S_DBMVC:	///< S-band dBm vertical co-planar
-		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].dbmvc;  } break;
+		for (i = 0; i < gates; i++) { _ProductData[i] = fields[i].dbmvc;  } break;
 	case S_DBZHC:	///< S-band dBz horizontal co-planar
-		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].dbzhc;  } break;
+		for (i = 0; i < gates; i++) { _ProductData[i] = fields[i].dbzhc;  } break;
 	case S_DBZVC:	///< S-band dBz vertical co-planar
-		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].dbzvc;  } break;
+		for (i = 0; i < gates; i++) { _ProductData[i] = fields[i].dbzvc;  } break;
 	case S_RHOHV:	///< S-band rhohv
-		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].rhohv;  } break;
+		for (i = 0; i < gates; i++) { _ProductData[i] = fields[i].rhohv;  } break;
 	case S_PHIDP:	///< S-band phidp
-		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].phidp;  } break;
+		for (i = 0; i < gates; i++) { _ProductData[i] = fields[i].phidp;  } break;
 	case S_ZDR:	///< S-band zdr
-		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].zdr;  } break;
+		for (i = 0; i < gates; i++) { _ProductData[i] = fields[i].zdr;  } break;
 	case S_WIDTH:	///< S-band spectral width
-		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].width;  } break;
+		for (i = 0; i < gates; i++) { _ProductData[i] = fields[i].width;  } break;
 	case S_VEL:		///< S-band velocity
-		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].vel;    } break;
+		for (i = 0; i < gates; i++) { _ProductData[i] = fields[i].vel;    } break;
 	case S_SNR:		///< S-band SNR
-		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].snr;    } break;
+		for (i = 0; i < gates; i++) { _ProductData[i] = fields[i].snr;    } break;
 	case X_DBMHC:	///< X-band dBm horizontal co-planar
-		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].dbmhc;  } break;
+		for (i = 0; i < gates; i++) { _ProductData[i] = fields[i].dbmhc;  } break;
 	case X_DBMVX:	///< X-band dBm vertical cross-planar
-		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].dbmvx;  } break;
+		for (i = 0; i < gates; i++) { _ProductData[i] = fields[i].dbmvx;  } break;
 	case X_DBZHC:	///< X-band dBz horizontal co-planar
-		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].dbzhc;  } break;
+		for (i = 0; i < gates; i++) { _ProductData[i] = fields[i].dbzhc;  } break;
 	case X_WIDTH:	///< X-band spectral width
-		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].width;  } break;
+		for (i = 0; i < gates; i++) { _ProductData[i] = fields[i].width;  } break;
 	case X_VEL:		///< X-band velocity
-		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].vel;    } break;
+		for (i = 0; i < gates; i++) { _ProductData[i] = fields[i].vel;    } break;
 	case X_SNR:		///< X-band SNR
-		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].snr;    } break;
+		for (i = 0; i < gates; i++) { _ProductData[i] = fields[i].snr;    } break;
 	case X_LDR:		///< X-band LDR
-		for (i = 0; i < gates; i++) { ProductData[i] = fields[i].ldrh;   } break;
+		for (i = 0; i < gates; i++) { _ProductData[i] = fields[i].ldrh;   } break;
 	}
 }
 
@@ -474,7 +484,7 @@ CP2Scope::displayData()
 		_scopePlot->Spectrum(_spectrum, -100, 20.0, 1000000, false, "Frequency (Hz)", "Power (dB)");	
 		break;
 	case ScopePlot::PRODUCT:
-		_scopePlot->Product(ProductData, pi->getId(), -_scopeGain+_scopeOffset, _scopeGain+_scopeOffset, ProductData.size());
+		_scopePlot->Product(_ProductData, pi->getId(), -_scopeGain+_scopeOffset, _scopeGain+_scopeOffset, _ProductData.size());
 		break;
 	}
 }
@@ -483,7 +493,7 @@ CP2Scope::displayData()
 void
 CP2Scope::initializeSocket()	
 {
-	m_pDataSocket = new QSocketDevice(QSocketDevice::Datagram);
+	_pSocket = new QSocketDevice(QSocketDevice::Datagram);
 
 	QHostAddress qHost;
 
@@ -500,7 +510,7 @@ CP2Scope::initializeSocket()
 		qWarning("gethostbyname failed");
 		exit(1);
 	}
-	m_pSocketBuf = new char[1000000];
+	_pSocketBuf = new char[1000000];
 
 	std::string myIPname = nameBuf;
 	std::string myIPaddress = inet_ntoa(*(struct in_addr*)pHostEnt->h_addr_list[0]);
@@ -508,19 +518,19 @@ CP2Scope::initializeSocket()
 
 	m_pTextIPname->setText(myIPname.c_str());
 
-	m_pTextIPaddress->setNum(+m_dataGramPort);	// diagnostic print
+	m_pTextIPaddress->setNum(+_dataGramPort);	// diagnostic print
 	qHost.setAddress(myIPaddress.c_str());
 
 	std::cout << "qHost:" << qHost.toString() << std::endl;
-	std::cout << "datagram port:" << m_dataGramPort << std::endl;
+	std::cout << "datagram port:" << _dataGramPort << std::endl;
 
-	if (!m_pDataSocket->bind(qHost, m_dataGramPort)) {
-		qWarning("Unable to bind to %s:%d", qHost.toString().ascii(), m_dataGramPort);
+	if (!_pSocket->bind(qHost, _dataGramPort)) {
+		qWarning("Unable to bind to %s:%d", qHost.toString().ascii(), _dataGramPort);
 		exit(1); 
 	}
 	int sockbufsize = 1000000;
 
-	int result = setsockopt (m_pDataSocket->socket(),
+	int result = setsockopt (_pSocket->socket(),
 		SOL_SOCKET,
 		SO_RCVBUF,
 		(char *) &sockbufsize,
@@ -530,9 +540,9 @@ CP2Scope::initializeSocket()
 		exit(1); 
 	}
 
-	m_pDataSocketNotifier = new QSocketNotifier(m_pDataSocket->socket(), QSocketNotifier::Read);
+	_pSocketNotifier = new QSocketNotifier(_pSocket->socket(), QSocketNotifier::Read);
 
-	connect(m_pDataSocketNotifier, SIGNAL(activated(int)), this, SLOT(dataSocketActivatedSlot(int)));
+	connect(_pSocketNotifier, SIGNAL(activated(int)), this, SLOT(dataSocketActivatedSlot(int)));
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -547,7 +557,7 @@ CP2Scope::powerSpectrum()
 	fftw_execute(_fftwPlan);
 
 	double zeroMoment = 0.0;
-	int n = m_fft_blockSize;
+	int n = _fftBlockSize;
 
 	// reorder and copy the results into _spectrum
 	for (int i = 0 ; i < n/2; i++) {
@@ -611,17 +621,17 @@ CP2Scope::plotTypeSlot(int newPlotType)
 	case S_TIMESERIES:	// S time series
 	case S_IQ:			// S IQ
 	case S_SPECTRUM:		// S spectrum 
-		m_dataChannel = 0;
+		_dataChannel = 0;
 		break;
 	case XH_TIMESERIES:	// Xh time series
 	case XH_IQ:			// Xh IQ
 	case XH_SPECTRUM:	// Xh spectrum 
-		m_dataChannel = 1;
+		_dataChannel = 1;
 		break;
 	case XV_TIMESERIES:	// Xv time series
 	case XV_IQ:			// Xv IQ
 	case XV_SPECTRUM:	// Xv spectrum 
-		m_dataChannel = 2;
+		_dataChannel = 2;
 		break;
 	default:
 		break;
@@ -782,16 +792,16 @@ CP2Scope::timerEvent(QTimerEvent*)
 	int rate[3];
 	for (int i = 0; i < 3; i++) 
 	{
-		rate[i] = (m_pulseCount[i] - m_prevPulseCount[i])/_statsUpdateInterval;
-		m_prevPulseCount[i] = m_pulseCount[i];
+		rate[i] = (_pulseCount[i] - _prevPulseCount[i])/_statsUpdateInterval;
+		_prevPulseCount[i] = _pulseCount[i];
 	}
-	_chan0pulseCount->setNum(m_pulseCount[0]/1000);
+	_chan0pulseCount->setNum(_pulseCount[0]/1000);
 	_chan0pulseRate->setNum(rate[0]);
 	_chan0errors->setNum(0);
-	_chan1pulseCount->setNum(m_pulseCount[1]/1000);
+	_chan1pulseCount->setNum(_pulseCount[1]/1000);
 	_chan1pulseRate->setNum(rate[1]);
 	_chan1errors->setNum(0);
-	_chan2pulseCount->setNum(m_pulseCount[2]/1000);
+	_chan2pulseCount->setNum(_pulseCount[2]/1000);
 	_chan2pulseRate->setNum(rate[2]);
 	_chan2errors->setNum(0);
 }
