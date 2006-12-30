@@ -7,6 +7,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CP2Exec", "CP2exec\CP2exec.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CP2Scope", "CP2Scope\CP2Scope.vcproj", "{7E9275A6-2DE5-4F34-8305-A8BC31999076}"
 	ProjectSection(ProjectDependencies) = postProject
+		{B4F88715-7416-4BF0-BB8F-E424FD428262} = {B4F88715-7416-4BF0-BB8F-E424FD428262}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Moments", "Moments\Moments.vcproj", "{B4F88715-7416-4BF0-BB8F-E424FD428262}"
@@ -22,6 +23,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PiraqDriver", "PiraqDriver\
 	EndProjectSection
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "CP2Soft", "CP2Soft\CP2Soft.vdproj", "{81384C12-85CE-4220-8BEA-458FE79E8C7B}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CP2Net", "CP2Net\CP2Net.vcproj", "{19BDA85C-E4D4-4B5D-BF61-FFA6AA9CC2A4}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -54,6 +59,10 @@ Global
 		{81384C12-85CE-4220-8BEA-458FE79E8C7B}.Debug.ActiveCfg = Debug
 		{81384C12-85CE-4220-8BEA-458FE79E8C7B}.Debug.Build.0 = Debug
 		{81384C12-85CE-4220-8BEA-458FE79E8C7B}.Release.ActiveCfg = Release
+		{19BDA85C-E4D4-4B5D-BF61-FFA6AA9CC2A4}.Debug.ActiveCfg = Debug|Win32
+		{19BDA85C-E4D4-4B5D-BF61-FFA6AA9CC2A4}.Debug.Build.0 = Debug|Win32
+		{19BDA85C-E4D4-4B5D-BF61-FFA6AA9CC2A4}.Release.ActiveCfg = Release|Win32
+		{19BDA85C-E4D4-4B5D-BF61-FFA6AA9CC2A4}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

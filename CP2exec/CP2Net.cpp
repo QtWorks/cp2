@@ -92,7 +92,8 @@ CP2Packet::setData(
 	// packet. We will assume there that if the new size
 	// is the same as the existing size, the resize() 
 	// does not do any work.
-	_packetData.resize(size);
+	if (_packetData.size() != size)
+		_packetData.resize(size);
 
 	// copy the packet in.
 	memcpy(&_packetData[0], data, size);
