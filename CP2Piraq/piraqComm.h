@@ -79,6 +79,13 @@ typedef	struct CircularBuffer
 
 //--------------------------------------------------------------------
 
+/// The three types of CP2 receivers
+typedef enum RCVRTYPE {
+	SHV,	///< Sband alternating H and V
+	XH,		///< X band coplanar horizontal
+	XV		///< X band cross polar vertical
+} RCVRTYPE;
+
 /// PINFOHEADER is a header structure that contains 
 /// metadata for each individual beam. It also contains
 /// a field (flag) that is used to transmit 
@@ -121,6 +128,8 @@ typedef struct PINFOHEADER
 {   
 	int	   flag;			///< command indicator: done, new, old, handshake, whatever, ..... 
     short  status;			///< Flag for communicating status back to host.
+	short  rcvrType;		///< The type of this receiver (RCVRTYPE)
+	short  horiz;			///< Set true if horizontal, false if vertical
     uint4  channel;         ///< board number, set by the host
 	uint4  packetsPerBlock;	///< The number of PPACKETS per PCI transfer, set by the host.
     uint4  gates;			///< The number of gates, set by the host.

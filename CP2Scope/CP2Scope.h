@@ -33,8 +33,8 @@
 #include "Params.hh"
 #include "Pulse.hh"
 
-#define	ySCALEMIN					0.0
-#define	ySCALEMAX					1.0
+#define	ySCALEMIN		0.0
+#define	ySCALEMAX		1.0
 #define PIRAQ3D_SCALE	1.0/(unsigned int)pow(2,31)	
 
 enum DATASET {	

@@ -12,14 +12,15 @@ public:
 
 	CP2PIRAQ( 
 		struct sockaddr_in sockAddr,
-			int socketFd,
+		int socketFd,
 		char* ipDestination,
 		int outputPort,
 		char* configFname,
 		char* dspObjFnamefloat,
 		unsigned int packetsPerPciXfer,
 		unsigned int pmacDpramBusAddr,
-		int boardnum
+		int boardnum,
+		RCVRTYPE rcvrType
 		);
 
 	~CP2PIRAQ();
@@ -80,6 +81,7 @@ protected:
 	float _xmit_pulsewidth;	
 	unsigned int _totalHits;
 	int _boardnum;
+	RCVRTYPE _rcvrType;
 
 	int sendData(int size, void* data);
 

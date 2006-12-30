@@ -200,9 +200,9 @@ main(int argc, char* argv[], char* envp[])
 	//    are found in succesion, even if we will not be collecting data 
 	//    from all of them.
 
-	piraq1 = new CP2PIRAQ(sockAddr, sock, destIP, outport,   fname1, argv[1], packetsPerPciXfer, PMACphysAddr, 0);
-	piraq2 = new CP2PIRAQ(sockAddr, sock, destIP, outport+1, fname2, argv[1], packetsPerPciXfer, PMACphysAddr, 1);
-	piraq3 = new CP2PIRAQ(sockAddr, sock, destIP, outport+2, fname3, argv[1], packetsPerPciXfer, PMACphysAddr, 2);
+	piraq1 = new CP2PIRAQ(sockAddr, sock, destIP, outport,   fname1, argv[1], packetsPerPciXfer, PMACphysAddr, 0, SHV);
+	piraq2 = new CP2PIRAQ(sockAddr, sock, destIP, outport+1, fname2, argv[1], packetsPerPciXfer, PMACphysAddr, 1, XH);
+	piraq3 = new CP2PIRAQ(sockAddr, sock, destIP, outport+2, fname3, argv[1], packetsPerPciXfer, PMACphysAddr, 2, XV);
 
 	///////////////////////////////////////////////////////////////////////////
 	//

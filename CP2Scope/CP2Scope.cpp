@@ -226,6 +226,7 @@ CP2Scope::dataSocketActivatedSlot(int)
 				if (pPulse) {
 					int chan = pPulse->header.channel;
 					if (chan >= 0 && chan < 3) {
+						// do all of the heavy lifting for this pulse
 						processPulse(pPulse);
 						// sanity check on channel
 						_pulseCount[chan]++;
@@ -287,7 +288,6 @@ CP2Scope::processPulse(CP2Pulse* pPulse)
 			if (pPulse->header.channel == 0) {
 				if (_sMomentsPlots.find(_plotType) != _sMomentsPlots.end())
 				{
-					bool horizontal = (pPulse->header.pulse_num %2);
 					_momentsSCompute->processPulse(data,
 						0,
 						pPulse->header.gates,
@@ -295,7 +295,7 @@ CP2Scope::processPulse(CP2Pulse* pPulse)
 						pPulse->header.antEl, 
 						pPulse->header.antAz, 
 						pPulse->header.pulse_num,
-						horizontal);	
+						pPulse->header.horiz);	
 					// ask for a completed beam. The return value will be
 					// 0 if nothing is ready yet.
 					pBeam = _momentsSCompute->getNewBeam();

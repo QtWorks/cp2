@@ -76,6 +76,12 @@ int *a2dFifoBuffer;
 float IQoffset[4*NUMCHANS];	
 /// pointer to the PMAC dpram
 unsigned int* pPMACdpram;
+/// Receiver type flag
+RCVRTYPE rcvrType;
+/// polarization indicator. 
+/// horiz = true means horizontal,
+///       = false means vertical
+int horiz;
 
 unsigned int *Led_ptr;
 unsigned int DMA_base;
@@ -152,7 +158,6 @@ void initTask(void)
 
 	initDsp(); 
 
-	
 	/* Clear the LEDs */
 
 	led0flag = 1;
@@ -194,6 +199,20 @@ void initTask(void)
 	boardnumber      = pkt->channel;
 	nPacketsPerBlock = pkt->packetsPerBlock;
 	pPMACdpram       = (unsigned int*)pkt->PMACdpramAddr;
+	rcvrType         = (RCVRTYPE)pkt->rcvrType;
+	// intialize the h/v flag
+	switch (rcvrType) {
+	case SHV:
+		// for Sband, this flag will alternate, but start in horizontal
+		horiz = 1;
+		break;
+	case XH:
+		horiz = 1;
+		break;
+	case XV:
+		horiz = 0;
+		break;
+	}
 
 	// allocate a complete 1-channel PACKET; it contains current pulse, 
 	// header plus data, post channel-select

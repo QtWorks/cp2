@@ -24,7 +24,8 @@ struct sockaddr_in sockAddr,
 	char* dspObjFname,
 	unsigned int pulsesPerPciXfer,
 	unsigned int pmacDpramAddr,
-	int boardnum):
+	int boardnum,
+	RCVRTYPE rcvrType):
 PIRAQ(),
 _sockAddr(sockAddr),
 _socketFd(socketFd),
@@ -34,6 +35,7 @@ _lastPulseNumber(0),
 _totalHits(0),
 _pmacDpramAddr(pmacDpramAddr),
 _boardnum(boardnum),
+_rcvrType(rcvrType),
 _PNerrors(0)
 {
 	init(configFname, dspObjFname);
@@ -117,6 +119,7 @@ CP2PIRAQ::init(char* configFname, char* dspObjFname)
 	_pConfigPacket->info.packetsPerBlock = _pulsesPerPciXfer;
 	_pConfigPacket->info.flag = 0;							          // Preset the flags just in case
 	_pConfigPacket->info.channel = _boardnum;				          // set BOARD number
+	_pConfigPacket->info.rcvrType = _rcvrType;
 	// set the pmac dpram address
 	_pConfigPacket->info.PMACdpramAddr = _pmacDpramAddr;
 
@@ -183,6 +186,7 @@ CP2PIRAQ::poll()
 			header.status    = 0;
 			if (ppacket->info.status & FIFO_EOF)
 				header.status |= PIRAQ_FIFO_EOF;
+			header.horiz     = ppacket->info.horiz;
 
 			_cp2Packet.addPulse(header, header.gates*2, ppacket->data);
 

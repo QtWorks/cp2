@@ -35,11 +35,12 @@ extern float   sumnorm;
 extern int     samplectr;
 extern int     led0flag;
 extern int*    a2dFifoBuffer;			// receives the I/Q data from the A2D fifos.
-extern	unsigned long pulse_num_low;
-extern	unsigned long pulse_num_high;
-extern	unsigned long beam_num_low;
-extern	unsigned long beam_num_high;
-
+extern unsigned long pulse_num_low;
+extern unsigned long pulse_num_high;
+extern unsigned long beam_num_low;
+extern unsigned long beam_num_high;
+extern RCVRTYPE rcvrType;
+extern horiz;
 extern 	float        IQoffset[4*NUMCHANS];
 
 extern	unsigned int channelMode; // sets channelselect() processing mode
@@ -106,6 +107,7 @@ void A2DFifoISR(void) {
 	temp |= *(volatile int *)fifo1I;
 
 	CurPkt->info.status = 0;
+	// Set the EOF flag
 	if(temp & 0x3C000) {  /* if any of the lower 4 bits of the EOF are high */
 		*pLed1 = 0; /* turn on the EOF fault LED */
 		CurPkt->info.status |= FIFO_EOF;  // Tell PC Host got EOF!
@@ -113,6 +115,12 @@ void A2DFifoISR(void) {
 	else {
 		*pLed1 = 1; /* Turn off the LED */
 	}
+	// set the HV flag
+	CurPkt->info.horiz = horiz;
+	if (rcvrType == SHV) {
+		// for SBand, polarizations alternate.
+		horiz = !horiz;	
+	}	
 
 	/* Convert I,Q integers to floats in-place */
 	toFloats(gates, a2dFifoBuffer, (float *) a2dFifoBuffer); 

@@ -19,8 +19,10 @@ typedef struct CP2PulseHeader {
     int  gates;				///< The number of gates, set by the host.
     int  hits;				///< The number of hits in a beam, set by the host. Used
 							///< to calculate beam number from pulse numbers.
-	short status;      ///< Status that comes from the piraq for each pulse
+	short status;           ///< Status that comes from the piraq for each pulse
+	bool horiz;			    ///< set true for horizontal polarization, false for vertical
 } CP2PulseHeader;
+
 //Bit mask defines for the status field of CP2PulseHeader
 #define PIRAQ_FIFO_EOF 1    ///< If the Piraq reported an EOF error.
 
