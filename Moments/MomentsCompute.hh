@@ -103,7 +103,7 @@ protected:
 
 	deque<Pulse *> _pulseQueue;
 	int _maxPulseQueueSize;
-	long _pulseSeqNum;
+	long long _pulseSeqNum;
 
 	// moments computation management
 
