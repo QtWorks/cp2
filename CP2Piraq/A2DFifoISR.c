@@ -32,13 +32,10 @@ extern float   qoffset0;
 extern float   ioffset1; 
 extern float   qoffset1; 
 extern float   sumnorm;
-extern int     samplectr;
 extern int     led0flag;
 extern int*    a2dFifoBuffer;			// receives the I/Q data from the A2D fifos.
 extern unsigned long pulse_num_low;
 extern unsigned long pulse_num_high;
-extern unsigned long beam_num_low;
-extern unsigned long beam_num_high;
 extern RCVRTYPE rcvrType;
 extern horiz;
 extern 	float        IQoffset[4*NUMCHANS];
@@ -60,7 +57,7 @@ extern unsigned int* pPMACdpram;
 ///////////////////////////////////////////////////////////
 int		toFloats(int Ngates, int *pIn, float *pOut);
 void 	sumTimeseries(int Ngates, float * restrict pIn, float *pOut);
-void    setPulseAndBeamNumbers(PPACKET* pPkt);
+void    setPulseNumber(PPACKET* pPkt);
 void    readPMAC(PPACKET* pPkt);
 
 ///////////////////////////////////////////////////////////
@@ -79,7 +76,8 @@ void A2DFifoISR(void) {
 	fifo2I   = FIFO2I;	//(int *)0x1400210;
 	fifo2Q   = FIFO2Q;	//(int *)0x1400208;
 
-	/* when this loop is entered, there is a hit worth of data in the hardware FIFO */
+	// when this ISR is entered, the hardware fifo is at half full or greater. 
+	// read a pulse worth (number of gates) from each of the four fifos.
 
 	/* put the header structure into the host memory FIFO */
 
@@ -155,7 +153,7 @@ void A2DFifoISR(void) {
 	}
 #endif
 
-	setPulseAndBeamNumbers(CurPkt);
+	setPulseNumber(CurPkt);
 
 	// process 2-channel hwData into 1-channel data: 
 	// channel-select, gate by gate. data destination CurPkt->data.data
@@ -247,7 +245,7 @@ void sumTimeseries(int ngates, float * restrict pIn, float *pOut) {
 
 ///////////////////////////////////////////////////////////
 
-void    setPulseAndBeamNumbers(PPACKET* pPkt)
+void    setPulseNumber(PPACKET* pPkt)
 {
 
 	/* keep track of the 64 bit pulsenumber: works here -- commented out in int_half_full() */
@@ -255,18 +253,6 @@ void    setPulseAndBeamNumbers(PPACKET* pPkt)
 		pulse_num_high++;
 	pPkt->info.pulse_num_low = pulse_num_low;
 	pPkt->info.pulse_num_high = pulse_num_high;
-
-	// update beam number when samplectr number
-	// of hits has been accumulated.
-	if(++samplectr >= hits) {
-		/* Update the beam number */
-		if(!(++beam_num_low))
-			beam_num_high++;
-		pPkt->info.beam_num_low = beam_num_low;
-		pPkt->info.beam_num_high = beam_num_high;
-
-		samplectr = 0;		// Zero the sample counter
-	}
 }
 
 ///////////////////////////////////////////////////////////

@@ -179,7 +179,6 @@ CP2PIRAQ::poll()
 			header.sweepNum  = ppacket->info.sweepNum;
 			header.antSize   = ppacket->info.antSize;
 			header.antTrans  = ppacket->info.antTrans;
-			header.beam_num  = ppacket->info.beam_num;
 			header.pulse_num = ppacket->info.pulse_num;
 			header.gates     = ppacket->info.gates;
 			header.hits      = ppacket->info.hits;
@@ -274,11 +273,9 @@ CP2PIRAQ::stop()
 	stop_piraq(&_config, this);
 }
 
-int CP2PIRAQ::start(long long firstPulseNum,
-					long long firstBeamNum)
+int CP2PIRAQ::start(long long firstPulseNum)
 {
 	_pConfigPacket->info.pulse_num = firstPulseNum;	// set UNIX epoch pulsenum just before starting
-	_pConfigPacket->info.beam_num = firstBeamNum; 
 
 	int  d,cnt1,cnt2,i,first;
 	char c;

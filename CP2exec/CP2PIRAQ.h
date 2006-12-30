@@ -25,8 +25,7 @@ public:
 
 	~CP2PIRAQ();
 
-	int start(long long firstPulseNum,
-		      long long firstBeamNum);
+	int start(long long firstPulseNum);
 	void stop();
 	int poll();
 	float prt();

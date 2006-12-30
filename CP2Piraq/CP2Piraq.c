@@ -105,7 +105,6 @@ CircularBuffer  	*Fifo;
 PPACKET	*CurPkt;	// DSP-internal PACKET malloc w/1-channel data: contains current header information
 PPACKET	*sbsRamBuffer;		// sbsram N-PACKET MEM_alloc w/1-channel data 
 
-int		samplectr;     // sample counter, time series ctr
 int		nPacketsPerBlock;       // #hits combined for one PCI Bus transfer
 int     sbsram_hits;   // #hits in SBSRAM
 
@@ -119,8 +118,6 @@ float   sumnorm;
 
 unsigned long pulse_num_low;
 unsigned long pulse_num_high;
-unsigned long beam_num_low;
-unsigned long beam_num_high;
 
 unsigned int  channelMode; 	// sets channelselect() processing mode 
 int     gates;
@@ -168,11 +165,6 @@ void initTask(void)
 
     sbsram_seg = MEM_define((Ptr) 0x400000, 0x40000, 0);
 	sbsram_hits = 0; 
-
-	// CP2 PCI Bus transfer size:
-	// Nhits * (HEADERSIZE + (config->gatesa * bytespergate))
-	
-	samplectr = 0;	// Initialize sample counter to 0
 
 	// Zero IQ offset array
 
@@ -250,9 +242,7 @@ void initTask(void)
 	/* Initialize pulse and beam counters */
 	pulse_num_low  = CurPkt->info.pulse_num_low;
 	pulse_num_high = CurPkt->info.pulse_num_high;
-	beam_num_high  = CurPkt->info.beam_num_high;
-	beam_num_low   = CurPkt->info.beam_num_low;
-		
+
 	//	Calculate DC offset normalization
 	// CP2 nix hits in normalization.
 	sumnorm = 1.0/((float)CurPkt->info.gates);  

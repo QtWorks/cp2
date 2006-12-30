@@ -7,6 +7,8 @@
 // WORK. IF THE CIRCULAR BUFFER IS LARGER THAN 8MB,
 // WINDOWS CRASHES. SERIOUSLY. THE GOOD OLD FASHIONED
 // BLUE SCREEN OF DEATH. SO FOR NOW, PIRAQ_FIFO_NUM = 120.
+// IT HAS SOMETHING TO DO WITH THE 8MB LIMIT THAT IS 
+// CONFUSUINGLY DOCUMENTED IN THE PIRAQ  DRIVER CODE.
 //
 // PIRAQ_FIFO_NUM is number of entries in the 
 // circular buffer, in host ram. Recall 
@@ -147,11 +149,8 @@ typedef struct PINFOHEADER
 #ifdef _TMS320C6X			///        TI doesn't support long long 
     uint4 pulse_num_low;	///< Pulse number least significant word, on Piraq
     uint4 pulse_num_high;	///< Pulse number most significant word, on Piraq
-    uint4 beam_num_low;		///< Beam number least significant word, on Piraq
-    uint4 beam_num_high;	///< Beam number most significant word, on Piraq
 #else
     uint8 pulse_num;		///< Pulse number on host, keep this field on an 8 byte boundary
-    uint8 beam_num;			///< Beam number on host,  keep this field on an 8 byte boundary */
 #endif
 } PINFOHEADER;
 #pragma STRUCT_ALIGN (PINFOHEADER, 8);

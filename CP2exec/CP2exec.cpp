@@ -118,8 +118,6 @@ main(int argc, char* argv[], char* envp[])
 	FILE * dspEXEC; 
 
 	long long pulsenum;
-	long long beamnum; 
-
 	unsigned int PMACphysAddr;
 
 	int	PIRAQadjustAmplitude = 0; 
@@ -216,24 +214,22 @@ main(int argc, char* argv[], char* envp[])
 	pri = (unsigned int)((((float)COUNTFREQ)/(float)(1/prt)) + 0.5); 
 	time_t now = time(&now);
 	pulsenum = ((((long long)(now+2)) * (long long)COUNTFREQ) / pri) + 1; 
-	beamnum = pulsenum / config1->hits;
 	printf("pulsenum = %I64d\n", pulsenum); 
-	printf("beamnum  =  %I64d\n", beamnum); 
 
 	///////////////////////////////////////////////////////////////////////////
 	//
 	//      start the piraqs, waiting for each to indicate they are ready
 
 	if (piraqs & 0x01) { // turn on slot 1
-		if (piraq1->start(pulsenum, beamnum)) 
+		if (piraq1->start(pulsenum)) 
 			exit(-1);
 	} 
 	if (piraqs & 0x02) { // turn on slot 2
-		if (piraq2->start(pulsenum, beamnum)) 
+		if (piraq2->start(pulsenum)) 
 			exit(-1);
 	} 
 	if (piraqs & 0x04) { // turn on slot 3
-		if (piraq3->start(pulsenum, beamnum)) 
+		if (piraq3->start(pulsenum)) 
 			exit(-1);
 	} 
 
