@@ -84,7 +84,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="C:\Projects\cp2\CP2Lib;C:\Projects\cp2\CP2Piraq;C:\Projects\cp2\PiraqDriver;C:\Plx\PciSdk\Inc;&quot;C:\Program Files\TVicSoft\TVicHW50\MSVC&quot;"
+				AdditionalIncludeDirectories="..\CP2Net;C:\Projects\cp2\CP2Lib;C:\Projects\cp2\CP2Piraq;C:\Projects\cp2\PiraqDriver;C:\Plx\PciSdk\Inc;&quot;C:\Program Files\TVicSoft\TVicHW50\MSVC&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -172,9 +172,6 @@
 				RelativePath=".\CP2Exec.rc">
 			</File>
 			<File
-				RelativePath=".\CP2Net.cpp">
-			</File>
-			<File
 				RelativePath=".\CP2PIRAQ.cpp">
 			</File>
 			<File
@@ -186,9 +183,6 @@
 			Filter="h;hpp;hxx;hm;inl">
 			<File
 				RelativePath="CP2exec.h">
-			</File>
-			<File
-				RelativePath=".\CP2Net.h">
 			</File>
 			<File
 				RelativePath=".\CP2PIRAQ.h">

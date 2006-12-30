@@ -10,13 +10,13 @@ CONFIG += debug
 FORMS	= .\CP2ScopeBase.ui
 
 SOURCES += CP2Scope.cpp
-SOURCES += ../CP2exec/CP2Net.cpp
+SOURCES += PlotInfo.cpp
 SOURCES += main.cpp
 
 HEADERS += CP2Scope.h
-HEADERS += ../CP2exec/CP2Net.h
+Headers += PlotInfo.h
 
-INCLUDEPATH += ../CP2exec
+INCLUDEPATH += ../CP2Net
 INCLUDEPATH += ../Moments
 INCLUDEPATH += ../../
 INCLUDEPATH += ../../QtToolbox
@@ -40,3 +40,5 @@ LIBS += ../../Qttoolbox/ScopePlot/Debug/ScopePlot.lib
 LIBS += ../../Qttoolbox/TwoKnobs/Debug/TwoKnobs.lib
 LIBS += ../../fftw3.1/libfftw3-3.lib
 LIBS += ../Moments/Debug/Moments.lib
+LIBS += ../CP2Net/Debug/CP2Net.lib
+
