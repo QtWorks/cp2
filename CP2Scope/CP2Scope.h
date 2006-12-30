@@ -37,7 +37,7 @@
 #define	ySCALEMAX					1.0
 #define PIRAQ3D_SCALE	1.0/(unsigned int)pow(2,31)	
 
-enum	{	
+enum DATASET {	
 	DATA_SET_PULSE,	
 	DATA_SET_GATE,	
 	DATA_SETS	
