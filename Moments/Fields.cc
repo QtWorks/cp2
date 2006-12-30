@@ -63,7 +63,7 @@ void Fields::initialize()
 
   rhohv = missingDouble;
   phidp = missingDouble;
-  kdp = missingDouble;
+//  kdp = missingDouble;
 
   snrhc = missingDouble;
   snrhx = missingDouble;

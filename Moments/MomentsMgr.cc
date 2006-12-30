@@ -290,7 +290,8 @@ void MomentsMgr::computeDualFastAlt(double beamTime,
 
 	// compute kdp
 
-	_computeKdp(nGates, fields);
+	// Kdp disabled until a better algorithm is implemented
+	//	_computeKdp(nGates, fields);
 
 }
 
@@ -658,173 +659,173 @@ double MomentsMgr::_meanPower(const Complex_t *c1, int len) const
 /////////////////////////////////////////////
 // compute kdp from phidp
 
-void MomentsMgr::_computeKdp(int nGates,
-							 Fields *fields) const
+//void MomentsMgr::_computeKdp(int nGates,
+//							 Fields *fields) const
+//
+//{
 
-{
-
-	int nGatesForSlope = 15;
-	int nGatesHalf = nGatesForSlope / 2;
-
-	if (nGatesForSlope > nGates) {
-		return;
-	}
-
-	for (int ii = nGatesHalf; ii < nGates - nGatesHalf; ii++) {
-
-		if (fields[ii].phidp != _missingDbl) {
-			double slope =
-				_computePhidpSlope(ii, nGatesForSlope, nGatesHalf, fields);
-			if (slope != _missingDbl) {
-				fields[ii].kdp = slope / 2.0; // deg/km
-			}
-		}
-
-	}
-
-}
+//	int nGatesForSlope = 15;
+//	int nGatesHalf = nGatesForSlope / 2;
+//
+//	if (nGatesForSlope > nGates) {
+//		return;
+//	}
+//
+//	for (int ii = nGatesHalf; ii < nGates - nGatesHalf; ii++) {
+//
+//		if (fields[ii].phidp != _missingDbl) {
+//			double slope =
+//				_computePhidpSlope(ii, nGatesForSlope, nGatesHalf, fields);
+//			if (slope != _missingDbl) {
+//				fields[ii].kdp = slope / 2.0; // deg/km
+//			}
+//		}
+//
+//	}
+//
+//}
 
 //////////////////////////////////////////////////
 // compute PhiDp slope
 //
 // returns _missingDbl if not enough data
 
-double MomentsMgr::_computePhidpSlope(int index,
-									  int nGatesForSlope,
-									  int nGatesHalf,
-									  const Fields *fields) const
-
-{
-
-	double *xx = new double[nGatesForSlope];
-	double *yy = new double[nGatesForSlope];
-	double *wt = new double[nGatesForSlope];
-	int count = 0;
-
-	double pdpThisGate = fields[index].phidp;
-	double range = 0.0;
-
-	for (int ii = index - nGatesHalf; ii <= index + nGatesHalf;
-		ii++, range += _gateSpacing) {
-			double snrDb = _missingDbl;
-			double snr = fields[ii].snr;
-			double pdp = fields[ii].phidp;
-			if (snr != _missingDbl) {
-				snrDb = pow(10.0, snr);
-			}
-			if (pdp != _missingDbl && snrDb != _missingDbl && snrDb > 5) {
-				double diff = pdp - pdpThisGate;
-				if (diff > 180.0) {
-					pdp -= 360.0;
-				} else if (diff < -180) {
-					pdp += 360.0;
-				}
-				xx[count] = range;
-				yy[count] = pdp;
-				wt[count] = pow(10.0, snr);
-				count++;
-			}
-		}
-
-		if (count < nGatesHalf) {
-			delete[] xx;
-			delete[] yy;
-			delete[] wt;
-			return _missingDbl;
-		}
-
-		// apply median filter to phidp
-
-		double *yyMed = new double[count];
-		yyMed[0] = yy[0];
-		yyMed[count - 1] = yy[count - 1];
-		for (int ii = 1; ii < count - 1; ii++) {
-			double yy0 = yy[ii - 1];
-			double yy1 = yy[ii];
-			double yy2 = yy[ii + 1];
-			if (yy0 > yy1) {
-				if (yy1 > yy2) {
-					yyMed[ii] = yy1;
-				} else {
-					if (yy0 > yy2) {
-						yyMed[ii] = yy2;
-					} else {
-						yyMed[ii] = yy0;
-					}
-				}
-			} else {
-				if (yy0 > yy2) {
-					yyMed[ii] = yy0;
-				} else {
-					if (yy1 > yy2) {
-						yyMed[ii] = yy2;
-					} else {
-						yyMed[ii] = yy1;
-					}
-				}
-			}
-		}
-		delete[] yyMed;
-
-		// sum up terms
-
-		double sumx = 0.0;
-		double sumy = 0.0;
-		double sumx2 = 0.0;
-		double sumy2 = 0.0;
-		double sumxy = 0.0;
-		double sumwt = 0.0;
-
-		for (int ii = 0; ii < count; ii++) {
-			double xxx = xx[ii];
-			double yyy = yy[ii];
-			double weight= wt[ii];
-			sumx += xxx * weight;
-			sumx2 += xxx * xxx * weight;
-			sumy += yyy * weight;
-			sumy2 += yyy * yyy * weight;
-			sumxy += xxx * yyy * weight;
-			sumwt += weight;
-		}
-
-		// compute y-on-x slope
-
-		double num = sumwt * sumxy - sumx * sumy;
-		double denom = sumwt * sumx2 - sumx * sumx;
-		double slope_y_on_x;
-
-		if (denom != 0.0) {
-			slope_y_on_x = num / denom;
-		} else {
-			slope_y_on_x = 0.0;
-		}
-
-		// get x-on-y slope
-
-		denom = sumwt * sumy2 - sumy * sumy;
-		double slope_x_on_y;
-
-		if (denom != 0.0) {
-			slope_x_on_y = num / denom;
-		} else {
-			slope_x_on_y = 0.0;
-		}
-
-		// average slopes
-
-		double slope = 0.0;
-		if (slope_y_on_x != 0.0 && slope_x_on_y != 0.0) {
-			slope = (slope_y_on_x + 1.0 / slope_x_on_y) / 2.0;
-		} else if (slope_y_on_x != 0.0) {
-			slope = slope_y_on_x;
-		} else if (slope_x_on_y != 0.0) {
-			slope = 1.0 / slope_x_on_y;
-		}
-
-		delete[] xx;
-		delete[] yy;
-		delete[] wt;
-
-		return slope;
-
-}
+//double MomentsMgr::_computePhidpSlope(int index,
+//									  int nGatesForSlope,
+//									  int nGatesHalf,
+//									  const Fields *fields) const
+//
+//{
+//
+//	double *xx = new double[nGatesForSlope];
+//	double *yy = new double[nGatesForSlope];
+//	double *wt = new double[nGatesForSlope];
+//	int count = 0;
+//
+//	double pdpThisGate = fields[index].phidp;
+//	double range = 0.0;
+//
+//	for (int ii = index - nGatesHalf; ii <= index + nGatesHalf;
+//		ii++, range += _gateSpacing) {
+//			double snrDb = _missingDbl;
+//			double snr = fields[ii].snr;
+//			double pdp = fields[ii].phidp;
+//			if (snr != _missingDbl) {
+//				snrDb = pow(10.0, snr);
+//			}
+//			if (pdp != _missingDbl && snrDb != _missingDbl && snrDb > 5) {
+//				double diff = pdp - pdpThisGate;
+//				if (diff > 180.0) {
+//					pdp -= 360.0;
+//				} else if (diff < -180) {
+//					pdp += 360.0;
+//				}
+//				xx[count] = range;
+//				yy[count] = pdp;
+//				wt[count] = pow(10.0, snr);
+//				count++;
+//			}
+//		}
+//
+//		if (count < nGatesHalf) {
+//			delete[] xx;
+//			delete[] yy;
+//			delete[] wt;
+//			return _missingDbl;
+//		}
+//
+//		// apply median filter to phidp
+//
+//		double *yyMed = new double[count];
+//		yyMed[0] = yy[0];
+//		yyMed[count - 1] = yy[count - 1];
+//		for (int ii = 1; ii < count - 1; ii++) {
+//			double yy0 = yy[ii - 1];
+//			double yy1 = yy[ii];
+//			double yy2 = yy[ii + 1];
+//			if (yy0 > yy1) {
+//				if (yy1 > yy2) {
+//					yyMed[ii] = yy1;
+//				} else {
+//					if (yy0 > yy2) {
+//						yyMed[ii] = yy2;
+//					} else {
+//						yyMed[ii] = yy0;
+//					}
+//				}
+//			} else {
+//				if (yy0 > yy2) {
+//					yyMed[ii] = yy0;
+//				} else {
+//					if (yy1 > yy2) {
+//						yyMed[ii] = yy2;
+//					} else {
+//						yyMed[ii] = yy1;
+//					}
+//				}
+//			}
+//		}
+//		delete[] yyMed;
+//
+//		// sum up terms
+//
+//		double sumx = 0.0;
+//		double sumy = 0.0;
+//		double sumx2 = 0.0;
+//		double sumy2 = 0.0;
+//		double sumxy = 0.0;
+//		double sumwt = 0.0;
+//
+//		for (int ii = 0; ii < count; ii++) {
+//			double xxx = xx[ii];
+//			double yyy = yy[ii];
+//			double weight= wt[ii];
+//			sumx += xxx * weight;
+//			sumx2 += xxx * xxx * weight;
+//			sumy += yyy * weight;
+//			sumy2 += yyy * yyy * weight;
+//			sumxy += xxx * yyy * weight;
+//			sumwt += weight;
+//		}
+//
+//		// compute y-on-x slope
+//
+//		double num = sumwt * sumxy - sumx * sumy;
+//		double denom = sumwt * sumx2 - sumx * sumx;
+//		double slope_y_on_x;
+//
+//		if (denom != 0.0) {
+//			slope_y_on_x = num / denom;
+//		} else {
+//			slope_y_on_x = 0.0;
+//		}
+//
+//		// get x-on-y slope
+//
+//		denom = sumwt * sumy2 - sumy * sumy;
+//		double slope_x_on_y;
+//
+//		if (denom != 0.0) {
+//			slope_x_on_y = num / denom;
+//		} else {
+//			slope_x_on_y = 0.0;
+//		}
+//
+//		// average slopes
+//
+//		double slope = 0.0;
+//		if (slope_y_on_x != 0.0 && slope_x_on_y != 0.0) {
+//			slope = (slope_y_on_x + 1.0 / slope_x_on_y) / 2.0;
+//		} else if (slope_y_on_x != 0.0) {
+//			slope = slope_y_on_x;
+//		} else if (slope_x_on_y != 0.0) {
+//			slope = 1.0 / slope_x_on_y;
+//		}
+//
+//		delete[] xx;
+//		delete[] yy;
+//		delete[] wt;
+//
+//		return slope;
+//
+//}

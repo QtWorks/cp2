@@ -59,7 +59,7 @@ public:
 
   double rhohv;
   double phidp;
-  double kdp;
+  //double kdp; // disabled until a better algorithm can be implemented
 
   double snrhc;
   double snrhx;
