@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Form implementation generated from reading ui file 'CP2PPIBase.ui'
 **
-** Created: Sun Dec 31 09:51:05 2006
+** Created: Sun Dec 31 10:06:30 2006
 **      by: The User Interface Compiler ($Id: qt/main.cpp   3.3.5   edited Aug 31 12:13 $)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -58,9 +58,10 @@ CP2PPIBase::CP2PPIBase( QWidget* parent, const char* name, WFlags fl )
 
     layout14 = new QVBoxLayout( 0, 0, 6, "layout14"); 
 
-    _startButton = new QPushButton( centralWidget(), "_startButton" );
-    _startButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)1, (QSizePolicy::SizeType)1, 0, 0, _startButton->sizePolicy().hasHeightForWidth() ) );
-    layout14->addWidget( _startButton );
+    _pauseButton = new QPushButton( centralWidget(), "_pauseButton" );
+    _pauseButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)1, (QSizePolicy::SizeType)1, 0, 0, _pauseButton->sizePolicy().hasHeightForWidth() ) );
+    _pauseButton->setToggleButton( TRUE );
+    layout14->addWidget( _pauseButton );
 
     layout13 = new QHBoxLayout( 0, 0, 6, "layout13"); 
 
@@ -260,7 +261,7 @@ CP2PPIBase::CP2PPIBase( QWidget* parent, const char* name, WFlags fl )
     // signals and slots connections
     connect( _zoomInButton, SIGNAL( clicked() ), this, SLOT( zoomInSlot() ) );
     connect( _zoomOutButton, SIGNAL( clicked() ), this, SLOT( zoomOutSlot() ) );
-    connect( _startButton, SIGNAL( clicked() ), this, SLOT( startStopDisplaySlot() ) );
+    connect( _pauseButton, SIGNAL( toggled(bool) ), this, SLOT( pauseSlot(bool) ) );
 }
 
 /*
@@ -278,7 +279,7 @@ CP2PPIBase::~CP2PPIBase()
 void CP2PPIBase::languageChange()
 {
     setCaption( tr( "CP2PPI" ) );
-    _startButton->setText( tr( "Start/Stop Display" ) );
+    _pauseButton->setText( tr( "Pause" ) );
     _zoomInButton->setText( tr( "Zoom in" ) );
     _zoomOutButton->setText( tr( "Zoom out" ) );
     textLabel1->setText( tr( "Zoom:" ) );
@@ -308,9 +309,9 @@ void CP2PPIBase::languageChange()
     m_pTextIPaddress->setText( tr( "xxx.xxx.xxx.xxx" ) );
 }
 
-void CP2PPIBase::startStopDisplaySlot()
+void CP2PPIBase::pauseSlot(bool)
 {
-    qWarning( "CP2PPIBase::startStopDisplaySlot(): Not implemented yet" );
+    qWarning( "CP2PPIBase::pauseSlot(bool): Not implemented yet" );
 }
 
 void CP2PPIBase::dataSourceSlot()

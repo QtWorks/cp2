@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Form interface generated from reading ui file 'CP2PPIBase.ui'
 **
-** Created: Sun Dec 31 09:51:05 2006
+** Created: Sun Dec 31 10:06:30 2006
 **      by: The User Interface Compiler ($Id: qt/main.cpp   3.3.5   edited Aug 31 12:13 $)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -40,7 +40,7 @@ public:
 
     PPI* _ppi;
     QFrame* frameColorBar;
-    QPushButton* _startButton;
+    QPushButton* _pauseButton;
     QPushButton* _zoomInButton;
     QPushButton* _zoomOutButton;
     QLabel* textLabel1;
@@ -72,7 +72,7 @@ public:
     QLabel* m_pTextIPaddress;
 
 public slots:
-    virtual void startStopDisplaySlot();
+    virtual void pauseSlot(bool);
     virtual void dataSourceSlot();
     virtual void zoomInSlot();
     virtual void zoomOutSlot();

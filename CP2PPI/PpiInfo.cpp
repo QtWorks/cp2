@@ -16,7 +16,8 @@ _offsetCurrent(0)
 ////////////////////////////////////////////////////////
 PpiInfo::PpiInfo(int id, std::string shortName, std::string longName,
 		double gainMin, double gainMax, double gainCurrent, 
-		double offsetMin, double offsetMax, double offsetCurrent):
+		double offsetMin, double offsetMax, double offsetCurrent,
+		int ppiIndex):
 _id(id),
 _shortName(shortName),
 _longName(longName),
@@ -25,7 +26,8 @@ _gainMax(gainMax),
 _gainCurrent(gainCurrent),
 _offsetMin(offsetMin),
 _offsetMax(offsetMax),
-_offsetCurrent(offsetCurrent)
+_offsetCurrent(offsetCurrent),
+_ppiIndex(ppiIndex)
 {
 }
 
@@ -113,6 +115,13 @@ int
 PpiInfo::getId()
 {
 	return _id;
+}
+
+////////////////////////////////////////////////////////
+int 
+PpiInfo::getPpiIndex()
+{
+	return _ppiIndex;
 }
 
 

@@ -95,7 +95,7 @@
                         </property>
                         <widget class="QPushButton">
                             <property name="name">
-                                <cstring>_startButton</cstring>
+                                <cstring>_pauseButton</cstring>
                             </property>
                             <property name="sizePolicy">
                                 <sizepolicy>
@@ -106,7 +106,10 @@
                                 </sizepolicy>
                             </property>
                             <property name="text">
-                                <string>Start/Stop Display</string>
+                                <string>Pause</string>
+                            </property>
+                            <property name="toggleButton">
+                                <bool>true</bool>
                             </property>
                         </widget>
                         <widget class="QLayoutWidget">
@@ -782,14 +785,14 @@
         <slot>zoomOutSlot()</slot>
     </connection>
     <connection>
-        <sender>_startButton</sender>
-        <signal>clicked()</signal>
+        <sender>_pauseButton</sender>
+        <signal>toggled(bool)</signal>
         <receiver>CP2PPIBase</receiver>
-        <slot>startStopDisplaySlot()</slot>
+        <slot>pauseSlot(bool)</slot>
     </connection>
 </connections>
 <slots>
-    <slot>startStopDisplaySlot()</slot>
+    <slot>pauseSlot(bool)</slot>
     <slot>dataSourceSlot()</slot>
     <slot>zoomInSlot()</slot>
     <slot>zoomOutSlot()</slot>

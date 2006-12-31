@@ -8,10 +8,12 @@ public:
 	PpiInfo();
 	PpiInfo(int id, std::string shortName, std::string longName,
 		double gainMin, double gainMax, double gainCurrent, 
-		double offsetMin, double offsetMax, double offsetCurrent);
+		double offsetMin, double offsetMax, double offsetCurrent,
+		int ppiIndex);
 	virtual ~PpiInfo();
 
 	int getId();
+	int getPpiIndex();
 
 	void setGain(double min, double max, double current);
 	void setOffset(double min, double Max, double current);
@@ -37,5 +39,6 @@ protected:
 	double _offsetMin;
 	double _offsetMax;
 	double _offsetCurrent;
+	int _ppiIndex;
 };
 #endif
