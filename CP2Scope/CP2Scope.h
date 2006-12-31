@@ -21,9 +21,6 @@
 // CP2 timeseries network transfer protocol.
 #include "CP2Net.h"
 
-// CP2 pulse collator
-#include "CP2PulseCollator.h"
-
 // PlotInfo knows the characteristics of a plot
 #include "PlotInfo.h"
 
