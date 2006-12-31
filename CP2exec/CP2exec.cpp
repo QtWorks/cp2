@@ -158,9 +158,9 @@ main(int argc, char* argv[], char* envp[])
 	printf(" config1 filename %s will be used\n", fname1);
 	printf(" config2 filename %s will be used\n", fname2);
 	printf(" config3 filename %s will be used\n", fname3);
-	printf("\n\nTURN TRANSMITTER OFF for piraq dc offset measurement.\nPress any key to continue.\n"); 
-	while(!kbhit())	;
-	c = toupper(getch()); // get the character
+//	printf("\n\nTURN TRANSMITTER OFF for piraq dc offset measurement.\nPress any key to continue.\n"); 
+//	while(!kbhit())	;
+//	c = toupper(getch()); // get the character
 
 	// Initialize the network
 	outport = 3100; 
