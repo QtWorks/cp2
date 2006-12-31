@@ -32,6 +32,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CP2Net", "CP2Net\CP2Net.vcp
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CP2PPI", "CP2PPI\CP2PPI.vcproj", "{5368A3B4-79DF-4879-B9BE-5A8468CDCACB}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -66,6 +70,10 @@ Global
 		{19BDA85C-E4D4-4B5D-BF61-FFA6AA9CC2A4}.Debug.Build.0 = Debug|Win32
 		{19BDA85C-E4D4-4B5D-BF61-FFA6AA9CC2A4}.Release.ActiveCfg = Release|Win32
 		{19BDA85C-E4D4-4B5D-BF61-FFA6AA9CC2A4}.Release.Build.0 = Release|Win32
+		{5368A3B4-79DF-4879-B9BE-5A8468CDCACB}.Debug.ActiveCfg = Debug|Win32
+		{5368A3B4-79DF-4879-B9BE-5A8468CDCACB}.Debug.Build.0 = Debug|Win32
+		{5368A3B4-79DF-4879-B9BE-5A8468CDCACB}.Release.ActiveCfg = Release|Win32
+		{5368A3B4-79DF-4879-B9BE-5A8468CDCACB}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

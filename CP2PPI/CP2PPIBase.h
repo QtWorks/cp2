@@ -1,8 +1,8 @@
 /****************************************************************************
 ** Form interface generated from reading ui file 'CP2PPIBase.ui'
 **
-** Created: Thu Sep 28 16:09:48 2006
-**      by: The User Interface Compiler ($Id: qt/main.cpp   3.3.6-snapshot-20060428   edited Apr 2 18:47 $)
+** Created: Sat Dec 30 23:16:21 2006
+**      by: The User Interface Compiler ($Id: qt/main.cpp   3.3.5   edited Aug 31 12:13 $)
 **
 ** WARNING! All changes made in this file will be lost!
 ****************************************************************************/
@@ -21,14 +21,13 @@ class QAction;
 class QActionGroup;
 class QToolBar;
 class QPopupMenu;
-class QGroupBox;
+class PPI;
+class QFrame;
+class QTabWidget;
+class QWidget;
 class QPushButton;
 class QLabel;
 class QLCDNumber;
-class QButtonGroup;
-class QRadioButton;
-class PPI;
-class QFrame;
 
 class CP2PPIBase : public QMainWindow
 {
@@ -38,18 +37,15 @@ public:
     CP2PPIBase( QWidget* parent = 0, const char* name = 0, WFlags fl = WType_TopLevel );
     ~CP2PPIBase();
 
-    QGroupBox* groupBox1;
-    QPushButton* _startButton;
-    QPushButton* _zoomOutButton;
-    QPushButton* _zoomInButton;
-    QLabel* textLabel1;
-    QLCDNumber* ZoomFactor;
-    QButtonGroup* _dataSourceButtons;
-    QRadioButton* _dataSourceRadarButton;
-    QRadioButton* _dataSourceTestButton;
     PPI* _ppi;
     QFrame* frameColorBar;
-    QButtonGroup* _productButtons;
+    QTabWidget* _typeTab;
+    QWidget* tab;
+    QPushButton* _startButton;
+    QPushButton* _zoomInButton;
+    QPushButton* _zoomOutButton;
+    QLabel* textLabel1;
+    QLCDNumber* ZoomFactor;
 
 public slots:
     virtual void startStopDisplaySlot();
@@ -58,8 +54,12 @@ public slots:
     virtual void zoomOutSlot();
 
 protected:
-    QHBoxLayout* _dataSourceButtonsLayout;
-    QHBoxLayout* layout5;
+    QHBoxLayout* CP2PPIBaseLayout;
+    QVBoxLayout* layout16;
+    QSpacerItem* spacer3;
+    QVBoxLayout* layout14;
+    QHBoxLayout* layout13;
+    QHBoxLayout* layout12;
 
 protected slots:
     virtual void languageChange();

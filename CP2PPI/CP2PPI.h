@@ -1,123 +1,165 @@
 #ifndef CP2PPIH
 #define CP2PPIH
-#include "CP2PPIBase.h"
-//	move to CP2.h:
 #include <winsock2.h>		//	no redefinition errors if before Qt includes?
 #include <qsocketdevice.h> 
 #include <qsocketnotifier.h>
 #include <qevent.h>
-#include "../include/CP2.h"			//	CP2-wide Definitions
-#include "../include/piraqx.h"		//	CP2-piraqx Definitions
-#include "../include/dd_types.h"	//	CP2-piraqx data types
+#include <qbuttongroup.h>
 
-#include <vector>
-#include <qtimer.h>
+#include <deque>
+#include <set>
+#include <map>
+#include <string>
+
+// The base class created from the designer .ui specification
+#include "CP2PPIBase.h"
+
+// Coponents from the QtToolbox
+#include <PPI/PPI.h>
 #include <ColorBar/ColorMap.h>
 #include <ColorBar/ColorBar.h>
 
-enum	{	XBAND_DATA_SOURCE,	SBAND_DATA_SOURCE,	DATA_SOURCES	};	//	data sources for display
+// CP2 timeseries network transfer protocol.
+#include "CP2Net.h"
 
-//	definition of ColorBar min, max and button label for product to display 
-struct productDisplayConfiguration {
-	float rangeMin; 
-	float rangeMax;
-	char * label;
-//	char * labelPrecision;	//	NCP needs x.xx display 
-};
+// ProductInfo knows the characteristics of a particular 
+// PPI product display
+#include "PpiInfo.h"
 
-class CP2PPI: public CP2PPIBase
-  {
-  Q_OBJECT
-  public:
-	CP2PPI( int nVars, QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );
-    virtual ~CP2PPI();
-    
-	//	add these as they are supported in UI 
-//    void changeDir();
-//    void clearVarSlot(int);
-//    void panSlot(int);
-	//	add these:
-	void initializeSocket(); 
-	void terminateSocket(); 
-	void connectDataRcv();
-	void ChangeDatagramPort(int);
-	int	getParameters( CP2_PIRAQ_DATA_TYPE[] );		//	get program operating parameters from piraqx (or other) "housekeeping" header structure
-//	void setupTestProducts( void );	//	set up test product buttons, maps, etc.
-void setupTestProducts( productDisplayConfiguration * );	//	
+// Clases used in the moments computatons:
+#include "MomentsCompute.hh"
+#include "MomentsMgr.hh"
+#include "Params.hh"
+#include "Pulse.hh"
+
+#define PIRAQ3D_SCALE	1.0/(unsigned int)pow(2,31)	
+
+// product types:
+enum	PPITYPE {	
+	S_DBMHC,	///< S-band dBm horizontal co-planar
+	S_DBMVC,	///< S-band dBm vertical co-planar
+	S_DBZHC,	///< S-band dBz horizontal co-planar
+	S_DBZVC,	///< S-band dBz vertical co-planar
+	S_SNR,		///< S-band SNR
+	S_VEL,		///< S-band velocity
+	S_WIDTH,	///< S-band spectral width
+	S_RHOHV,	///< S-band rhohv
+	S_PHIDP,	///< S-band phidp
+	S_ZDR,		///< S-band zdr
+	X_DBMHC,	///< X-band dBm horizontal co-planar
+	X_DBMVX,	///< X-band dBm vertical cross-planar
+	X_DBZHC,	///< X-band dBz horizontal co-planar
+	X_SNR,		///< X-band SNR
+	X_VEL,		///< X-band velocity
+	X_WIDTH,	///< X-band spectral width
+	X_LDR		///< X-band LDR
+}; 
+
+
+class CP2PPI : public CP2PPIBase {
+	Q_OBJECT
+public:
+	CP2PPI();
+	~CP2PPI();
 
 public slots:
+	// Call when data is available on the data socket.
+	void dataSocketActivatedSlot(
+		int socket         ///< File descriptor of the data socket
+		);
+	virtual void ppiTypeSlot(int ppiType);
+	void tabChangeSlot(QWidget* w);
 	void startStopDisplaySlot();	//	start/stop process, display
-	void dataSourceSlot();	//	data source radar/internally-generated test 
-    void addBeam();
-    void productSelectSlot(int);
     void zoomInSlot();
     void zoomOutSlot();
+	void panSlot(int panIndex);
 	// Call when data is available on the data socket.
-	void dataSocketActivatedSlot(int socket);	// File descriptor of the data socket 
 
 protected:
-	char			m_statusLogBuf[1024];		//	global status string for Status Log
-	int				m_dataSource;		//	data source for PPI display: radar or test 
-	//	network-related: 
-	int				m_receiving;		//	receive-data state
-	int				m_receivePacketCount;		//	cumulative receive packet count  
-	QSocketDevice*   m_pDataSocket;
-	QSocketNotifier* m_pDataSocketNotifier;
-	CP2_PIRAQ_DATA_TYPE*   m_pSocketBuf;
-	CP2_PIRAQ_DATA_TYPE* SABP;	//	S-band ABP data packet generated from VHVH alternating pulses
-	int				m_dataGramPort;
-	int				m_datagramPortBase;	//	
-	int				m_dataChannel;		//	board source of data CP2 PIRAQ 1-3 
-	int				m_packetCount;		//	cumulative packet count on current socket 
+	void initializeSocket(); 
+	QSocketDevice*   _pSocket;
+	QSocketNotifier* _pSocketNotifier;
+	int				_dataGramPort;
+	int				_dataChannel;					///<	board source of data CP2 PIRAQ 1-3 
+	int				_dataSetGate;					///<	gate in packet to display 
+	int				_prevPulseCount[3];			///<	prior cumulative pulse count, used for throughput calcs
+	int				_pulseCount[3];				///<	cumulative pulse count
+	int				_errorCount[3];				///<	cumulative error count
+	bool			_eof[3];						///<    set true when fifo eof occurs. Used so that we don't
+	///<    keep setting the fifo eof led.
+	char*   _pSocketBuf;
 
-	int				_parametersSet;	//	set when piraqx parameters successfully initialized from received data
-	//	parameters from piraqx (or other header) "housekeeping" for use by program: data types per piraqx.h
-	uint4			_gates;
-	uint4			_hits;
-	uint4			_dataformat;	//	timeseries or 1 of 3 ABP types
-    float4			_prt;			//	pulse repetition time in seconds
-	//	parameters from piraqx for power calculations
-	float4			_data_sys_sat;	//	receiver saturation power in dBm
-	float4			_receiver_gain;		//	horizontal receiver gain
-	float4			_vreceiver_gain;	//	vertical receiver gain
-	float4			_noise_power;	//	noise power horizontal and vertical channels
-	float4			_vnoise_power;	
-	//	parameters from piraqx for velocity calculations
-	float4			_frequency;		//	radar transmit frequency
-	float4			_phaseoffset;	//	phase offset between V and H channels
-	//	parameters from piraqx for reflectivity calculations
-	float4			_rconst;		//	configured radar constant
-	float4			_xmit_pulsewidth;	//	 
-	float4			_rcvr_pulsewidth;	//	 
-	float4			_peak_power;	//	  
-	float4			_xmit_power;	//	  
-	float4			_vxmit_power;	//	  
-	float4			_antenna_gain;	//	  
-	float4			_vantenna_gain;	//	  
-	float4			_zdr_fudge_factor;	//	  
-	float4			_zdr_bias;	//	 
-	float4			_noise_phase_offset;	//	offset to provide noise immunity in velocity estimation 
-	//	radar constants for H,V computed at runtime
-	float4			_v_rconst;		//	computed V radar constant
-	float4			_h_rconst;		//	computed H radar constant
-	//	operating parameters derived from piraqx and N-hit implementation:	
-	unsigned int	_PNOffset;		//	offset in bytes to pulsenumber from begin of CP2exec-generated packet
-	unsigned int	_IQdataOffset;	//	offset to begin of data in (piraqx) packet
-	int				_pulseStride;	//	length in bytes of 1 pulse: header + data
-	int				_Nhits;			//	
+	// how often to update the statistics (in seconds)
+	int _statsUpdateInterval;
 
-//	CM stuff; retain whats necessary 
-    double _angle;
-    double _angleInc;
+	PPITYPE        _ppiType;
+	// The builtin timer will be used to calculate beam statistics.
+	void timerEvent(QTimerEvent*);
+
+	/// Moment computation parameters for S band
+	Params _Sparams;
+
+	/// Moment computation parameters for X band
+	Params _Xparams;
+
+	/// The S band moment computation engine.  Pulses
+	/// are passed to _momentsCompute. It will make a beam 
+	/// available when enough beams have been provided.
+	MomentsCompute* _momentsSCompute;
+
+	/// The X band moment computation engine.  Pulses
+	/// are passed to _momentsCompute. It will make a beam 
+	/// available when enough beams have been provided.
+	MomentsCompute* _momentsXCompute;
+
+	double _az;
+
+	/// Process the pulse, feeding it to the moments processor
+	/// @param pPulse The pulse to be processed. 
+	void processPulse(CP2Pulse* pPulse);
+
+	/// The collator collects and matches time tags
+	/// from H and V Xband channels
+	CP2PulseCollator _collator;
+	std::vector<CP2FullPulse*> _xHPulses;
+	std::vector<CP2FullPulse*> _xVPulses;
+
+	/// For each PPITYPE, there will be an entry in this map.
+	std::map<PPITYPE, PpiInfo> _ppiInfo;
+
+	/// This set contains PPITYPEs for all S band moments plots
+	std::set<PPITYPE> _sMomentsPPIs;
+
+	/// This set contains PPITYPEs for all X band moments plots
+	std::set<PPITYPE> _xMomentsPPIs;
+
+	/// save the button group for each tab,
+	/// so that we can find the selected button
+	/// and change the plot type when tabs are switched.
+	std::vector<QButtonGroup*> _tabButtonGroups;
+
+	/// initialize all of the book keeping structures
+	/// for the various plots.
+	void initPlots();
+
+	/// add a tab to the plot type selection tab widget.
+	/// Radio buttons are created for all of specified
+	/// plty types, and grouped into one button group.
+	/// _ppiInfo provides the label information for
+	/// the radio buttons.
+	/// @param tabName The title for the tab.
+	/// @param types A set of the desired PPITYPE types 
+	/// @return The button group that the inserted buttons
+	/// belong to.
+	QButtonGroup* addPlotTypeTab(std::string tabName, std::set<PPITYPE> types);
+
     int _nVars;
-//    int _gates;
+	int _gates;
 	double _beamWidth;
-    std::vector<int> _varIndices;
+    //std::vector<int> _varIndices;
 	std::vector<std::vector<double> > _beamData;
 	std::vector<ColorMap*> _maps;
 	ColorBar* _colorBar;
-    
-    QTimer _timer;
 
   };
 

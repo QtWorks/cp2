@@ -8,255 +8,254 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>775</width>
-            <height>562</height>
+            <width>646</width>
+            <height>443</height>
         </rect>
     </property>
     <property name="caption">
         <string>CP2PPI</string>
     </property>
-    <widget class="QGroupBox">
+    <hbox>
         <property name="name">
-            <cstring>groupBox1</cstring>
+            <cstring>unnamed</cstring>
         </property>
-        <property name="geometry">
-            <rect>
-                <x>30</x>
-                <y>440</y>
-                <width>570</width>
-                <height>110</height>
-            </rect>
-        </property>
-        <property name="title">
-            <string>Control/Status</string>
-        </property>
-        <widget class="QPushButton">
+        <widget class="PPI">
             <property name="name">
-                <cstring>_startButton</cstring>
+                <cstring>_ppi</cstring>
             </property>
-            <property name="geometry">
-                <rect>
-                    <x>11</x>
-                    <y>20</y>
-                    <width>130</width>
-                    <height>23</height>
-                </rect>
+            <property name="sizePolicy">
+                <sizepolicy>
+                    <hsizetype>3</hsizetype>
+                    <vsizetype>3</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                </sizepolicy>
             </property>
-            <property name="text">
-                <string>Start/Stop Display</string>
+            <property name="minimumSize">
+                <size>
+                    <width>400</width>
+                    <height>400</height>
+                </size>
             </property>
         </widget>
-        <widget class="QPushButton">
+        <widget class="QFrame">
             <property name="name">
-                <cstring>_zoomOutButton</cstring>
+                <cstring>frameColorBar</cstring>
             </property>
-            <property name="geometry">
-                <rect>
-                    <x>10</x>
-                    <y>80</y>
-                    <width>80</width>
-                    <height>23</height>
-                </rect>
+            <property name="sizePolicy">
+                <sizepolicy>
+                    <hsizetype>1</hsizetype>
+                    <vsizetype>1</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                </sizepolicy>
             </property>
-            <property name="text">
-                <string>Zoom out</string>
+            <property name="minimumSize">
+                <size>
+                    <width>40</width>
+                    <height>400</height>
+                </size>
+            </property>
+            <property name="maximumSize">
+                <size>
+                    <width>40</width>
+                    <height>32767</height>
+                </size>
+            </property>
+            <property name="frameShape">
+                <enum>StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+                <enum>Raised</enum>
             </property>
         </widget>
-        <widget class="QPushButton">
+        <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>_zoomInButton</cstring>
+                <cstring>layout16</cstring>
             </property>
-            <property name="geometry">
-                <rect>
-                    <x>10</x>
-                    <y>50</y>
-                    <width>80</width>
-                    <height>23</height>
-                </rect>
-            </property>
-            <property name="text">
-                <string>Zoom in</string>
-            </property>
-        </widget>
-        <widget class="QLabel">
-            <property name="name">
-                <cstring>textLabel1</cstring>
-            </property>
-            <property name="geometry">
-                <rect>
-                    <x>107</x>
-                    <y>69</y>
-                    <width>50</width>
-                    <height>20</height>
-                </rect>
-            </property>
-            <property name="text">
-                <string>Zoom:</string>
-            </property>
-        </widget>
-        <widget class="QLCDNumber">
-            <property name="name">
-                <cstring>ZoomFactor</cstring>
-            </property>
-            <property name="geometry">
-                <rect>
-                    <x>150</x>
-                    <y>64</y>
-                    <width>70</width>
-                    <height>30</height>
-                </rect>
-            </property>
-            <property name="segmentStyle">
-                <enum>Flat</enum>
-            </property>
-        </widget>
-        <widget class="QButtonGroup">
-            <property name="name">
-                <cstring>_dataSourceButtons</cstring>
-            </property>
-            <property name="geometry">
-                <rect>
-                    <x>150</x>
-                    <y>10</y>
-                    <width>130</width>
-                    <height>50</height>
-                </rect>
-            </property>
-            <property name="title">
-                <string>Data Source</string>
-            </property>
-            <property name="selectedId" stdset="0">
-                <number>-1</number>
-            </property>
-            <hbox>
+            <vbox>
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
-                <widget class="QRadioButton">
+                <widget class="QTabWidget">
                     <property name="name">
-                        <cstring>_dataSourceRadarButton</cstring>
+                        <cstring>_typeTab</cstring>
                     </property>
-                    <property name="text">
-                        <string>Radar</string>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>3</hsizetype>
+                            <vsizetype>3</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
                     </property>
+                    <widget class="QWidget">
+                        <property name="name">
+                            <cstring>tab</cstring>
+                        </property>
+                        <attribute name="title">
+                            <string>Tab 1</string>
+                        </attribute>
+                    </widget>
                 </widget>
-                <widget class="QRadioButton">
+                <spacer>
                     <property name="name">
-                        <cstring>_dataSourceTestButton</cstring>
+                        <cstring>spacer3</cstring>
                     </property>
-                    <property name="text">
-                        <string>Test</string>
+                    <property name="orientation">
+                        <enum>Vertical</enum>
                     </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>20</width>
+                            <height>31</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout14</cstring>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>7</hsizetype>
+                            <vsizetype>7</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
+                    </property>
+                    <vbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>_startButton</cstring>
+                            </property>
+                            <property name="sizePolicy">
+                                <sizepolicy>
+                                    <hsizetype>3</hsizetype>
+                                    <vsizetype>3</vsizetype>
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                            <property name="text">
+                                <string>Start/Stop Display</string>
+                            </property>
+                        </widget>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout13</cstring>
+                            </property>
+                            <property name="sizePolicy">
+                                <sizepolicy>
+                                    <hsizetype>7</hsizetype>
+                                    <vsizetype>1</vsizetype>
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                            <hbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QPushButton">
+                                    <property name="name">
+                                        <cstring>_zoomInButton</cstring>
+                                    </property>
+                                    <property name="sizePolicy">
+                                        <sizepolicy>
+                                            <hsizetype>3</hsizetype>
+                                            <vsizetype>3</vsizetype>
+                                            <horstretch>0</horstretch>
+                                            <verstretch>0</verstretch>
+                                        </sizepolicy>
+                                    </property>
+                                    <property name="text">
+                                        <string>Zoom in</string>
+                                    </property>
+                                </widget>
+                                <widget class="QPushButton">
+                                    <property name="name">
+                                        <cstring>_zoomOutButton</cstring>
+                                    </property>
+                                    <property name="sizePolicy">
+                                        <sizepolicy>
+                                            <hsizetype>3</hsizetype>
+                                            <vsizetype>3</vsizetype>
+                                            <horstretch>0</horstretch>
+                                            <verstretch>0</verstretch>
+                                        </sizepolicy>
+                                    </property>
+                                    <property name="text">
+                                        <string>Zoom out</string>
+                                    </property>
+                                </widget>
+                            </hbox>
+                        </widget>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout12</cstring>
+                            </property>
+                            <property name="sizePolicy">
+                                <sizepolicy>
+                                    <hsizetype>7</hsizetype>
+                                    <vsizetype>1</vsizetype>
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                            <hbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>textLabel1</cstring>
+                                    </property>
+                                    <property name="sizePolicy">
+                                        <sizepolicy>
+                                            <hsizetype>3</hsizetype>
+                                            <vsizetype>3</vsizetype>
+                                            <horstretch>0</horstretch>
+                                            <verstretch>0</verstretch>
+                                        </sizepolicy>
+                                    </property>
+                                    <property name="text">
+                                        <string>Zoom:</string>
+                                    </property>
+                                </widget>
+                                <widget class="QLCDNumber">
+                                    <property name="name">
+                                        <cstring>ZoomFactor</cstring>
+                                    </property>
+                                    <property name="sizePolicy">
+                                        <sizepolicy>
+                                            <hsizetype>3</hsizetype>
+                                            <vsizetype>3</vsizetype>
+                                            <horstretch>0</horstretch>
+                                            <verstretch>0</verstretch>
+                                        </sizepolicy>
+                                    </property>
+                                    <property name="segmentStyle">
+                                        <enum>Flat</enum>
+                                    </property>
+                                </widget>
+                            </hbox>
+                        </widget>
+                    </vbox>
                 </widget>
-            </hbox>
+            </vbox>
         </widget>
-    </widget>
-    <widget class="QLayoutWidget">
-        <property name="name">
-            <cstring>layout5</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>20</x>
-                <y>10</y>
-                <width>614</width>
-                <height>410</height>
-            </rect>
-        </property>
-        <hbox>
-            <property name="name">
-                <cstring>unnamed</cstring>
-            </property>
-            <widget class="PPI">
-                <property name="name">
-                    <cstring>_ppi</cstring>
-                </property>
-                <property name="sizePolicy">
-                    <sizepolicy>
-                        <hsizetype>3</hsizetype>
-                        <vsizetype>3</vsizetype>
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                    </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                    <size>
-                        <width>400</width>
-                        <height>400</height>
-                    </size>
-                </property>
-            </widget>
-            <widget class="QFrame">
-                <property name="name">
-                    <cstring>frameColorBar</cstring>
-                </property>
-                <property name="sizePolicy">
-                    <sizepolicy>
-                        <hsizetype>1</hsizetype>
-                        <vsizetype>1</vsizetype>
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                    </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                    <size>
-                        <width>40</width>
-                        <height>400</height>
-                    </size>
-                </property>
-                <property name="maximumSize">
-                    <size>
-                        <width>40</width>
-                        <height>32767</height>
-                    </size>
-                </property>
-                <property name="frameShape">
-                    <enum>StyledPanel</enum>
-                </property>
-                <property name="frameShadow">
-                    <enum>Raised</enum>
-                </property>
-            </widget>
-            <widget class="QButtonGroup">
-                <property name="name">
-                    <cstring>_productButtons</cstring>
-                </property>
-                <property name="sizePolicy">
-                    <sizepolicy>
-                        <hsizetype>3</hsizetype>
-                        <vsizetype>3</vsizetype>
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                    </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                    <size>
-                        <width>160</width>
-                        <height>400</height>
-                    </size>
-                </property>
-                <property name="title">
-                    <string>Product</string>
-                </property>
-            </widget>
-        </hbox>
-    </widget>
+    </hbox>
 </widget>
 <toolbars>
 </toolbars>
 <connections>
-    <connection>
-        <sender>_dataSourceRadarButton</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>CP2PPIBase</receiver>
-        <slot>dataSourceSlot()</slot>
-    </connection>
-    <connection>
-        <sender>_dataSourceTestButton</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>CP2PPIBase</receiver>
-        <slot>dataSourceSlot()</slot>
-    </connection>
     <connection>
         <sender>_zoomInButton</sender>
         <signal>clicked()</signal>

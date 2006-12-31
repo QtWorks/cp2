@@ -1,8 +1,8 @@
 /****************************************************************************
 ** Form implementation generated from reading ui file 'CP2PPIBase.ui'
 **
-** Created: Thu Sep 28 16:09:48 2006
-**      by: The User Interface Compiler ($Id: qt/main.cpp   3.3.6-snapshot-20060428   edited Apr 2 18:47 $)
+** Created: Sat Dec 30 23:16:21 2006
+**      by: The User Interface Compiler ($Id: qt/main.cpp   3.3.5   edited Aug 31 12:13 $)
 **
 ** WARNING! All changes made in this file will be lost!
 ****************************************************************************/
@@ -11,13 +11,12 @@
 
 #include <qvariant.h>
 #include <qpushbutton.h>
-#include <qgroupbox.h>
-#include <qlabel.h>
-#include <qlcdnumber.h>
-#include <qbuttongroup.h>
-#include <qradiobutton.h>
 #include <PPI/PPI.h>
 #include <qframe.h>
+#include <qtabwidget.h>
+#include <qwidget.h>
+#include <qlabel.h>
+#include <qlcdnumber.h>
 #include <qlayout.h>
 #include <qtooltip.h>
 #include <qwhatsthis.h>
@@ -39,72 +38,70 @@ CP2PPIBase::CP2PPIBase( QWidget* parent, const char* name, WFlags fl )
     if ( !name )
 	setName( "CP2PPIBase" );
     setCentralWidget( new QWidget( this, "qt_central_widget" ) );
+    CP2PPIBaseLayout = new QHBoxLayout( centralWidget(), 11, 6, "CP2PPIBaseLayout"); 
 
-    groupBox1 = new QGroupBox( centralWidget(), "groupBox1" );
-    groupBox1->setGeometry( QRect( 30, 440, 570, 110 ) );
-
-    _startButton = new QPushButton( groupBox1, "_startButton" );
-    _startButton->setGeometry( QRect( 11, 20, 130, 23 ) );
-
-    _zoomOutButton = new QPushButton( groupBox1, "_zoomOutButton" );
-    _zoomOutButton->setGeometry( QRect( 10, 80, 80, 23 ) );
-
-    _zoomInButton = new QPushButton( groupBox1, "_zoomInButton" );
-    _zoomInButton->setGeometry( QRect( 10, 50, 80, 23 ) );
-
-    textLabel1 = new QLabel( groupBox1, "textLabel1" );
-    textLabel1->setGeometry( QRect( 107, 69, 50, 20 ) );
-
-    ZoomFactor = new QLCDNumber( groupBox1, "ZoomFactor" );
-    ZoomFactor->setGeometry( QRect( 150, 64, 70, 30 ) );
-    ZoomFactor->setSegmentStyle( QLCDNumber::Flat );
-
-    _dataSourceButtons = new QButtonGroup( groupBox1, "_dataSourceButtons" );
-    _dataSourceButtons->setGeometry( QRect( 150, 10, 130, 50 ) );
-    _dataSourceButtons->setProperty( "selectedId", -1 );
-    _dataSourceButtons->setColumnLayout(0, Qt::Vertical );
-    _dataSourceButtons->layout()->setSpacing( 6 );
-    _dataSourceButtons->layout()->setMargin( 11 );
-    _dataSourceButtonsLayout = new QHBoxLayout( _dataSourceButtons->layout() );
-    _dataSourceButtonsLayout->setAlignment( Qt::AlignTop );
-
-    _dataSourceRadarButton = new QRadioButton( _dataSourceButtons, "_dataSourceRadarButton" );
-    _dataSourceButtonsLayout->addWidget( _dataSourceRadarButton );
-
-    _dataSourceTestButton = new QRadioButton( _dataSourceButtons, "_dataSourceTestButton" );
-    _dataSourceButtonsLayout->addWidget( _dataSourceTestButton );
-
-    QWidget* privateLayoutWidget = new QWidget( centralWidget(), "layout5" );
-    privateLayoutWidget->setGeometry( QRect( 20, 10, 614, 410 ) );
-    layout5 = new QHBoxLayout( privateLayoutWidget, 11, 6, "layout5"); 
-
-    _ppi = new PPI( privateLayoutWidget, "_ppi" );
+    _ppi = new PPI( centralWidget(), "_ppi" );
     _ppi->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)3, (QSizePolicy::SizeType)3, 0, 0, _ppi->sizePolicy().hasHeightForWidth() ) );
     _ppi->setMinimumSize( QSize( 400, 400 ) );
-    layout5->addWidget( _ppi );
+    CP2PPIBaseLayout->addWidget( _ppi );
 
-    frameColorBar = new QFrame( privateLayoutWidget, "frameColorBar" );
+    frameColorBar = new QFrame( centralWidget(), "frameColorBar" );
     frameColorBar->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)1, (QSizePolicy::SizeType)1, 0, 0, frameColorBar->sizePolicy().hasHeightForWidth() ) );
     frameColorBar->setMinimumSize( QSize( 40, 400 ) );
     frameColorBar->setMaximumSize( QSize( 40, 32767 ) );
     frameColorBar->setFrameShape( QFrame::StyledPanel );
     frameColorBar->setFrameShadow( QFrame::Raised );
-    layout5->addWidget( frameColorBar );
+    CP2PPIBaseLayout->addWidget( frameColorBar );
 
-    _productButtons = new QButtonGroup( privateLayoutWidget, "_productButtons" );
-    _productButtons->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)3, (QSizePolicy::SizeType)3, 0, 0, _productButtons->sizePolicy().hasHeightForWidth() ) );
-    _productButtons->setMinimumSize( QSize( 160, 400 ) );
-    layout5->addWidget( _productButtons );
+    layout16 = new QVBoxLayout( 0, 0, 6, "layout16"); 
+
+    _typeTab = new QTabWidget( centralWidget(), "_typeTab" );
+    _typeTab->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)3, (QSizePolicy::SizeType)3, 0, 0, _typeTab->sizePolicy().hasHeightForWidth() ) );
+
+    tab = new QWidget( _typeTab, "tab" );
+    _typeTab->insertTab( tab, QString::fromLatin1("") );
+    layout16->addWidget( _typeTab );
+    spacer3 = new QSpacerItem( 20, 31, QSizePolicy::Minimum, QSizePolicy::Expanding );
+    layout16->addItem( spacer3 );
+
+    layout14 = new QVBoxLayout( 0, 0, 6, "layout14"); 
+
+    _startButton = new QPushButton( centralWidget(), "_startButton" );
+    _startButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)3, (QSizePolicy::SizeType)3, 0, 0, _startButton->sizePolicy().hasHeightForWidth() ) );
+    layout14->addWidget( _startButton );
+
+    layout13 = new QHBoxLayout( 0, 0, 6, "layout13"); 
+
+    _zoomInButton = new QPushButton( centralWidget(), "_zoomInButton" );
+    _zoomInButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)3, (QSizePolicy::SizeType)3, 0, 0, _zoomInButton->sizePolicy().hasHeightForWidth() ) );
+    layout13->addWidget( _zoomInButton );
+
+    _zoomOutButton = new QPushButton( centralWidget(), "_zoomOutButton" );
+    _zoomOutButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)3, (QSizePolicy::SizeType)3, 0, 0, _zoomOutButton->sizePolicy().hasHeightForWidth() ) );
+    layout13->addWidget( _zoomOutButton );
+    layout14->addLayout( layout13 );
+
+    layout12 = new QHBoxLayout( 0, 0, 6, "layout12"); 
+
+    textLabel1 = new QLabel( centralWidget(), "textLabel1" );
+    textLabel1->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)3, (QSizePolicy::SizeType)3, 0, 0, textLabel1->sizePolicy().hasHeightForWidth() ) );
+    layout12->addWidget( textLabel1 );
+
+    ZoomFactor = new QLCDNumber( centralWidget(), "ZoomFactor" );
+    ZoomFactor->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)3, (QSizePolicy::SizeType)3, 0, 0, ZoomFactor->sizePolicy().hasHeightForWidth() ) );
+    ZoomFactor->setSegmentStyle( QLCDNumber::Flat );
+    layout12->addWidget( ZoomFactor );
+    layout14->addLayout( layout12 );
+    layout16->addLayout( layout14 );
+    CP2PPIBaseLayout->addLayout( layout16 );
 
     // toolbars
 
     languageChange();
-    resize( QSize(775, 562).expandedTo(minimumSizeHint()) );
+    resize( QSize(646, 443).expandedTo(minimumSizeHint()) );
     clearWState( WState_Polished );
 
     // signals and slots connections
-    connect( _dataSourceRadarButton, SIGNAL( toggled(bool) ), this, SLOT( dataSourceSlot() ) );
-    connect( _dataSourceTestButton, SIGNAL( toggled(bool) ), this, SLOT( dataSourceSlot() ) );
     connect( _zoomInButton, SIGNAL( clicked() ), this, SLOT( zoomInSlot() ) );
     connect( _zoomOutButton, SIGNAL( clicked() ), this, SLOT( zoomOutSlot() ) );
     connect( _startButton, SIGNAL( clicked() ), this, SLOT( startStopDisplaySlot() ) );
@@ -125,15 +122,11 @@ CP2PPIBase::~CP2PPIBase()
 void CP2PPIBase::languageChange()
 {
     setCaption( tr( "CP2PPI" ) );
-    groupBox1->setTitle( tr( "Control/Status" ) );
+    _typeTab->changeTab( tab, tr( "Tab 1" ) );
     _startButton->setText( tr( "Start/Stop Display" ) );
-    _zoomOutButton->setText( tr( "Zoom out" ) );
     _zoomInButton->setText( tr( "Zoom in" ) );
+    _zoomOutButton->setText( tr( "Zoom out" ) );
     textLabel1->setText( tr( "Zoom:" ) );
-    _dataSourceButtons->setTitle( tr( "Data Source" ) );
-    _dataSourceRadarButton->setText( tr( "Radar" ) );
-    _dataSourceTestButton->setText( tr( "Test" ) );
-    _productButtons->setTitle( tr( "Product" ) );
 }
 
 void CP2PPIBase::startStopDisplaySlot()
