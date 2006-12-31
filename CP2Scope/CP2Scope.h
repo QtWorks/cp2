@@ -114,6 +114,7 @@ protected:
 	int				_prevPulseCount[3];			///<	prior cumulative pulse count, used for throughput calcs
 	int				_pulseCount[3];				///<	cumulative pulse count
 	int				_errorCount[3];				///<	cumulative error count
+	long long		_lastPulseNum[3];			///<  last pulse number
 	bool			_eof[3];						///<    set true when fifo eof occurs. Used so that we don't
 	///<    keep setting the fifo eof led.
 	unsigned int	_pulseDecimation;		///<	decimation factor for along range (DATA_SET_PULSE) display: currently set 50
@@ -170,12 +171,12 @@ protected:
 
 	/// The S band moment computation engine.  Pulses
 	/// are passed to _momentsCompute. It will make a beam 
-	/// available when enough beams have been provided.
+	/// available when enough pulses have been provided.
 	MomentsCompute* _momentsSCompute;
 
 	/// The X band moment computation engine.  Pulses
 	/// are passed to _momentsCompute. It will make a beam 
-	/// available when enough beams have been provided.
+	/// available when enough pulses have been provided.
 	MomentsCompute* _momentsXCompute;
 
 	double _az;
@@ -210,8 +211,6 @@ protected:
 	/// Collator collects and matches time tags
 	/// from H and V Xband channels
 	CP2PulseCollator _collator;
-	std::vector<CP2FullPulse*> _xHPulses;
-	std::vector<CP2FullPulse*> _xVPulses;
 
 	/// For each PLOTTYPE, there will be an entry in this map.
 	std::map<PLOTTYPE, PlotInfo> _plotInfo;

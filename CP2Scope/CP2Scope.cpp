@@ -43,6 +43,7 @@ _statsUpdateInterval(5)
 		_prevPulseCount[i] = 0;
 		_errorCount[i] = 0;
 		_eof[i] = false;
+		_lastPulseNum[i] = 0;
 	}
 
 	_plotType = S_TIMESERIES;
@@ -267,7 +268,16 @@ CP2Scope::dataSocketActivatedSlot(int)
 void
 CP2Scope::processPulse(CP2Pulse* pPulse) 
 {
-	static int outCount = 0;
+	int chan = pPulse->header.channel;
+
+	// look for pulse number errors
+	if (_lastPulseNum[chan]) {
+		if (_lastPulseNum[chan]+1 != pPulse->header.pulse_num) {
+			_errorCount[chan]++;
+		}
+	}
+	_lastPulseNum[chan] = pPulse->header.pulse_num;
+	
 	float* data = &(pPulse->data[0]);
 
 	// beam will point to computed moments when they are ready,
@@ -285,7 +295,7 @@ CP2Scope::processPulse(CP2Pulse* pPulse)
 			// S band pulses: are successive coplaner H and V pulses
 			// this horizontal switch is a hack for now; we really
 			// need to find the h/v flag in the pulse header.
-			if (pPulse->header.channel == 0) {
+			if (chan == 0) {
 				if (_sMomentsPlots.find(_plotType) != _sMomentsPlots.end())
 				{
 					_momentsSCompute->processPulse(data,
@@ -322,17 +332,11 @@ CP2Scope::processPulse(CP2Pulse* pPulse)
 					// by the collator. Otherwise, matching pulses returned from
 					// the collator can be deleted here.
 					_collator.addPulse(pFullPulse, pFullPulse->header()->channel - 1);
-					//					if(outCount++ < 1000)
-					//						std::cout <<"add chan " << pFullPulse->header()->channel << " " 
-					//						<< pFullPulse->header()->pulse_num << "\n";
 
 					// now see if we have some matching pulses
 					CP2FullPulse* pHPulse;
 					CP2FullPulse* pVPulse;
 					if (_collator.gotMatch(&pHPulse, &pVPulse)) {
-						//if(outCount++ < 1000)
-						//	std::cout <<"  match " 
-						//	<< pHPulse->header()->pulse_num << "\n";
 						// a matching pair was found. Send them to the X band
 						// moments compute engine.
 						_momentsXCompute->processPulse(
@@ -350,10 +354,6 @@ CP2Scope::processPulse(CP2Pulse* pPulse)
 						// ask for a completed beam. The return value will be
 						// 0 if nothing is ready yet.
 						pBeam = _momentsXCompute->getNewBeam();
-						//if (pBeam){
-						//	if(outCount++ < 1000)
-						//		std::cout << "    *** beam\n";
-						//}
 					}else {
 						pBeam = 0;
 					}
@@ -792,16 +792,16 @@ CP2Scope::timerEvent(QTimerEvent*)
 	int rate[3];
 	for (int i = 0; i < 3; i++) 
 	{
-		rate[i] = (_pulseCount[i] - _prevPulseCount[i])/_statsUpdateInterval;
+		rate[i] = (_pulseCount[i] - _prevPulseCount[i])/(double)_statsUpdateInterval;
 		_prevPulseCount[i] = _pulseCount[i];
 	}
 	_chan0pulseCount->setNum(_pulseCount[0]/1000);
 	_chan0pulseRate->setNum(rate[0]);
-	_chan0errors->setNum(0);
+	_chan0errors->setNum(_errorCount[0]);
 	_chan1pulseCount->setNum(_pulseCount[1]/1000);
 	_chan1pulseRate->setNum(rate[1]);
-	_chan1errors->setNum(0);
+	_chan1errors->setNum(_errorCount[1]);
 	_chan2pulseCount->setNum(_pulseCount[2]/1000);
 	_chan2pulseRate->setNum(rate[2]);
-	_chan2errors->setNum(0);
+	_chan2errors->setNum(_errorCount[2]);
 }
