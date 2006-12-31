@@ -56,9 +56,9 @@ CP2PPIBase(),
 	initPlots();
 
 	// set leds to green
-	//_chan0led->setBackgroundColor(QColor("green"));
-	//_chan1led->setBackgroundColor(QColor("green"));
-	//_chan2led->setBackgroundColor(QColor("green"));
+	_chan0led->setBackgroundColor(QColor("green"));
+	_chan1led->setBackgroundColor(QColor("green"));
+	_chan2led->setBackgroundColor(QColor("green"));
 
 	// set the intial plot type
 	ppiTypeSlot(S_DBZHC);
@@ -287,9 +287,9 @@ CP2PPI::initializeSocket()
 	std::string myIPaddress = inet_ntoa(*(struct in_addr*)pHostEnt->h_addr_list[0]);
 	std::cout << "ip name: " << myIPname.c_str() << ", id address  " << myIPaddress.c_str() << std::endl;
 
-//	m_pTextIPname->setText(myIPname.c_str());
+	m_pTextIPname->setText(myIPname.c_str());
 
-//	m_pTextIPaddress->setNum(+_dataGramPort);	// diagnostic print
+	m_pTextIPaddress->setNum(+_dataGramPort);	// diagnostic print
 	qHost.setAddress(myIPaddress.c_str());
 
 	std::cout << "qHost:" << qHost.toString() << std::endl;
@@ -456,15 +456,15 @@ CP2PPI::timerEvent(QTimerEvent*)
 		rate[i] = (_pulseCount[i] - _prevPulseCount[i])/_statsUpdateInterval;
 		_prevPulseCount[i] = _pulseCount[i];
 	}
-//	_chan0pulseCount->setNum(_pulseCount[0]/1000);
-//	_chan0pulseRate->setNum(rate[0]);
-//	_chan0errors->setNum(0);
-//	_chan1pulseCount->setNum(_pulseCount[1]/1000);
-//	_chan1pulseRate->setNum(rate[1]);
-//	_chan1errors->setNum(0);
-//	_chan2pulseCount->setNum(_pulseCount[2]/1000);
-//	_chan2pulseRate->setNum(rate[2]);
-//	_chan2errors->setNum(0);
+	_chan0pulseCount->setNum(_pulseCount[0]/1000);
+	_chan0pulseRate->setNum(rate[0]);
+	_chan0errors->setNum(0);
+	_chan1pulseCount->setNum(_pulseCount[1]/1000);
+	_chan1pulseRate->setNum(rate[1]);
+	_chan1errors->setNum(0);
+	_chan2pulseCount->setNum(_pulseCount[2]/1000);
+	_chan2pulseRate->setNum(rate[2]);
+	_chan2errors->setNum(0);
 }
 
 

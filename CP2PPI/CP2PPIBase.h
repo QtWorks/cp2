@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Form interface generated from reading ui file 'CP2PPIBase.ui'
 **
-** Created: Sat Dec 30 23:16:21 2006
+** Created: Sun Dec 31 09:51:05 2006
 **      by: The User Interface Compiler ($Id: qt/main.cpp   3.3.5   edited Aug 31 12:13 $)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,11 +23,12 @@ class QToolBar;
 class QPopupMenu;
 class PPI;
 class QFrame;
-class QTabWidget;
-class QWidget;
 class QPushButton;
 class QLabel;
 class QLCDNumber;
+class QTabWidget;
+class QWidget;
+class QGroupBox;
 
 class CP2PPIBase : public QMainWindow
 {
@@ -39,13 +40,36 @@ public:
 
     PPI* _ppi;
     QFrame* frameColorBar;
-    QTabWidget* _typeTab;
-    QWidget* tab;
     QPushButton* _startButton;
     QPushButton* _zoomInButton;
     QPushButton* _zoomOutButton;
     QLabel* textLabel1;
     QLCDNumber* ZoomFactor;
+    QTabWidget* _typeTab;
+    QWidget* tab;
+    QGroupBox* groupBox1;
+    QLabel* textLabel1_2;
+    QLabel* textLabel3_2;
+    QLabel* _chan0pulseRate;
+    QLabel* _chan1pulseRate;
+    QLabel* _chan2pulseRate;
+    QLabel* textLabel3_3;
+    QLabel* _chan0errors;
+    QLabel* _chan1errors;
+    QLabel* _chan2errors;
+    QLabel* textLabel3;
+    QLabel* _chan0pulseCount;
+    QLabel* _chan1pulseCount;
+    QLabel* _chan2pulseCount;
+    QLabel* textLabel1_5;
+    QLabel* textLabel1_5_2;
+    QLabel* textLabel1_5_3;
+    QLabel* textLabel4;
+    QLabel* _chan0led;
+    QLabel* _chan2led;
+    QLabel* _chan1led;
+    QLabel* m_pTextIPname;
+    QLabel* m_pTextIPaddress;
 
 public slots:
     virtual void startStopDisplaySlot();
@@ -55,11 +79,15 @@ public slots:
 
 protected:
     QHBoxLayout* CP2PPIBaseLayout;
-    QVBoxLayout* layout16;
+    QVBoxLayout* layout18;
     QSpacerItem* spacer3;
     QVBoxLayout* layout14;
     QHBoxLayout* layout13;
     QHBoxLayout* layout12;
+    QGridLayout* groupBox1Layout;
+    QHBoxLayout* layout29;
+    QSpacerItem* spacer2;
+    QHBoxLayout* layout40;
 
 protected slots:
     virtual void languageChange();
