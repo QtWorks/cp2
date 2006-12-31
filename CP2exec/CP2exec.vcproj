@@ -23,12 +23,12 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="&quot;C:\Program Files\TVicSoft\TVicHW50\MSVC&quot;;C:\Plx\PciSdk\Inc"
+				AdditionalIncludeDirectories="..\CP2Net;C:\Projects\cp2\CP2Lib;C:\Projects\cp2\CP2Piraq;C:\Projects\cp2\PiraqDriver;C:\Plx\PciSdk\Inc;&quot;C:\Program Files\TVicSoft\TVicHW50\MSVC&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
-				UsePrecompiledHeader="3"
+				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough="stdafx.h"
 				PrecompiledHeaderFile=".\Release/CP2exec.pch"
 				AssemblerListingLocation=".\Release/"
@@ -41,10 +41,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib win32lib.lib"
+				AdditionalDependencies=" plxapi.lib TVicHW32.lib ws2_32.lib"
 				OutputFile=".\Release/CP2exec.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories="C:\Plx\PciSdk\Win32\Api\Debug;&quot;C:\Program Files\TVicSoft\TVicHW50\MSVC&quot;"
 				ProgramDatabaseFile=".\Release/CP2exec.pdb"
 				SubSystem="1"
 				TargetMachine="1"/>

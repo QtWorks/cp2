@@ -93,7 +93,7 @@
 				AdditionalIncludeDirectories="&quot;C:\Program Files\TVicSoft\TVicHW50&quot;;C:\Plx\PciSdk\Inc"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;PiraqIII_RevD_Driver.dsp_EXPORTS"
 				StringPooling="TRUE"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderFile=".\Release/PiraqIII_RevD_Driver.pch"
