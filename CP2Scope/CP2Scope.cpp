@@ -528,7 +528,7 @@ CP2Scope::initializeSocket()
 		qWarning("Unable to bind to %s:%d", qHost.toString().ascii(), _dataGramPort);
 		exit(1); 
 	}
-	int sockbufsize = 1000000;
+	int sockbufsize = CP2SCOPE_RCVBUF;
 
 	int result = setsockopt (_pSocket->socket(),
 		SOL_SOCKET,

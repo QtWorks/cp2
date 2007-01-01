@@ -9,6 +9,9 @@
 #include <set>
 #include <map>
 
+// request this much space for the socket receive buffer
+#define CP2SCOPE_RCVBUF 25000000
+
 // the fastest fft in the west; used for power spectrum calcs.
 #include <fftw3.h>
 
