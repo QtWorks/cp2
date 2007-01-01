@@ -64,6 +64,21 @@ int initNetwork(char* ipName, int port, struct sockaddr_in& sockAddr)
 	sockAddr.sin_addr.s_addr = inetAddr;
 	sockAddr.sin_family = AF_INET;
 
+	// ask for a large socket send buffer
+	int sockbufsize = 50000000;
+
+	int result = setsockopt (sock,
+		SOL_SOCKET,
+		SO_SNDBUF,
+		(char *) &sockbufsize,
+		sizeof sockbufsize);
+	if (result) {
+		printf("Set send buffer size for socket failed\n");
+		exit(1); 
+	}
+
+
+
 	return sock;
 
 }
