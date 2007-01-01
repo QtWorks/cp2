@@ -57,14 +57,20 @@ _pause(false)
 
 	// count the number ppi types that initPlots 
 	// gave us
-	_nVars = _sMomentsList.size() + _xMomentsList.size();
+	_nVars = _sMomentsList.size();
 
 	// set the intial plot type
 	ppiTypeSlot(S_DBZHC);
 
 	// create the color maps
-	for (int i = 0; i < _nVars; i++) {
-		_maps.push_back(new ColorMap(102, 106));
+	_maps.resize(_nVars);
+	std::set<PPITYPE>::iterator pSet;
+	for (pSet=_sMomentsList.begin(); pSet!=_sMomentsList.end(); pSet++) 
+	{
+		double scaleMin = _ppiInfo[*pSet].getScaleMin();
+		double scaleMax = _ppiInfo[*pSet].getScaleMax();
+		int index = _ppiInfo[*pSet].getPpiIndex();
+		_maps[index] = new ColorMap(scaleMin, scaleMax);
 	}
 
 	QVBoxLayout* colorBarLayout = new QVBoxLayout(frameColorBar);
@@ -246,7 +252,7 @@ CP2PPI::processPulse(CP2Pulse* pPulse)
 			// pulses. If orphan pulses are detected, they are deleted
 			// by the collator. Otherwise, matching pulses returned from
 			// the collator can be deleted here.
-			_collator.addPulse(pFullPulse, chan - 1);
+			_collator.addPulse(pFullPulse, chan);
 
 			// now see if we have some matching pulses
 			CP2FullPulse* pHPulse;
@@ -320,7 +326,7 @@ CP2PPI::initializeSocket()
 		qWarning("Unable to bind to %s:%d", qHost.toString().ascii(), _dataGramPort);
 		exit(1); 
 	}
-	int sockbufsize = 1000000;
+	int sockbufsize = CP2PPI_RCVBUF;
 
 	int result = setsockopt (_pSocket->socket(),
 		SOL_SOCKET,
@@ -338,11 +344,16 @@ CP2PPI::initializeSocket()
 }
 ////////////////////////////////////////////////////////////////////
 void
-CP2PPI::ppiTypeSlot(int newPlotType)
+CP2PPI::ppiTypeSlot(int newPpiType)
 {
-	if (newPlotType == _ppiType) {
+	if (newPpiType == _ppiType) {
 		return;
 	}
+
+	_ppiType  = (PPITYPE)newPpiType;
+	int index = _ppiInfo[_ppiType].getPpiIndex();
+	_ppi->selectVar(index);
+	_colorBar->configure(*_maps[index]);
 }
 ////////////////////////////////////////////////////////////////////
 void
@@ -352,8 +363,6 @@ CP2PPI::initPlots()
 	// set the initial plot type
 	_ppiType = S_DBZHC;
 
-	_sMomentsList.insert(S_DBMHC);
-	_sMomentsList.insert(S_DBMVC);
 	_sMomentsList.insert(S_DBZHC);
 	_sMomentsList.insert(S_DBZVC);
 	_sMomentsList.insert(S_WIDTH);
@@ -363,32 +372,22 @@ CP2PPI::initPlots()
 	_sMomentsList.insert(S_PHIDP);
 	_sMomentsList.insert(S_ZDR);
 
-	_xMomentsList.insert(X_DBMHC);
-	_xMomentsList.insert(X_DBMVX);
 	_xMomentsList.insert(X_DBZHC);
 	_xMomentsList.insert(X_SNR);
-	//	_xMomentsList.insert(X_WIDTH);
-	//	_xMomentsList.insert(X_VEL);
 	_xMomentsList.insert(X_LDR);
 
 	int ppiVarIndex = 0;
-	_ppiInfo[S_DBMHC]       = PpiInfo(S_DBMHC,      "H Dbm", "Sh: Dbm",      -5.0, 5.0, 0.0, -5.0, 5.0, 0.0, ppiVarIndex++);
-	_ppiInfo[S_DBMVC]       = PpiInfo(S_DBMVC,      "V Dbm", "Sv: Dbm",      -5.0, 5.0, 0.0, -5.0, 5.0, 0.0, ppiVarIndex++);
-	_ppiInfo[S_DBZHC]       = PpiInfo(S_DBZHC,      "H Dbz", "Sh: Dbz",      -5.0, 5.0, 0.0, -5.0, 5.0, 0.0, ppiVarIndex++);
-	_ppiInfo[S_DBZVC]       = PpiInfo(S_DBZVC,      "V Dbz", "Sv: Dbz",      -5.0, 5.0, 0.0, -5.0, 5.0, 0.0, ppiVarIndex++);
-	_ppiInfo[S_WIDTH]       = PpiInfo(S_WIDTH,      "Width", "S:  Width",    -5.0, 5.0, 0.0, -5.0, 5.0, 0.0, ppiVarIndex++);
-	_ppiInfo[S_VEL]         = PpiInfo(  S_VEL,   "Velocity", "S:  Velocity", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0, ppiVarIndex++);
-	_ppiInfo[S_SNR]         = PpiInfo(  S_SNR,        "SNR", "S:  SNR",      -5.0, 5.0, 0.0, -5.0, 5.0, 0.0, ppiVarIndex++);
-	_ppiInfo[S_RHOHV]       = PpiInfo(S_RHOHV,      "Rhohv", "S:  Rhohv",    -5.0, 5.0, 0.0, -5.0, 5.0, 0.0, ppiVarIndex++);
-	_ppiInfo[S_PHIDP]       = PpiInfo(S_RHOHV,      "Phidp", "S:  Phidp",    -5.0, 5.0, 0.0, -5.0, 5.0, 0.0, ppiVarIndex++);
-	_ppiInfo[S_ZDR]         = PpiInfo(  S_ZDR,        "Zdr", "S:  Zdr",      -5.0, 5.0, 0.0, -5.0, 5.0, 0.0, ppiVarIndex++);
-	_ppiInfo[X_DBMHC]       = PpiInfo(X_DBMHC,      "H Dbm", "Xh: Dbm",      -5.0, 5.0, 0.0, -5.0, 5.0, 0.0, ppiVarIndex++);
-	_ppiInfo[X_DBMVX]       = PpiInfo(X_DBMVX,"V Cross Dbm", "Xv: Dbm",      -5.0, 5.0, 0.0, -5.0, 5.0, 0.0, ppiVarIndex++);
-	_ppiInfo[X_DBZHC]       = PpiInfo(X_DBZHC,      "H Dbz", "Xh: Dbz",      -5.0, 5.0, 0.0, -5.0, 5.0, 0.0, ppiVarIndex++);
-	_ppiInfo[X_SNR]         = PpiInfo(  X_SNR,        "SNR", "Xh: SNR",      -5.0, 5.0, 0.0, -5.0, 5.0, 0.0, ppiVarIndex++);
-	//	_ppiInfo[X_WIDTH]       = PpiInfo(X_WIDTH,      "Width", "Xh: Width",    -5.0, 5.0, 0.0, -5.0, 5.0, 0.0, ppiVarIndex++);
-	//	_ppiInfo[X_VEL]         = PpiInfo(  X_VEL,   "Velocity", "Xh: Velocity", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0, ppiVarIndex++);
-	_ppiInfo[X_LDR]         = PpiInfo(  X_LDR,        "LDR", "Xhv:LDR",      -5.0, 5.0, 0.0, -5.0, 5.0, 0.0, ppiVarIndex++);
+	_ppiInfo[S_DBZHC]       = PpiInfo(S_DBZHC,      "H Dbz", "Sh: Dbz",     -20.0,  60.0,   ppiVarIndex++);
+	_ppiInfo[S_DBZVC]       = PpiInfo(S_DBZVC,      "V Dbz", "Sv: Dbz",     -20.0,  60.0,   ppiVarIndex++);
+	_ppiInfo[S_WIDTH]       = PpiInfo(S_WIDTH,      "Width", "S:  Width",     0.0,   5.0,   ppiVarIndex++);
+	_ppiInfo[S_VEL]         = PpiInfo(  S_VEL,   "Velocity", "S:  Velocity",-20.0,  20.0,   ppiVarIndex++);
+	_ppiInfo[S_SNR]         = PpiInfo(  S_SNR,        "SNR", "S:  SNR",     100.0, 150.0,   ppiVarIndex++);
+	_ppiInfo[S_RHOHV]       = PpiInfo(S_RHOHV,      "Rhohv", "S:  Rhohv",     0.0,  50.0,   ppiVarIndex++);
+	_ppiInfo[S_PHIDP]       = PpiInfo(S_PHIDP,      "Phidp", "S:  Phidp",     0.0, 360.0,   ppiVarIndex++);
+	_ppiInfo[S_ZDR]         = PpiInfo(  S_ZDR,        "Zdr", "S:  Zdr",     -70.0,   0.0,   ppiVarIndex++);
+	_ppiInfo[X_DBZHC]       = PpiInfo(X_DBZHC,      "H Dbz", "Xh: Dbz",     -20.0,  60.0,   ppiVarIndex++);
+	_ppiInfo[X_SNR]         = PpiInfo(  X_SNR,        "SNR", "Xh: SNR",     100.0, 150.0,   ppiVarIndex++);
+	_ppiInfo[X_LDR]         = PpiInfo(  X_LDR,        "LDR", "Xhv:LDR",       0.0,   1.0,   ppiVarIndex++);
 
 	// remove the one tab that was put there by designer
 	_typeTab->removePage(_typeTab->page(0));
@@ -466,7 +465,7 @@ CP2PPI::addPlotTypeTab(std::string tabName, std::set<PPITYPE> types)
 
 	// connect the button released signal to our
 	// our plot type change slot.
-	connect(pGroup, SIGNAL(released(int)), this, SLOT(plotTypeSlot(int)));
+	connect(pGroup, SIGNAL(released(int)), this, SLOT(ppiTypeSlot(int)));
 
 	return pGroup;
 }
@@ -580,7 +579,7 @@ CP2PPI::addSbeam(Beam* pBeam)
 		case S_PHIDP:	///< S-band phidp
 			for (i = 0; i < gates; i++) { _beamData[ppiIndex][i] = fields[i].phidp;  } break;
 		case S_ZDR:	///< S-band zdr
-			for (i = 0; i < gates; i++) { _beamData[ppiIndex][i] = fields[i].zdr;  } break;
+			for (i = 0; i < gates; i++) { _beamData[ppiIndex][i] = fields[i].zdr;    } break;
 		case S_WIDTH:	///< S-band spectral width
 			for (i = 0; i < gates; i++) { _beamData[ppiIndex][i] = fields[i].width;  } break;
 		case S_VEL:		///< S-band velocity

@@ -7,25 +7,16 @@ class PpiInfo {
 public:
 	PpiInfo();
 	PpiInfo(int id, std::string shortName, std::string longName,
-		double gainMin, double gainMax, double gainCurrent, 
-		double offsetMin, double offsetMax, double offsetCurrent,
-		int ppiIndex);
+		double scaleMin, double scaleMax, int ppiIndex);
 	virtual ~PpiInfo();
 
 	int getId();
 	int getPpiIndex();
 
-	void setGain(double min, double max, double current);
-	void setOffset(double min, double Max, double current);
+	void setScale(double min, double max);
 
-	double getGainMin();
-	double getGainMax();
-	double getGainCurrent();
-
-	double getOffsetMin();
-	double getOffsetMax();
-	double getOffsetCurrent();
-
+	double getScaleMin();
+	double getScaleMax();
 	std::string getShortName();
 	std::string getLongName();
 
@@ -33,12 +24,8 @@ protected:
 	int _id;
 	std::string _shortName;
 	std::string _longName;
-	double _gainMin;
-	double _gainMax;
-	double _gainCurrent;
-	double _offsetMin;
-	double _offsetMax;
-	double _offsetCurrent;
+	double _scaleMin;
+	double _scaleMax;
 	int _ppiIndex;
 };
 #endif
