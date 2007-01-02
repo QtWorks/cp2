@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Form implementation generated from reading ui file 'CP2PPIBase.ui'
 **
-** Created: Sun Dec 31 10:06:30 2006
+** Created: Tue Jan 2 10:17:52 2007
 **      by: The User Interface Compiler ($Id: qt/main.cpp   3.3.5   edited Aug 31 12:13 $)
 **
 ** WARNING! All changes made in this file will be lost!
