@@ -83,7 +83,7 @@ protected:
 
 	void _prepareForMoments(Pulse *pulse);
 
-	bool _beamReady();
+	bool _beamReady(double& beamAz);
 
 	int _computeBeamMoments(Beam *beam);
 

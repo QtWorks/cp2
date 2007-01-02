@@ -129,8 +129,7 @@ void MomentsCompute::_prepareForMoments(Pulse *pulse)
 //
 // Side effects: sets _az, _midIndex1, _midIndex2
 
-bool MomentsCompute::_beamReady()
-
+bool MomentsCompute::_beamReady(double& beamAz)
 {
 
 	_countSinceBeam++;
@@ -199,11 +198,13 @@ bool MomentsCompute::_beamReady()
 		if (midAz1 <= _az && midAz2 >= _az) {
 
 			// az1 is below and az2 above - clockwise rotation
+			beamAz = _az;
 			return true;
 
 		} else if (midAz1 >= _az && midAz2 <= _az) {
 
 			// az1 is above and az2 below - counterclockwise rotation
+			beamAz = _az;
 			return true;
 
 		} else if (_az == 0.0) {
@@ -212,12 +213,14 @@ bool MomentsCompute::_beamReady()
 				midAz2 < _params.azimuth_resolution) {
 
 					// az1 is below 0 and az2 above 0 - clockwise rotation
+					beamAz = _az;
 					return true;
 
 				} else if (midAz2 > 360.0 - _params.azimuth_resolution &&
 					midAz1 < _params.azimuth_resolution) {
 
 						// az1 is above 0 and az2 below 0 - counterclockwise rotation
+						beamAz = _az;
 						return true;
 
 					}
@@ -225,6 +228,7 @@ bool MomentsCompute::_beamReady()
 		} else if (_countSinceBeam > (_nSamples * 16)) {
 
 			// antenna moving very slowly, we have waited long enough
+			beamAz = _az;
 			return true;
 
 		}
@@ -240,6 +244,7 @@ bool MomentsCompute::_beamReady()
 			} else if (_az < 0) {
 				_az += 360.0;
 			}
+			beamAz = _az;
 			return true;
 		}
 
@@ -360,16 +365,16 @@ MomentsCompute::processPulse(
 	_prepareForMoments(pulse);
 
 	// is a beam ready?
+	double beamAz;
 
-	if (_momentsMgr != NULL && _beamReady()) {
+	if (_momentsMgr != NULL && _beamReady(beamAz)) {
 
 		_countSinceBeam = 0;
 
 		// create new beam
-		double _az = 0.0;
 		Beam* beam = new Beam(_params, 
 			_pulseQueue, 
-			_az, 
+			beamAz, 
 			_momentsMgr);
 
 		// compute beam moments

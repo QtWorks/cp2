@@ -84,7 +84,6 @@ Beam::Beam(const Params &params,
   _prf = 1.0 / _prt;
 
   // set time
-
   _time = _pulses[_halfNSamples]->getTime();
 
   // set elevation

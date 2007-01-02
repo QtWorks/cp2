@@ -213,7 +213,13 @@ CP2PPI::processPulse(CP2Pulse* pPulse)
 	// S band pulses: are successive coplaner H and V pulses
 	// this horizontal switch is a hack for now; we really
 	// need to find the h/v flag in the pulse header.
-	if (chan == 0) {
+	if (chan == 0) {	
+		_az += 1.0/_Sparams.moments_params.n_samples;
+		if (_az > 360.0)
+			_az = 0.0;
+
+        pPulse->header.antAz = _az;
+
 		if (_sMomentsList.find(_ppiType) != _sMomentsList.end())
 		{
 			_momentsSCompute->processPulse(data,
@@ -588,11 +594,10 @@ CP2PPI::addSbeam(Beam* pBeam)
 			for (i = 0; i < gates; i++) { _beamData[ppiIndex][i] = fields[i].snr;    } break;
 		}
 	}
-	_az += 1.0;
-	if (_az > 359.5)
-		_az = 0.5;
-	if (!_pause)
+	if (!_pause) {
 		_ppi->addBeam(_az - 0.5, _az + 0.5, gates, _beamData, 1, _maps);
+		_aziDisplay->display(pBeam->getAz());
+	}
 }
 //////////////////////////////////////////////////////////////////////
 void 
