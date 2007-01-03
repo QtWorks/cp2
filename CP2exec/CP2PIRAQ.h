@@ -72,6 +72,8 @@ protected:
 	/// blocked pulse data as it is read out of the PCI
 	/// circular buffer.
 	CP2Packet _cp2Packet;
+	/// The last saved system tick count (milliseconds) 
+	int _lastTickCount;
 	float _prt;				
 	int _prt2;   
 	int _timing_mode;

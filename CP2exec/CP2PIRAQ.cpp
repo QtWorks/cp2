@@ -148,11 +148,18 @@ CP2PIRAQ::poll()
 		// fifo hits ready: save #hits pending 
 		cycle_fifo_hits++; 
 		_totalHits++;
-		if (!(_totalHits % 200))
-			printf("piraq %d packets %d (seq errors %d)\n", 
+		if (!(_totalHits % 200)) {
+			int currentTick = GetTickCount();
+			double delta = currentTick - _lastTickCount;
+			double rate = 1000.0*200.0*_pulsesPerPciXfer/delta;
+			_lastTickCount = currentTick;
+
+			printf("piraq %d packets %d seq errors %d  rate %5.0f\n", 
 			_pConfigPacket->info.channel, 
 			_totalHits,
-			_PNerrors);
+			_PNerrors,
+			rate);
+		}
 
 		// get the next packet in the circular buffer
 		PPACKET* _pFifoPiraq = (PPACKET *)cb_get_read_address(_pFifo, 0); 
@@ -191,7 +198,7 @@ CP2PIRAQ::poll()
 
 			// check for pulse number errors
 			long long thisPulseNumber = ppacket->info.pulse_num;
-			if (_lastPulseNumber != thisPulseNumber - 1) {
+			if (_lastPulseNumber != thisPulseNumber - 1 && _lastPulseNumber) {
 				printf("pulse number out of sequence, last PN %I64d, this PN %I64d\n", 
 					_lastPulseNumber, thisPulseNumber);  
 				_PNerrors++; 
@@ -330,6 +337,9 @@ int CP2PIRAQ::start(long long firstPulseNum)
 		Sleep(1);
 		this->GetControl()->UnSetBit_StatusRegister0(STAT0_TMODE);
 	}
+
+	// save the current tick count for frame rate calculations
+	_lastTickCount = GetTickCount();
 
 	return(0);  /* everything is OK */
 }
