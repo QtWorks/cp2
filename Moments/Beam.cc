@@ -245,7 +245,7 @@ for (int igate = 0, posn = 0; igate < _nGatesPulse; igate++, posn += 2) {
     Complex_t *iqvc = _iqvc[igate];
     for (int isamp = 0; isamp < _nSamples; iqhc++, iqvc++) {
       iqhc->re = IQC[isamp][posn];
-      iqhc->im = IQC[isamp][posn + 1];
+	  iqhc->im = IQC[isamp][posn + 1];
       isamp++;
       iqvc->re = IQC[isamp][posn];
       iqvc->im = IQC[isamp][posn + 1];

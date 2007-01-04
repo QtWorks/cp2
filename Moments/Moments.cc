@@ -427,7 +427,6 @@ void Moments::_velWidthFromTd(const Complex_t *IQ,
 			      double &vel, double &width) const
   
 {
-
   // compute a, b, r1
   
   double a = 0.0, b = 0.0;

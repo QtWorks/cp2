@@ -180,7 +180,6 @@ void MomentsMgr::computeDualFastAlt(double beamTime,
 									Fields *fields)
 
 {
-
 	_checkRangeCorrection(nGates);
 
 	double wavelengthMeters = _params.radar.wavelength_cm / 100.0;
@@ -313,7 +312,6 @@ void MomentsMgr::computeDualCp2Xband(double beamTime,
 									 Fields *fields)
 
 {
-
 	_checkRangeCorrection(nGates);
 
 	double range = _startRange;
@@ -375,7 +373,6 @@ void MomentsMgr::computeDualCp2Xband(double beamTime,
 			double ldr = dbz_vx - dbz_hc + _params.ldr_correction;
 			fields[igate].ldrh = ldr;
 		}
-
 	} // igate
 
 }

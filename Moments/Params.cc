@@ -20,10 +20,11 @@ Params::Params()
    setDefault();
 }
 
-Params::Params(moments_mode_t mode)
+Params::Params(moments_mode_t mode, int samples)
 {
   setDefault();
   moments_params.mode = mode;
+  moments_params.n_samples = samples;
 }
 
 ////////////////////////////////////////////

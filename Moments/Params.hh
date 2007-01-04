@@ -26,25 +26,25 @@ public:
 
   // enum typedefs
 
-  typedef enum {
+  typedef enum debug_t {
     DEBUG_OFF = 0,
     DEBUG_NORM = 1,
     DEBUG_VERBOSE = 2,
     DEBUG_EXTRA_VERBOSE = 3
   } debug_t;
 
-  typedef enum {
+  typedef enum algorithm_t {
     ALG_PP = 0,
     ALG_FFT = 1
   } algorithm_t;
 
-  typedef enum {
+  typedef enum fft_window_t {
     WINDOW_HANNING = 0,
     WINDOW_BLACKMAN = 1,
     WINDOW_NONE = 2
   } fft_window_t;
 
-  typedef enum {
+  typedef enum moments_mode_t {
     SINGLE_POL = 0,
     DUAL_FAST_ALT = 1,
     DUAL_CP2_XBAND = 2
@@ -52,7 +52,7 @@ public:
 
   // struct typedefs
 
-  typedef struct {
+  typedef struct radar_params_t {
     double horiz_beam_width;
     double vert_beam_width;
     double pulse_width;
@@ -60,14 +60,14 @@ public:
     double xmit_peak_pwr;
   } radar_params_t;
 
-  typedef struct {
+  typedef struct receiver_t {
     double noise_dBm; // as digitized, i.e. after gain applied
     double gain;
     double radar_constant;
     double dbz0;
   } receiver_t;
 
-  typedef struct {
+  typedef struct moments_params_t {
     int n_samples;
     double start_range;
     double gate_spacing;
@@ -84,9 +84,9 @@ public:
   // Default constructor
   //
 
-  Params ();
+  Params();
 
-  Params (moments_mode_t mode);
+  Params(moments_mode_t mode, int samples);
 
   ////////////////////////////////////////////
   // Destructor
