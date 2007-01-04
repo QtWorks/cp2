@@ -74,11 +74,18 @@ public slots:
 	void tabChangeSlot(QWidget* w);
 	void pauseSlot(bool flag);	//	start/stop process, display
     void zoomInSlot();
+
+	void doSslot(bool);
+	void doXslot(bool);
     void zoomOutSlot();
 	void panSlot(int panIndex);
 	// Call when data is available on the data socket.
 
 protected:
+
+	bool _processSband;
+	bool _processXband;
+
 	void initializeSocket(); 
 	QSocketDevice*   _pSocket;
 	QSocketNotifier* _pSocketNotifier;
@@ -94,7 +101,7 @@ protected:
 	// how often to update the statistics (in seconds)
 	int _statsUpdateInterval;
 
-	PPITYPE        _ppiType;
+	PPITYPE        _ppiSType;
 	// The builtin timer will be used to calculate beam statistics.
 	void timerEvent(QTimerEvent*);
 
@@ -114,7 +121,13 @@ protected:
 	/// available when enough pulses have been provided.
 	MomentsCompute* _momentsXCompute;
 
-	double _az;
+	QWidget* _ppiSwidget;
+
+	QWidget* _ppiXwidget;
+
+	double _azSband;
+
+	double _azXband;
 
 	/// Process the pulse, feeding it to the moments processor
 	/// @param pPulse The pulse to be processed. 
@@ -163,12 +176,24 @@ protected:
 	// but not sent to the display.
 	bool _pause;
 	
-	int _nVars;
+	ColorBar* _colorBar;
 	int _gates;
 	double _beamWidth;
-	std::vector<std::vector<double> > _beamData;
-	std::vector<ColorMap*> _maps;
-	ColorBar* _colorBar;
+
+	/// Set true when the Sband ppi is active,
+	/// false when Xband is active.
+	bool _ppiSactive;
+
+	int _nVarsSband;
+	std::vector<ColorMap*> _mapsSband;
+	std::vector<std::vector<double> > _beamSData;
+
+	int _nVarsXband;
+	std::vector<ColorMap*> _mapsXband;
+	std::vector<std::vector<double> > _beamXData;
+
+	CP2Packet packet;
+
 
   };
 

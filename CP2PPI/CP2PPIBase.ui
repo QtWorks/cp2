@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>911</width>
-            <height>643</height>
+            <width>915</width>
+            <height>647</height>
         </rect>
     </property>
     <property name="caption">
@@ -19,24 +19,80 @@
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
-        <widget class="PPI">
+        <widget class="QWidgetStack">
             <property name="name">
-                <cstring>_ppi</cstring>
+                <cstring>_ppiStack</cstring>
             </property>
-            <property name="sizePolicy">
-                <sizepolicy>
-                    <hsizetype>3</hsizetype>
-                    <vsizetype>3</vsizetype>
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                </sizepolicy>
-            </property>
-            <property name="minimumSize">
-                <size>
-                    <width>600</width>
-                    <height>600</height>
-                </size>
-            </property>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>WStackPage</cstring>
+                </property>
+                <attribute name="id">
+                    <number>0</number>
+                </attribute>
+                <vbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <property name="margin">
+                        <number>2</number>
+                    </property>
+                    <widget class="PPI">
+                        <property name="name">
+                            <cstring>_ppiS</cstring>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>3</hsizetype>
+                                <vsizetype>3</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                            <size>
+                                <width>600</width>
+                                <height>600</height>
+                            </size>
+                        </property>
+                    </widget>
+                </vbox>
+            </widget>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>WStackPage</cstring>
+                </property>
+                <attribute name="id">
+                    <number>1</number>
+                </attribute>
+                <vbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <property name="margin">
+                        <number>2</number>
+                    </property>
+                    <widget class="PPI">
+                        <property name="name">
+                            <cstring>_ppiX</cstring>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>3</hsizetype>
+                                <vsizetype>3</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                            <size>
+                                <width>600</width>
+                                <height>600</height>
+                            </size>
+                        </property>
+                    </widget>
+                </vbox>
+            </widget>
         </widget>
         <widget class="QFrame">
             <property name="name">
@@ -71,7 +127,7 @@
         </widget>
         <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>layout10</cstring>
+                <cstring>layout9</cstring>
             </property>
             <vbox>
                 <property name="name">
@@ -235,6 +291,32 @@
                         </attribute>
                     </widget>
                 </widget>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout8</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QCheckBox">
+                            <property name="name">
+                                <cstring>_doSband</cstring>
+                            </property>
+                            <property name="text">
+                                <string>S band</string>
+                            </property>
+                        </widget>
+                        <widget class="QCheckBox">
+                            <property name="name">
+                                <cstring>_doXband</cstring>
+                            </property>
+                            <property name="text">
+                                <string>X band</string>
+                            </property>
+                        </widget>
+                    </hbox>
+                </widget>
                 <spacer>
                     <property name="name">
                         <cstring>spacer3</cstring>
@@ -248,7 +330,7 @@
                     <property name="sizeHint">
                         <size>
                             <width>20</width>
-                            <height>80</height>
+                            <height>110</height>
                         </size>
                     </property>
                 </spacer>
@@ -730,7 +812,7 @@
                                 </widget>
                                 <widget class="QLCDNumber">
                                     <property name="name">
-                                        <cstring>_aziDisplay</cstring>
+                                        <cstring>_azSbandDisplay</cstring>
                                     </property>
                                 </widget>
                             </hbox>
@@ -796,15 +878,30 @@
         <receiver>CP2PPIBase</receiver>
         <slot>pauseSlot(bool)</slot>
     </connection>
+    <connection>
+        <sender>_doSband</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>CP2PPIBase</receiver>
+        <slot>doSslot(bool)</slot>
+    </connection>
+    <connection>
+        <sender>_doXband</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>CP2PPIBase</receiver>
+        <slot>doXslot(bool)</slot>
+    </connection>
 </connections>
 <slots>
     <slot>pauseSlot(bool)</slot>
     <slot>dataSourceSlot()</slot>
     <slot>zoomInSlot()</slot>
     <slot>zoomOutSlot()</slot>
+    <slot>doSslot(bool)</slot>
+    <slot>doXslot(bool)</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 <includehints>
+    <includehint>PPI/PPI.h</includehint>
     <includehint>PPI/PPI.h</includehint>
 </includehints>
 </UI>
