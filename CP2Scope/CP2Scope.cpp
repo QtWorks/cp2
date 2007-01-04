@@ -32,8 +32,8 @@ _pSocketNotifier(0),
 _pSocketBuf(0),	
 _tsDisplayCount(0),
 _productDisplayCount(0),
-_Sparams(Params::DUAL_FAST_ALT),
-_Xparams(Params::DUAL_CP2_XBAND),
+_Sparams(Params::DUAL_FAST_ALT, 100),
+_Xparams(Params::DUAL_CP2_XBAND, 100),
 _collator(1000),
 _statsUpdateInterval(5)
 {
