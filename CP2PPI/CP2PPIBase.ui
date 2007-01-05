@@ -820,7 +820,26 @@
                                 </widget>
                                 <widget class="QLCDNumber">
                                     <property name="name">
-                                        <cstring>_azSbandDisplay</cstring>
+                                        <cstring>_azLCD</cstring>
+                                    </property>
+                                    <property name="minimumSize">
+                                        <size>
+                                            <width>0</width>
+                                            <height>16</height>
+                                        </size>
+                                    </property>
+                                    <property name="paletteBackgroundColor">
+                                        <color>
+                                            <red>0</red>
+                                            <green>85</green>
+                                            <blue>255</blue>
+                                        </color>
+                                    </property>
+                                    <property name="numDigits">
+                                        <number>3</number>
+                                    </property>
+                                    <property name="segmentStyle">
+                                        <enum>Filled</enum>
                                     </property>
                                 </widget>
                             </hbox>

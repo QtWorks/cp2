@@ -634,7 +634,7 @@ CP2PPI::addSbeam(Beam* pBeam)
 	if (!_pause) {
 		_ppiS->addBeam(_azSband - 0.5, _azSband + 0.5, gates, _beamSData, 1, _mapsSband);
 		if (_ppiSactive)
-			_azSbandDisplay->display((int)pBeam->getAz());
+			_azLCD->display((int)pBeam->getAz());
 	}
 }
 //////////////////////////////////////////////////////////////////////
@@ -664,9 +664,9 @@ CP2PPI::addXbeam(Beam* pBeam)
 		}
 	}
 	if (!_pause) {
-		_ppiX->addBeam(_azXband - 0.5, _azXband + 0.5, gates, _beamSData, 1, _mapsSband);
+		_ppiX->addBeam(_azXband - 0.5, _azXband + 0.5, gates, _beamXData, 1, _mapsXband);
 		if (!_ppiSactive)
-			_azSbandDisplay->display((int)pBeam->getAz());
+			_azLCD->display((int)pBeam->getAz());
 	}
 }
 
