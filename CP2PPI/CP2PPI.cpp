@@ -36,8 +36,6 @@ _Xparams(Params::DUAL_CP2_XBAND,100),
 _collator(1000),
 _statsUpdateInterval(5),
 _pause(false),
-_ppiSwidget(0),
-_ppiXwidget(0),
 _ppiSactive(true)
 {
 	_dataGramPort	= 3100;
@@ -48,7 +46,6 @@ _ppiSactive(true)
 		_eof[i] = false;
 		_lastPulseNum[i] = 0;
 	}
-
 
 	// intialize the data reception socket.
 	// set up the ocket notifier and connect it
@@ -283,7 +280,7 @@ CP2PPI::processPulse(CP2Pulse* pPulse)
 		CP2FullPulse* pHPulse;
 		CP2FullPulse* pVPulse;
 		if (_collator.gotMatch(&pHPulse, &pVPulse)) {
-			_azXband += 2.0/_Sparams.moments_params.n_samples;
+			_azXband += 1.0/_Sparams.moments_params.n_samples;
 			if (_azXband > 360.0)
 				_azXband = 0.0;
 			pPulse->header.antAz = _azXband;
@@ -459,10 +456,10 @@ CP2PPI::tabChangeSlot(QWidget* w)
 	ppiTypeSlot(plotType);
 
 	if (pageNum == 0) {
-		_ppiStack->raiseWidget(_ppiSwidget);
+		_ppiStack->raiseWidget(0);
 		_ppiSactive = true;
 	} else {
-		_ppiStack->raiseWidget(_ppiXwidget);
+		_ppiStack->raiseWidget(1);
 		_ppiSactive = false;
 	}
 }
@@ -687,4 +684,3 @@ CP2PPI::doXslot(bool checked)
 
 
 //////////////////////////////////////////////////////////////////////
-

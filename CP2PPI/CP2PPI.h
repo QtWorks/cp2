@@ -79,7 +79,6 @@ public slots:
 	void doXslot(bool);
     void zoomOutSlot();
 	void panSlot(int panIndex);
-	// Call when data is available on the data socket.
 
 protected:
 
@@ -120,10 +119,6 @@ protected:
 	/// are passed to _momentsCompute. It will make a beam 
 	/// available when enough pulses have been provided.
 	MomentsCompute* _momentsXCompute;
-
-	QWidget* _ppiSwidget;
-
-	QWidget* _ppiXwidget;
 
 	double _azSband;
 
