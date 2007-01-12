@@ -381,6 +381,11 @@ MomentsCompute::processPulse(
 
 		_computeBeamMoments(beam);
 
+                if (_params.debug >= Params::DEBUG_VERBOSE) {
+                  cerr << "--->> computing moments, el, az: "
+                       << el << ", " << az << endl;
+                }
+
 		// return old beam, if it was never fetched.
 		// Note that if a beam was fetched from
 		// _currentBeam via getNewBeam(),

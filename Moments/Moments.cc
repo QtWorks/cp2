@@ -43,6 +43,7 @@ Moments::Moments(int n_samples)
 
   _nSamples = n_samples;
   _wavelengthMeters = 0.1068;
+  setNoiseValueDbm(-114.0);
   _hanning = NULL;
   _blackman = NULL;
   _fft = NULL;
@@ -92,6 +93,11 @@ void Moments::setDebugPrint(bool status /* = true */) const {
   _debugPrint = status;
 }
 
+void Moments::setNoiseValueDbm(double dbm) {
+  _noiseValueDbm = dbm;
+  _noiseValueMwatts = pow(10.0, dbm / 10.0);
+}
+
 ///////////////////////////////////
 // apply hanning window
 
@@ -120,7 +126,9 @@ double Moments::computePower(const Complex_t *IQ) const
 {
   double p = 0.0;
   for (int i = 0; i < _nSamples; i++, IQ++) {
-    p += ((IQ->re * IQ->re) + (IQ->im * IQ->im));
+    double re = IQ->re;
+    double im = IQ->im;
+    p += (re * re + im * im);
   }
   return (p / _nSamples);
 }
@@ -133,17 +141,14 @@ double Moments::computePower(const double *mag) const
 {
   double p = 0.0;
   for (int i = 0; i < _nSamples; i++, mag++) {
-    p += (*mag * *mag);
+    double mm = *mag;
+    p += (mm * mm);
   }
   return (p / _nSamples);
 }
   
 ///////////////////////////////////////////////
 // compute time-domain moments using pulse-pair
-//
-// Power is guaranteed to be set. The other moments
-// may not be set, if censoring occurs, in which case the
-// flag will be set.
 
 void Moments::computeByPp(const Complex_t *IQ,
 			  double prtSecs,
@@ -182,12 +187,80 @@ void Moments::computeByPp(const Complex_t *IQ,
 
 }
 
+///////////////////////////////////////////////
+// compute time-domain moments using ABP
+
+void Moments::computeByAbp(const Complex_t *IQ,
+                           double prtSecs,
+                           double &power,
+                           double &vel,
+                           double &width) const
+  
+{
+
+  // initialize return vals
+  
+  power = vel = width = _missingDbl;
+  
+  // compute a, b, p, r1
+  
+  double a = 0.0, b = 0.0, p = 0.0;
+  
+  const Complex_t *iq0 = IQ;
+  const Complex_t *iq1 = IQ + 1;
+  
+  p += ((iq0->re * iq0->re) + (iq0->im * iq0->im));
+  
+  for (int i = 0; i < _nSamples - 1; i++, iq0++, iq1++) {
+    double re0 = iq0->re;
+    double im0 = iq0->im;
+    double re1 = iq1->re;
+    double im1 = iq1->im;
+    a += (re0 * re1 + im0 * im1);
+    b += (re0 * im1 - re1 * im0);
+    p += (re1 * re1 + im1 * im1);
+  }
+  double r1_val = sqrt(a * a + b * b) / _nSamples;
+  
+  // mom0
+
+  double mom0 = p / _nSamples;
+
+  // mom1 from pulse-pair
+  
+  double nyquist = _wavelengthMeters / (4.0 * prtSecs);
+  double nyqFac = nyquist / M_PI;
+  double mom1_pp;
+  if (a == 0.0 && b == 0.0) {
+    mom1_pp = 0.0;
+  } else {
+    mom1_pp = nyqFac * atan2(b, a);
+  }
+  
+  // mom2 from pulse-pair
+
+  double mom2_pp_fac = M_SQRT2 * nyquist / M_PI;
+  double s_hat = mom0 - _noiseValueMwatts;
+  if (s_hat < 1.0e-6) {
+    s_hat = 1.0e-6;
+  }
+  double ln_ratio = log(s_hat / r1_val);
+  double mom2_pp;
+  if (ln_ratio > 0) {
+    mom2_pp = mom2_pp_fac * sqrt(ln_ratio);
+  } else {
+    // mom2_pp = -1.0 * mom2_pp_fac * sqrt(fabs(ln_ratio));
+    mom2_pp = 0;
+  }
+  
+  power = mom0;
+  vel = -1.0 * mom1_pp;
+  width = mom2_pp;
+  
+}
+
 ////////////////////////////////////////////////////
 // compute fft-based moments
-//
-// Power is guaranteed to be set. The other moments
-// may not be set, if censoring occurs, in which case the
-// flag will be set.
 
 void Moments::computeByFft(const Complex_t *IQ,
 			   window_t windowType,
@@ -435,8 +508,12 @@ void Moments::_velWidthFromTd(const Complex_t *IQ,
   const Complex_t *iq1 = IQ + 1;
   
   for (int i = 0; i < _nSamples - 1; i++, iq0++, iq1++) {
-    a += ((iq0->re * iq1->re) + (iq0->im * iq1->im));
-    b += ((iq0->re * iq1->im) - (iq1->re * iq0->im));
+    double re0 = iq0->re;
+    double im0 = iq0->im;
+    double re1 = iq1->re;
+    double im1 = iq1->im;
+    a += (re0 * re1 + im0 * im1);
+    b += (re0 * im1 - re1 * im0);
   }
   double r1_val = sqrt(a * a + b * b) / _nSamples;
   
@@ -448,8 +525,12 @@ void Moments::_velWidthFromTd(const Complex_t *IQ,
   const Complex_t *iq2 = IQ + 2;
 
   for (int i = 0; i < _nSamples - 2; i++, iq0++, iq2++) {
-    c += ((iq0->re * iq2->re) + (iq0->im * iq2->im));
-    d += ((iq0->re * iq2->im) - (iq2->re * iq0->im));
+    double re0 = iq0->re;
+    double im0 = iq0->im;
+    double re2 = iq2->re;
+    double im2 = iq2->im;
+    c += (re0 * re2 + im0 * im2);
+    d += (re0 * im2 - re2 * im0);
   }
   double r2_val = sqrt(c * c + d * d) / _nSamples;
   

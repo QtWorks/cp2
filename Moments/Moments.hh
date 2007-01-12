@@ -56,6 +56,10 @@ public:
   
   void setWavelength(double wavelength);
 
+  // set the noise value in dBM
+
+  void setNoiseValueDbm(double dbm);
+
   // apply hanning window to a time series
   
   void applyHanningWindow(const Complex_t *in, Complex_t *out) const;
@@ -79,6 +83,14 @@ public:
 		   double &power,
                    double &vel,
 		   double &width) const;
+  
+  // compute by ABP
+
+  void computeByAbp(const Complex_t *IQ,
+                    double prtSecs,
+                    double &power,
+                    double &vel,
+                    double &width) const;
   
   // compute moments using fft spectra
 
@@ -116,6 +128,8 @@ private:
 
   int _nSamples;
   double _wavelengthMeters;
+  double _noiseValueDbm;
+  double _noiseValueMwatts;
   
   // windows
 

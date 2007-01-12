@@ -80,10 +80,12 @@ Params::setDefault()
   vx_receiver.dbz0 = -48.0;
 
   // moments manager params
+
+  moments_params.mode = DUAL_FAST_ALT;
   moments_params.n_samples = 64;
   moments_params.start_range = 0.075;
   moments_params.start_range = 0.150;
-  moments_params.algorithm = ALG_PP;
+  moments_params.algorithm = ALG_ABP;
   moments_params.window = WINDOW_HANNING;
 }
 

@@ -35,7 +35,8 @@ public:
 
   typedef enum algorithm_t {
     ALG_PP = 0,
-    ALG_FFT = 1
+    ALG_ABP = 1,
+    ALG_FFT = 2
   } algorithm_t;
 
   typedef enum fft_window_t {

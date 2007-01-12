@@ -83,6 +83,9 @@ _momentsHalf(_nSamplesHalf)
 	_moments.setWavelength(_params.radar.wavelength_cm / 100.0);
 	_momentsHalf.setWavelength(_params.radar.wavelength_cm / 100.0);
 
+        _moments.setNoiseValueDbm(_params.hc_receiver.noise_dBm);
+        _momentsHalf.setNoiseValueDbm(_params.hc_receiver.noise_dBm);
+  
 }
 
 //////////////////////////////////////////////////////////////////
@@ -126,21 +129,16 @@ void MomentsMgr::computeSingle(double beamTime,
 		double vel = _missingDbl;
 		double width = _missingDbl;
 
-		if (_momentsParams.algorithm == Params::ALG_FFT) {
-
-			// FFT
-
-			_moments.computeByFft(iq, _fftWindow, prt,
-				power, vel, width);
-
-		} else {
-
-			// Pulse Pair
-
-			_moments.computeByPp(iq, prt,
-				power, vel, width);
-
-		}
+                if (_momentsParams.algorithm == Params::ALG_FFT) {
+                  _moments.computeByFft(iq, _fftWindow, prt,
+                                        power, vel, width);
+                } else if (_momentsParams.algorithm == Params::ALG_PP) {
+                  _moments.computeByPp(iq, prt,
+                                       power, vel, width);
+                } else if (_momentsParams.algorithm == Params::ALG_ABP) {
+                  _moments.computeByAbp(iq, prt,
+                                        power, vel, width);
+                }
 
 		double dbm = _missingDbl;
 		if (power != _missingDbl) {
@@ -196,15 +194,18 @@ void MomentsMgr::computeDualFastAlt(double beamTime,
 		double power_h = _missingDbl, vel_h = _missingDbl, width_h = _missingDbl;
 		double power_v = _missingDbl, vel_v = _missingDbl, width_v = _missingDbl;
 
-		if (_momentsParams.algorithm == Params::ALG_FFT) {
-			_momentsHalf.computeByFft(iqh, _fftWindow, prt,
-				power_h, vel_h, width_h);
-			_momentsHalf.computeByFft(iqv, _fftWindow, prt,
-				power_v, vel_v, width_v);
-		} else {
-			_momentsHalf.computeByPp(iqh, prt, power_h, vel_h, width_h);
-			_momentsHalf.computeByPp(iqv, prt, power_v, vel_v, width_v);
-		}
+                if (_momentsParams.algorithm == Params::ALG_FFT) {
+                  _momentsHalf.computeByFft(iqh, _fftWindow, prt,
+                                            power_h, vel_h, width_h);
+                  _momentsHalf.computeByFft(iqv, _fftWindow, prt,
+                                            power_v, vel_v, width_v);
+                } else if (_momentsParams.algorithm == Params::ALG_PP) {
+                  _momentsHalf.computeByPp(iqh, prt, power_h, vel_h, width_h);
+                  _momentsHalf.computeByPp(iqv, prt, power_v, vel_v, width_v);
+                } else if (_momentsParams.algorithm == Params::ALG_ABP) {
+                  _momentsHalf.computeByAbp(iqh, prt, power_h, vel_h, width_h);
+                  _momentsHalf.computeByAbp(iqv, prt, power_v, vel_v, width_v);
+                }
 
 		// compute snr
 
@@ -324,15 +325,17 @@ void MomentsMgr::computeDualCp2Xband(double beamTime,
 		double power_hc = _missingDbl;
 		double vel_hc = _missingDbl;
 		double width_hc = _missingDbl;
-		if (_momentsParams.algorithm == Params::ALG_FFT) {
-			// FFT
-			_moments.computeByFft(iqhc, _fftWindow, prt,
-				power_hc, vel_hc, width_hc);
-		} else {
-			// Pulse Pair
-			_moments.computeByPp(iqhc, prt,
-				power_hc, vel_hc, width_hc);
-		}
+
+                if (_momentsParams.algorithm == Params::ALG_FFT) {
+                  _moments.computeByFft(iqhc, _fftWindow, prt,
+                                        power_hc, vel_hc, width_hc);
+                } else if (_momentsParams.algorithm == Params::ALG_PP) {
+                  _moments.computeByPp(iqhc, prt,
+                                       power_hc, vel_hc, width_hc);
+                } else if (_momentsParams.algorithm == Params::ALG_ABP) {
+                  _moments.computeByAbp(iqhc, prt,
+                                        power_hc, vel_hc, width_hc);
+                }
 
 		double dbz_hc = _missingDbl;
 		if (power_hc != _missingDbl) {
