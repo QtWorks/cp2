@@ -9,9 +9,11 @@ CONFIG += exceptions
 
 HEADERS += CP2PPI.h
 HEADERS += PpiInfo.h
+HEADERS += MomentThread.h
 
 SOURCES += CP2PPI.cpp
 SOURCES += PpiInfo.cpp
+SOURCES += MomentThread.cpp
 SOURCES += main.cpp
 
 FORMS	= CP2PPIBase.ui

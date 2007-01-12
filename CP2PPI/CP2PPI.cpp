@@ -36,7 +36,9 @@ _Xparams(Params::DUAL_CP2_XBAND,100),
 _collator(1000),
 _statsUpdateInterval(5),
 _pause(false),
-_ppiSactive(true)
+_ppiSactive(true),
+_processSband(false),
+_processXband(false)
 {
 	_dataGramPort	= 3100;
 	for (int i = 0; i < 3; i++) {
@@ -46,6 +48,13 @@ _ppiSactive(true)
 		_eof[i] = false;
 		_lastPulseNum[i] = 0;
 	}
+
+	_pSmomentThread = new MomentThread(Params::DUAL_FAST_ALT, 100);
+	_pXmomentThread = new MomentThread(Params::DUAL_CP2_XBAND, 100);
+
+	_pSmomentThread->start();
+
+	_pXmomentThread->start();
 
 	// intialize the data reception socket.
 	// set up the ocket notifier and connect it
@@ -240,20 +249,17 @@ CP2PPI::processPulse(CP2Pulse* pPulse)
 
 		pPulse->header.antAz = _azSband;
 
+		CP2FullPulse* pFullPulse = new CP2FullPulse(pPulse);
 		if (_processSband) {
-			_momentsSCompute->processPulse(data,
-			0,
-			pPulse->header.gates,
-			1.0e-6, 
-			pPulse->header.antEl, 
-			pPulse->header.antAz, 
-			pPulse->header.pulse_num,
-			pPulse->header.horiz);	
+			_pSmomentThread->processPulse(pFullPulse, 0);
+		} else {
+			delete pFullPulse;
 		}
 
 		// ask for a completed beam. The return value will be
 		// 0 if nothing is ready yet.
-		pBeam = _momentsSCompute->getNewBeam();
+//		pBeam = _momentsSCompute->getNewBeam();
+		pBeam = 0;
 		if (pBeam) {
 			addSbeam(pBeam);
 			delete pBeam;
@@ -288,23 +294,17 @@ CP2PPI::processPulse(CP2Pulse* pPulse)
 			// a matching pair was found. Send them to the X band
 			// moments compute engine.
 			if (_processXband) {
-				_momentsXCompute->processPulse(
-				pHPulse->data(), 
-				pVPulse->data(),
-				pPulse->header.gates,
-				1.0e-6,
-				pPulse->header.antEl, 
-				_azXband, 
-				pPulse->header.pulse_num,
-				true);
-			}
+				_pXmomentThread->processPulse(pHPulse, pVPulse);
+			} else {
 
 			// finished with these pulses, so delete them.
 			delete pHPulse;
 			delete pVPulse;
+			}
 			// ask for a completed beam. The return value will be
 			// 0 if nothing is ready yet.
-			pBeam = _momentsXCompute->getNewBeam();
+			//pBeam = _momentsXCompute->getNewBeam();
+			pBeam = 0;
 		} else {
 			pBeam = 0;
 		}

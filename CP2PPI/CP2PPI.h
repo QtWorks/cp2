@@ -17,7 +17,7 @@
 // The base class created from the designer .ui specification
 #include "CP2PPIBase.h"
 
-// Coponents from the QtToolbox
+// Components from the QtToolbox
 #include <PPI/PPI.h>
 #include <ColorBar/ColorMap.h>
 #include <ColorBar/ColorBar.h>
@@ -34,6 +34,8 @@
 #include "MomentsMgr.hh"
 #include "Params.hh"
 #include "Pulse.hh"
+
+#include "MomentThread.h"
 
 #define PIRAQ3D_SCALE	1.0/(unsigned int)pow(2,31)	
 
@@ -188,6 +190,8 @@ protected:
 	std::vector<std::vector<double> > _beamXData;
 
 	CP2Packet packet;
+	MomentThread* _pSmomentThread;
+	MomentThread* _pXmomentThread;
 
 
   };
