@@ -85,7 +85,7 @@ Params::setDefault()
   moments_params.n_samples = 64;
   moments_params.start_range = 0.075;
   moments_params.start_range = 0.150;
-  moments_params.algorithm = ALG_ABP;
+  moments_params.algorithm = ALG_PP;
   moments_params.window = WINDOW_HANNING;
 }
 
