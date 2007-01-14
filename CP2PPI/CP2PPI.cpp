@@ -258,8 +258,7 @@ CP2PPI::processPulse(CP2Pulse* pPulse)
 
 		// ask for a completed beam. The return value will be
 		// 0 if nothing is ready yet.
-//		pBeam = _momentsSCompute->getNewBeam();
-		pBeam = 0;
+		pBeam = _pSmomentThread->getNewBeam();
 		if (pBeam) {
 			addSbeam(pBeam);
 			delete pBeam;
@@ -289,7 +288,8 @@ CP2PPI::processPulse(CP2Pulse* pPulse)
 			_azXband += 1.0/_Sparams.moments_params.n_samples;
 			if (_azXband > 360.0)
 				_azXband = 0.0;
-			pPulse->header.antAz = _azXband;
+			pHPulse->header()->antAz = _azXband;
+			pVPulse->header()->antAz = _azXband;
 
 			// a matching pair was found. Send them to the X band
 			// moments compute engine.
@@ -303,8 +303,7 @@ CP2PPI::processPulse(CP2Pulse* pPulse)
 			}
 			// ask for a completed beam. The return value will be
 			// 0 if nothing is ready yet.
-			//pBeam = _momentsXCompute->getNewBeam();
-			pBeam = 0;
+			pBeam = _pXmomentThread->getNewBeam();
 		} else {
 			pBeam = 0;
 		}
@@ -631,10 +630,11 @@ CP2PPI::addSbeam(Beam* pBeam)
 			for (i = 0; i < gates; i++) { _beamSData[ppiIndex][i] = fields[i].snr;    } break;
 		}
 	}
+	double az = pBeam->getAz();
 	if (!_pause) {
-		_ppiS->addBeam(_azSband - 0.5, _azSband + 0.5, gates, _beamSData, 1, _mapsSband);
+//		_ppiS->addBeam(az - 0.5, az + 0.5, gates, _beamSData, 1, _mapsSband);
 		if (_ppiSactive)
-			_azLCD->display((int)pBeam->getAz());
+			_azLCD->display((int)az);
 	}
 }
 //////////////////////////////////////////////////////////////////////
@@ -663,10 +663,11 @@ CP2PPI::addXbeam(Beam* pBeam)
 			for (i = 0; i < gates; i++) { _beamXData[ppiIndex][i] = fields[i].ldrh;  } break;
 		}
 	}
+	double az = pBeam->getAz();
 	if (!_pause) {
-		_ppiX->addBeam(_azXband - 0.5, _azXband + 0.5, gates, _beamXData, 1, _mapsXband);
+//		_ppiX->addBeam(az - 0.5, az + 0.5, gates, _beamXData, 1, _mapsXband);
 		if (!_ppiSactive)
-			_azLCD->display((int)pBeam->getAz());
+			_azLCD->display((int)az);
 	}
 }
 
