@@ -1,12 +1,26 @@
+#ifndef CP2EXECH_
+#define CP2EXECH_
 
-//#if !defined(AFX_SINGLEPIRAQ_H__B1F5A8B3_F139_441B_A275_9073872240B2__INCLUDED_)
-//#define AFX_SINGLEPIRAQ_H__B1F5A8B3_F139_441B_A275_9073872240B2__INCLUDED_
+#include "CP2PIRAQ.h"
+#include "CP2ExecBase.h"
+#include "CP2ExecThread.h"
 
-//#if _MSC_VER > 1000
-//#pragma once
-//#endif // _MSC_VER > 1000
+class CP2Exec: public CP2ExecBase 
+{
+	Q_OBJECT
+public:
+	CP2Exec(CP2ExecThread* pThread);
+	virtual ~CP2Exec();
 
-//#include "resource.h"
+public slots:
+	void stopSlot(bool);
 
+protected:
+	CP2ExecThread* _pThread;
+	// The builtin timer will be used to display statistics.
+	void timerEvent(QTimerEvent*);
+	int _statsUpdateInterval;
 
-//#endif // !defined(AFX_SINGLEPIRAQ_H__B1F5A8B3_F139_441B_A275_9073872240B2__INCLUDED_)
+};
+
+#endif

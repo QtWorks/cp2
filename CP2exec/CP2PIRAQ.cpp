@@ -12,7 +12,7 @@
 #include "control.h"
 #include "HPIB.h"
 
-#define CYCLE_HITS 20
+#define CYCLE_HITS 2000
 
 ///////////////////////////////////////////////////////////////////////////
 CP2PIRAQ::CP2PIRAQ(
@@ -134,7 +134,7 @@ CP2PIRAQ::init(char* configFname, char* dspObjFname)
 
 /////////////////////////////////////////////////////////////////////////////
 int
-CP2PIRAQ::poll() 
+CP2PIRAQ::poll(std::vector<CP2FullPulse*>& pulses) 
 {
 	// sleep for a ms
 	Sleep(1);
@@ -151,14 +151,14 @@ CP2PIRAQ::poll()
 		if (!(_totalHits % 200)) {
 			int currentTick = GetTickCount();
 			double delta = currentTick - _lastTickCount;
-			double rate = 1000.0*200.0*_pulsesPerPciXfer/delta;
+			_sampleRate = 1000.0*200.0*_pulsesPerPciXfer/delta;
 			_lastTickCount = currentTick;
 
-			printf("piraq %d packets %d seq errors %d  rate %5.0f\n", 
-			_pConfigPacket->info.channel, 
-			_totalHits,
-			_PNerrors,
-			rate);
+//			printf("piraq %d packets %d seq errors %d  rate %5.0f\n", 
+//			_pConfigPacket->info.channel, 
+//			_totalHits,
+//			_PNerrors,
+//			_sampleRate);
 		}
 
 		// get the next packet in the circular buffer
@@ -176,7 +176,7 @@ CP2PIRAQ::poll()
 		// empty the packet
 		_cp2Packet.clear();
 
-		// add all beams to the outgoing packet
+		// add all beams to the outgoing packet and to the pulse queue
 		for (int i = 0; i < _pulsesPerPciXfer; i++) {
 			PPACKET* ppacket = (PPACKET*)((char*)&_pFifoPiraq->info + i*piraqPacketSize);
 			header.antAz     = ppacket->info.antAz;
@@ -194,6 +194,7 @@ CP2PIRAQ::poll()
 				header.status |= PIRAQ_FIFO_EOF;
 			header.horiz     = ppacket->info.horiz;
 
+			// add pulse to the outgoing packet
 			_cp2Packet.addPulse(header, header.gates*2, ppacket->data);
 
 			// check for pulse number errors
@@ -208,11 +209,12 @@ CP2PIRAQ::poll()
 
 		int bytesSent = sendData(_cp2Packet.packetSize(),_cp2Packet.packetData());
 
-		CP2Packet readBack;
-		bool error = readBack.setData(_cp2Packet.packetSize(), _cp2Packet.packetData());
-		if (error) {
-			printf("error decoding packet\n");
-		} 
+		// now save all of the pulses in the pulse queue.
+		for (int i = 0; i < _cp2Packet.numPulses(); i++) {
+			CP2Pulse* pPulse = _cp2Packet.getPulse(i);
+			CP2FullPulse* pFullPulse = new CP2FullPulse(pPulse);
+			pulses.push_back(pFullPulse);
+		}
 
 		//////////////////////////////////////////////////////////////////////////
 		//
@@ -258,6 +260,20 @@ CP2PIRAQ::sendData(int size,
 
 	// return the number of bytes sent, or -1 if an error.
 	return bytesSent;
+}
+
+///////////////////////////////////////////////////////////////////////////
+int
+CP2PIRAQ::pnErrors()
+{
+	return _PNerrors;
+}
+
+///////////////////////////////////////////////////////////////////////////
+double
+CP2PIRAQ::sampleRate()
+{
+	return _sampleRate;;
 }
 
 ///////////////////////////////////////////////////////////////////////////

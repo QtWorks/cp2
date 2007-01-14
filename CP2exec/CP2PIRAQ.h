@@ -27,9 +27,11 @@ public:
 
 	int start(long long firstPulseNum);
 	void stop();
-	int poll();
+	int poll(std::vector<CP2FullPulse*>& pulses);
 	float prt();
 	PINFOHEADER info();
+	int pnErrors();
+	double sampleRate();
 
 protected:
 	int init(char* configFname, char* dspObjFname);
@@ -83,6 +85,7 @@ protected:
 	unsigned int _totalHits;
 	int _boardnum;
 	RCVRTYPE _rcvrType;
+	double _sampleRate;
 
 	int sendData(int size, void* data);
 

@@ -10,10 +10,12 @@
 #include <sys/timeb.h>
 #include <time.h>
 #include <iostream>
+#include <qapplication.h>
 
 // local includes
 #include "CP2exec.h" 
 #include "CP2PIRAQ.h"
+#include "CP2ExecThread.h"
 
 // from CP2Lib
 #include "timerlib.h"
@@ -262,117 +264,24 @@ main(int argc, char* argv[], char* envp[])
 	cp2timer_reset(&ext_timer);	// tell the timer to initialize with the values from DPRAM 
 	cp2timer_start(&ext_timer);	// start timer 
 
-	///////////////////////////////////////////////////////////////////////////
-	//
-	//      poll the piraqs in succesion
+	QApplication app( argc, argv );
 
-	while(1) {   // until 'q' 
-		if (piraqs & 0x01) { // turn on slot 1
-			if (piraq1->poll())
-				continue;
-		}
-		if (piraqs & 0x02) { // turn on slot 1
-			if (piraq2->poll())
-				continue;
-		}
-		if (piraqs & 0x04) { // turn on slot 1
-			if (piraq3->poll())
-				continue;
-		}
+	CP2ExecThread* pThread = new CP2ExecThread(piraqs, piraq1, piraq2, piraq3);
 
-		if (kbhit()) {
-			c = toupper(getch());
+	// create our main window. It may contain a PPI sometime, and 
+	// other buttons etc.
+	CP2Exec cp2exec(pThread);
 
-#ifdef TESTING_TIMESERIES_RANGE
-			if(c == 'U') {
-				pn_pkt->data.info.ts_start_gate += 1;
-				pn_pkt->data.info.ts_end_gate += 1;
-			}
-			if(c == 'D') {
-				pn_pkt->data.info.ts_start_gate -= 1;
-				pn_pkt->data.info.ts_end_gate -= 1;
-			}
-#endif
+	// if we don't show() the  dialog, nothing appears!
+	cp2exec.show();
 
-#ifndef TESTING_TIMESERIES
-			if(c == 'A')		
-			{ 
-				PIRAQadjustAmplitude = 1; 
-				PIRAQadjustFrequency = 0; 
-				printf("'U','D','+','-' adjust test waveform amplitude\n"); 
-			}
-			if(c == 'W')		
-			{ 
-				PIRAQadjustAmplitude = 0; 
-				PIRAQadjustFrequency = 1; 
-				printf("'U','D','+','-' adjust test waveform frequency\n");
-			}
-			//	adjust test data freq. up/down fine/coarse
-			if(PIRAQadjustFrequency)	{	//	use these keys to adjust the test sine frequency
-				if(c == '+')		piraq1->SetCP2PIRAQTestAction(INCREMENT_TEST_SINUSIOD_FINE);	
-				if(c == '-')		piraq1->SetCP2PIRAQTestAction(DECREMENT_TEST_SINUSIOD_FINE);
-				if(c == 'U')		piraq1->SetCP2PIRAQTestAction(INCREMENT_TEST_SINUSIOD_COARSE);	 
-				if(c == 'D')		piraq1->SetCP2PIRAQTestAction(DECREMENT_TEST_SINUSIOD_COARSE);	
-			}
-			//	adjust test data amplitude: up/down fine/coarse
-			if(PIRAQadjustAmplitude)	{	//	use these keys to adjust the test sine amplitude
-				if(c == '+')		piraq1->SetCP2PIRAQTestAction(INCREMENT_TEST_AMPLITUDE_FINE);	
-				if(c == '-')		piraq1->SetCP2PIRAQTestAction(DECREMENT_TEST_AMPLITUDE_FINE);
-				if(c == 'U')		piraq1->SetCP2PIRAQTestAction(INCREMENT_TEST_AMPLITUDE_COARSE);	 
-				if(c == 'D')		piraq1->SetCP2PIRAQTestAction(DECREMENT_TEST_AMPLITUDE_COARSE);	
-			}
-#else
-			// adjust test timeseries power: !note requires NOT TESTING_TIMESERIES_RANGE. 
-			if(c == 'U')		test_ts_power *= sqrt(10.0); 
-			if(c == 'D')		test_ts_power /= sqrt(10.0); // factor of arg in power
-			// adjust test timeseries frequency: 
-			if(c == '+')		test_ts_adjust += 2; 
-			if(c == '-')		test_ts_adjust -= 2; 
-#endif
+ 	// This tells cp2ppi to stop running when the main window
+	// closes.
+	app.setMainWidget(&cp2exec);
+	
+	return app.exec();
 
-			//	temporarily use keystrokes '0'-'8' to switch PIRAQ channel mode on 3 boards
-			if((c >= '0') && (c <= '8'))	
-			{	// '0'-'2' piraq1, etc.
-				switch (c)
-				{
-				case 0://	send CHA
-					piraq1->SetCP2PIRAQTestAction(SEND_CHA);	
-					break;
-				case 1://	send CHB
-					piraq1->SetCP2PIRAQTestAction(SEND_CHB);	 
-					break;
-				case 2://	send combined data
-					piraq1->SetCP2PIRAQTestAction(SEND_COMBINED);	
-					break;
-				case 3://	send CHA
-					piraq2->SetCP2PIRAQTestAction(SEND_CHA);							
-					break;
-				case 4://	send CHB
-					piraq2->SetCP2PIRAQTestAction(SEND_CHB);	 						
-					break;
-				case 5://	send combined data	
-					piraq2->SetCP2PIRAQTestAction(SEND_COMBINED);						
-					break;
-				case 6://	send CHA
-					piraq3->SetCP2PIRAQTestAction(SEND_CHA);							
-					break;
-				case 7://	send CHB 
-					piraq3->SetCP2PIRAQTestAction(SEND_CHB);							
-					break;
-				case 8://	send combined data
-					piraq3->SetCP2PIRAQTestAction(SEND_COMBINED);
-					break;
-				}
-			}
-
-			if(c == 'Q' || c == 27)   {
-				printf("\nUser terminated:\n");	
-				break;
-			}
-		} // end if (kbhit())  
-	} // end	while(1)
-
-	// exit NOW:
+// exit NOW:
 	printf("\npress a key to stop piraqs and exit\n"); while(!keyvalid()) ; 
 	printf("piraqs stopped.\nexit.\n\n"); 
 

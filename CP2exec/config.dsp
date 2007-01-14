@@ -11,8 +11,8 @@ delay           1    ; (no effect in mode 0) delay to first sample (special case
 ;number of range gates:  
 ;gates           150  ; CP2: LOTS of hits per PCI Bus transfer
 ;gates           1900  ;MAX for CP2?
-gates            960  ;
-;gates           850  ; 
+gates            950  ;
+;gates           700  ; 
 ;gates           660  ; CP2: gets 10 hits/packet -- easy network diagnosis
 ;gates           300  ;
 ;gates	20 ; 

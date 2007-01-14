@@ -2,10 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="CP2Exec"
-	SccProjectName=""
-	SccLocalPath=""
-	Keyword="MFCProj">
+	Name="CP2exec"
+	ProjectGUID="{008DCB39-541A-3C54-98CA-D036D265E876}">
 	<Platforms>
 		<Platform
 			Name="Win32"/>
@@ -13,46 +11,46 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory=".\Release"
-			IntermediateDirectory=".\Release"
+			OutputDirectory="."
+			IntermediateDirectory="Release\"
 			ConfigurationType="1"
-			UseOfMFC="2"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="-Zm200 -GX -w34100 -w34189"
 				Optimization="2"
-				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\CP2Net;C:\Projects\cp2\CP2Lib;C:\Projects\cp2\CP2Piraq;C:\Projects\cp2\PiraqDriver;C:\Plx\PciSdk\Inc;&quot;C:\Program Files\TVicSoft\TVicHW50\MSVC&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
-				StringPooling="TRUE"
-				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="TRUE"
-				UsePrecompiledHeader="0"
-				PrecompiledHeaderThrough="stdafx.h"
-				PrecompiledHeaderFile=".\Release/CP2exec.pch"
-				AssemblerListingLocation=".\Release/"
-				ObjectFile=".\Release/"
-				ProgramDataBaseFileName=".\Release/"
-				BrowseInformation="1"
+				AdditionalIncludeDirectories="..,..\..,..\..\fftw3.1,..\..\Qttoolbox,..\CP2Net,..\CP2Lib,..\CP2Piraq,..\CP2PPI,..\PiraqDriver,..\Moments,..\..\..\Plx\PciSdk\Inc,C:\Program Files\TVicSoft\TVicHW50\MSVC,$(QTDIR)\include,.,C:\Qt\3.3.5\mkspecs\win32-msvc.net"
+				PreprocessorDefinitions="_WINDOWS,UNICODE,WIN32,QT_DLL,QT_THREAD_SUPPORT,NDEBUG,QT_NO_DEBUG"
+				GeneratePreprocessedFile="0"
+				MinimalRebuild="TRUE"
+				ExceptionHandling="TRUE"
+				RuntimeLibrary="3"
+				BufferSecurityCheck="FALSE"
+				AssemblerListingLocation="Release\"
+				ObjectFile="Release\"
+				ProgramDataBaseFileName=".\"
 				WarningLevel="3"
-				SuppressStartupBanner="TRUE"/>
+				SuppressStartupBanner="TRUE"
+				DebugInformationFormat="3"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies=" plxapi.lib TVicHW32.lib ws2_32.lib"
-				OutputFile=".\Release/CP2exec.exe"
-				LinkIncremental="1"
+				IgnoreImportLibrary="TRUE"
+				AdditionalDependencies="qt-mt335.lib qtmain.lib ..\Moments\Release\Moments.lib ..\CP2Net\Release\CP2Net.lib ..\..\fftw3.1\libfftw3-3.lib C:\Plx\PciSdk\Win32\Api\Debug\plxapi.lib &quot;C:\Program Files\TVicSoft\TVicHW50\MSVC\TVicHW32.lib&quot; ws2_32.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib imm32.lib winmm.lib wsock32.lib winspool.lib delayimp.lib"
+				OutputFile="Release\\CP2exec.exe"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="C:\Plx\PciSdk\Win32\Api\Debug;&quot;C:\Program Files\TVicSoft\TVicHW50\MSVC&quot;"
-				ProgramDatabaseFile=".\Release/CP2exec.pdb"
-				SubSystem="1"
-				TargetMachine="1"/>
+				AdditionalLibraryDirectories="$(QTDIR)\lib"
+				DelayLoadDLLs="comdlg32.dll,oleaut32.dll,winmm.dll,wsock32.dll,winspool.dll"
+				GenerateDebugInformation="FALSE"
+				ProgramDatabaseFile=""
+				SubSystem="2"/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Release/CP2exec.tlb"
-				HeaderFileName=""/>
+				WarningLevel="0"
+				DefaultCharType="0"
+				EnableErrorChecks="1"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -61,8 +59,7 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
-				Culture="1033"/>
+				PreprocessorDefinitions="NDEBUG"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -76,61 +73,53 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory=".\Debug"
-			IntermediateDirectory=".\Debug"
+			OutputDirectory="."
 			ConfigurationType="1"
-			UseOfMFC="2"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="1">
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories="..\CP2Net;C:\Projects\cp2\CP2Lib;C:\Projects\cp2\CP2Piraq;C:\Projects\cp2\PiraqDriver;C:\Plx\PciSdk\Inc;&quot;C:\Program Files\TVicSoft\TVicHW50\MSVC&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
-				BasicRuntimeChecks="3"
+				AdditionalOptions="-Zm200 -GX -w34100 -w34189"
+				Optimization="4"
+				AdditionalIncludeDirectories="..,..\..,..\..\fftw3.1,..\..\Qttoolbox,..\CP2Net,..\CP2Lib,..\CP2Piraq,..\CP2PPI,..\PiraqDriver,..\Moments,..\..\..\Plx\PciSdk\Inc,C:\Program Files\TVicSoft\TVicHW50\MSVC,$(QTDIR)\include,.,C:\Qt\3.3.5\mkspecs\win32-msvc.net"
+				PreprocessorDefinitions="_WINDOWS,UNICODE,WIN32,QT_DLL,QT_THREAD_SUPPORT"
+				GeneratePreprocessedFile="0"
+				MinimalRebuild="TRUE"
+				ExceptionHandling="TRUE"
 				RuntimeLibrary="3"
-				UsePrecompiledHeader="0"
-				PrecompiledHeaderThrough="stdafx.h"
-				PrecompiledHeaderFile="./Debug/CP2exec.pch"
-				AssemblerListingLocation=".\Debug/"
-				ObjectFile=".\Debug/"
-				ProgramDataBaseFileName=".\Debug/"
-				BrowseInformation="1"
+				BufferSecurityCheck="FALSE"
+				AssemblerListingLocation=".\"
+				ObjectFile=".\"
+				ProgramDataBaseFileName=".\"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
-				DebugInformationFormat="4"/>
+				DebugInformationFormat="3"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies=" plxapi.lib TVicHW32.lib ws2_32.lib"
-				OutputFile=".\Debug/CP2exec.exe"
-				LinkIncremental="1"
+				IgnoreImportLibrary="TRUE"
+				AdditionalDependencies="qt-mt335.lib qtmain.lib ..\Moments\Release\Moments.lib ..\CP2Net\Release\CP2Net.lib ..\..\fftw3.1\libfftw3-3.lib C:\Plx\PciSdk\Win32\Api\Debug\plxapi.lib &quot;C:\Program Files\TVicSoft\TVicHW50\MSVC\TVicHW32.lib&quot; ws2_32.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib imm32.lib winmm.lib wsock32.lib winspool.lib delayimp.lib"
+				OutputFile="Debug\CP2exec.exe"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="C:\Plx\PciSdk\Win32\Api\Debug;&quot;C:\Program Files\TVicSoft\TVicHW50\MSVC&quot;"
-				IgnoreAllDefaultLibraries="FALSE"
-				IgnoreDefaultLibraryNames="mfcs71.lib"
+				AdditionalLibraryDirectories="$(QTDIR)\lib"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\Debug/CP2exec.pdb"
-				GenerateMapFile="TRUE"
-				MapFileName=".\Debug/CP2exec.map"
-				SubSystem="1"
-				TargetMachine="1"/>
+				ProgramDatabaseFile=""
+				SubSystem="2"/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Debug/CP2exec.tlb"
-				HeaderFileName=""/>
+				WarningLevel="0"
+				DefaultCharType="0"
+				EnableErrorChecks="1"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"
-				ExcludedFromBuild="FALSE"/>
+				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"/>
+				PreprocessorDefinitions="NDEBUG"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -150,30 +139,19 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
 			<File
-				RelativePath="CP2exec.cpp">
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
-				</FileConfiguration>
+				RelativePath="CP2Exec.cpp">
 			</File>
 			<File
-				RelativePath=".\CP2Exec.rc">
+				RelativePath="CP2ExecThread.cpp">
 			</File>
 			<File
-				RelativePath=".\CP2PIRAQ.cpp">
+				RelativePath="CP2PIRAQ.cpp">
+			</File>
+			<File
+				RelativePath="main.cpp">
+			</File>
+			<File
+				RelativePath="MomentThread.cpp">
 			</File>
 			<File
 				RelativePath="..\CP2Piraq\piraqComm.c">
@@ -183,32 +161,97 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl">
 			<File
-				RelativePath="CP2exec.h">
+				RelativePath="CP2Exec.h">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Moc&apos;ing CP2Exec.h..."
+						CommandLine="$(QTDIR)\bin\moc.exe CP2Exec.h -o moc_CP2Exec.cpp
+"
+						AdditionalDependencies="$(QTDIR)\bin\moc.exe"
+						Outputs="moc_CP2Exec.cpp"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Moc&apos;ing CP2Exec.h..."
+						CommandLine="$(QTDIR)\bin\moc.exe CP2Exec.h -o moc_CP2Exec.cpp
+"
+						AdditionalDependencies="$(QTDIR)\bin\moc.exe"
+						Outputs="moc_CP2Exec.cpp"/>
+				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\CP2PIRAQ.h">
+				RelativePath="CP2ExecThread.h">
+			</File>
+			<File
+				RelativePath="CP2PIRAQ.h">
 			</File>
 			<File
 				RelativePath="..\include\dd_types.h">
 			</File>
 			<File
-				RelativePath="..\CP2Piraq\piraqComm.h">
+				RelativePath="MomentThread.h">
 			</File>
 			<File
-				RelativePath=".\resource.h">
+				RelativePath="..\CP2Piraq\piraqComm.h">
 			</File>
 		</Filter>
 		<Filter
-			Name="Resource Files"
-			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
+			Name="Generated MOC Files"
+			Filter="cpp;c;cxx;moc">
+			<File
+				RelativePath="moc_CP2Exec.cpp">
+			</File>
+			<File
+				RelativePath="moc_CP2ExecBase.cpp">
+			</File>
+		</Filter>
+		<Filter
+			Name="Generated Form Files"
+			Filter="cpp;c;cxx;h;hpp;hxx;">
+			<File
+				RelativePath="CP2ExecBase.cpp">
+			</File>
+			<File
+				RelativePath="CP2ExecBase.h">
+			</File>
+		</Filter>
+		<Filter
+			Name="Forms"
+			Filter="ui"
+			ParseFiles="FALSE">
+			<File
+				RelativePath="CP2ExecBase.ui">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Uic&apos;ing CP2ExecBase.ui..."
+						CommandLine="$(QTDIR)\bin\uic.exe CP2ExecBase.ui -o .\CP2ExecBase.h
+$(QTDIR)\bin\uic.exe CP2ExecBase.ui -i CP2ExecBase.h -o .\CP2ExecBase.cpp
+$(QTDIR)\bin\moc.exe .\CP2ExecBase.h -o .\moc_CP2ExecBase.cpp
+"
+						AdditionalDependencies="$(QTDIR)\bin\moc.exe;$(QTDIR)\bin\uic.exe"
+						Outputs=".\CP2ExecBase.h;.\CP2ExecBase.cpp;.\moc_CP2ExecBase.cpp"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Uic&apos;ing CP2ExecBase.ui..."
+						CommandLine="$(QTDIR)\bin\uic.exe CP2ExecBase.ui -o .\CP2ExecBase.h
+$(QTDIR)\bin\uic.exe CP2ExecBase.ui -i CP2ExecBase.h -o .\CP2ExecBase.cpp
+$(QTDIR)\bin\moc.exe .\CP2ExecBase.h -o .\moc_CP2ExecBase.cpp
+"
+						AdditionalDependencies="$(QTDIR)\bin\moc.exe;$(QTDIR)\bin\uic.exe"
+						Outputs=".\CP2ExecBase.h;.\CP2ExecBase.cpp;.\moc_CP2ExecBase.cpp"/>
+				</FileConfiguration>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>
-		<Global
-			Name="DevPartner_IsInstrumented"
-			Value="0"/>
-		<Global
-			Name="QtVersion"
-			Value="Qt3.3.5"/>
 	</Globals>
 </VisualStudioProject>
