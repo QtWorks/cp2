@@ -12,7 +12,7 @@
 #include <string>
 
 // request this much space for the socket receive buffer
-#define CP2PPI_RCVBUF 25000000
+#define CP2PPI_RCVBUF 100000000
 
 // The base class created from the designer .ui specification
 #include "CP2PPIBase.h"
