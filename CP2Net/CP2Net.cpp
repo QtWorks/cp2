@@ -1,4 +1,5 @@
 #include "CP2Net.h"
+#include <iostream>
 
 CP2Packet::CP2Packet():
 _dataSize(0)
@@ -147,7 +148,8 @@ CP2FullPulse::data()
 //////////////////////////////////////////////////////////////////////
 
 CP2PulseCollator::CP2PulseCollator(int maxQueueSize):
-_maxQueueSize(maxQueueSize)
+_maxQueueSize(maxQueueSize),
+_discards(0)
 {
 }
 
@@ -174,6 +176,7 @@ CP2PulseCollator::addPulse(CP2FullPulse* pPulse, int queueNumber)
 		while (_queue0.size() >= _maxQueueSize) {
 			delete _queue0.begin()->second;
 			_queue0.erase(_queue0.begin());
+			_discards++;
 		}
 		break;
 	case 1:
@@ -187,6 +190,7 @@ CP2PulseCollator::addPulse(CP2FullPulse* pPulse, int queueNumber)
 		while (_queue1.size() >= _maxQueueSize) {
 			delete _queue1.begin()->second;
 			_queue1.erase(_queue1.begin());
+			_discards++;
 		}
 		break;
 	default:
@@ -248,9 +252,12 @@ CP2PulseCollator::gotMatch(CP2FullPulse** pulse0, CP2FullPulse** pulse1)
 	return false;
 
 }
-
-
 ////////////////////////////////////////////////////
+int 
+CP2PulseCollator::discards()
+{
+	return _discards;
+}
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
 

@@ -113,12 +113,15 @@ public:
 	virtual ~CP2PulseCollator();
 	void addPulse(CP2FullPulse* pPulse, int queueNumber);
 	bool gotMatch(CP2FullPulse** pulse0, CP2FullPulse** pulse1);
+	int discards();
 
 protected:
 	int _maxQueueSize;
+	int _discards;
 
 	PulseMap _queue0;
 	PulseMap _queue1;
+
 
 };
 
