@@ -51,7 +51,7 @@ Moments::Moments(int n_samples)
 
   // set up FFT
   
-  _fft = new Fft(_nSamples);
+  //_fft = new Fft(_nSamples);
   
   // initialize windows
 
