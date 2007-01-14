@@ -1,6 +1,8 @@
 #include "MomentThread.h"
 #include <iostream>
 
+
+///////////////////////////////////////////////////////////////////////////////////
 MomentThread::MomentThread(Params::moments_mode_t mode,
 						   int nSamples):
 _params(mode, nSamples)
@@ -9,10 +11,12 @@ _params(mode, nSamples)
 
 }
 
+///////////////////////////////////////////////////////////////////////////////////
 MomentThread::~MomentThread(void)
 {
 }
 
+///////////////////////////////////////////////////////////////////////////////////
 void
 MomentThread::run()
 {
@@ -21,7 +25,7 @@ MomentThread::run()
 
 	while (1) {
 		_queueWait.wait();
-		_queueMutex.lock();
+		_pulseQueueMutex.lock();
 		while (_pulseQueue.size() > 0) {
 			std::pair<CP2FullPulse*, CP2FullPulse*> pp = _pulseQueue[0];
 			CP2FullPulse* p1 = pp.first;
@@ -30,8 +34,8 @@ MomentThread::run()
 			_momentsCompute->processPulse(
 				p1->data(),
 				p2->data(),
-				1.0e-6,
 				p1->header()->gates,
+				1.0e-6,
 				p1->header()->antEl,
 				p1->header()->antAz,
 				p1->header()->pulse_num,
@@ -40,8 +44,8 @@ MomentThread::run()
 			_momentsCompute->processPulse(
 				p1->data(),
 				0,
-				1.0e-6,
 				p1->header()->gates,
+				1.0e-6,
 				p1->header()->antEl,
 				p1->header()->antAz,
 				p1->header()->pulse_num,
@@ -55,21 +59,45 @@ MomentThread::run()
 			Beam* pBeam = _momentsCompute->getNewBeam();
 			if (pBeam)
 			{
-				delete pBeam;
+				_beamQueueMutex.lock();
+				_beamQueue.push_back(pBeam);
+				_beamQueueMutex.unlock();
 			}
 
 		}
-		_queueMutex.unlock();
+		_pulseQueueMutex.unlock();
 	}
 }
 
+///////////////////////////////////////////////////////////////////////////////////
 void 
 MomentThread::processPulse(CP2FullPulse* pPulse1, CP2FullPulse* pPulse2)
 {
-	_queueMutex.lock();
+	_pulseQueueMutex.lock();
 	_pulseQueue.push_back(std::pair<CP2FullPulse*, CP2FullPulse*>(pPulse1, pPulse2));	
-	_queueMutex.unlock();
+	_pulseQueueMutex.unlock();
 	_queueWait.wakeAll();
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////
+Beam*
+MomentThread::getNewBeam()
+{	
+	Beam* pBeam = 0;
+	_beamQueueMutex.lock();
+	if (_beamQueue.size() > 0) {
+		pBeam = _beamQueue[0];
+		_beamQueue.erase(_beamQueue.begin());
+	}
+	_beamQueueMutex.unlock();
+	return pBeam;
+}
+///////////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////////
 
