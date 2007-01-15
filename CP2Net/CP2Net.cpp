@@ -42,7 +42,7 @@ CP2Packet::addProduct(CP2ProductHeader& header,
 						double* data)
 {
 	// resize _packetData if it is not big enough
-	int addDataSize = sizeof(header)+ sizeof(float)*numDataValues;
+	int addDataSize = sizeof(header)+ sizeof(double)*numDataValues;
 	int currentSize = _packetData.size();
 	if (currentSize < (_dataSize + addDataSize)) {
 		_packetData.resize(_packetData.size()+addDataSize);

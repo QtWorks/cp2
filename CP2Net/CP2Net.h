@@ -48,12 +48,32 @@ protected:
 
 };
 
+enum PRODUCT_TYPES {
+	PROD_S_DBMHC,	///< S-band dBm horizontal co-planar
+	PROD_S_DBMVC,	///< S-band dBm vertical co-planar
+	PROD_S_DBZHC,	///< S-band dBz horizontal co-planar
+	PROD_S_DBZVC,	///< S-band dBz vertical co-planar
+	PROD_S_SNR,		///< S-band SNR
+	PROD_S_VEL,		///< S-band velocity
+	PROD_S_WIDTH,	///< S-band spectral width
+	PROD_S_RHOHV,	///< S-band rhohv
+	PROD_S_PHIDP,	///< S-band phidp
+	PROD_S_ZDR,		///< S-band zdr
+	PROD_X_DBMHC,	///< X-band dBm horizontal co-planar
+	PROD_X_DBMVX,	///< X-band dBm vertical cross-planar
+	PROD_X_DBZHC,	///< X-band dBz horizontal co-planar
+	PROD_X_SNR,		///< X-band SNR
+	PROD_X_VEL,		///< X-band velocity
+	PROD_X_WIDTH,	///< X-band spectral width
+	PROD_X_LDR		///< X-band LDR
+};
+
 /// A header for each beam product
 typedef struct CP2ProductHeader {
     double antAz;			///< The azimuth
     double antEl;			///< The elevation
     int  gates;				///< The number of gates, set by the host.
-	int productId;			///< The product identifier
+	PRODUCT_TYPES prodType;	///< The product identifier
 } CP2ProductHeader;
 
 /// A header and data are combined to make one product.
