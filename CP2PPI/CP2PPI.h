@@ -29,37 +29,7 @@
 // PPI product display
 #include "PpiInfo.h"
 
-// Clases used in the moments computatons:
-#include "MomentsCompute.hh"
-#include "MomentsMgr.hh"
-#include "Params.hh"
-#include "Pulse.hh"
-
-#include "MomentThread.h"
-
 #define PIRAQ3D_SCALE	1.0/(unsigned int)pow(2,31)	
-
-// product types:
-enum	PPITYPE {	
-	S_DBMHC,	///< S-band dBm horizontal co-planar
-	S_DBMVC,	///< S-band dBm vertical co-planar
-	S_DBZHC,	///< S-band dBz horizontal co-planar
-	S_DBZVC,	///< S-band dBz vertical co-planar
-	S_SNR,		///< S-band SNR
-	S_VEL,		///< S-band velocity
-	S_WIDTH,	///< S-band spectral width
-	S_RHOHV,	///< S-band rhohv
-	S_PHIDP,	///< S-band phidp
-	S_ZDR,		///< S-band zdr
-	X_DBMHC,	///< X-band dBm horizontal co-planar
-	X_DBMVX,	///< X-band dBm vertical cross-planar
-	X_DBZHC,	///< X-band dBz horizontal co-planar
-	X_SNR,		///< X-band SNR
-	X_VEL,		///< X-band velocity
-	X_WIDTH,	///< X-band spectral width
-	X_LDR		///< X-band LDR
-}; 
-
 
 class CP2PPI : public CP2PPIBase {
 	Q_OBJECT
@@ -83,93 +53,78 @@ public slots:
 	void panSlot(int panIndex);
 
 protected:
-
-	bool _processSband;
-	bool _processXband;
-
+	// intialize the socket that the product data 
+	// is received on
 	void initializeSocket(); 
+	/// Process the products as they come in. 
+	/// Sband and X band products with identical 
+	/// beam numbers are collected until a full
+	/// set of products are received. The full set
+	/// is then sent to the display.
+	/// If a complete set is not collected for a given
+	/// beam number, it will not be displayed.
+	void processProduct(CP2Product* pProduct);
+	/// The incoming product socket.
 	QSocketDevice*   _pSocket;
+	/// The notifier for the data socket; it is connected
+	/// to new data slot.
 	QSocketNotifier* _pSocketNotifier;
-	int				_dataGramPort;
-	int				_prevPulseCount[3];			///<	prior cumulative pulse count, used for throughput calcs
-	int				_pulseCount[3];				///<	cumulative pulse count
-	int				_errorCount[3];				///<	cumulative error count
-	bool			_eof[3];						///<    set true when fifo eof occurs. Used so that we don't
-	long long       _lastPulseNum[3];
-	///<    keep setting the fifo eof led.
+	/// The buffer that the product data will be read into
+	/// from the socket.
 	char*   _pSocketBuf;
-
+	/// Incoming produt port number.
+	int	_dataGramPort;
+	int	_pulseCount[3];				
 	// how often to update the statistics (in seconds)
 	int _statsUpdateInterval;
-
-	PPITYPE        _ppiSType;
+	/// the currently selected display type
+	PRODUCT_TYPES _ppiSType;
 	// The builtin timer will be used to calculate beam statistics.
 	void timerEvent(QTimerEvent*);
-
-	/// Moment computation parameters for S band
-	Params _Sparams;
-
-	/// Moment computation parameters for X band
-	Params _Xparams;
-
-	/// The S band moment computation engine.  Pulses
-	/// are passed to _momentsCompute. It will make a beam 
-	/// available when enough pulses have been provided.
-	MomentsCompute* _momentsSCompute;
-
-	/// The X band moment computation engine.  Pulses
-	/// are passed to _momentsCompute. It will make a beam 
-	/// available when enough pulses have been provided.
-	MomentsCompute* _momentsXCompute;
-
-	double _azSband;
-
-	double _azXband;
-
-	/// Process the pulse, feeding it to the moments processor
-	/// @param pPulse The pulse to be processed. 
-	void processPulse(CP2Pulse* pPulse);
-
-	/// The collator collects and matches time tags
-	/// from H and V Xband channels
-	CP2PulseCollator _collator;
-
-	/// For each PPITYPE, there will be an entry in this map.
-	std::map<PPITYPE, PpiInfo> _ppiInfo;
-
-	/// This set contains PPITYPEs for all S band moments plots
-	std::set<PPITYPE> _sMomentsList;
-
-	/// This set contains PPITYPEs for all X band moments plots
-	std::set<PPITYPE> _xMomentsList;
-
+	/// For each PRODUCT_TYPES, there will be an entry in this map.
+	std::map<PRODUCT_TYPES, PpiInfo> _ppiInfo;
+	/// This set contains PRODUCT_TYPESs for all desired S band moments plots
+	std::set<PRODUCT_TYPES> _sMomentsList;
+	/// This set contains the list of all received S band products 
+	/// that are on the desired list, and have the same time tag.
+	/// When the length reaches the same size as _sMomentsList, 
+	/// then we have all products for a given S band beam
+	std::set<PRODUCT_TYPES> _currentSproducts;
+	/// This set contains the list of all received X band products 
+	/// that are on the desired list, and have the same time tag.
+	/// When the length reaches the same size as _xMomentsList, 
+	/// then we have all products for a given X band beam
+	std::set<PRODUCT_TYPES> _currentXproducts;
+	/// The current beam number for S band products, used
+	/// for collating S band products as they are received.
+	long long _currentSbeamNum;
+	/// The current beam number for X band products, used
+	/// for collating X band products as they are received.
+	long long _currentXbeamNum;
+	/// This set contains PRODUCT_TYPESs for all desired X band moments plots
+	std::set<PRODUCT_TYPES> _xMomentsList;
 	/// save the button group for each tab,
 	/// so that we can find the selected button
 	/// and change the plot type when tabs are switched.
 	std::vector<QButtonGroup*> _tabButtonGroups;
-
 	/// initialize all of the book keeping structures
 	/// for the various plots.
 	void initPlots();
-
 	/// add a tab to the plot type selection tab widget.
 	/// Radio buttons are created for all of specified
 	/// plty types, and grouped into one button group.
 	/// _ppiInfo provides the label information for
 	/// the radio buttons.
 	/// @param tabName The title for the tab.
-	/// @param types A set of the desired PPITYPE types 
+	/// @param types A set of the desired PRODUCT_TYPES types 
 	/// @return The button group that the inserted buttons
 	/// belong to.
-	QButtonGroup* addPlotTypeTab(std::string tabName, std::set<PPITYPE> types);
-
+	QButtonGroup* addPlotTypeTab(std::string tabName, std::set<PRODUCT_TYPES> types);
 	/// Add a beam of S band products to the ppi
-	void addSbeam(Beam* pBeam);
-
+	void displaySbeam(double az, double el);
 	/// Add a beam of X band products to the ppi
-	void addXbeam(Beam* pBeam);
-
-    // true to pause the display. Data will still be coming int,
+	void displayXbeam(double az, double el);
+    // true to pause the display. Data will still be coming in,
 	// but not sent to the display.
 	bool _pause;
 	
@@ -183,15 +138,13 @@ protected:
 
 	int _nVarsSband;
 	std::vector<ColorMap*> _mapsSband;
-	std::vector<std::vector<double> > _beamSData;
+	std::vector<std::vector<double> > _beamSdata;
 
 	int _nVarsXband;
 	std::vector<ColorMap*> _mapsXband;
-	std::vector<std::vector<double> > _beamXData;
+	std::vector<std::vector<double> > _beamXdata;
 
 	CP2Packet packet;
-	MomentThread* _pSmomentThread;
-	MomentThread* _pXmomentThread;
 
 
   };

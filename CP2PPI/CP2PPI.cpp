@@ -31,30 +31,16 @@ _gates(1000),
 _pSocket(0),    
 _pSocketNotifier(0),
 _pSocketBuf(0),	
-_Sparams(Params::DUAL_FAST_ALT,100),
-_Xparams(Params::DUAL_CP2_XBAND,100),
-_collator(1000),
 _statsUpdateInterval(5),
+_currentSbeamNum(0),
+_currentXbeamNum(0),
 _pause(false),
-_ppiSactive(true),
-_processSband(false),
-_processXband(false)
+_ppiSactive(true)
 {
-	_dataGramPort	= 3100;
+	_dataGramPort	= 3200;
 	for (int i = 0; i < 3; i++) {
 		_pulseCount[i]	= 0;
-		_prevPulseCount[i] = 0;
-		_errorCount[i] = 0;
-		_eof[i] = false;
-		_lastPulseNum[i] = 0;
 	}
-
-	_pSmomentThread = new MomentThread(Params::DUAL_FAST_ALT, 100);
-	_pXmomentThread = new MomentThread(Params::DUAL_CP2_XBAND, 100);
-
-	_pSmomentThread->start();
-
-	_pXmomentThread->start();
 
 	// intialize the data reception socket.
 	// set up the ocket notifier and connect it
@@ -72,10 +58,10 @@ _processXband(false)
 	_nVarsXband = _xMomentsList.size();
 
 	// set the intial plot type
-	ppiTypeSlot(S_DBZHC);
+	ppiTypeSlot(PROD_S_DBZHC);
 
 	// create the Sband color maps
-	std::set<PPITYPE>::iterator pSet;
+	std::set<PRODUCT_TYPES>::iterator pSet;
 	_mapsSband.resize(_nVarsSband);
 	for (pSet=_sMomentsList.begin(); pSet!=_sMomentsList.end(); pSet++) 
 	{
@@ -105,31 +91,20 @@ _processXband(false)
 	_ppiX->configure(_nVarsXband, _gates, 360);
 
 	// allocate the beam data arrays
-	_beamSData.resize(_nVarsSband);
+	_beamSdata.resize(_nVarsSband);
 	for (int i = 0; i < _nVarsSband; i++) {
-		_beamSData[i].resize(_gates);
+		_beamSdata[i].resize(_gates);
 	}
 
-	_beamXData.resize(_nVarsXband);
+	_beamXdata.resize(_nVarsXband);
 	for (int i = 0; i < _nVarsXband; i++) {
-		_beamXData[i].resize(_gates);
+		_beamXdata[i].resize(_gates);
 	}
 
 	QVBoxLayout* colorBarLayout = new QVBoxLayout(frameColorBar);
 	_colorBar = new ColorBar(frameColorBar);
 	_colorBar->configure(*_mapsSband[0]);
 	colorBarLayout->addWidget(_colorBar);
-
-	// create the moment compute engine for S band
-	_momentsSCompute = new MomentsCompute(_Sparams);
-
-	// create the moment compute engine for X band
-	_momentsXCompute = new MomentsCompute(_Xparams);
-
-	// set EOF leds to green
-	_chan0led->setBackgroundColor(QColor("green"));
-	_chan1led->setBackgroundColor(QColor("green"));
-	_chan2led->setBackgroundColor(QColor("green"));
 
 	// start the statistics timer
 	startTimer(_statsUpdateInterval*1000);
@@ -150,10 +125,6 @@ CP2PPI::~CP2PPI()
 	if (_pSocketBuf)
 		delete [] _pSocketBuf;
 
-	delete _momentsSCompute;
-
-	delete _momentsXCompute;
-
 	for (int i = 0; i < _mapsSband.size(); i++)
 		delete _mapsSband[i];
 }
@@ -165,152 +136,92 @@ CP2PPI::newDataSlot(int)
 
 	if (readBufLen > 0) {
 		// put this datagram into a packet
-		bool packetBad = packet.setData(readBufLen, _pSocketBuf);
+		bool packetBad = packet.setProductData(readBufLen, _pSocketBuf);
 
 		// Extract the pulses and process them.
 		// Observe paranoia for validating packets and pulses.
 		// From here on out, we are divorced from the
 		// data transport.
 		if (!packetBad) {
-			for (int i = 0; i < packet.numPulses(); i++) {
-				CP2Pulse* pPulse = packet.getPulse(i);
-				if (pPulse) {
-					int chan = pPulse->header.channel;
-					if (chan >= 0 && chan < 3) {
-						// do all of the heavy lifting for this pulse
-						processPulse(pPulse);
-						// sanity check on channel
-						_pulseCount[chan]++;
-						if (pPulse->header.status & PIRAQ_FIFO_EOF) {
-							switch (chan) 
-							{
-							case 0:
-								if (!_eof[0]) {
-									_eof[0] = true;
-									_chan0led->setBackgroundColor(QColor("red"));
-								}
-								break;
-							case 1:
-								if (!_eof[1]) {
-									_eof[1] = true;
-									_chan1led->setBackgroundColor(QColor("red"));
-								}
-								break;
-							case 2:
-								if (!_eof[2]) {
-									_eof[2] = true;
-									_chan2led->setBackgroundColor(QColor("red"));
-								}
-								break;
-							}
-						}
-					} 
-				} 
-			}
-		} 
+			for (int i = 0; i < packet.numProducts(); i++) {
+				CP2Product* pProduct = packet.getProduct(i);
+				// do all of the heavy lifting for this pulse
+				processProduct(pProduct);
+			} 
+		}
 	} else {
 		// read error. What should we do here?
 	}
 }
-
-
 //////////////////////////////////////////////////////////////////////
 void
-CP2PPI::processPulse(CP2Pulse* pPulse) 
+CP2PPI::processProduct(CP2Product* pProduct) 
 {
 
-	// look for pulse number errors
-	int chan = pPulse->header.channel;
+	// fill _productSdata and _productXdata
+	// from the incoming product. Once we
+	// have collected all products fro either S band
+	// or X band, display the beam.
+	PRODUCT_TYPES prodType = pProduct->header.prodType;
+	long long beamNum = pProduct->header.beamNum;
+	int gates = pProduct->header.gates;
+	double az = pProduct->header.antAz;
+	double el = pProduct->header.antEl;
 
-	if (_lastPulseNum[chan]) {
-		if (_lastPulseNum[chan]+1 != pPulse->header.pulse_num) {
-			_errorCount[chan]++;
+	if (_sMomentsList.find(prodType) != _sMomentsList.end()) {
+		// see if the number of gates has changed
+		if (gates != _beamSdata[0].size()) {
+			for (int i = 0; i < _nVarsSband; i++) {
+				_beamSdata[i].resize(_gates);
+			}
 		}
-	}
-	_lastPulseNum[chan] = pPulse->header.pulse_num;
-
-	//	static int outCount = 0;
-	float* data = &(pPulse->data[0]);
-
-	// beam will point to computed moments when they are ready,
-	// or null if not ready
-	Beam* pBeam = 0;
-
-	PpiInfo* pi = &_ppiInfo[_ppiSType];
-
-	// S band pulses: are successive coplaner H and V pulses
-	// this horizontal switch is a hack for now; we really
-	// need to find the h/v flag in the pulse header.
-	if (chan == 0) 
-		{	
-		_azSband += 1.0/_Sparams.moments_params.n_samples;
-		if (_azSband > 360.0)
-			_azSband = 0.0;
-
-		pPulse->header.antAz = _azSband;
-
-		CP2FullPulse* pFullPulse = new CP2FullPulse(pPulse);
-		if (_processSband) {
-			_pSmomentThread->processPulse(pFullPulse, 0);
-		} else {
-			delete pFullPulse;
+		// product is one we want for S band
+		if (beamNum != _currentSbeamNum) {
+			// beam number has changed; start fresh
+			_currentSbeamNum = beamNum;
+			_currentSproducts.clear();
 		}
-
-		// ask for a completed beam. The return value will be
-		// 0 if nothing is ready yet.
-		pBeam = _pSmomentThread->getNewBeam();
-		if (pBeam) {
-			addSbeam(pBeam);
-			delete pBeam;
+		_currentSproducts.insert(prodType);
+		int index = _ppiInfo[prodType].getPpiIndex();
+		for (int i = 0; i < gates; i++) {
+			_beamSdata[index][i] = pProduct->data[i];
+		}
+		if (_sMomentsList.size() == _currentSproducts.size()) {
+			// all products have been collected, display the beam
+			displaySbeam(az, el);
+			// reset the beam number tracking so that we 
+			// will start a new colection of products
+			_currentSbeamNum = 0;
 		}
 	} else {
-		// X band will have H coplanar pulse on channel 1
-		// and V cross planar pulses on channel 2. We need
-		// to buffer up the data from the pulses and send it to 
-		// the collator to match beam numbers, since matching
-		// pulses (i.e. identical pulse numbers) are required
-		// for the moments calculations.
-
-		// create a CP2FullPuse, which is a class that will
-		// hold the IQ data.
-		CP2FullPulse* pFullPulse = new CP2FullPulse(pPulse);
-
-		// send the pulse to the collator. The collator finds matching 
-		// pulses. If orphan pulses are detected, they are deleted
-		// by the collator. Otherwise, matching pulses returned from
-		// the collator can be deleted here.
-		_collator.addPulse(pFullPulse, chan-1);
-
-		// now see if we have some matching pulses
-		CP2FullPulse* pHPulse;
-		CP2FullPulse* pVPulse;
-		if (_collator.gotMatch(&pHPulse, &pVPulse)) {
-			_azXband += 1.0/_Sparams.moments_params.n_samples;
-			if (_azXband > 360.0)
-				_azXband = 0.0;
-			pHPulse->header()->antAz = _azXband;
-			pVPulse->header()->antAz = _azXband;
-
-			// a matching pair was found. Send them to the X band
-			// moments compute engine.
-			if (_processXband) {
-				_pXmomentThread->processPulse(pHPulse, pVPulse);
-			} else {
-
-			// finished with these pulses, so delete them.
-			delete pHPulse;
-			delete pVPulse;
+		if (_xMomentsList.find(prodType) != _xMomentsList.end()) {
+			// product is one that we want for X band
+			// see if the number of gates has changed
+			if (gates != _beamXdata[0].size()) {
+				for (int i = 0; i < _nVarsXband; i++) {
+					_beamXdata[i].resize(_gates);
+				}
 			}
-			// ask for a completed beam. The return value will be
-			// 0 if nothing is ready yet.
-			pBeam = _pXmomentThread->getNewBeam();
+			// product is one we want for S band
+			if (beamNum != _currentXbeamNum) {
+				// beam number has changed; start fresh
+				_currentXbeamNum = beamNum;
+				_currentXproducts.clear();
+			}
+			_currentXproducts.insert(prodType);
+			int index = _ppiInfo[prodType].getPpiIndex();
+			for (int i = 0; i < gates; i++) {
+				_beamXdata[index][i] = pProduct->data[i];
+			}
+			if (_xMomentsList.size() == _currentXproducts.size()) {
+				// all products have been collected, display the beam
+				displayXbeam(az, el);
+				// reset the beam number tracking so that we 
+				// will start a new colection of products
+				_currentXbeamNum = 0;
+			}
 		} else {
-			pBeam = 0;
-		}
-		if (pBeam) {
-			// we have X products
-			addXbeam(pBeam);
-			delete pBeam;
+			// unwanted product
 		}
 	}
 }
@@ -378,7 +289,7 @@ CP2PPI::ppiTypeSlot(int newPpiType)
 		return;
 	}
 
-	_ppiSType  = (PPITYPE)newPpiType;
+	_ppiSType  = (PRODUCT_TYPES)newPpiType;
 	int index = _ppiInfo[_ppiSType].getPpiIndex();
 	if (_sMomentsList.find(_ppiSType)!=_sMomentsList.end()){
 		_ppiS->selectVar(index);
@@ -394,35 +305,35 @@ CP2PPI::initPlots()
 {
 
 	// set the initial plot type
-	_ppiSType = S_DBZHC;
+	_ppiSType = PROD_S_DBZHC;
 
-	_sMomentsList.insert(S_DBZHC);
-	_sMomentsList.insert(S_DBZVC);
-	_sMomentsList.insert(S_WIDTH);
-	_sMomentsList.insert(S_VEL);
-	_sMomentsList.insert(S_SNR);
-	_sMomentsList.insert(S_RHOHV);
-	_sMomentsList.insert(S_PHIDP);
-	_sMomentsList.insert(S_ZDR);
+	_sMomentsList.insert(PROD_S_DBZHC);
+	_sMomentsList.insert(PROD_S_DBZVC);
+	_sMomentsList.insert(PROD_S_WIDTH);
+	_sMomentsList.insert(PROD_S_VEL);
+	_sMomentsList.insert(PROD_S_SNR);
+	_sMomentsList.insert(PROD_S_RHOHV);
+	_sMomentsList.insert(PROD_S_PHIDP);
+	_sMomentsList.insert(PROD_S_ZDR);
 
-	_xMomentsList.insert(X_DBZHC);
-	_xMomentsList.insert(X_SNR);
-	_xMomentsList.insert(X_LDR);
+	_xMomentsList.insert(PROD_X_DBZHC);
+	_xMomentsList.insert(PROD_X_SNR);
+	_xMomentsList.insert(PROD_X_LDR);
 
 	int ppiVarIndex = 0;
-	_ppiInfo[S_DBZHC]       = PpiInfo(S_DBZHC,      "H Dbz", "Sh: Dbz",     -20.0,  60.0,   ppiVarIndex++);
-	_ppiInfo[S_DBZVC]       = PpiInfo(S_DBZVC,      "V Dbz", "Sv: Dbz",     -20.0,  60.0,   ppiVarIndex++);
-	_ppiInfo[S_WIDTH]       = PpiInfo(S_WIDTH,      "Width", "S:  Width",     0.0,   5.0,   ppiVarIndex++);
-	_ppiInfo[S_VEL]         = PpiInfo(  S_VEL,   "Velocity", "S:  Velocity",-20.0,  20.0,   ppiVarIndex++);
-	_ppiInfo[S_SNR]         = PpiInfo(  S_SNR,        "SNR", "S:  SNR",     100.0, 150.0,   ppiVarIndex++);
-	_ppiInfo[S_RHOHV]       = PpiInfo(S_RHOHV,      "Rhohv", "S:  Rhohv",     0.0,  50.0,   ppiVarIndex++);
-	_ppiInfo[S_PHIDP]       = PpiInfo(S_PHIDP,      "Phidp", "S:  Phidp",     0.0, 360.0,   ppiVarIndex++);
-	_ppiInfo[S_ZDR]         = PpiInfo(  S_ZDR,        "Zdr", "S:  Zdr",     -70.0,   0.0,   ppiVarIndex++);
+	_ppiInfo[PROD_S_DBZHC]       = PpiInfo(PROD_S_DBZHC,      "H Dbz", "Sh: Dbz",     -20.0,  60.0,   ppiVarIndex++);
+	_ppiInfo[PROD_S_DBZVC]       = PpiInfo(PROD_S_DBZVC,      "V Dbz", "Sv: Dbz",     -20.0,  60.0,   ppiVarIndex++);
+	_ppiInfo[PROD_S_WIDTH]       = PpiInfo(PROD_S_WIDTH,      "Width", "S:  Width",     0.0,   5.0,   ppiVarIndex++);
+	_ppiInfo[PROD_S_VEL]         = PpiInfo(  PROD_S_VEL,   "Velocity", "S:  Velocity",-20.0,  20.0,   ppiVarIndex++);
+	_ppiInfo[PROD_S_SNR]         = PpiInfo(  PROD_S_SNR,        "SNR", "S:  SNR",     100.0, 150.0,   ppiVarIndex++);
+	_ppiInfo[PROD_S_RHOHV]       = PpiInfo(PROD_S_RHOHV,      "Rhohv", "S:  Rhohv",     0.0,  50.0,   ppiVarIndex++);
+	_ppiInfo[PROD_S_PHIDP]       = PpiInfo(PROD_S_PHIDP,      "Phidp", "S:  Phidp",     0.0, 360.0,   ppiVarIndex++);
+	_ppiInfo[PROD_S_ZDR]         = PpiInfo(  PROD_S_ZDR,        "Zdr", "S:  Zdr",     -70.0,   0.0,   ppiVarIndex++);
 	// restart the X band ppi indices at 0
 	ppiVarIndex = 0;
-	_ppiInfo[X_DBZHC]       = PpiInfo(X_DBZHC,      "H Dbz", "Xh: Dbz",     -20.0,  60.0,   ppiVarIndex++);
-	_ppiInfo[X_SNR]         = PpiInfo(  X_SNR,        "SNR", "Xh: SNR",     100.0, 150.0,   ppiVarIndex++);
-	_ppiInfo[X_LDR]         = PpiInfo(  X_LDR,        "LDR", "Xhv:LDR",       0.0,   1.0,   ppiVarIndex++);
+	_ppiInfo[PROD_X_DBZHC]       = PpiInfo(PROD_X_DBZHC,      "H Dbz", "Xh: Dbz",     -20.0,  60.0,   ppiVarIndex++);
+	_ppiInfo[PROD_X_SNR]         = PpiInfo(  PROD_X_SNR,        "SNR", "Xh: SNR",     230.0, 260.0,   ppiVarIndex++);
+	_ppiInfo[PROD_X_LDR]         = PpiInfo(  PROD_X_LDR,        "LDR", "Xhv:LDR",       0.0,   1.0,   ppiVarIndex++);
 
 	// remove the one tab that was put there by designer
 	_typeTab->removePage(_typeTab->page(0));
@@ -465,7 +376,7 @@ CP2PPI::tabChangeSlot(QWidget* w)
 
 //////////////////////////////////////////////////////////////////////
 QButtonGroup*
-CP2PPI::addPlotTypeTab(std::string tabName, std::set<PPITYPE> types)
+CP2PPI::addPlotTypeTab(std::string tabName, std::set<PRODUCT_TYPES> types)
 {
 	QWidget* pPage;
 	QButtonGroup* pGroup;
@@ -484,7 +395,7 @@ CP2PPI::addPlotTypeTab(std::string tabName, std::set<PPITYPE> types)
 	pButtonVbox = new QVBoxLayout(pGroup->layout());
 	pButtonVbox->setAlignment( Qt::AlignTop );
 
-	std::set<PPITYPE>::iterator i;
+	std::set<PRODUCT_TYPES>::iterator i;
 
 	for (i = types.begin(); i != types.end(); i++) 
 	{
@@ -516,21 +427,6 @@ void
 CP2PPI::timerEvent(QTimerEvent*) 
 {
 
-	int rate[3];
-	for (int i = 0; i < 3; i++) 
-	{
-		rate[i] = (_pulseCount[i] - _prevPulseCount[i])/_statsUpdateInterval;
-		_prevPulseCount[i] = _pulseCount[i];
-	}
-	_chan0pulseCount->setNum(_pulseCount[0]/1000);
-	_chan0pulseRate->setNum(rate[0]);
-	_chan0errors->setNum(_errorCount[0]);
-	_chan1pulseCount->setNum(_pulseCount[1]/1000);
-	_chan1pulseRate->setNum(rate[1]);
-	_chan1errors->setNum(_errorCount[1]);
-	_chan2pulseCount->setNum(_pulseCount[2]/1000);
-	_chan2pulseRate->setNum(rate[2]);
-	_chan2errors->setNum(_errorCount[2]);
 }
 
 
@@ -592,80 +488,22 @@ CP2PPI::pauseSlot(bool flag)
 }
 //////////////////////////////////////////////////////////////////////
 void
-CP2PPI::addSbeam(Beam* pBeam)
+CP2PPI::displaySbeam(double az, double el)
 {
-	const Fields* fields = pBeam->getFields();
-	int gates = pBeam->getNGatesOut();
-
-	std::set<PPITYPE>::iterator pSet;
-	for (pSet = _sMomentsList.begin(); pSet != _sMomentsList.end(); pSet++) {
-		// get the ppi display type from this entry in the set
-		PPITYPE ppiType = (PPITYPE)_ppiInfo[*pSet].getId();
-		// and get the ppi variable index
-		int ppiIndex = _ppiInfo[*pSet].getPpiIndex();
-
-		// now copy the result field into the _beamData array
-		int i;
-		switch(ppiType)	
-		{
-		case S_DBMHC:	///< S-band dBm horizontal co-planar
-			for (i = 0; i < gates; i++) {_beamSData[ppiIndex][i] = fields[i].dbmhc;  } break;
-		case S_DBMVC:	///< S-band dBm vertical co-planar
-			for (i = 0; i < gates; i++) { _beamSData[ppiIndex][i] = fields[i].dbmvc;  } break;
-		case S_DBZHC:	///< S-band dBz horizontal co-planar
-			for (i = 0; i < gates; i++) { _beamSData[ppiIndex][i] = fields[i].dbzhc;  } break;
-		case S_DBZVC:	///< S-band dBz vertical co-planar
-			for (i = 0; i < gates; i++) { _beamSData[ppiIndex][i] = fields[i].dbzvc;  } break;
-		case S_RHOHV:	///< S-band rhohv
-			for (i = 0; i < gates; i++) { _beamSData[ppiIndex][i] = fields[i].rhohv;  } break;
-		case S_PHIDP:	///< S-band phidp
-			for (i = 0; i < gates; i++) { _beamSData[ppiIndex][i] = fields[i].phidp;  } break;
-		case S_ZDR:	///< S-band zdr
-			for (i = 0; i < gates; i++) { _beamSData[ppiIndex][i] = fields[i].zdr;    } break;
-		case S_WIDTH:	///< S-band spectral width
-			for (i = 0; i < gates; i++) { _beamSData[ppiIndex][i] = fields[i].width;  } break;
-		case S_VEL:		///< S-band velocity
-			for (i = 0; i < gates; i++) { _beamSData[ppiIndex][i] = fields[i].vel;    } break;
-		case S_SNR:		///< S-band SNR
-			for (i = 0; i < gates; i++) { _beamSData[ppiIndex][i] = fields[i].snr;    } break;
-		}
-	}
-	double az = pBeam->getAz();
 	if (!_pause) {
-//		_ppiS->addBeam(az - 0.5, az + 0.5, gates, _beamSData, 1, _mapsSband);
+		int gates = _beamSdata[0].size();
+		_ppiS->addBeam(az - 0.5, az + 0.5, gates, _beamSdata, 1, _mapsSband);
 		if (_ppiSactive)
 			_azLCD->display((int)az);
 	}
 }
 //////////////////////////////////////////////////////////////////////
 void 
-CP2PPI::addXbeam(Beam* pBeam)
+CP2PPI::displayXbeam(double az, double el)
 {
-	const Fields* fields = pBeam->getFields();
-	int gates = pBeam->getNGatesOut();
-
-	std::set<PPITYPE>::iterator pSet;
-	for (pSet = _xMomentsList.begin(); pSet != _xMomentsList.end(); pSet++) {
-		// get the ppi display type from this entry in the set
-		PPITYPE ppiType = (PPITYPE)_ppiInfo[*pSet].getId();
-		// and get the ppi variable index
-		int ppiIndex = _ppiInfo[*pSet].getPpiIndex();
-
-		// now copy the result field into the _beamData array
-		int i;
-		switch(ppiType)	
-		{
-		case X_DBZHC:	///< S-band dBm horizontal co-planar
-			for (i = 0; i < gates; i++) {_beamXData[ppiIndex][i] = fields[i].dbzhc;  } break;
-		case X_SNR:	///< S-band dBm vertical co-planar
-			for (i = 0; i < gates; i++) { _beamXData[ppiIndex][i] = fields[i].snrhc;  } break;
-		case X_LDR:	///< S-band dBz horizontal co-planar
-			for (i = 0; i < gates; i++) { _beamXData[ppiIndex][i] = fields[i].ldrh;  } break;
-		}
-	}
-	double az = pBeam->getAz();
 	if (!_pause) {
-//		_ppiX->addBeam(az - 0.5, az + 0.5, gates, _beamXData, 1, _mapsXband);
+		int gates = _beamXdata[0].size();
+		_ppiX->addBeam(az - 0.5, az + 0.5, gates, _beamXdata, 1, _mapsXband);
 		if (!_ppiSactive)
 			_azLCD->display((int)az);
 	}
@@ -675,12 +513,10 @@ CP2PPI::addXbeam(Beam* pBeam)
 void
 CP2PPI::doSslot(bool checked)
 {
-   _processSband = checked;
 }
 void
 CP2PPI::doXslot(bool checked)
 {
-	_processXband = checked;
 }
 
 
