@@ -3,7 +3,6 @@
 
 #include <qthread.h>
 #include "CP2PIRAQ.h"
-#include "MomentThread.h"
 #include "CP2Net.h"
 
 class CP2ExecThread: public QThread {

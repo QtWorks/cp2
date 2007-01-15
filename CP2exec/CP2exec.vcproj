@@ -25,7 +25,7 @@
 				GeneratePreprocessedFile="0"
 				MinimalRebuild="TRUE"
 				ExceptionHandling="TRUE"
-				RuntimeLibrary="3"
+				RuntimeLibrary="2"
 				BufferSecurityCheck="FALSE"
 				AssemblerListingLocation="Release\"
 				ObjectFile="Release\"
@@ -45,7 +45,7 @@
 				DelayLoadDLLs="comdlg32.dll,oleaut32.dll,winmm.dll,wsock32.dll,winspool.dll"
 				GenerateDebugInformation="FALSE"
 				ProgramDatabaseFile=""
-				SubSystem="1"/>
+				SubSystem="2"/>
 			<Tool
 				Name="VCMIDLTool"
 				WarningLevel="0"
@@ -74,7 +74,6 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="."
-			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
@@ -152,9 +151,6 @@
 				RelativePath="main.cpp">
 			</File>
 			<File
-				RelativePath="MomentThread.cpp">
-			</File>
-			<File
 				RelativePath="..\CP2Piraq\piraqComm.c">
 			</File>
 		</Filter>
@@ -192,9 +188,6 @@
 			</File>
 			<File
 				RelativePath="..\include\dd_types.h">
-			</File>
-			<File
-				RelativePath="MomentThread.h">
 			</File>
 			<File
 				RelativePath="..\CP2Piraq\piraqComm.h">
