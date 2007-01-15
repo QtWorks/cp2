@@ -15,8 +15,13 @@
 #include "CP2MomentsBase.h"
 #include "MomentThread.h"
 
-// request this much space for the pulse socket receive buffer
+/// request this much space for the pulse socket receive buffer
 #define CP2MOMENTS_PULSE_RCVBUF 100000000
+/// request this much space for the product socket send buffer
+#define CP2MOMENTS_PROD_SNDBUF  10000000
+// the max number of ethernet interfaces a machine might have,
+/// used when determininga broadcast address.
+#define MAX_NBR_OF_ETHERNET_CARDS 10
 
 /// CP2Moments is a Qt based application which reads S band and X band
 /// pulses from a datagram sockets, feeds these pulses into moments
@@ -52,7 +57,7 @@ protected:
 	void timerEvent(QTimerEvent*);
 	/// initialize the time series socket for incoming raw data and
 	/// the products socket for outgoing products.
-	void initializeSocket(); 
+	void initializeSockets(); 
 	/// Process the pulse, feeding it to the moments processing threads.
 	/// @param pPulse The pulse to be processed. 
 	void processPulse(CP2Pulse* pPulse);
@@ -62,6 +67,16 @@ protected:
 	/// Send out a products data gram for X band.
 	/// @param pBeam The Xband beam.
 	void xDatagram(Beam* pBeam);
+	void sendProduct(CP2ProductHeader& header, 
+						 std::vector<double>& data,
+						 CP2Packet& packet,
+						 bool forceSend=false);
+	/// Calculates a suitable broadcast address to use with
+	/// the supplied IP number.
+	/// @param dwIp The IP number in net byte order
+	/// @return A broadcast address for that IP (255.255.255.255 if 
+	/// that IP wasn't found)
+	unsigned long CP2Moments::GetBroadcastAddress(char* IPname);
 	/// The thread which will compute S band moments
 	MomentThread* _pSmomentThread;
 	/// The thread which will compute X band moments.
@@ -78,8 +93,16 @@ protected:
 	QSocketDevice*   _pProductSocket;
 	/// The port number for incoming time series data.
 	int	_timeSeriesPort;
+	/// The host address for the outgoing products. Probably
+	/// will be a broadcast address.
+	QHostAddress _outHostAddr;
+	/// The IP name for the outgoing products
+	QString _outHostIP;
 	/// The port number for outgoing products.
 	int	_productsPort;
+	/// The maximum message size that we can send
+	/// on UDP.
+	int _soMaxMsgSize;
 	///	prior cumulative pulse counts, used for throughput calcs
 	int	_prevPulseCount[3];	
 	///	cumulative pulse counts 

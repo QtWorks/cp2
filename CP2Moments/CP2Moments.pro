@@ -27,6 +27,7 @@ INCLUDEPATH += ../Moments
 LIBS += ../Moments/Release/Moments.lib
 LIBS += ../CP2Net/Release/CP2Net.lib
 LIBS += ../../fftw3.1/libfftw3-3.lib
+LIBS += ws2_32.lib
 
 DESTDIR = Release
 
