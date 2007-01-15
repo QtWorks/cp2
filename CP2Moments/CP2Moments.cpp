@@ -4,9 +4,9 @@
 
 CP2Moments::CP2Moments():
 CP2MomentsBase(),
-_pSocket(0),    
-_pSocketNotifier(0),
-_pSocketBuf(0),	
+_pPulseSocket(0),    
+_pPulseSocketNotifier(0),
+_pPulseSocketBuf(0),	
 _Sparams(Params::DUAL_FAST_ALT,100),
 _Xparams(Params::DUAL_CP2_XBAND,100),
 _collator(5000),
@@ -14,7 +14,7 @@ _statsUpdateInterval(5),
 _processSband(true),
 _processXband(true)
 {
-	_dataGramPort	= 3100;
+	_timeSeriesPort	= 3100;
 	for (int i = 0; i < 3; i++) {
 		_pulseCount[i]	= 0;
 		_prevPulseCount[i] = 0;
@@ -86,7 +86,7 @@ CP2Moments::timerEvent(QTimerEvent*)
 void
 CP2Moments::initializeSocket()	
 {
-	_pSocket = new QSocketDevice(QSocketDevice::Datagram);
+	_pPulseSocket = new QSocketDevice(QSocketDevice::Datagram);
 
 	QHostAddress qHost;
 
@@ -103,7 +103,7 @@ CP2Moments::initializeSocket()
 		qWarning("gethostbyname failed");
 		exit(1);
 	}
-	_pSocketBuf = new char[1000000];
+	_pPulseSocketBuf = new char[1000000];
 
 	std::string myIPname = nameBuf;
 	std::string myIPaddress = inet_ntoa(*(struct in_addr*)pHostEnt->h_addr_list[0]);
@@ -111,19 +111,19 @@ CP2Moments::initializeSocket()
 
 	//	m_pTextIPname->setText(myIPname.c_str());
 
-	//	m_pTextIPaddress->setNum(+_dataGramPort);	// diagnostic print
+	//	m_pTextIPaddress->setNum(+_timeSeriesPort);	// diagnostic print
 	qHost.setAddress(myIPaddress.c_str());
 
 	std::cout << "qHost:" << qHost.toString() << std::endl;
-	std::cout << "datagram port:" << _dataGramPort << std::endl;
+	std::cout << "datagram port:" << _timeSeriesPort << std::endl;
 
-	if (!_pSocket->bind(qHost, _dataGramPort)) {
-		qWarning("Unable to bind to %s:%d", qHost.toString().ascii(), _dataGramPort);
+	if (!_pPulseSocket->bind(qHost, _timeSeriesPort)) {
+		qWarning("Unable to bind to %s:%d", qHost.toString().ascii(), _timeSeriesPort);
 		exit(1); 
 	}
-	int sockbufsize = CP2PPI_RCVBUF;
+	int sockbufsize = CP2MOMENTS_PULSE_RCVBUF;
 
-	int result = setsockopt (_pSocket->socket(),
+	int result = setsockopt (_pPulseSocket->socket(),
 		SOL_SOCKET,
 		SO_RCVBUF,
 		(char *) &sockbufsize,
@@ -133,19 +133,19 @@ CP2Moments::initializeSocket()
 		exit(1); 
 	}
 
-	_pSocketNotifier = new QSocketNotifier(_pSocket->socket(), QSocketNotifier::Read);
+	_pPulseSocketNotifier = new QSocketNotifier(_pPulseSocket->socket(), QSocketNotifier::Read);
 
-	connect(_pSocketNotifier, SIGNAL(activated(int)), this, SLOT(newDataSlot(int)));
+	connect(_pPulseSocketNotifier, SIGNAL(activated(int)), this, SLOT(newPulseDataSlot(int)));
 }
 //////////////////////////////////////////////////////////////////////
 void 
-CP2Moments::newDataSlot(int)
+CP2Moments::newPulseDataSlot(int)
 {
-	int	readBufLen = _pSocket->readBlock((char *)_pSocketBuf, sizeof(short)*1000000);
+	int	readBufLen = _pPulseSocket->readBlock((char *)_pPulseSocketBuf, sizeof(short)*1000000);
 
 	if (readBufLen > 0) {
 		// put this datagram into a packet
-		bool packetBad = _pulsePacket.setPulseData(readBufLen, _pSocketBuf);
+		bool packetBad = _pulsePacket.setPulseData(readBufLen, _pPulseSocketBuf);
 
 		// Extract the pulses and process them.
 		// Observe paranoia for validating packets and pulses.
