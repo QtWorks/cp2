@@ -134,10 +134,13 @@ CP2PIRAQ::init(char* configFname, char* dspObjFname)
 
 /////////////////////////////////////////////////////////////////////////////
 int
-CP2PIRAQ::poll(std::vector<CP2FullPulse*>& pulses) 
+CP2PIRAQ::poll() 
 {
 	// sleep for a ms
 	Sleep(1);
+
+	int pulses = 0;
+
 	int cycle_fifo_hits = 0;
 	PPACKET* p = (PPACKET *)cb_get_read_address(_pFifo, 0); 
 	// take CYCLE_HITS beams from piraq:
@@ -153,12 +156,6 @@ CP2PIRAQ::poll(std::vector<CP2FullPulse*>& pulses)
 			double delta = currentTick - _lastTickCount;
 			_sampleRate = 1000.0*200.0*_pulsesPerPciXfer/delta;
 			_lastTickCount = currentTick;
-
-//			printf("piraq %d packets %d seq errors %d  rate %5.0f\n", 
-//			_pConfigPacket->info.channel, 
-//			_totalHits,
-//			_PNerrors,
-//			_sampleRate);
 		}
 
 		// get the next packet in the circular buffer
@@ -196,25 +193,19 @@ CP2PIRAQ::poll(std::vector<CP2FullPulse*>& pulses)
 
 			// add pulse to the outgoing packet
 			_cp2Packet.addPulse(header, header.gates*2, ppacket->data);
+			pulses++;
 
 			// check for pulse number errors
 			long long thisPulseNumber = ppacket->info.pulse_num;
 			if (_lastPulseNumber != thisPulseNumber - 1 && _lastPulseNumber) {
-				printf("pulse number out of sequence, last PN %I64d, this PN %I64d\n", 
-					_lastPulseNumber, thisPulseNumber);  
+				printf("pulse number out of sequence, delta %I64d\n", 
+					thisPulseNumber - _lastPulseNumber);  
 				_PNerrors++; 
 			}
 			_lastPulseNumber = thisPulseNumber; // previous hit PN
 		}
 
 		int bytesSent = sendData(_cp2Packet.packetSize(),_cp2Packet.packetData());
-
-		// now save all of the pulses in the pulse queue.
-		for (int i = 0; i < _cp2Packet.numPulses(); i++) {
-			CP2Pulse* pPulse = _cp2Packet.getPulse(i);
-			CP2FullPulse* pFullPulse = new CP2FullPulse(pPulse);
-			pulses.push_back(pFullPulse);
-		}
 
 		//////////////////////////////////////////////////////////////////////////
 		//
@@ -224,7 +215,7 @@ CP2PIRAQ::poll(std::vector<CP2FullPulse*>& pulses)
 
 	} // end	while(fifo_hit()
 
-	return 0;
+	return pulses;
 }
 
 ///////////////////////////////////////////////////////////////////////////

@@ -15,9 +15,7 @@ public:
 	void stop();
 	void pnErrors(int& errors1, int& errors2, int& errors3);
 	void pulses(int& pulses1, int& pulses2, int& pulses);
-	void collatorErrors(int& errors);
 	void rates(double& rate1, double& rate2, double& rate3);
-	void beams(int& Sbeams, int& Xbeams);
 
 protected:
 	CP2PIRAQ* _piraq1;
@@ -28,22 +26,6 @@ protected:
 	int _pulses1;
 	int _pulses2;
 	int _pulses3;
-
-	MomentThread* _pSmomentThread;
-	MomentThread* _pXmomentThread;
-	/// The collator collects and matches time tags
-	/// from H and V Xband channels
-	CP2PulseCollator _collator;
-
-	int _collatorErrors;
-
-	int _Sbeams;
-	int _Xbeams;
-
-	double _azSband;
-	double _azXband;
-
-
 };
 
 

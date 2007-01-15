@@ -27,7 +27,7 @@ public:
 
 	int start(long long firstPulseNum);
 	void stop();
-	int poll(std::vector<CP2FullPulse*>& pulses);
+	int poll();
 	float prt();
 	PINFOHEADER info();
 	int pnErrors();

@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>208</width>
-            <height>226</height>
+            <height>184</height>
         </rect>
     </property>
     <property name="caption">
@@ -87,40 +87,6 @@
                     </property>
                 </widget>
             </grid>
-        </widget>
-        <widget class="QLayoutWidget">
-            <property name="name">
-                <cstring>layout4</cstring>
-            </property>
-            <hbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <widget class="QLabel">
-                    <property name="name">
-                        <cstring>_sBeams</cstring>
-                    </property>
-                    <property name="text">
-                        <string>S beams</string>
-                    </property>
-                </widget>
-                <widget class="QLabel">
-                    <property name="name">
-                        <cstring>_xBeams</cstring>
-                    </property>
-                    <property name="text">
-                        <string>X beams</string>
-                    </property>
-                </widget>
-            </hbox>
-        </widget>
-        <widget class="QLabel">
-            <property name="name">
-                <cstring>_collatorErrors</cstring>
-            </property>
-            <property name="text">
-                <string>Collator Errors</string>
-            </property>
         </widget>
     </vbox>
 </widget>
