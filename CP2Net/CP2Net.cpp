@@ -36,6 +36,28 @@ CP2Packet::addPulse(CP2PulseHeader& header,
 	_dataSize += sizeof(float)*numDataValues;
 }
 
+void 
+CP2Packet::addProduct(CP2ProductHeader& header,   
+						int numDataValues,			
+						double* data)
+{
+	// resize _packetData if it is not big enough
+	int addDataSize = sizeof(header)+ sizeof(float)*numDataValues;
+	int currentSize = _packetData.size();
+	if (currentSize < (_dataSize + addDataSize)) {
+		_packetData.resize(_packetData.size()+addDataSize);
+	}
+
+	// save the offset to the start of this pulse
+	_pulseOffset.push_back(_dataSize);
+
+	// append the new data to it.
+	memcpy(&_packetData[_dataSize], &header, sizeof(header));
+	_dataSize += sizeof(header);
+	memcpy(&_packetData[_dataSize], data, sizeof(double)*numDataValues);
+	_dataSize += sizeof(double)*numDataValues;
+}
+
 //////////////////////////////////////////////////////////////////////
 
 void 
@@ -48,6 +70,13 @@ CP2Packet::clear()
 
 int 
 CP2Packet::numPulses()
+{
+	return _pulseOffset.size();
+}
+//////////////////////////////////////////////////////////////////////
+
+int 
+CP2Packet::numProducts()
 {
 	return _pulseOffset.size();
 }
@@ -80,8 +109,19 @@ CP2Packet::getPulse(int i)
 }
 //////////////////////////////////////////////////////////////////////
 
+CP2Product* 
+CP2Packet::getProduct(int i)
+{
+	if (i >= _pulseOffset.size())
+		return 0;
+
+	// space into the pulse
+	return (CP2Product*)(((char*)&_packetData[0])+_pulseOffset[i]);
+}
+//////////////////////////////////////////////////////////////////////
+
 bool 
-CP2Packet::setData(
+CP2Packet::setPulseData(
 		int size,					///< Size in bytes of the data packet
 		void* data					///< The data packet
 		)
@@ -105,6 +145,47 @@ CP2Packet::setData(
 		CP2PulseHeader* pHeader = (CP2PulseHeader*)(((char*)&_packetData[0])+_dataSize);
 		int gates = pHeader->gates;
 		_dataSize += sizeof(CP2PulseHeader) + 2 * gates * sizeof(float);
+		if (_dataSize >= size)
+			break;
+	}
+
+	// if the computed data size does not match the length of
+	// the packet, there has been an error
+	if (_dataSize != size) {
+		clear();
+		return true;
+	}
+
+	// looks like it worked out.
+	return false;
+}
+//////////////////////////////////////////////////////////////////////
+
+bool 
+CP2Packet::setProductData(
+		int size,					///< Size in bytes of the data packet
+		void* data					///< The data packet
+		)
+{
+	// clear the current accounting
+	clear();
+
+	// resize the data packet to match the incoming
+	// packet. We will assume there that if the new size
+	// is the same as the existing size, the resize() 
+	// does not do any work.
+	if (_packetData.size() != size)
+		_packetData.resize(size);
+
+	// copy the packet in.
+	memcpy(&_packetData[0], data, size);
+
+	// figure out the offsets.
+	while(1) {
+		_pulseOffset.push_back(_dataSize);
+		CP2ProductHeader* pHeader = (CP2ProductHeader*)(((char*)&_packetData[0])+_dataSize);
+		int gates = pHeader->gates;
+		_dataSize += sizeof(CP2ProductHeader) + gates * sizeof(double);
 		if (_dataSize >= size)
 			break;
 	}

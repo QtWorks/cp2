@@ -26,9 +26,9 @@ typedef struct CP2PulseHeader {
 //Bit mask defines for the status field of CP2PulseHeader
 #define PIRAQ_FIFO_EOF 1    ///< If the Piraq reported an EOF error.
 
-/// A header and data are combined to make one beam.
+/// A header and data are combined to make one pulse.
 typedef struct CP2Pulse {
-	CP2PulseHeader header;///< The beam header.
+	CP2PulseHeader header;///< The pulse header.
 	float data[2];			///< An array of data values will start here.
 } CP2Pulse;
 
@@ -48,29 +48,58 @@ protected:
 
 };
 
+/// A header for each beam product
+typedef struct CP2ProductHeader {
+    double antAz;			///< The azimuth
+    double antEl;			///< The elevation
+    int  gates;				///< The number of gates, set by the host.
+	int productId;			///< The product identifier
+} CP2ProductHeader;
+
+/// A header and data are combined to make one product.
+typedef struct CP2Product {
+	CP2ProductHeader header;///< The pulse header.
+	double data[1];			///< An array of data values will start here.
+} CP2Product;
+
 /// Interface for working with CP2 network data
 /// transmission. When constructed, an area for
 /// building a network packet is allocated.
-/// A network packet will contain 
+/// A network packet will contain either CP2Pulse
+/// or CP2Product structures.
 class CP2Packet{
 public:
 	CP2Packet();
 	virtual ~CP2Packet();
-	/// Add a data beam to the packet. This is used for constructing
-	/// a packet.
+	/// Add a pulse to the packet. This is used for constructing
+	/// a packet of pulses
 	void addPulse(
-		CP2PulseHeader& header,       ///< The beam header information
+		CP2PulseHeader& header,       ///< The pulse header information
 		int numDataValues,			///< The number of data values.
 		float* data					///< The data for the beam
 		);
-	/// Deconstruct a data packet. This is used when 
-	/// extracting beams from a datagram.
+	/// Add a product to the packet. This is used for constructing
+	/// a packet of products
+	void addProduct(
+		CP2ProductHeader& header,       ///< The pulse header information
+		int numDataValues,			///< The number of data values.
+		double* data					///< The data for the beam
+		);
+	/// Construct a pulse packet. Used when building a packet from a datagram.
 	/// @return False if the data structure was self consistent, true if an
 	/// error was detected.
-	bool setData(
-		int size,					///< Size in bytes of the data packet
+	bool setPulseData(
+		int size,					///< Size in bytes of the data
 		void* data					///< The data packet
-		);	/// Empty the packet of data.
+		);	
+	/// Construct a product packet. Used when building a packet from a datagram.
+	/// @return False if the data structure was self consistent, true if an
+	/// error was detected.
+	bool setProductData(
+		int size,					///< Size in bytes of the data
+		void* data					///< The data packet
+		);	
+	/// Empty the packet of data.
 	void clear();
 	/// @return The size (in bytes) of the CP2Packet.
 	int packetSize();
@@ -78,12 +107,20 @@ public:
 	void* packetData();
 	/// @return The number of pulses in the packet
 	int numPulses();
-	/// Fetch a beam
+	/// @return The number of produ in the packet
+	int numProducts();
+	/// Fetch a pulse
+	/// @param i The pulse index. It must be less than 
+	/// the value returned by numPulses(). 
+	/// @return A pointer to beam i. If the index
+	/// is illegal, null is returned.
+	CP2Pulse* getPulse(int index);
+	/// Fetch a product
 	/// @param i The beam index. It must be less than 
 	/// the value returned by numBeams(). 
 	/// @return A pointer to beam i. If the index
-	/// is illeagal, null is returned.
-	CP2Pulse* getPulse(int index);
+	/// is illegal, null is returned.
+	CP2Product* getProduct(int index);
 
 protected:
 	/// The vector that will be expanded with beam data when 
