@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="7.10"
+	Name="CP2Moments"
+	ProjectGUID="{DF051168-C4F5-3640-90C8-50BD8F56A137}">
+	<Platforms>
+		<Platform
+			Name="Win32"/>
+	</Platforms>
+	<Configurations>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="."
+			IntermediateDirectory="Release\"
+			ConfigurationType="1"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="-Zm200 -GX -w34100 -w34189"
+				Optimization="2"
+				AdditionalIncludeDirectories="..,..\..,..\..\fftw3.1,..\..\Qttoolbox,..\CP2Net,..\Moments,$(QTDIR)\include,.,C:\Qt\3.3.5\mkspecs\win32-msvc.net"
+				PreprocessorDefinitions="_WINDOWS,UNICODE,WIN32,QT_DLL,QT_THREAD_SUPPORT,NDEBUG,QT_NO_DEBUG"
+				GeneratePreprocessedFile="0"
+				MinimalRebuild="TRUE"
+				ExceptionHandling="TRUE"
+				RuntimeLibrary="2"
+				BufferSecurityCheck="FALSE"
+				AssemblerListingLocation="Release\"
+				ObjectFile="Release\"
+				ProgramDataBaseFileName=".\"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				DebugInformationFormat="3"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				IgnoreImportLibrary="TRUE"
+				AdditionalDependencies="qt-mt335.lib qtmain.lib ..\Moments\Release\Moments.lib ..\CP2Net\Release\CP2Net.lib ..\..\fftw3.1\libfftw3-3.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib imm32.lib winmm.lib wsock32.lib winspool.lib delayimp.lib"
+				OutputFile="Release\\CP2Moments.exe"
+				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories="$(QTDIR)\lib"
+				DelayLoadDLLs="comdlg32.dll,oleaut32.dll,winmm.dll,wsock32.dll,winspool.dll"
+				GenerateDebugInformation="FALSE"
+				ProgramDatabaseFile=""
+				SubSystem="1"/>
+			<Tool
+				Name="VCMIDLTool"
+				WarningLevel="0"
+				DefaultCharType="0"
+				EnableErrorChecks="1"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory="."
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="1"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="-Zm200 -GX -w34100 -w34189"
+				Optimization="4"
+				AdditionalIncludeDirectories="..,..\..,..\..\fftw3.1,..\..\Qttoolbox,..\CP2Net,..\Moments,$(QTDIR)\include,.,C:\Qt\3.3.5\mkspecs\win32-msvc.net"
+				PreprocessorDefinitions="_WINDOWS,UNICODE,WIN32,QT_DLL,QT_THREAD_SUPPORT"
+				GeneratePreprocessedFile="0"
+				MinimalRebuild="TRUE"
+				ExceptionHandling="TRUE"
+				RuntimeLibrary="3"
+				BufferSecurityCheck="FALSE"
+				AssemblerListingLocation=".\"
+				ObjectFile=".\"
+				ProgramDataBaseFileName=".\"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				DebugInformationFormat="3"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				IgnoreImportLibrary="TRUE"
+				AdditionalDependencies="qt-mt335.lib qtmain.lib ..\Moments\Debug\Moments.lib ..\CP2Net\Debug\CP2Net.lib ..\..\fftw3.1\libfftw3-3.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib imm32.lib winmm.lib wsock32.lib winspool.lib delayimp.lib"
+				OutputFile="Release\CP2Moments.exe"
+				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories="$(QTDIR)\lib"
+				GenerateDebugInformation="TRUE"
+				ProgramDatabaseFile=""
+				SubSystem="2"/>
+			<Tool
+				Name="VCMIDLTool"
+				WarningLevel="0"
+				DefaultCharType="0"
+				EnableErrorChecks="1"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+		<Filter
+			Name="Source Files"
+			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
+			<File
+				RelativePath="CP2Moments.cpp">
+			</File>
+			<File
+				RelativePath="main.cpp">
+			</File>
+			<File
+				RelativePath="MomentThread.cpp">
+			</File>
+		</Filter>
+		<Filter
+			Name="Header Files"
+			Filter="h;hpp;hxx;hm;inl">
+			<File
+				RelativePath="CP2Moments.h">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Moc&apos;ing CP2Moments.h..."
+						CommandLine="$(QTDIR)\bin\moc.exe CP2Moments.h -o moc_CP2Moments.cpp
+"
+						AdditionalDependencies="$(QTDIR)\bin\moc.exe"
+						Outputs="moc_CP2Moments.cpp"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Moc&apos;ing CP2Moments.h..."
+						CommandLine="$(QTDIR)\bin\moc.exe CP2Moments.h -o moc_CP2Moments.cpp
+"
+						AdditionalDependencies="$(QTDIR)\bin\moc.exe"
+						Outputs="moc_CP2Moments.cpp"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\include\dd_types.h">
+			</File>
+			<File
+				RelativePath="MomentThread.h">
+			</File>
+		</Filter>
+		<Filter
+			Name="Generated MOC Files"
+			Filter="cpp;c;cxx;moc">
+			<File
+				RelativePath="moc_CP2Moments.cpp">
+			</File>
+			<File
+				RelativePath="moc_CP2MomentsBase.cpp">
+			</File>
+		</Filter>
+		<Filter
+			Name="Generated Form Files"
+			Filter="cpp;c;cxx;h;hpp;hxx;">
+			<File
+				RelativePath="CP2MomentsBase.cpp">
+			</File>
+			<File
+				RelativePath="CP2MomentsBase.h">
+			</File>
+		</Filter>
+		<Filter
+			Name="Forms"
+			Filter="ui"
+			ParseFiles="FALSE">
+			<File
+				RelativePath="CP2MomentsBase.ui">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Uic&apos;ing CP2MomentsBase.ui..."
+						CommandLine="$(QTDIR)\bin\uic.exe CP2MomentsBase.ui -o .\CP2MomentsBase.h
+$(QTDIR)\bin\uic.exe CP2MomentsBase.ui -i CP2MomentsBase.h -o .\CP2MomentsBase.cpp
+$(QTDIR)\bin\moc.exe .\CP2MomentsBase.h -o .\moc_CP2MomentsBase.cpp
+"
+						AdditionalDependencies="$(QTDIR)\bin\moc.exe;$(QTDIR)\bin\uic.exe"
+						Outputs=".\CP2MomentsBase.h;.\CP2MomentsBase.cpp;.\moc_CP2MomentsBase.cpp"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Uic&apos;ing CP2MomentsBase.ui..."
+						CommandLine="$(QTDIR)\bin\uic.exe CP2MomentsBase.ui -o .\CP2MomentsBase.h
+$(QTDIR)\bin\uic.exe CP2MomentsBase.ui -i CP2MomentsBase.h -o .\CP2MomentsBase.cpp
+$(QTDIR)\bin\moc.exe .\CP2MomentsBase.h -o .\moc_CP2MomentsBase.cpp
+"
+						AdditionalDependencies="$(QTDIR)\bin\moc.exe;$(QTDIR)\bin\uic.exe"
+						Outputs=".\CP2MomentsBase.h;.\CP2MomentsBase.cpp;.\moc_CP2MomentsBase.cpp"/>
+				</FileConfiguration>
+			</File>
+		</Filter>
+	</Files>
+	<Globals>
+	</Globals>
+</VisualStudioProject>
