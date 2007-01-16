@@ -15,14 +15,8 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_140D694EF3F0FA3CC79DE43A96807A31"
-        "OwnerKey" = "8:_4E94E9DC7A8A4CC1B265D771AF669B4C"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_140D694EF3F0FA3CC79DE43A96807A31"
-        "OwnerKey" = "8:_53DA620939F14FF3A6D97F1202D2BBB1"
+        "MsmKey" = "8:_0FF70786D4E64246ADA3232F1E5B32AD"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -33,14 +27,20 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_3138187E9CA24A3C9B5CAAFD152C8A53"
+        "OwnerKey" = "8:_0FF70786D4E64246ADA3232F1E5B32AD"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_392AF4BCBADF400292D329940AED1F9E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_3EB6AD4A2FE80B8CC7E40C38D03171EA"
-        "OwnerKey" = "8:_DA94F78ABC1C4685A637C7A23699D392"
+        "MsmKey" = "8:_4CDDD32221B34209BD337385392D9213"
+        "OwnerKey" = "8:_0FF70786D4E64246ADA3232F1E5B32AD"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -57,74 +57,20 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_55D72766B6783D2274DD735DC8BDE391"
-        "OwnerKey" = "8:_53DA620939F14FF3A6D97F1202D2BBB1"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_6D991C4C2E924D55EFDB3A1C8B95C763"
-        "OwnerKey" = "8:_4E94E9DC7A8A4CC1B265D771AF669B4C"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_9210E66C25D1BCE1F2AEA1A9CF8A3C55"
-        "OwnerKey" = "8:_4E94E9DC7A8A4CC1B265D771AF669B4C"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_9E42B112796C4E13956CBE1EB9D69B9D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_AC2BA069636E973776CD2CC9D72A0BB2"
-        "OwnerKey" = "8:_4E94E9DC7A8A4CC1B265D771AF669B4C"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_AC2BA069636E973776CD2CC9D72A0BB2"
-        "OwnerKey" = "8:_53DA620939F14FF3A6D97F1202D2BBB1"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_CA446C6BF43841A097151465C3490EC0"
-        "OwnerKey" = "8:_DA94F78ABC1C4685A637C7A23699D392"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_CBBA7FABC80B677AB329BEF58D2C9C2A"
-        "OwnerKey" = "8:_53DA620939F14FF3A6D97F1202D2BBB1"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_D441D75A106F1538595629CB21A8EAB9"
-        "OwnerKey" = "8:_4E94E9DC7A8A4CC1B265D771AF669B4C"
+        "MsmKey" = "8:_A076F5BB5BE5FE31A4D9C7391204C061"
+        "OwnerKey" = "8:_0FF70786D4E64246ADA3232F1E5B32AD"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_DA94F78ABC1C4685A637C7A23699D392"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_F247675012F98E40F2E08A6A34977B63"
-        "OwnerKey" = "8:_53DA620939F14FF3A6D97F1202D2BBB1"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_FBD6D7D66A924C06A4496513291003B2"
-        "OwnerKey" = "8:_DA94F78ABC1C4685A637C7A23699D392"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -185,26 +131,6 @@
         }
         "File"
         {
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_140D694EF3F0FA3CC79DE43A96807A31"
-            {
-            "SourcePath" = "8:MSVCR71D.dll"
-            "TargetName" = "8:MSVCR71D.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_04305C9CADE44428B7EE853F880CDD96"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
             "{A582A373-4685-4296-BEFE-614B80A702C3}:_273B421B3B284DB29BC80A1D80249D36"
             {
             "SourcePath" = "8:..\\CP2Scope\\icon1.ico"
@@ -245,86 +171,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_3EB6AD4A2FE80B8CC7E40C38D03171EA"
-            {
-            "SourcePath" = "8:PiraqIII_RevD_Driver.dll"
-            "TargetName" = "8:PiraqIII_RevD_Driver.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_04305C9CADE44428B7EE853F880CDD96"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_55D72766B6783D2274DD735DC8BDE391"
-            {
-            "SourcePath" = "8:TwoKnobs.dll"
-            "TargetName" = "8:TwoKnobs.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_04305C9CADE44428B7EE853F880CDD96"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_6D991C4C2E924D55EFDB3A1C8B95C763"
-            {
-            "SourcePath" = "8:ColorBar.dll"
-            "TargetName" = "8:ColorBar.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_04305C9CADE44428B7EE853F880CDD96"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_9210E66C25D1BCE1F2AEA1A9CF8A3C55"
-            {
-            "SourcePath" = "8:libfftw3-3.dll"
-            "TargetName" = "8:libfftw3-3.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_04305C9CADE44428B7EE853F880CDD96"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
             "{A582A373-4685-4296-BEFE-614B80A702C3}:_9E42B112796C4E13956CBE1EB9D69B9D"
             {
             "SourcePath" = "8:..\\..\\QtToolbox\\Knob\\Debug\\Knob.dll"
@@ -345,70 +191,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_AC2BA069636E973776CD2CC9D72A0BB2"
-            {
-            "SourcePath" = "8:MSVCP71D.dll"
-            "TargetName" = "8:MSVCP71D.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_04305C9CADE44428B7EE853F880CDD96"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_CBBA7FABC80B677AB329BEF58D2C9C2A"
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_A076F5BB5BE5FE31A4D9C7391204C061"
             {
             "SourcePath" = "8:libfftw3-3.dll"
             "TargetName" = "8:libfftw3-3.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_04305C9CADE44428B7EE853F880CDD96"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_D441D75A106F1538595629CB21A8EAB9"
-            {
-            "SourcePath" = "8:PPI.dll"
-            "TargetName" = "8:PPI.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_04305C9CADE44428B7EE853F880CDD96"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_F247675012F98E40F2E08A6A34977B63"
-            {
-            "SourcePath" = "8:ScopePlot.dll"
-            "TargetName" = "8:ScopePlot.dll"
             "Tag" = "8:"
             "Folder" = "8:_04305C9CADE44428B7EE853F880CDD96"
             "Condition" = "8:"
@@ -606,6 +392,20 @@
         }
         "Shortcut"
         {
+            "{478F747B-8505-45D1-9AAE-8C3B645C26E3}:_4960B4D488FC4E36987EBF8D7F260EAB"
+            {
+            "Name" = "8:CP2Moments"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_0FF70786D4E64246ADA3232F1E5B32AD"
+            "Folder" = "8:_FCC47DD5B92A446DB483C95BC31A5A9D"
+            "WorkingFolder" = "8:_04305C9CADE44428B7EE853F880CDD96"
+            "Icon" = "8:"
+            "Feature" = "8:"
+            }
             "{478F747B-8505-45D1-9AAE-8C3B645C26E3}:_78C65BE5E8B54D058AB6F2A62AEA47A4"
             {
             "Name" = "8:CP2PPI"
@@ -629,6 +429,20 @@
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
             "Target" = "8:_4E94E9DC7A8A4CC1B265D771AF669B4C"
+            "Folder" = "8:_9EC067D8676B4BE69683730D6B2562DB"
+            "WorkingFolder" = "8:_04305C9CADE44428B7EE853F880CDD96"
+            "Icon" = "8:"
+            "Feature" = "8:"
+            }
+            "{478F747B-8505-45D1-9AAE-8C3B645C26E3}:_9AE798BD1CC847DC9919FB74642C248C"
+            {
+            "Name" = "8:CP2Moments"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_0FF70786D4E64246ADA3232F1E5B32AD"
             "Folder" = "8:_9EC067D8676B4BE69683730D6B2562DB"
             "WorkingFolder" = "8:_04305C9CADE44428B7EE853F880CDD96"
             "Icon" = "8:"
@@ -1045,7 +859,7 @@
         }
         "MergeModule"
         {
-            "{35A69C6E-5BA4-440D-803D-762B59A45393}:_CA446C6BF43841A097151465C3490EC0"
+            "{35A69C6E-5BA4-440D-803D-762B59A45393}:_3138187E9CA24A3C9B5CAAFD152C8A53"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -1059,7 +873,7 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{35A69C6E-5BA4-440D-803D-762B59A45393}:_FBD6D7D66A924C06A4496513291003B2"
+            "{35A69C6E-5BA4-440D-803D-762B59A45393}:_4CDDD32221B34209BD337385392D9213"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -1076,6 +890,34 @@
         }
         "ProjectOutput"
         {
+            "{8062640A-2EEE-46E9-AB67-688E9A886E9F}:_0FF70786D4E64246ADA3232F1E5B32AD"
+            {
+            "SourcePath" = "8:..\\CP2Moments\\Release\\CP2Moments.exe"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_04305C9CADE44428B7EE853F880CDD96"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:"
+            "OutputGroupCanonicalName" = "8:Built"
+            "OutputProjectGuid" = "8:{1A7C4758-8EB6-428C-B589-179937763C9B}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
             "{8062640A-2EEE-46E9-AB67-688E9A886E9F}:_4E94E9DC7A8A4CC1B265D771AF669B4C"
             {
             "SourcePath" = "8:..\\Cp2ppi\\Release\\CP2PPI.exe"
