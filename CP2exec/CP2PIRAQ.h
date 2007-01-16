@@ -14,7 +14,6 @@ public:
 		struct sockaddr_in sockAddr,
 		int socketFd,
 		char* ipDestination,
-		int outputPort,
 		char* configFname,
 		char* dspObjFnamefloat,
 		unsigned int packetsPerPciXfer,
@@ -44,8 +43,6 @@ protected:
 	/// This will be the first packet in the fifo. It appears that
 	/// the piraq may read this structure?
 	PPACKET* _pConfigPacket;
-	/// The destination data port
-	int _outport;
 	/// The socket for output data
 	int _outsock;
 	/// The last pulse number received. Used to detect

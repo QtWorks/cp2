@@ -39,7 +39,8 @@ _piraq3(0),
 _pulses1(0),
 _pulses2(0),
 _pulses3(0),
-_stop(false)
+_stop(false),
+_outport(3100)
 {
 
 }
@@ -76,7 +77,8 @@ findPMACdpram()
 /// @param sockAddr A sockAddr structure will be initialized here, so that
 ///  it can be used later for the sendto() call.
 /// @return The socke file descriptor, or -1 if failure.
-int initNetwork(char* ipName, int port, struct sockaddr_in& sockAddr)
+int 
+CP2ExecThread::initNetwork(char* ipName, int port, struct sockaddr_in& sockAddr)
 {
 	WORD wVersionRequested;
 	WSADATA wsaData;
@@ -107,18 +109,14 @@ int initNetwork(char* ipName, int port, struct sockaddr_in& sockAddr)
 		sizeof sockbufsize);
 	if (result) {
 		printf("Set send buffer size for socket failed\n");
-		exit(1); 
+		exit(); 
 	}
-
-
-
 	return sock;
-
 }
 
 /////////////////////////////////////////////////////////////////////
 void
-closeNetwork()
+CP2ExecThread::closeNetwork()
 {
 	WSACleanup( );
 }
@@ -132,8 +130,6 @@ CP2ExecThread::run()
 	char* destIP = "192.168.3.255";
 	//destIP = "127.0.0.1";
 
-	unsigned int packetsPerPciXfer; 
-	int outport;
 	char c;
 	int piraqs = 0;   // board count -- default to single board operation 
 	FILE * dspEXEC; 
@@ -168,9 +164,9 @@ CP2ExecThread::run()
 	printf(" config3 filename %s will be used\n", fname3);
 
 	// Initialize the network
-	outport = 3100; 
+	_outport = 3100; 
 	struct sockaddr_in sockAddr;
-	int sock = initNetwork(destIP, outport, sockAddr);
+	int sock = initNetwork(destIP, _outport, sockAddr);
 
 	// stop timer card
 	cp2timer_stop(&ext_timer);  
@@ -185,9 +181,9 @@ CP2ExecThread::run()
 	/// bus transfers. 
 	int blocksize = sizeof(PINFOHEADER)+
 		config1->gatesa * 2 * sizeof(float);
-	packetsPerPciXfer = 65536 / blocksize; 
-	if	(packetsPerPciXfer % 2)	//	computed odd #hits
-		packetsPerPciXfer--;	//	make it even
+	_packetsPerPciXfer = 65536 / blocksize; 
+	if	(_packetsPerPciXfer % 2)	//	computed odd #hits
+		_packetsPerPciXfer--;	//	make it even
 
 	// find the PMAC card
 	PMACphysAddr = findPMACdpram();
@@ -205,9 +201,9 @@ CP2ExecThread::run()
 
 	char* d = new char[_dspObjFile.size()+1];
 	strcpy(d, _dspObjFile.c_str());
-	_piraq1 = new CP2PIRAQ(sockAddr, sock, destIP, outport,   fname1, d, packetsPerPciXfer, PMACphysAddr, 0, SHV);
-	_piraq2 = new CP2PIRAQ(sockAddr, sock, destIP, outport+1, fname2, d, packetsPerPciXfer, PMACphysAddr, 1, XH);
-	_piraq3 = new CP2PIRAQ(sockAddr, sock, destIP, outport+2, fname3, d, packetsPerPciXfer, PMACphysAddr, 2, XV);
+	_piraq1 = new CP2PIRAQ(sockAddr, sock, destIP, fname1, d, _packetsPerPciXfer, PMACphysAddr, 0, SHV);
+	_piraq2 = new CP2PIRAQ(sockAddr, sock, destIP, fname2, d, _packetsPerPciXfer, PMACphysAddr, 1, XH);
+	_piraq3 = new CP2PIRAQ(sockAddr, sock, destIP, fname3, d, _packetsPerPciXfer, PMACphysAddr, 2, XV);
 	delete [] d;
 
 	///////////////////////////////////////////////////////////////////////////
@@ -241,8 +237,10 @@ CP2ExecThread::run()
 		exit();
 	} 
 
-	printf("\nAll piraqs have been started. %d pulses will be \ntransmitted for each PCI bus transfer\n\n",
-		packetsPerPciXfer);
+	std::cout 
+		<< "\nAll piraqs have been started. "
+		<< _packetsPerPciXfer 
+		<< " pulses will be \ntransmitted for each PCI bus transfer\n\n";
 
 	///////////////////////////////////////////////////////////////////////////
 	//
