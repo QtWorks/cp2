@@ -17,13 +17,12 @@ HEADERS += CP2Scope.h
 Headers += PlotInfo.h
 
 INCLUDEPATH += ../CP2Net
-INCLUDEPATH += ../Moments
 INCLUDEPATH += ../../
 INCLUDEPATH += ../../QtToolbox
 INCLUDEPATH += ../../fftw3.1
 INCLUDEPATH += ../../qwt/include
 
-DESTDIR = Debug
+DESTDIR = Release
 
 IMAGES	= images/editcopy \
 	images/editcut \
@@ -39,6 +38,5 @@ IMAGES	= images/editcopy \
 LIBS += ../../Qttoolbox/ScopePlot/Debug/ScopePlot.lib
 LIBS += ../../Qttoolbox/TwoKnobs/Debug/TwoKnobs.lib
 LIBS += ../../fftw3.1/libfftw3-3.lib
-LIBS += ../Moments/Release/Moments.lib
 LIBS += ../CP2Net/Release/CP2Net.lib
 

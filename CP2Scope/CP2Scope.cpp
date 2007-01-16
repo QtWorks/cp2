@@ -27,17 +27,17 @@
 
 //////////////////////////////////////////////////////////////////////
 CP2Scope::CP2Scope():
-_pSocket(0),    
-_pSocketNotifier(0),
-_pSocketBuf(0),	
+_pPulseSocket(0),    
+_pPulseSocketNotifier(0),
+_pPulseSocketBuf(0),	
 _tsDisplayCount(0),
 _productDisplayCount(0),
-_Sparams(Params::DUAL_FAST_ALT, 100),
-_Xparams(Params::DUAL_CP2_XBAND, 100),
-_collator(1000),
-_statsUpdateInterval(5)
+_statsUpdateInterval(5),
+_rawPlot(TRUE)
 {
-	_dataGramPort	= 3100;
+	_pulseDataPort	= 3100;
+	_productDataPort = 3200;
+
 	for (int i = 0; i < 3; i++) {
 		_pulseCount[i]	= 0;
 		_prevPulseCount[i] = 0;
@@ -51,7 +51,7 @@ _statsUpdateInterval(5)
 	// intialize the data reception socket.
 	// set up the ocket notifier and connect it
 	// to the data reception slot
-	initializeSocket();	
+	initSockets();	
 
 	// initialize the book keeping for the plots.
 	// This also sets up the radio buttons 
@@ -98,42 +98,25 @@ _statsUpdateInterval(5)
 	//	power correction factor applied to (uncorrected) powerSpectrum() output:
 	_powerCorrection = 0.0;	//	use for power correction to dBm
 
-	// create the moment compute engine for S band
-	_momentsSCompute = new MomentsCompute(_Sparams);
-
-	// create the moment compute engine for X band
-	_momentsXCompute = new MomentsCompute(_Xparams);
-
 	// start the statistics timer
 	startTimer(_statsUpdateInterval*1000);
 
 }
 //////////////////////////////////////////////////////////////////////
 CP2Scope::~CP2Scope() {
-	if (_pSocketNotifier)
-		delete _pSocketNotifier;
+	if (_pPulseSocketNotifier)
+		delete _pPulseSocketNotifier;
 
-	if (_pSocket)
-		delete _pSocket;
+	if (_pPulseSocket)
+		delete _pPulseSocket;
 
-	if (_pSocketBuf)
-		delete [] _pSocketBuf;
+	if (_pProductSocketNotifier)
+		delete _pProductSocketNotifier;
 
-	delete _momentsSCompute;
-
-	delete _momentsXCompute;
+	if (_pProductSocket)
+		delete _pProductSocket;
 
 }
-//////////////////////////////////////////////////////////////////////
-void 
-CP2Scope::plotTypeSlot(bool b)
-{
-	b = b;  // so we don't get the unreferenced warning
-
-	resizeDataVectors();	//	resize data vectors
-}
-
-
 //////////////////////////////////////////////////////////////////////
 void 
 CP2Scope::dataSetSlot(bool b)	{
@@ -208,14 +191,49 @@ CP2Scope::xFullScaleBox_valueChanged( int xFullScale )	{
 
 //////////////////////////////////////////////////////////////////////
 void 
-CP2Scope::dataSocketActivatedSlot(int)
+CP2Scope::newProductSlot(int)
 {
 	CP2Packet packet;
-	int	readBufLen = _pSocket->readBlock((char *)_pSocketBuf, sizeof(short)*1000000);
+	int	readBufLen = _pProductSocket->readBlock(
+		&_pProductSocketBuf[0], 
+		_pProductSocketBuf.size());
 
 	if (readBufLen > 0) {
 		// put this datagram into a packet
-		bool packetBad = packet.setData(readBufLen, _pSocketBuf);
+		bool packetBad = packet.setProductData(readBufLen, &_pProductSocketBuf[0]);
+
+		// Extract the products and process them.
+		// From here on out, we are divorced from the
+		// data transport.
+		if (!packetBad) {
+			for (int i = 0; i < packet.numProducts(); i++) {
+				CP2Product* pProduct = packet.getProduct(i);
+				// do all of the heavy lifting for this pulse
+				processProduct(pProduct);
+			} 
+		} else {
+			// packet error. What to do?
+			int x = 0;
+		}
+	} else {
+		// read error. What to do?
+		int e = WSAGetLastError();
+	}
+
+}
+
+//////////////////////////////////////////////////////////////////////
+void 
+CP2Scope::newPulseSlot(int)
+{
+	CP2Packet packet;
+	int	readBufLen = _pPulseSocket->readBlock(
+		&_pPulseSocketBuf[0], 
+		_pPulseSocketBuf.size());
+
+	if (readBufLen > 0) {
+		// put this datagram into a packet
+		bool packetBad = packet.setPulseData(readBufLen, &_pPulseSocketBuf[0]);
 
 		// Extract the pulses and process them.
 		// Observe paranoia for validating packets and pulses.
@@ -277,101 +295,12 @@ CP2Scope::processPulse(CP2Pulse* pPulse)
 		}
 	}
 	_lastPulseNum[chan] = pPulse->header.pulse_num;
-	
-	float* data = &(pPulse->data[0]);
 
-	// beam will point to computed moments when they are ready,
-	// or null if not ready
-	Beam* pBeam = 0;
+	float* data = &(pPulse->data[0]);
 
 	PlotInfo* pi = &_plotInfo[_plotType];
 	switch (pi->getDisplayType()) 
 	{
-
-		// for a product display, send the pulse to the moments compute engine.
-		// and then send the moments to the display when a Beam is ready.
-	case ScopePlot::PRODUCT:
-		{
-			// S band pulses: are successive coplaner H and V pulses
-			// this horizontal switch is a hack for now; we really
-			// need to find the h/v flag in the pulse header.
-			if (chan == 0) {
-				if (_sMomentsPlots.find(_plotType) != _sMomentsPlots.end())
-				{
-					_momentsSCompute->processPulse(data,
-						0,
-						pPulse->header.gates,
-						1.0e-6, 
-						pPulse->header.antEl, 
-						pPulse->header.antAz, 
-						pPulse->header.pulse_num,
-						pPulse->header.horiz);	
-					// ask for a completed beam. The return value will be
-					// 0 if nothing is ready yet.
-					pBeam = _momentsSCompute->getNewBeam();
-				} else {
-					pBeam = 0;
-				}
-			} else {
-				if (_sMomentsPlots.find(_plotType)==_sMomentsPlots.end())
-				{
-
-					// X band will have H coplanar pulse on channel 1
-					// and V cross planar pulses on channel 2. We need
-					// to buffer up the data from the pulses and send it to 
-					// the collator to match beam numbers, since matching
-					// pulses (i.e. identical pulse numbers) are required
-					// for the moments calculations.
-
-					// create a CP2FullPuse, which is a class that will
-					// hold the IQ data.
-					CP2FullPulse* pFullPulse = new CP2FullPulse(pPulse);
-
-					// send the pulse to the collator. The collator finds matching 
-					// pulses. If orphan pulses are detected, they are deleted
-					// by the collator. Otherwise, matching pulses returned from
-					// the collator can be deleted here.
-					_collator.addPulse(pFullPulse, pFullPulse->header()->channel - 1);
-
-					// now see if we have some matching pulses
-					CP2FullPulse* pHPulse;
-					CP2FullPulse* pVPulse;
-					if (_collator.gotMatch(&pHPulse, &pVPulse)) {
-						// a matching pair was found. Send them to the X band
-						// moments compute engine.
-						_momentsXCompute->processPulse(
-							pHPulse->data(), 
-							pVPulse->data(),
-							pPulse->header.gates,
-							1.0e-6,
-							pPulse->header.antEl, 
-							pPulse->header.antAz, 
-							pPulse->header.pulse_num,
-							true);	
-						// finished with these pulses, so delete them.
-						delete pHPulse;
-						delete pVPulse;
-						// ask for a completed beam. The return value will be
-						// 0 if nothing is ready yet.
-						pBeam = _momentsXCompute->getNewBeam();
-					}else {
-						pBeam = 0;
-					}
-				}
-			}
-
-			if (pBeam) {
-				// copy the selected product to the productDisplay
-				// vector
-				// return the beam
-				getProduct(pBeam, pPulse->header.gates);
-				// return the beam
-				delete pBeam;
-				// update the display
-				displayData();
-			}
-			break;
-		}
 	case ScopePlot::SPECTRUM:
 		{
 			if (pPulse->header.channel != _dataChannel)
@@ -400,7 +329,7 @@ CP2Scope::processPulse(CP2Pulse* pPulse)
 			if (pPulse->header.channel != _dataChannel)
 				break;
 			_tsDisplayCount++;
-			if	(_tsDisplayCount >= _pulseDecimation)	{	//	
+			if	(_tsDisplayCount >= _pulseDecimation)	{	
 				I.resize(pPulse->header.gates);
 				Q.resize(pPulse->header.gates);
 				for (int i = 0; i < 2*pPulse->header.gates; i+=2) {	
@@ -411,56 +340,30 @@ CP2Scope::processPulse(CP2Pulse* pPulse)
 				_tsDisplayCount = 0; 
 			}
 		}
+	default:
+		// ignore others
+		break;
 	}
 }
 
 //////////////////////////////////////////////////////////////////////
-void 
-CP2Scope::getProduct(Beam* pBeam, int gates) 
+void
+CP2Scope::processProduct(CP2Product* pProduct) 
 {
-	const Fields* fields = pBeam->getFields();
-	int i;
+	// if we are displaying a raw plot, just ignore
+	if (_rawPlot) 
+		return;
 
-	if (_ProductData.size() != gates) {
-		_ProductData.resize(gates);
-	}
+	PRODUCT_TYPES prodType = pProduct->header.prodType;
 
-	switch(_plotType)	
-	{
-	case S_DBMHC:	///< S-band dBm horizontal co-planar
-		for (i = 0; i < gates; i++) { _ProductData[i] = fields[i].dbmhc;  } break;
-	case S_DBMVC:	///< S-band dBm vertical co-planar
-		for (i = 0; i < gates; i++) { _ProductData[i] = fields[i].dbmvc;  } break;
-	case S_DBZHC:	///< S-band dBz horizontal co-planar
-		for (i = 0; i < gates; i++) { _ProductData[i] = fields[i].dbzhc;  } break;
-	case S_DBZVC:	///< S-band dBz vertical co-planar
-		for (i = 0; i < gates; i++) { _ProductData[i] = fields[i].dbzvc;  } break;
-	case S_RHOHV:	///< S-band rhohv
-		for (i = 0; i < gates; i++) { _ProductData[i] = fields[i].rhohv;  } break;
-	case S_PHIDP:	///< S-band phidp
-		for (i = 0; i < gates; i++) { _ProductData[i] = fields[i].phidp;  } break;
-	case S_ZDR:	///< S-band zdr
-		for (i = 0; i < gates; i++) { _ProductData[i] = fields[i].zdr;  } break;
-	case S_WIDTH:	///< S-band spectral width
-		for (i = 0; i < gates; i++) { _ProductData[i] = fields[i].width;  } break;
-	case S_VEL:		///< S-band velocity
-		for (i = 0; i < gates; i++) { _ProductData[i] = fields[i].vel;    } break;
-	case S_SNR:		///< S-band SNR
-		for (i = 0; i < gates; i++) { _ProductData[i] = fields[i].snr;    } break;
-	case X_DBMHC:	///< X-band dBm horizontal co-planar
-		for (i = 0; i < gates; i++) { _ProductData[i] = fields[i].dbmhc;  } break;
-	case X_DBMVX:	///< X-band dBm vertical cross-planar
-		for (i = 0; i < gates; i++) { _ProductData[i] = fields[i].dbmvx;  } break;
-	case X_DBZHC:	///< X-band dBz horizontal co-planar
-		for (i = 0; i < gates; i++) { _ProductData[i] = fields[i].dbzhc;  } break;
-	case X_WIDTH:	///< X-band spectral width
-		for (i = 0; i < gates; i++) { _ProductData[i] = fields[i].width;  } break;
-	case X_VEL:		///< X-band velocity
-		for (i = 0; i < gates; i++) { _ProductData[i] = fields[i].vel;    } break;
-	case X_SNR:		///< X-band SNR
-		for (i = 0; i < gates; i++) { _ProductData[i] = fields[i].snr;    } break;
-	case X_LDR:		///< X-band LDR
-		for (i = 0; i < gates; i++) { _ProductData[i] = fields[i].ldrh;   } break;
+	if (prodType == _productType) {
+		// this is the product that we are currntly displaying
+		// extract the data and display it.
+		_ProductData.resize(pProduct->header.gates);
+		for (int i = 0; i < pProduct->header.gates; i++) {
+			_ProductData[i] = pProduct->data[i];
+		}
+		displayData();
 	}
 }
 
@@ -468,69 +371,103 @@ CP2Scope::getProduct(Beam* pBeam, int gates)
 void
 CP2Scope::displayData() 
 {
-	// display data -- called on decimation interval if pulse set, or fft size assembled if gate set. 
 
-	PlotInfo* pi = &_plotInfo[_plotType];
+	if (_rawPlot) {
+		PlotInfo* pi = &_plotInfo[_plotType];
 
-	switch (pi->getDisplayType())
-	{
-	case ScopePlot::TIMESERIES:
-		_scopePlot->TimeSeries(I, Q, -_scopeGain+_scopeOffset, _scopeGain+_scopeOffset, 1);
-		break;
-	case ScopePlot::IVSQ:
-		_scopePlot->IvsQ(I, Q, -_scopeGain+_scopeOffset, _scopeGain+_scopeOffset, 1); 
-		break;
-	case ScopePlot::SPECTRUM:
-		_scopePlot->Spectrum(_spectrum, -100, 20.0, 1000000, false, "Frequency (Hz)", "Power (dB)");	
-		break;
-	case ScopePlot::PRODUCT:
-		_scopePlot->Product(_ProductData, pi->getId(), -_scopeGain+_scopeOffset, _scopeGain+_scopeOffset, _ProductData.size());
-		break;
+		switch (pi->getDisplayType())
+		{
+		case ScopePlot::TIMESERIES:
+			_scopePlot->TimeSeries(I, Q, -_scopeGain+_scopeOffset, _scopeGain+_scopeOffset, 1);
+			break;
+		case ScopePlot::IVSQ:
+			_scopePlot->IvsQ(I, Q, -_scopeGain+_scopeOffset, _scopeGain+_scopeOffset, 1); 
+			break;
+		case ScopePlot::SPECTRUM:
+			_scopePlot->Spectrum(_spectrum, -100, 20.0, 1000000, false, "Frequency (Hz)", "Power (dB)");	
+			break;
+		}
+
+	} else {
+		PlotInfo* pi = &_prodPlotInfo[_productType];
+		_scopePlot->Product(_ProductData, 
+			pi->getId(), 
+			-_scopeGain+_scopeOffset, 
+			_scopeGain+_scopeOffset, 
+			_ProductData.size());
 	}
 }
 
 //////////////////////////////////////////////////////////////////////
 void
-CP2Scope::initializeSocket()	
+CP2Scope::initSockets()	
 {
-	_pSocket = new QSocketDevice(QSocketDevice::Datagram);
+	int result;
 
-	QHostAddress qHost;
+	// allocate the socket read buffers
+	_pPulseSocketBuf.resize(1000000);
+	_pProductSocketBuf.resize(1000000);
 
+	// creat the sockets
+	_pPulseSocket = new QSocketDevice(QSocketDevice::Datagram);
+	_pProductSocket = new QSocketDevice(QSocketDevice::Datagram);
+
+	// get the IP name for this machine.
+	// hmmm - how does it know which interface to use?
+	// This could be a problem
 	char nameBuf[1000];
 	if (gethostname(nameBuf, sizeof(nameBuf))) {
 		qWarning("gethostname failed");
 		exit(1);
 	}
-
 	//strcpy(nameBuf, "127.0.0.1");
-
 	struct hostent* pHostEnt = gethostbyname(nameBuf);
 	if (!pHostEnt) {
 		qWarning("gethostbyname failed");
 		exit(1);
 	}
-	_pSocketBuf = new char[1000000];
 
 	std::string myIPname = nameBuf;
 	std::string myIPaddress = inet_ntoa(*(struct in_addr*)pHostEnt->h_addr_list[0]);
-	std::cout << "ip name: " << myIPname.c_str() << ", id address  " << myIPaddress.c_str() << std::endl;
-
 	m_pTextIPname->setText(myIPname.c_str());
+	m_pTextIPaddress->setNum(+_pulseDataPort);	
 
-	m_pTextIPaddress->setNum(+_dataGramPort);	// diagnostic print
+	// bind sockets to port/network
+	QHostAddress qHost;
 	qHost.setAddress(myIPaddress.c_str());
-
-	std::cout << "qHost:" << qHost.toString() << std::endl;
-	std::cout << "datagram port:" << _dataGramPort << std::endl;
-
-	if (!_pSocket->bind(qHost, _dataGramPort)) {
-		qWarning("Unable to bind to %s:%d", qHost.toString().ascii(), _dataGramPort);
+	int optval = 1;
+	result = setsockopt(_pPulseSocket->socket(), 
+		SOL_SOCKET, 
+		SO_REUSEADDR, 
+		(const char*)&optval, 
+		sizeof(optval)); 
+	if (!_pPulseSocket->bind(qHost, _pulseDataPort)) {
+		qWarning("Unable to bind to %s:%d", qHost.toString().ascii(), _pulseDataPort);
 		exit(1); 
 	}
+	result = setsockopt(_pProductSocket->socket(), 
+		SOL_SOCKET, 
+		SO_REUSEADDR, 
+		(const char*)&optval, 
+		sizeof(optval)); 
+	if (!_pProductSocket->bind(qHost, _productDataPort)) {
+		qWarning("Unable to bind to %s:%d", qHost.toString().ascii(), _productDataPort);
+		exit(1); 
+	}
+
+	// set the system recevie buffer size
 	int sockbufsize = CP2SCOPE_RCVBUF;
 
-	int result = setsockopt (_pSocket->socket(),
+	result = setsockopt (_pPulseSocket->socket(),
+		SOL_SOCKET,
+		SO_RCVBUF,
+		(char *) &sockbufsize,
+		sizeof sockbufsize);
+	if (result) {
+		qWarning("Set receive buffer size for socket failed");
+		exit(1); 
+	}
+	result = setsockopt (_pProductSocket->socket(),
 		SOL_SOCKET,
 		SO_RCVBUF,
 		(char *) &sockbufsize,
@@ -540,9 +477,13 @@ CP2Scope::initializeSocket()
 		exit(1); 
 	}
 
-	_pSocketNotifier = new QSocketNotifier(_pSocket->socket(), QSocketNotifier::Read);
+	// create notifiers and connect to slots
+	_pPulseSocketNotifier = new QSocketNotifier(_pPulseSocket->socket(), QSocketNotifier::Read);
+	_pProductSocketNotifier = new QSocketNotifier(_pProductSocket->socket(), QSocketNotifier::Read);
 
-	connect(_pSocketNotifier, SIGNAL(activated(int)), this, SLOT(dataSocketActivatedSlot(int)));
+	connect(_pPulseSocketNotifier, SIGNAL(activated(int)), this, SLOT(newPulseSlot(int)));
+	connect(_pProductSocketNotifier, SIGNAL(activated(int)), this, SLOT(newProductSlot(int)));
+
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -593,6 +534,8 @@ CP2Scope::powerSpectrum()
 void
 CP2Scope::plotTypeSlot(int newPlotType)
 {
+	_rawPlot = true;
+
 	if (newPlotType == _plotType) {
 		return;
 	}
@@ -640,6 +583,34 @@ CP2Scope::plotTypeSlot(int newPlotType)
 }
 ////////////////////////////////////////////////////////////////////
 void
+CP2Scope::productTypeSlot(int newPlotType)
+{
+	_rawPlot = false;
+
+	if (newPlotType == _productType) {
+		return;
+	}
+
+	PlotInfo* pi;
+
+	// save the gain and offset of the existing plot type
+	pi = &_prodPlotInfo[_productType];
+	pi->setGain(pi->getGainMin(), pi->getGainMax(), _gain);
+	pi->setOffset(pi->getOffsetMin(), pi->getOffsetMax(), _offset);
+
+	// change the plot type
+	_productType = (PRODUCT_TYPES)newPlotType;
+
+	// restore gain and offset 
+	gainChangeSlot(pi->getGainCurrent());
+	offsetChangeSlot(pi->getOffsetCurrent());
+
+	// set the knobs for the new plot type
+	_gainOffsetKnobs->setValues(pi->getGainCurrent(), pi->getOffsetCurrent());
+
+}
+////////////////////////////////////////////////////////////////////
+void
 CP2Scope::initPlots()
 {
 
@@ -655,24 +626,24 @@ CP2Scope::initPlots()
 	_rawPlots.insert(XH_SPECTRUM);
 	_rawPlots.insert(XV_SPECTRUM);
 
-	_sMomentsPlots.insert(S_DBMHC);
-	_sMomentsPlots.insert(S_DBMVC);
-	_sMomentsPlots.insert(S_DBZHC);
-	_sMomentsPlots.insert(S_DBZVC);
-	_sMomentsPlots.insert(S_WIDTH);
-	_sMomentsPlots.insert(S_VEL);
-	_sMomentsPlots.insert(S_SNR);
-	_sMomentsPlots.insert(S_RHOHV);
-	_sMomentsPlots.insert(S_PHIDP);
-	_sMomentsPlots.insert(S_ZDR);
+	_sMomentsPlots.insert(PROD_S_DBMHC);
+	_sMomentsPlots.insert(PROD_S_DBMVC);
+	_sMomentsPlots.insert(PROD_S_DBZHC);
+	_sMomentsPlots.insert(PROD_S_DBZVC);
+	_sMomentsPlots.insert(PROD_S_WIDTH);
+	_sMomentsPlots.insert(PROD_S_VEL);
+	_sMomentsPlots.insert(PROD_S_SNR);
+	_sMomentsPlots.insert(PROD_S_RHOHV);
+	_sMomentsPlots.insert(PROD_S_PHIDP);
+	_sMomentsPlots.insert(PROD_S_ZDR);
 
-	_xMomentsPlots.insert(X_DBMHC);
-	_xMomentsPlots.insert(X_DBMVX);
-	_xMomentsPlots.insert(X_DBZHC);
-	_xMomentsPlots.insert(X_SNR);
-	//	_xMomentsPlots.insert(X_WIDTH);
-	//	_xMomentsPlots.insert(X_VEL);
-	_xMomentsPlots.insert(X_LDR);
+	_xMomentsPlots.insert(PROD_X_DBMHC);
+	_xMomentsPlots.insert(PROD_X_DBMVX);
+	_xMomentsPlots.insert(PROD_X_DBZHC);
+	_xMomentsPlots.insert(PROD_X_SNR);
+	//	_xMomentsPlots.insert(PROD_X_WIDTH);
+	//	_xMomentsPlots.insert(PROD_X_VEL);
+	_xMomentsPlots.insert(PROD_X_LDR);
 
 	_plotInfo[S_TIMESERIES]  = PlotInfo( S_TIMESERIES, TIMESERIES, "I and Q", "S:  I and Q", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
 	_plotInfo[XH_TIMESERIES] = PlotInfo(XH_TIMESERIES, TIMESERIES, "I and Q", "Xh: I and Q", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
@@ -683,23 +654,24 @@ CP2Scope::initPlots()
 	_plotInfo[S_SPECTRUM]    = PlotInfo(   S_SPECTRUM,   SPECTRUM, "Power Spectrum", "S:  Power Spectrum", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
 	_plotInfo[XH_SPECTRUM]   = PlotInfo(  XH_SPECTRUM,   SPECTRUM, "Power Spectrum", "Xh: Power Spectrum", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
 	_plotInfo[XV_SPECTRUM]   = PlotInfo(  XV_SPECTRUM,   SPECTRUM, "Power Spectrum", "Xv: Power Spectrum", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_plotInfo[S_DBMHC]       = PlotInfo(      S_DBMHC,    PRODUCT, "H Dbm", "Sh: Dbm", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_plotInfo[S_DBMVC]       = PlotInfo(      S_DBMVC,    PRODUCT, "V Dbm", "Sv: Dbm", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_plotInfo[S_DBZHC]       = PlotInfo(      S_DBZHC,    PRODUCT, "H Dbz", "Sh: Dbz", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_plotInfo[S_DBZVC]       = PlotInfo(      S_DBZVC,    PRODUCT, "V Dbz", "Sv: Dbz", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_plotInfo[S_WIDTH]       = PlotInfo(      S_WIDTH,    PRODUCT, "Width", "S:  Width", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_plotInfo[S_VEL]         = PlotInfo(        S_VEL,    PRODUCT, "Velocity", "S:  Velocity", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_plotInfo[S_SNR]         = PlotInfo(        S_SNR,    PRODUCT, "SNR", "S:  SNR", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_plotInfo[S_RHOHV]       = PlotInfo(      S_RHOHV,    PRODUCT, "Rhohv", "S:  Rhohv", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_plotInfo[S_PHIDP]       = PlotInfo(      S_RHOHV,    PRODUCT, "Phidp", "S:  Phidp", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_plotInfo[S_ZDR]         = PlotInfo(      S_ZDR,      PRODUCT, "Zdr", "S:  Zdr", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_plotInfo[X_DBMHC]       = PlotInfo(      X_DBMHC,    PRODUCT, "H Dbm", "Xh: Dbm", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_plotInfo[X_DBMVX]       = PlotInfo(      X_DBMVX,    PRODUCT, "V Cross Dbm", "Xv: Dbm", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_plotInfo[X_DBZHC]       = PlotInfo(      X_DBZHC,    PRODUCT, "H Dbz", "Xh: Dbz", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_plotInfo[X_SNR]         = PlotInfo(        X_SNR,    PRODUCT, "SNR", "Xh: SNR", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_plotInfo[X_WIDTH]       = PlotInfo(      X_WIDTH,    PRODUCT, "Width", "Xh: Width", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_plotInfo[X_VEL]         = PlotInfo(        X_VEL,    PRODUCT, "Velocity", "Xh: Velocity", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_plotInfo[X_LDR]         = PlotInfo(        X_LDR,    PRODUCT, "LDR", "Xhv:LDR", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+
+	_prodPlotInfo[PROD_S_DBMHC]       = PlotInfo(      PROD_S_DBMHC,    PRODUCT, "H Dbm", "Sh: Dbm", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_prodPlotInfo[PROD_S_DBMVC]       = PlotInfo(      PROD_S_DBMVC,    PRODUCT, "V Dbm", "Sv: Dbm", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_prodPlotInfo[PROD_S_DBZHC]       = PlotInfo(      PROD_S_DBZHC,    PRODUCT, "H Dbz", "Sh: Dbz", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_prodPlotInfo[PROD_S_DBZVC]       = PlotInfo(      PROD_S_DBZVC,    PRODUCT, "V Dbz", "Sv: Dbz", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_prodPlotInfo[PROD_S_WIDTH]       = PlotInfo(      PROD_S_WIDTH,    PRODUCT, "Width", "S:  Width", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_prodPlotInfo[PROD_S_VEL]         = PlotInfo(        PROD_S_VEL,    PRODUCT, "Velocity", "S:  Velocity", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_prodPlotInfo[PROD_S_SNR]         = PlotInfo(        PROD_S_SNR,    PRODUCT, "SNR", "S:  SNR", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_prodPlotInfo[PROD_S_RHOHV]       = PlotInfo(      PROD_S_RHOHV,    PRODUCT, "Rhohv", "S:  Rhohv", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_prodPlotInfo[PROD_S_PHIDP]       = PlotInfo(      PROD_S_RHOHV,    PRODUCT, "Phidp", "S:  Phidp", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_prodPlotInfo[PROD_S_ZDR]         = PlotInfo(      PROD_S_ZDR,      PRODUCT, "Zdr", "S:  Zdr", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_prodPlotInfo[PROD_X_DBMHC]       = PlotInfo(      PROD_X_DBMHC,    PRODUCT, "H Dbm", "Xh: Dbm", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_prodPlotInfo[PROD_X_DBMVX]       = PlotInfo(      PROD_X_DBMVX,    PRODUCT, "V Cross Dbm", "Xv: Dbm", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_prodPlotInfo[PROD_X_DBZHC]       = PlotInfo(      PROD_X_DBZHC,    PRODUCT, "H Dbz", "Xh: Dbz", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_prodPlotInfo[PROD_X_SNR]         = PlotInfo(        PROD_X_SNR,    PRODUCT, "SNR", "Xh: SNR", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_prodPlotInfo[PROD_X_WIDTH]       = PlotInfo(      PROD_X_WIDTH,    PRODUCT, "Width", "Xh: Width", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_prodPlotInfo[PROD_X_VEL]         = PlotInfo(        PROD_X_VEL,    PRODUCT, "Velocity", "Xh: Velocity", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_prodPlotInfo[PROD_X_LDR]         = PlotInfo(        PROD_X_LDR,    PRODUCT, "LDR", "Xhv:LDR", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
 
 	// remove the one tab that was put there by designer
 	_typeTab->removePage(_typeTab->page(0));
@@ -711,10 +683,10 @@ CP2Scope::initPlots()
 	pGroup = addPlotTypeTab("Raw", _rawPlots);
 	_tabButtonGroups.push_back(pGroup);
 
-	pGroup = addPlotTypeTab("S", _sMomentsPlots);
+	pGroup = addProductTypeTab("S", _sMomentsPlots);
 	_tabButtonGroups.push_back(pGroup);
 
-	pGroup = addPlotTypeTab("X", _xMomentsPlots);
+	pGroup = addProductTypeTab("X", _xMomentsPlots);
 	_tabButtonGroups.push_back(pGroup);
 
 	connect(_typeTab, SIGNAL(currentChanged(QWidget *)), 
@@ -731,9 +703,13 @@ CP2Scope::tabChangeSlot(QWidget* w)
 	// on that page.
 	int plotType = _tabButtonGroups[pageNum]->selectedId();
 
-	// change the plot type
+	if (pageNum == 0) {
+	// change the raw plot type
 	plotTypeSlot(plotType);
-
+	} else {
+		// change the product plot type
+		productTypeSlot(plotType);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -781,6 +757,54 @@ CP2Scope::addPlotTypeTab(std::string tabName, std::set<PLOTTYPE> types)
 	// connect the button released signal to our
 	// our plot type change slot.
 	connect(pGroup, SIGNAL(released(int)), this, SLOT(plotTypeSlot(int)));
+
+	return pGroup;
+}
+//////////////////////////////////////////////////////////////////////
+QButtonGroup*
+CP2Scope::addProductTypeTab(std::string tabName, std::set<PRODUCT_TYPES> types)
+{
+	QWidget* pPage;
+	QButtonGroup* pGroup;
+	QVBoxLayout* pVbox;
+	QVBoxLayout* pButtonVbox;
+	QRadioButton* pRadio;
+
+	pPage = new QWidget(_typeTab, tabName.c_str());
+	pVbox = new QVBoxLayout(pPage);
+
+	pGroup = new QButtonGroup(pPage);
+	pGroup->setColumnLayout(0, Qt::Vertical );
+	pGroup->layout()->setSpacing( 6 );
+	pGroup->layout()->setMargin( 11 );
+
+	pButtonVbox = new QVBoxLayout(pGroup->layout());
+	pButtonVbox->setAlignment( Qt::AlignTop );
+
+	std::set<PRODUCT_TYPES>::iterator i;
+
+	for (i = types.begin(); i != types.end(); i++) 
+	{
+		int id = _prodPlotInfo[*i].getId();
+		pRadio = new QRadioButton(pGroup);
+		pGroup->insert(pRadio, id);
+		const QString label = _prodPlotInfo[*i].getLongName().c_str();
+		pRadio->setText(label);
+		pButtonVbox->addWidget(pRadio);
+
+		// set the first radio button of the group
+		// to be selected.
+		if (i == types.begin()) {
+			pRadio->setChecked(true);
+		}
+	}
+
+	pVbox->addWidget(pGroup);
+	_typeTab->insertTab(pPage, tabName.c_str());
+
+	// connect the button released signal to our
+	// our plot type change slot.
+	connect(pGroup, SIGNAL(released(int)), this, SLOT(productTypeSlot(int)));
 
 	return pGroup;
 }

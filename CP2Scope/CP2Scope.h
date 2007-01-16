@@ -27,12 +27,6 @@
 // PlotInfo knows the characteristics of a plot
 #include "PlotInfo.h"
 
-// Clases used in the moments computatons:
-#include "MomentsCompute.hh"
-#include "MomentsMgr.hh"
-#include "Params.hh"
-#include "Pulse.hh"
-
 #define	ySCALEMIN		0.0
 #define	ySCALEMAX		1.0
 #define PIRAQ3D_SCALE	1.0/(unsigned int)pow(2,31)	
@@ -43,7 +37,7 @@ enum DATASET {
 	DATA_SETS	
 }; 
 
-// product types:
+// non-product plot types:
 enum	PLOTTYPE {	
 	S_TIMESERIES,	///< S time series
 	XH_TIMESERIES,	///< Xh time series
@@ -54,23 +48,6 @@ enum	PLOTTYPE {
 	S_SPECTRUM,		///< S spectrum 
 	XH_SPECTRUM,	///< Xh spectrum 
 	XV_SPECTRUM,	///< Xv spectrum 
-	S_DBMHC,	///< S-band dBm horizontal co-planar
-	S_DBMVC,	///< S-band dBm vertical co-planar
-	S_DBZHC,	///< S-band dBz horizontal co-planar
-	S_DBZVC,	///< S-band dBz vertical co-planar
-	S_SNR,		///< S-band SNR
-	S_VEL,		///< S-band velocity
-	S_WIDTH,	///< S-band spectral width
-	S_RHOHV,	///< S-band rhohv
-	S_PHIDP,	///< S-band phidp
-	S_ZDR,		///< S-band zdr
-	X_DBMHC,	///< X-band dBm horizontal co-planar
-	X_DBMVX,	///< X-band dBm vertical cross-planar
-	X_DBZHC,	///< X-band dBz horizontal co-planar
-	X_SNR,		///< X-band SNR
-	X_VEL,		///< X-band velocity
-	X_WIDTH,	///< X-band spectral width
-	X_LDR		///< X-band LDR
 }; 
 
 // types of plots available
@@ -87,18 +64,21 @@ class CP2Scope : public CP2ScopeBase {
 public:
 	CP2Scope();
 	~CP2Scope();
-	void initializeSocket(); 
 	void displayData(); 
 	void resizeDataVectors(); 
 
 public slots:
-	virtual void plotTypeSlot(bool);
+	// Call when data is available on the pulse data socket.
+	///@param socket File descriptor of the data socket
+	void newPulseSlot(int socket);
+	// Call when data is available on the product data socket.
+	///@param socket File descriptor of the data socket
+	void newProductSlot(int socket);
 
-	// Call when data is available on the data socket.
-	void dataSocketActivatedSlot(
-		int socket         ///< File descriptor of the data socket
-		);
 	virtual void plotTypeSlot(int plotType);
+
+	virtual void productTypeSlot(int plotType);
+
 	void tabChangeSlot(QWidget* w);
 
 	virtual void gainChangeSlot( double );	
@@ -109,36 +89,70 @@ public slots:
 	virtual void DataChannelSpinBox_valueChanged( int ); 
 
 protected:
-	QSocketDevice*   _pSocket;
-	QSocketNotifier* _pSocketNotifier;
-	int				_dataGramPort;
-	int				_dataChannel;					///<	board source of data CP2 PIRAQ 1-3 
-	int				_dataSetGate;					///<	gate in packet to display 
-	int				_prevPulseCount[3];			///<	prior cumulative pulse count, used for throughput calcs
-	int				_pulseCount[3];				///<	cumulative pulse count
-	int				_errorCount[3];				///<	cumulative error count
-	long long		_lastPulseNum[3];			///<  last pulse number
-	bool			_eof[3];						///<    set true when fifo eof occurs. Used so that we don't
-	///<    keep setting the fifo eof led.
-	unsigned int	_pulseDecimation;		///<	decimation factor for along range (DATA_SET_PULSE) display: currently set 50
-	unsigned int	_productsDecimation;	///<	decimation factor for products display: currently set 50
+	/// Initialize the pulse and product sockets. The
+	/// notifiers will be created, and connected
+	/// to the data handling slots.
+	void initSockets(); 
+	/// The socket that pulse data is received on.
+	QSocketDevice*   _pPulseSocket;
+	/// The socket notifier for the pulse data socket.
+	QSocketNotifier* _pPulseSocketNotifier;
+	/// The port for the pulse data.
+	int				_pulseDataPort;
+	/// The buffer for incoming pulse datagrams
+	std::vector<char> _pPulseSocketBuf;
+	/// The socket that product data is received on.
+	QSocketDevice*   _pProductSocket;
+	/// The socket notifier for the product data socket.
+	QSocketNotifier* _pProductSocketNotifier;
+	/// The port for the product data.
+	int				_productDataPort;
+	/// The buffer for incoming product datagrams
+	std::vector<char> _pProductSocketBuf;
+	///	board source of data CP2 PIRAQ 1-3 
+	int				_dataChannel;					
+	///	gate in packet to display 	
+	int				_dataSetGate;				
+	///	prior cumulative pulse count, used for throughput calcs
+	int				_prevPulseCount[3];		
+	///	cumulative pulse count
+	int				_pulseCount[3];		
+	///	cumulative error count
+	int				_errorCount[3];		
+	///  last pulse number
+	long long		_lastPulseNum[3];		
+	///    set true when fifo eof occurs. Used so that we don't keep setting the fifo eof led.
+	bool			_eof[3];						
+	///	decimation factor for along range (DATA_SET_PULSE) display: currently set 50
+	unsigned int	_pulseDecimation;
+	///	decimation factor for products display: currently set 50
+	unsigned int	_productsDecimation;	
+
 	double          _gain;
 	double          _offset;
-	double			_scopeGain;						///<	
-	double			_scopeOffset;						///<	
-	double			_xFullScale;					///<	x-scale max
+	double			_scopeGain;						
+	double			_scopeOffset;							
+	double			_xFullScale;		
 
-	std::vector<double> I;		//	timeseries arrays for display
+	/// Holds I data for time series and I vs. Q display
+	std::vector<double> I;
+	/// Holds Q data for time series and I vs. Q display
 	std::vector<double> Q;
+	/// Used to collect the spectrum values
 	std::vector<double> _spectrum;
-	std::vector<double> _ProductData;	//	use array for displaying products.
-
-	char*   _pSocketBuf;
+	/// Used to collect product data
+	std::vector<double> _ProductData;
 
 	// how often to update the statistics (in seconds)
 	int _statsUpdateInterval;
 
+	/// Set true if raw plots are selected,
+	/// false for product type plots
+	bool _rawPlot;
+	/// The current selected plot type.
 	PLOTTYPE        _plotType;
+	/// The current selected product type.
+	PRODUCT_TYPES   _productType;
 	int				_dataSet;		//	data grouping for scope displays: along pulse, or gate
 	unsigned int	_dataSetSize;	//	size of data vector for display or calculations 
 
@@ -166,41 +180,19 @@ protected:
 	/// Set true if the Hamming window should be applied
 	bool _doHamming;
 
-	/// Moment computation parameters for S band
-	Params _Sparams;
-
-	/// Moment computation parameters for X band
-	Params _Xparams;
-
-	/// The S band moment computation engine.  Pulses
-	/// are passed to _momentsCompute. It will make a beam 
-	/// available when enough pulses have been provided.
-	MomentsCompute* _momentsSCompute;
-
-	/// The X band moment computation engine.  Pulses
-	/// are passed to _momentsCompute. It will make a beam 
-	/// available when enough pulses have been provided.
-	MomentsCompute* _momentsXCompute;
-
 	double _az;
 
-	/// Process the pulse, feeding it to the moments processor
-	/// if a product display is requested.
+	/// Process pulse data.
 	/// @param pPulse The pulse to be processed. 
 	void processPulse(CP2Pulse* pPulse);
 
-	/// copy the selected product from the beam moments
-	/// into the _productData vector. _plotType will determine
-	/// which field to use from the moments.
-	/// @param pBeam The beam containing the moment results
-	/// @param gates The number of gates
-	void getProduct(Beam* pBeam, int gates);
-
+	/// Process product data
+	/// @param pPulse The pulse to be processed. 
+	void processProduct(CP2Product* pProduct);
 	/// Counter of time series, used for decimating 
 	/// the timeseries (and I/Q and Spectrum)
 	/// display updates.
 	int _tsDisplayCount; 
-
 	/// Counter of product cacluations, used
 	/// for decimating the product display updates.
 	int _productDisplayCount; 
@@ -211,12 +203,11 @@ protected:
 	/// @return The zero moment
 	double powerSpectrum();
 
-	/// Collator collects and matches time tags
-	/// from H and V Xband channels
-	CP2PulseCollator _collator;
-
 	/// For each PLOTTYPE, there will be an entry in this map.
 	std::map<PLOTTYPE, PlotInfo> _plotInfo;
+
+	/// For each PRODUCT_TYPES, there will be an entry in this map.
+	std::map<PRODUCT_TYPES, PlotInfo> _prodPlotInfo;
 
 	/// This set contains PLOTTYPEs for all timeseries plots
 	std::set<PLOTTYPE> _timeSeriesPlots;
@@ -225,10 +216,10 @@ protected:
 	std::set<PLOTTYPE> _rawPlots;
 
 	/// This set contains PLOTTYPEs for all S band moments plots
-	std::set<PLOTTYPE> _sMomentsPlots;
+	std::set<PRODUCT_TYPES> _sMomentsPlots;
 
 	/// This set contains PLOTTYPEs for all X band moments plots
-	std::set<PLOTTYPE> _xMomentsPlots;
+	std::set<PRODUCT_TYPES> _xMomentsPlots;
 
 	/// save the button group for each tab,
 	/// so that we can find the selected button
@@ -238,7 +229,17 @@ protected:
 	/// initialize all of the book keeping structures
 	/// for the various plots.
 	void initPlots();
-	/// add a tab to the plot type selection tab widget.
+	/// add a rw plot tab to the plot type selection tab widget.
+	/// Radio buttons are created for all of specified
+	/// plty types, and grouped into one button group.
+	/// _plotInfo provides the label information for
+	/// the radio buttons.
+	/// @param tabName The title for the tab.
+	/// @param types A set of the desired PLOTTYPE types 
+	/// @return The button group that the inserted buttons
+	/// belong to.
+	QButtonGroup* addProductTypeTab(std::string tabName, std::set<PRODUCT_TYPES> types);
+	/// add a products tab to the plot type selection tab widget.
 	/// Radio buttons are created for all of specified
 	/// plty types, and grouped into one button group.
 	/// _plotInfo provides the label information for
