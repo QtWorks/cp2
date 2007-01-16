@@ -113,18 +113,6 @@ void MomentsCompute::setDebugExtraVerbose()
 }
 
 /////////////////////////////////////////////////
-// prepare for moments computations
-
-void MomentsCompute::_prepareForMoments(Pulse *pulse)
-
-{
-	// set properties from pulse
-
-	_nGatesPulse = pulse->getNGates();
-	double prf = 1.0 / pulse->getPrt();
-}
-
-/////////////////////////////////////////////////
 // are we ready for a beam?
 //
 // Side effects: sets _az, _midIndex1, _midIndex2
@@ -342,7 +330,7 @@ MomentsCompute::processPulse(
 
 	// process pulses as they arrive
 
-	double now = (double) time(NULL);
+//	double now = (double) time(NULL);
 	bool isHoriz = horizontal;
 
 	// Create a new pulse object and save a pointer to it in the
@@ -352,17 +340,14 @@ MomentsCompute::processPulse(
 	// elements to the left.
 
 	Pulse *pulse = new Pulse(_params, 
-		pulseNum, gates, now,
+		pulseNum, gates, pulseNum,
 		prt, el, az, isHoriz, data, crossdata);
 
 	// add pulse to queue, managing memory appropriately
 
 	_addPulseToQueue(pulse);
 
-	// prepare for moments computations
-	// also sets _momentsMgr as appropriate
-
-	_prepareForMoments(pulse);
+	_nGatesPulse = pulse->getNGates();
 
 	// is a beam ready?
 	double beamAz;

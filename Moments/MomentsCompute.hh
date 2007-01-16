@@ -81,15 +81,11 @@ public:
 
 protected:
 
-	void _prepareForMoments(Pulse *pulse);
-
 	bool _beamReady(double& beamAz);
 
 	int _computeBeamMoments(Beam *beam);
 
 	void _addPulseToQueue(Pulse *pulse);
-
-	void _addBeamToQueue(Beam *beam);
 
 	// missing data value
 
