@@ -138,8 +138,7 @@ CP2PPI::newDataSlot(int)
 		// put this datagram into a packet
 		bool packetBad = packet.setProductData(readBufLen, _pSocketBuf);
 
-		// Extract the pulses and process them.
-		// Observe paranoia for validating packets and pulses.
+		// Extract the products and process them.
 		// From here on out, we are divorced from the
 		// data transport.
 		if (!packetBad) {
