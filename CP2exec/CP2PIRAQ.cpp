@@ -123,7 +123,10 @@ CP2PIRAQ::init(char* configFname, char* dspObjFname)
 	// set the pmac dpram address
 	_pConfigPacket->info.PMACdpramAddr = _pmacDpramAddr;
 
-	r_c = this->LoadDspCode(dspObjFname);					// load entered DSP executable filename
+	char* d = new char[strlen(dspObjFname)+1];
+	strcpy(d, dspObjFname);
+	r_c = this->LoadDspCode(d);					// load entered DSP executable filename
+	delete [] d;
 	printf("loading %s: this->LoadDspCode returns %d\n", dspObjFname, r_c);  
 	timerset(&_config, this);								// !note: also programs pll and FIR filter. 
 

@@ -1,6 +1,7 @@
 #ifndef CP2EXECTHREADH_
 #define CP2EXECTHREADH_
 
+#include <string>
 #include <qthread.h>
 #include "CP2PIRAQ.h"
 #include "CP2Net.h"
@@ -8,7 +9,7 @@
 class CP2ExecThread: public QThread {
 
 public:
-	CP2ExecThread(int piraqs, CP2PIRAQ* piraq1, CP2PIRAQ* piraq2, CP2PIRAQ* piraq3);
+	CP2ExecThread(std::string dspObjfile, std::string configFile);
 	virtual ~CP2ExecThread();
 	void run();
 	void stop();
@@ -20,7 +21,11 @@ protected:
 	CP2PIRAQ* _piraq1;
 	CP2PIRAQ* _piraq2;
 	CP2PIRAQ* _piraq3;
-	int _piraqs;
+	// The dsp object code file name
+	std::string _dspObjFile;
+	// The configuration file name
+	std::string _configFile;
+
 	bool _stop;
 	int _pulses1;
 	int _pulses2;
