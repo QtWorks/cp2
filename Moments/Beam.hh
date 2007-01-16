@@ -68,6 +68,7 @@ public:
   double getPrf() const { return _prf; }
   double getPrt() const { return _prt; }
   double getTime() const { return _time; }
+  double getSeqNum() const { return _seqNum; }
 
   int getNGatesPulse() const { return _nGatesPulse; }
   int getNGatesOut() const { return _nGatesOut; }
@@ -103,6 +104,8 @@ private:
   double _prt;
   
   double _time;
+
+  long long _seqNum;
 
   int _nGatesPulse;
   int _nGatesOut;

@@ -86,6 +86,9 @@ Beam::Beam(const Params &params,
   // set time
   _time = _pulses[_halfNSamples]->getTime();
 
+  // set sequence number
+  _seqNum = _pulses[_halfNSamples]->getSeqNum();
+
   // set elevation
 
   _el = _pulses[_halfNSamples]->getEl();
