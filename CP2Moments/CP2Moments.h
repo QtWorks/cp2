@@ -47,8 +47,9 @@ public:
 	virtual ~CP2Moments();
 
 public slots:
-	void stopSlot(bool);
-	// Call when new time series data is available on the data socket.
+	/// stop/start the products generation
+	void startStopSlot(bool);
+	/// Call when new pulse data is available on the data socket.
 	/// @param socket File descriptor of the data socket
 	void newPulseDataSlot(int socket);
 
@@ -77,6 +78,8 @@ protected:
 	/// @return A broadcast address for that IP (255.255.255.255 if 
 	/// that IP wasn't found)
 	unsigned long CP2Moments::GetBroadcastAddress(char* IPname);
+	/// set true if products are to be caclualed; false otherwise.
+	bool _run;
 	/// The thread which will compute S band moments
 	MomentThread* _pSmomentThread;
 	/// The thread which will compute X band moments.

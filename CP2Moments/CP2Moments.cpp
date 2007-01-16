@@ -3,6 +3,7 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <qlabel.h>
+#include <qpushbutton.h>
 
 CP2Moments::CP2Moments():
 CP2MomentsBase(),
@@ -46,8 +47,15 @@ _processXband(true)
 	// to the data reception slot
 	initializeSockets();	
 
+	// update the statistics
+	timerEvent(0);
+
+	// set the run state
+	startStopSlot(false);
+
 	// start the statistics timer
 	startTimer(_statsUpdateInterval*1000);
+
 }
 /////////////////////////////////////////////////////////////////////
 CP2Moments::~CP2Moments()
@@ -55,9 +63,18 @@ CP2Moments::~CP2Moments()
 }
 /////////////////////////////////////////////////////////////////////
 void
-CP2Moments::stopSlot(bool v)
+CP2Moments::startStopSlot(bool v)
 {
-	if (v) {
+	// When the button is pushed in, we are stopped
+	_run = !v;
+	// set the button text to the opposite of the
+	// current state.
+	if (!_run) {
+		_startStopButton->setText("Start");
+		_statusText->setText("Stopped");
+	} else {
+		_startStopButton->setText("Stop");
+		_statusText->setText("Running");
 	}
 }
 /////////////////////////////////////////////////////////////////////
@@ -185,10 +202,28 @@ CP2Moments::newPulseDataSlot(int)
 				if (pPulse) {
 					int chan = pPulse->header.channel;
 					if (chan >= 0 && chan < 3) {
-						// do all of the heavy lifting for this pulse
-						processPulse(pPulse);
-						// sanity check on channel
+
+
+						// do all of the heavy lifting for this pulse,
+						// but only if processing is enabled.
+						if (_run)
+							processPulse(pPulse);
+
+						// look for pulse number errors
+						int chan = pPulse->header.channel;
+
+						// check for consecutive pulse numbers
+						if (_lastPulseNum[chan]) {
+							if (_lastPulseNum[chan]+1 != pPulse->header.pulse_num) {
+								_errorCount[chan]++;
+							}
+						}
+						_lastPulseNum[chan] = pPulse->header.pulse_num;
+
+						// count the pulses
 						_pulseCount[chan]++;
+
+						// look for eofs.
 						if (pPulse->header.status & PIRAQ_FIFO_EOF) {
 							switch (chan) 
 							{
@@ -225,25 +260,16 @@ void
 CP2Moments::processPulse(CP2Pulse* pPulse) 
 {
 
-	// look for pulse number errors
-	int chan = pPulse->header.channel;
-
-	if (_lastPulseNum[chan]) {
-		if (_lastPulseNum[chan]+1 != pPulse->header.pulse_num) {
-			_errorCount[chan]++;
-		}
-	}
-	_lastPulseNum[chan] = pPulse->header.pulse_num;
-
 	// beam will point to computed moments when they are ready,
 	// or null if not ready
 	Beam* pBeam = 0;
 
-	// S band pulses: are successive coplaner H and V pulses
-	// this horizontal switch is a hack for now; we really
-	// need to find the h/v flag in the pulse header.
+	int chan = pPulse->header.channel;
 	if (chan == 0) 
 	{	
+		// S band pulses: are successive coplaner H and V pulses
+		// this horizontal switch is a hack for now; we really
+		// need to find the h/v flag in the pulse header.
 		_azSband += 1.0/_Sparams.moments_params.n_samples;
 		if (_azSband > 360.0)
 			_azSband = 0.0;
