@@ -11,8 +11,6 @@
 #include "control.h"
 #include "HPIB.h"
 
-#define CYCLE_HITS 2000
-
 ///////////////////////////////////////////////////////////////////////////
 CP2PIRAQ::CP2PIRAQ(
     QHostAddress* pHostAddr,
@@ -131,8 +129,6 @@ CP2PIRAQ::init(char* configFname, char* dspObjFname)
 	this->SetCP2PIRAQTestAction(SEND_CHA);					//	send CHA by default; SEND_COMBINED after dynamic-range extension implemented 
 	return 0;
 }
-
-
 /////////////////////////////////////////////////////////////////////////////
 int
 CP2PIRAQ::poll() 
@@ -145,10 +141,7 @@ CP2PIRAQ::poll()
 	int cycle_fifo_hits = 0;
 	PPACKET* p = (PPACKET *)cb_get_read_address(_pFifo, 0); 
 	// take CYCLE_HITS beams from piraq:
-	while((
-		(cb_hit(_pFifo)) > 0) && 
-		(cycle_fifo_hits < CYCLE_HITS)) 
-	{ 
+	while((cb_hit(_pFifo)) > 0) { 
 		// fifo hits ready: save #hits pending 
 		cycle_fifo_hits++; 
 		_totalHits++;
