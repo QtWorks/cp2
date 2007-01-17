@@ -18,15 +18,12 @@ main(int argc, char* argv[], char* envp[])
 		exit(1);
 	}
 
-	// create the main piraq execution thread.
-	CP2ExecThread* pThread = new CP2ExecThread(std::string(argv[1]), std::string(argv[2]));
-	
 	// create the Qt application
 	QApplication app( argc, argv );
 
 	// create our main window. It wants to know about the piraq executin
 	// thread so that it can query the thread for status information.
-	CP2Exec cp2exec(pThread);
+	CP2Exec cp2exec(argv[1], argv[2]);
 
 	// if we don't show() the  dialog, nothing appears!
 	cp2exec.show();

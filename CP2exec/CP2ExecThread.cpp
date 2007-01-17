@@ -217,7 +217,8 @@ CP2ExecThread::run()
 			break;
 	}
 
-	// remove for lab testing: keep transmitter pulses active w/o go.exe running. 12-9-04
+	// remove for lab testing: keep transmitter pulses 
+	// active w/o go.exe running. 12-9-04
 	cp2timer_stop(&ext_timer); 
 
 	if (_piraq1)

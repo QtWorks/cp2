@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>303</width>
-            <height>235</height>
+            <width>275</width>
+            <height>204</height>
         </rect>
     </property>
     <property name="caption">
@@ -19,17 +19,6 @@
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
-        <widget class="QPushButton">
-            <property name="name">
-                <cstring>_restartButton</cstring>
-            </property>
-            <property name="text">
-                <string>Restart</string>
-            </property>
-            <property name="toggleButton">
-                <bool>true</bool>
-            </property>
-        </widget>
         <widget class="QGroupBox">
             <property name="name">
                 <cstring>groupBox1_2</cstring>
@@ -510,14 +499,6 @@
         </widget>
     </vbox>
 </widget>
-<connections>
-    <connection>
-        <sender>_restartButton</sender>
-        <signal>released()</signal>
-        <receiver>CP2ExecBase</receiver>
-        <slot>restartSlot()</slot>
-    </connection>
-</connections>
 <slots>
     <slot>restartSlot()</slot>
 </slots>

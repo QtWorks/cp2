@@ -22,15 +22,18 @@ class CP2Exec: public CP2ExecBase
 {
 	Q_OBJECT
 public:
-	CP2Exec(CP2ExecThread* pThread);
+	CP2Exec(std::string dspObjFile, std::string configFile);
 	virtual ~CP2Exec();
 
 public slots:
-	/// restart the piraq subsystem.
-	void restartSlot();
 
 protected:
+	/// The piraq management thread
 	CP2ExecThread* _pThread;
+	/// The file containing the dsp object code
+	std::string _dspObjFile;
+	/// The configuration file
+	std::string _configFile;
 	// The builtin timer will be used to display statistics.
 	void timerEvent(QTimerEvent*);
 	/// The update interval (s) for the status and 
