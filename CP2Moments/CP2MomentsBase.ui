@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>176</width>
-            <height>353</height>
+            <width>204</width>
+            <height>368</height>
         </rect>
     </property>
     <property name="caption">
@@ -86,7 +86,7 @@
                                         <cstring>textLabel4</cstring>
                                     </property>
                                     <property name="text">
-                                        <string>S Band</string>
+                                        <string>&lt;font size="+1"&gt;&lt;b&gt;S Band&lt;/b&gt;&lt;/font&gt;</string>
                                     </property>
                                 </widget>
                                 <widget class="QLabel">
@@ -129,7 +129,7 @@
                                         <cstring>textLabel5</cstring>
                                     </property>
                                     <property name="text">
-                                        <string>X Band</string>
+                                        <string>&lt;font size="+1"&gt;&lt;b&gt;X Band&lt;/b&gt;&lt;/font&gt;</string>
                                     </property>
                                 </widget>
                                 <widget class="QLabel">
@@ -181,10 +181,10 @@
                                 <cstring>textLabel1_3</cstring>
                             </property>
                             <property name="text">
-                                <string>Xh</string>
+                                <string>&lt;font size="+1"&gt;&lt;b&gt;Xh&lt;/b&gt;&lt;/font&gt;</string>
                             </property>
                             <property name="alignment">
-                                <set>AlignCenter</set>
+                                <set>WordBreak|AlignCenter</set>
                             </property>
                         </widget>
                         <widget class="QLabel" row="1" column="2">
@@ -214,10 +214,10 @@
                                 <cstring>textLabel1</cstring>
                             </property>
                             <property name="text">
-                                <string>S</string>
+                                <string>&lt;font size="+1"&gt;&lt;b&gt;S&lt;/b&gt;&lt;/font&gt;</string>
                             </property>
                             <property name="alignment">
-                                <set>AlignCenter</set>
+                                <set>WordBreak|AlignCenter</set>
                             </property>
                         </widget>
                         <widget class="QLabel" row="1" column="0">
@@ -225,11 +225,11 @@
                                 <cstring>textLabel3</cstring>
                             </property>
                             <property name="text">
-                                <string>Pulse Rate
-(/s)</string>
+                                <string>&lt;font size="+1"&gt;&lt;b&gt;Pulse Rate
+(/s)&lt;/b&gt;&lt;/font&gt;</string>
                             </property>
                             <property name="alignment">
-                                <set>AlignCenter</set>
+                                <set>WordBreak|AlignCenter</set>
                             </property>
                         </widget>
                         <widget class="QLabel" row="0" column="3">
@@ -237,10 +237,10 @@
                                 <cstring>textLabel1_2</cstring>
                             </property>
                             <property name="text">
-                                <string>Xv</string>
+                                <string>&lt;font size="+1"&gt;&lt;b&gt;Xv&lt;/b&gt;&lt;/font&gt;</string>
                             </property>
                             <property name="alignment">
-                                <set>AlignCenter</set>
+                                <set>WordBreak|AlignCenter</set>
                             </property>
                         </widget>
                     </grid>
@@ -271,10 +271,10 @@
                                 <cstring>textLabel1_2_2</cstring>
                             </property>
                             <property name="text">
-                                <string>Xv</string>
+                                <string>&lt;font size="+1"&gt;&lt;b&gt;Xv&lt;/b&gt;&lt;/font&gt;</string>
                             </property>
                             <property name="alignment">
-                                <set>AlignCenter</set>
+                                <set>WordBreak|AlignCenter</set>
                             </property>
                         </widget>
                         <widget class="QLabel" row="1" column="3">
@@ -304,10 +304,10 @@
                                 <cstring>textLabel1_4</cstring>
                             </property>
                             <property name="text">
-                                <string>S</string>
+                                <string>&lt;font size="+1"&gt;&lt;b&gt;S&lt;/b&gt;&lt;/font&gt;</string>
                             </property>
                             <property name="alignment">
-                                <set>AlignCenter</set>
+                                <set>WordBreak|AlignCenter</set>
                             </property>
                         </widget>
                         <widget class="QLabel" row="0" column="2">
@@ -315,10 +315,10 @@
                                 <cstring>textLabel1_3_2</cstring>
                             </property>
                             <property name="text">
-                                <string>Xh</string>
+                                <string>&lt;font size="+1"&gt;&lt;b&gt;Xh&lt;/b&gt;&lt;/font&gt;</string>
                             </property>
                             <property name="alignment">
-                                <set>AlignCenter</set>
+                                <set>WordBreak|AlignCenter</set>
                             </property>
                         </widget>
                         <widget class="QLabel" row="1" column="0">
@@ -326,11 +326,11 @@
                                 <cstring>textLabel2</cstring>
                             </property>
                             <property name="text">
-                                <string>Pulse Number 
-Errors</string>
+                                <string>&lt;font size="+1"&gt;&lt;b&gt;Pulse Number 
+Errors&lt;/b&gt;&lt;/font&gt;</string>
                             </property>
                             <property name="alignment">
-                                <set>AlignCenter</set>
+                                <set>WordBreak|AlignCenter</set>
                             </property>
                         </widget>
                         <widget class="QLabel" row="1" column="2">
@@ -359,10 +359,10 @@ Errors</string>
                                 <cstring>textLabel6</cstring>
                             </property>
                             <property name="text">
-                                <string>Collator</string>
+                                <string>&lt;font size="+1"&gt;&lt;b&gt;Collator&lt;/b&gt;&lt;/font&gt;</string>
                             </property>
                             <property name="alignment">
-                                <set>AlignVCenter|AlignRight</set>
+                                <set>WordBreak|AlignVCenter|AlignRight</set>
                             </property>
                         </widget>
                         <widget class="QLabel">
