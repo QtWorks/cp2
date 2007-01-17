@@ -26,11 +26,13 @@ protected:
 	/// PCI physical address of the PMAC dual ported ram.
 	/// @return The pci physical address of the PMAC dual ported ram.
 	unsigned int findPMACdpram();
-
+	/// The S band piraq
 	CP2PIRAQ* _piraq1;
+	/// The Xh piraq
 	CP2PIRAQ* _piraq2;
+	/// The Xv piraq
 	CP2PIRAQ* _piraq3;
-	// The dsp object code file name
+	/// The dsp object code file name
 	std::string _dspObjFile;
 	/// The configuration file name
 	std::string _configFile;
@@ -38,10 +40,12 @@ protected:
 	/// This sized so that each PCI transfer is less than 64KB, 
 	///which is the size of the burst FIFO on the piraq which
 	/// feeds the PCI transfer. 
-	unsigned int _pulsesPerPciXfer; 
-	int _outport;
-
+	unsigned int _pulsesPerPciXfer;
+	/// The output socket
 	QSocketDevice _socketDevice;
+	/// The destination datagram port.
+	int _outPort;
+	/// The destination network.
 	QHostAddress _hostAddr;
 
 	bool _stop;

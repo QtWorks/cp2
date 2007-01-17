@@ -15,6 +15,7 @@ public:
 
 	CP2PIRAQ( 
 		QHostAddress* pHostAddr,
+		int portNumber,
 		QSocketDevice* pSocketDevice,
 		char* configFname,
 		char* dspObjFnamefloat,
@@ -45,8 +46,6 @@ protected:
 	/// This will be the first packet in the fifo. It appears that
 	/// the piraq may read this structure?
 	PPACKET* _pConfigPacket;
-	/// The socket for output data
-	int _outsock;
 	/// The last pulse number received. Used to detect
 	/// dropped pulses.
 	long long _lastPulseNumber; 
@@ -63,6 +62,8 @@ protected:
 	unsigned int _pulsesPerPciXfer;
 	/// Host address for datagram writes
 	QHostAddress* _pHostAddr;
+	/// Destination port.
+	int _portNumber;
 	/// outgoing socket
 	QSocketDevice* _pSocketDevice;
 	/// The pci bus address for the PMAC dpram; this

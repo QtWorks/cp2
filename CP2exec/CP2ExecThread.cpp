@@ -39,10 +39,9 @@ _pulses1(0),
 _pulses2(0),
 _pulses3(0),
 _stop(false),
-_outport(3100),
+_outPort(3100),
 _socketDevice(QSocketDevice::Datagram, QSocketDevice::IPv4, 0)
 {
-
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -111,7 +110,7 @@ CP2ExecThread::run()
 	printf(" config3 filename %s will be used\n", fname3);
 
 	// Initialize the network
-	_outport = 3100; 
+	_outPort = 3100; 
 	_hostAddr.setAddress(QString(destIP));
 
 	// stop timer card
@@ -145,12 +144,17 @@ CP2ExecThread::run()
 	//    are found in succesion, even if we will not be collecting data 
 	//    from all of them.
 
-	char* d = new char[_dspObjFile.size()+1];
-	strcpy(d, _dspObjFile.c_str());
-	_piraq1 = new CP2PIRAQ(&_hostAddr, &_socketDevice, fname1, d, _pulsesPerPciXfer, PMACphysAddr, 0, SHV);
-	_piraq2 = new CP2PIRAQ(&_hostAddr, &_socketDevice, fname2, d, _pulsesPerPciXfer, PMACphysAddr, 1, XH);
-	_piraq3 = new CP2PIRAQ(&_hostAddr, &_socketDevice, fname3, d, _pulsesPerPciXfer, PMACphysAddr, 2, XV);
-	delete [] d;
+	char* dname = new char[_dspObjFile.size()+1];
+	strcpy(dname, _dspObjFile.c_str());
+
+	_piraq1 = new CP2PIRAQ(&_hostAddr, _outPort, &_socketDevice, fname1, dname, 
+		_pulsesPerPciXfer, PMACphysAddr, 0, SHV);
+	_piraq2 = new CP2PIRAQ(&_hostAddr, _outPort, &_socketDevice, fname2, dname, 
+		_pulsesPerPciXfer, PMACphysAddr, 1, XH);
+	_piraq3 = new CP2PIRAQ(&_hostAddr, _outPort, &_socketDevice, fname3, dname, 
+		_pulsesPerPciXfer, PMACphysAddr, 2, XV);
+
+	delete [] dname;
 
 	///////////////////////////////////////////////////////////////////////////
 	//

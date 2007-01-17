@@ -16,6 +16,7 @@
 ///////////////////////////////////////////////////////////////////////////
 CP2PIRAQ::CP2PIRAQ(
     QHostAddress* pHostAddr,
+	int portNumber,
 	QSocketDevice* pSocketDevice,
 	char* configFname, 
 	char* dspObjFname,
@@ -25,6 +26,7 @@ CP2PIRAQ::CP2PIRAQ(
 	RCVRTYPE rcvrType):
 PIRAQ(),
 _pHostAddr(pHostAddr),
+_portNumber(portNumber),
 _pSocketDevice(pSocketDevice),
 _pulsesPerPciXfer(pulsesPerPciXfer), 
 _lastPulseNumber(0),
@@ -222,7 +224,7 @@ int
 CP2PIRAQ::sendData(int size, 
 				   void* data)
 {
-	int bytesSent = _pSocketDevice->writeBlock((const char*)data, size, *_pHostAddr, 3100);
+	int bytesSent = _pSocketDevice->writeBlock((const char*)data, size, *_pHostAddr, _portNumber);
 	// return the number of bytes sent, or -1 if an error.
 	return bytesSent;
 }
