@@ -1,4 +1,3 @@
-#include <winsock2.h>
 #include "CP2ExecThread.h"
 #include <stdio.h>
 #include <ctype.h>
@@ -40,7 +39,8 @@ _pulses1(0),
 _pulses2(0),
 _pulses3(0),
 _stop(false),
-_outport(3100)
+_outport(3100),
+_socketDevice(QSocketDevice::Datagram, QSocketDevice::IPv4, 0)
 {
 
 }
@@ -53,7 +53,7 @@ CP2ExecThread::~CP2ExecThread()
 
 /////////////////////////////////////////////////////////////////////////////
 unsigned int
-findPMACdpram() 
+CP2ExecThread::findPMACdpram() 
 {
 	PCI_CARD*	pcicard;
 	unsigned int reg_base;
@@ -66,59 +66,6 @@ findPMACdpram()
 	reg_base = pcicard->phys2;
 
 	return reg_base;
-}
-/////////////////////////////////////////////////////////////////////
-/// Initialize the windows network interface. closeNetwork() 
-/// must be called the same number of times that this routine is
-/// called, because WSAstartup() mantains a reference count. See
-/// the windows documentation.
-/// @param ipName The network name that datagrams will be sent to
-/// @param port the destination port.
-/// @param sockAddr A sockAddr structure will be initialized here, so that
-///  it can be used later for the sendto() call.
-/// @return The socke file descriptor, or -1 if failure.
-int 
-CP2ExecThread::initNetwork(char* ipName, int port, struct sockaddr_in& sockAddr)
-{
-	WORD wVersionRequested;
-	WSADATA wsaData;
-
-	// startup 
-	wVersionRequested = MAKEWORD( 2, 2 );	 
-	if (WSAStartup( wVersionRequested, &wsaData )){
-		printf ("WARNING - WSAStartup failed - networking may not be avaiable\n");
-	}
-	int sock = WSASocket(AF_INET,SOCK_DGRAM,IPPROTO_UDP,NULL,0,WSA_FLAG_OVERLAPPED);	//	was dwFlags = 0
-	if (sock <0)
-		return -1;
-
-	/// initialize sockAddr
-	struct hostent* hent = gethostbyname(ipName);
-	int inetAddr = *(long*)hent->h_addr;
-	sockAddr.sin_port = htons(port);
-	sockAddr.sin_addr.s_addr = inetAddr;
-	sockAddr.sin_family = AF_INET;
-
-	// ask for a large socket send buffer
-	int sockbufsize = 50000000;
-
-	int result = setsockopt (sock,
-		SOL_SOCKET,
-		SO_SNDBUF,
-		(char *) &sockbufsize,
-		sizeof sockbufsize);
-	if (result) {
-		printf("Set send buffer size for socket failed\n");
-		exit(); 
-	}
-	return sock;
-}
-
-/////////////////////////////////////////////////////////////////////
-void
-CP2ExecThread::closeNetwork()
-{
-	WSACleanup( );
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -165,8 +112,7 @@ CP2ExecThread::run()
 
 	// Initialize the network
 	_outport = 3100; 
-	struct sockaddr_in sockAddr;
-	int sock = initNetwork(destIP, _outport, sockAddr);
+	_hostAddr.setAddress(QString(destIP));
 
 	// stop timer card
 	cp2timer_stop(&ext_timer);  
@@ -181,9 +127,9 @@ CP2ExecThread::run()
 	/// bus transfers. 
 	int blocksize = sizeof(PINFOHEADER)+
 		config1->gatesa * 2 * sizeof(float);
-	_packetsPerPciXfer = 65536 / blocksize; 
-	if	(_packetsPerPciXfer % 2)	//	computed odd #hits
-		_packetsPerPciXfer--;	//	make it even
+	_pulsesPerPciXfer = 65536 / blocksize; 
+	if	(_pulsesPerPciXfer % 2)	//	computed odd #hits
+		_pulsesPerPciXfer--;	//	make it even
 
 	// find the PMAC card
 	PMACphysAddr = findPMACdpram();
@@ -201,9 +147,9 @@ CP2ExecThread::run()
 
 	char* d = new char[_dspObjFile.size()+1];
 	strcpy(d, _dspObjFile.c_str());
-	_piraq1 = new CP2PIRAQ(sockAddr, sock, destIP, fname1, d, _packetsPerPciXfer, PMACphysAddr, 0, SHV);
-	_piraq2 = new CP2PIRAQ(sockAddr, sock, destIP, fname2, d, _packetsPerPciXfer, PMACphysAddr, 1, XH);
-	_piraq3 = new CP2PIRAQ(sockAddr, sock, destIP, fname3, d, _packetsPerPciXfer, PMACphysAddr, 2, XV);
+	_piraq1 = new CP2PIRAQ(&_hostAddr, &_socketDevice, fname1, d, _pulsesPerPciXfer, PMACphysAddr, 0, SHV);
+	_piraq2 = new CP2PIRAQ(&_hostAddr, &_socketDevice, fname2, d, _pulsesPerPciXfer, PMACphysAddr, 1, XH);
+	_piraq3 = new CP2PIRAQ(&_hostAddr, &_socketDevice, fname3, d, _pulsesPerPciXfer, PMACphysAddr, 2, XV);
 	delete [] d;
 
 	///////////////////////////////////////////////////////////////////////////
@@ -239,7 +185,7 @@ CP2ExecThread::run()
 
 	std::cout 
 		<< "\nAll piraqs have been started. "
-		<< _packetsPerPciXfer 
+		<< _pulsesPerPciXfer 
 		<< " pulses will be \ntransmitted for each PCI bus transfer\n\n";
 
 	///////////////////////////////////////////////////////////////////////////
@@ -271,8 +217,6 @@ CP2ExecThread::run()
 		delete _piraq2; 
 	if (_piraq3)
 		delete _piraq3;
-
-	closeNetwork();
 
 }
 

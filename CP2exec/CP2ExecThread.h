@@ -3,6 +3,9 @@
 
 #include <string>
 #include <qthread.h>
+#include <qsocketdevice.h>
+#include <qhostaddress.h>
+
 #include "CP2PIRAQ.h"
 #include "CP2Net.h"
 
@@ -18,28 +21,28 @@ public:
 	void rates(double& rate1, double& rate2, double& rate3);
 
 protected:
-/////////////////////////////////////////////////////////////////////
-/// Initialize the windows network interface. closeNetwork() 
-/// must be called the same number of times that this routine is
-/// called, because WSAstartup() mantains a reference count. See
-/// the windows documentation.
-/// @param ipName The network name that datagrams will be sent to
-/// @param port the destination port.
-/// @param sockAddr A sockAddr structure will be initialized here, so that
-///  it can be used later for the sendto() call.
-/// @return The socke file descriptor, or -1 if failure.
-int initNetwork(char* ipName, int port, struct sockaddr_in& sockAddr);
-void closeNetwork();
+	/// The piraq dsp's will read the antenna pointing information
+	// directly across the pci bus from the PMAC. They need the 
+	/// PCI physical address of the PMAC dual ported ram.
+	/// @return The pci physical address of the PMAC dual ported ram.
+	unsigned int findPMACdpram();
 
 	CP2PIRAQ* _piraq1;
 	CP2PIRAQ* _piraq2;
 	CP2PIRAQ* _piraq3;
 	// The dsp object code file name
 	std::string _dspObjFile;
-	// The configuration file name
+	/// The configuration file name
 	std::string _configFile;
-	unsigned int _packetsPerPciXfer; 
+	/// The number of pulses per PCI transfer. 
+	/// This sized so that each PCI transfer is less than 64KB, 
+	///which is the size of the burst FIFO on the piraq which
+	/// feeds the PCI transfer. 
+	unsigned int _pulsesPerPciXfer; 
 	int _outport;
+
+	QSocketDevice _socketDevice;
+	QHostAddress _hostAddr;
 
 	bool _stop;
 	int _pulses1;

@@ -6,17 +6,19 @@
 #include "config.h"
 #include "subs.h"
 
+#include <qsocketdevice.h>
+#include <qhostaddress.h>
+
 class CP2PIRAQ: public PIRAQ {
 
 public:
 
 	CP2PIRAQ( 
-		struct sockaddr_in sockAddr,
-		int socketFd,
-		char* ipDestination,
+		QHostAddress* pHostAddr,
+		QSocketDevice* pSocketDevice,
 		char* configFname,
 		char* dspObjFnamefloat,
-		unsigned int packetsPerPciXfer,
+		unsigned int pulsesPerPciXfer,
 		unsigned int pmacDpramBusAddr,
 		int boardnum,
 		RCVRTYPE rcvrType
@@ -59,10 +61,10 @@ protected:
 	/// the number of hits in each block transfer
 	/// from the piraq.
 	unsigned int _pulsesPerPciXfer;
-	/// Socket specifications for datagrams
-	struct sockaddr_in  _sockAddr;
-	/// socket file descriptor
-	int _socketFd;
+	/// Host address for datagram writes
+	QHostAddress* _pHostAddr;
+	/// outgoing socket
+	QSocketDevice* _pSocketDevice;
 	/// The pci bus address for the PMAC dpram; this
 	/// is passed to the piraq so that it can read
 	/// az and el angles directly from the PMAC.

@@ -1,4 +1,3 @@
-#include <winsock2.h>
 #include "CP2PIRAQ.h"
 
 #include "piraqComm.h"
@@ -16,9 +15,8 @@
 
 ///////////////////////////////////////////////////////////////////////////
 CP2PIRAQ::CP2PIRAQ(
-struct sockaddr_in sockAddr,
-	int socketFd,
-	char* destIP,
+    QHostAddress* pHostAddr,
+	QSocketDevice* pSocketDevice,
 	char* configFname, 
 	char* dspObjFname,
 	unsigned int pulsesPerPciXfer,
@@ -26,8 +24,8 @@ struct sockaddr_in sockAddr,
 	int boardnum,
 	RCVRTYPE rcvrType):
 PIRAQ(),
-_sockAddr(sockAddr),
-_socketFd(socketFd),
+_pHostAddr(pHostAddr),
+_pSocketDevice(pSocketDevice),
 _pulsesPerPciXfer(pulsesPerPciXfer), 
 _lastPulseNumber(0),
 _totalHits(0),
@@ -224,32 +222,7 @@ int
 CP2PIRAQ::sendData(int size, 
 				   void* data)
 {
-
-	DWORD bytesSent;
-
-	// send the datagram
-	WSABUF DataBuf[1];
-	DataBuf[0].buf = (char *)data;
-	DataBuf[0].len = size; 
-	int iError = WSASendTo(
-		_socketFd,
-		&DataBuf[0],
-		1,
-		&bytesSent,
-		0,
-		(sockaddr *)&_sockAddr,
-		sizeof(_sockAddr),
-		NULL,
-		NULL);
-
-	// check for an error
-	if (iError != 0) { // send error, print it
-		printf("Error:%d, size:%d Bytes: %d\n", iError, bytesSent, size);
-		iError = WSAGetLastError ();
-		printf("WSASendTo(): iError = 0x%x\n",iError);
-		bytesSent = -1;
-	}
-
+	int bytesSent = _pSocketDevice->writeBlock((const char*)data, size, *_pHostAddr, 3100);
 	// return the number of bytes sent, or -1 if an error.
 	return bytesSent;
 }
