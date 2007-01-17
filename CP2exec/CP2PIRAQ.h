@@ -34,6 +34,9 @@ public:
 	PINFOHEADER info();
 	int pnErrors();
 	double sampleRate();
+	/// @return the current eof indicator flag. 
+	/// The flag is cleared when this function is called.
+	bool eof();
 
 protected:
 	int init(char* configFname, char* dspObjFname);
@@ -76,6 +79,10 @@ protected:
 	CP2Packet _cp2Packet;
 	/// The last saved system tick count (milliseconds) 
 	int _lastTickCount;
+	/// The _eof flag is set when an EOF is discovered in
+	/// a pulse. It is cleared when the eof() function is called.
+	bool _eof;
+
 	float _prt;				
 	int _prt2;   
 	int _timing_mode;

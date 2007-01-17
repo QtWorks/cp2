@@ -21,6 +21,7 @@ public:
 	void pnErrors(int& errors1, int& errors2, int& errors3);
 	void pulses(int& pulses1, int& pulses2, int& pulses);
 	void rates(double& rate1, double& rate2, double& rate3);
+	void eof(bool eof[3]);
 
 protected:
 	/// The piraq dsp's will read the antenna pointing information
@@ -56,6 +57,12 @@ protected:
 	int _pulses1;
 	int _pulses2;
 	int _pulses3;
+	// will be set true if an EOF is detected by the
+	// CP2PIRAQ since the last time that CP2PIRAQ was
+	// queried. (when queried, CP2PIRAQ returns the
+	// current state, and clears it's internal flag)
+	bool _eofFlags[3];
+
 };
 
 

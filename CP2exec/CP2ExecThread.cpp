@@ -281,6 +281,22 @@ CP2ExecThread::pulses(int& pulses1, int& pulses2, int& pulses3) {
 }
 
 /////////////////////////////////////////////////////////////////////
+void
+CP2ExecThread::eof(bool eofflags[3])
+{
+	if (!_piraq1 || !_piraq2 || !_piraq3) 
+	{
+		eofflags[0] = false;
+		eofflags[1] = false;
+		eofflags[2] = false; 
+		return;
+	}
+	eofflags[0] = _piraq1->eof();
+	eofflags[1] = _piraq2->eof();
+	eofflags[2] = _piraq3->eof(); 
+
+}
+/////////////////////////////////////////////////////////////////////
 CP2ExecThread::STATUS
 CP2ExecThread::status()
 {

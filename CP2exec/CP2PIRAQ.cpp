@@ -32,7 +32,8 @@ _totalHits(0),
 _pmacDpramAddr(pmacDpramAddr),
 _boardnum(boardnum),
 _rcvrType(rcvrType),
-_PNerrors(0)
+_PNerrors(0),
+_eof(false)
 {
 	init(configFname, dspObjFname);
 }
@@ -181,8 +182,10 @@ CP2PIRAQ::poll()
 			header.gates     = ppacket->info.gates;
 			header.hits      = ppacket->info.hits;
 			header.status    = 0;
-			if (ppacket->info.status & FIFO_EOF)
+			if (ppacket->info.status & FIFO_EOF) {
 				header.status |= PIRAQ_FIFO_EOF;
+				_eof = true;
+			}
 			header.horiz     = ppacket->info.horiz;
 
 			// add pulse to the outgoing packet
@@ -256,6 +259,16 @@ CP2PIRAQ::stop()
 	stop_piraq(&_config, this);
 }
 
+///////////////////////////////////////////////////////////////////////////
+bool
+CP2PIRAQ::eof() 
+{
+	bool retval = _eof;
+	_eof = false;
+	return retval;
+}
+
+///////////////////////////////////////////////////////////////////////////
 int CP2PIRAQ::start(long long firstPulseNum)
 {
 	_pConfigPacket->info.pulse_num = firstPulseNum;	// set UNIX epoch pulsenum just before starting
