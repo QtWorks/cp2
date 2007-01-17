@@ -13,7 +13,7 @@ public:
 	virtual ~CP2Exec();
 
 public slots:
-	void stopSlot(bool);
+	void restartSlot();
 
 protected:
 	CP2ExecThread* _pThread;

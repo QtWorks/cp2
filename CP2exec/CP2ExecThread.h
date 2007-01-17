@@ -12,10 +12,12 @@
 class CP2ExecThread: public QThread {
 
 public:
+	enum STATUS {STARTUP, PIRAQINIT, RUNNING};
 	CP2ExecThread(std::string dspObjfile, std::string configFile);
 	virtual ~CP2ExecThread();
 	void run();
 	void stop();
+	STATUS status();
 	void pnErrors(int& errors1, int& errors2, int& errors3);
 	void pulses(int& pulses1, int& pulses2, int& pulses);
 	void rates(double& rate1, double& rate2, double& rate3);
@@ -47,6 +49,8 @@ protected:
 	int _outPort;
 	/// The destination network.
 	QHostAddress _hostAddr;
+	/// The current status
+	STATUS _status;
 
 	bool _stop;
 	int _pulses1;

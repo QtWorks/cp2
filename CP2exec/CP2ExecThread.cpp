@@ -40,7 +40,8 @@ _pulses2(0),
 _pulses3(0),
 _stop(false),
 _outPort(3100),
-_socketDevice(QSocketDevice::Datagram, QSocketDevice::IPv4, 0)
+_socketDevice(QSocketDevice::Datagram, QSocketDevice::IPv4, 0),
+_status(STARTUP)
 {
 }
 
@@ -71,6 +72,8 @@ CP2ExecThread::findPMACdpram()
 void
 CP2ExecThread::run()
 {
+	_status = PIRAQINIT;
+
 	CONFIG *config1, *config2, *config3;
 	char fname1[100]; char fname2[100]; char fname3[100]; // configuration filenames
 	char* destIP = "192.168.3.255";
@@ -203,6 +206,8 @@ CP2ExecThread::run()
 	cp2timer_reset(&ext_timer);	// tell the timer to initialize with the values from DPRAM 
 	cp2timer_start(&ext_timer);	// start timer 
 
+	_status = RUNNING;
+
 	while(1) { 
 		_pulses1 += _piraq1->poll();
 		_pulses2 += _piraq2->poll();
@@ -221,6 +226,12 @@ CP2ExecThread::run()
 		delete _piraq2; 
 	if (_piraq3)
 		delete _piraq3;
+
+	_piraq1 = 0;
+	_piraq2 = 0;
+	_piraq3 = 0;
+
+	_stop = false;
 
 }
 
@@ -270,4 +281,9 @@ CP2ExecThread::pulses(int& pulses1, int& pulses2, int& pulses3) {
 }
 
 /////////////////////////////////////////////////////////////////////
+CP2ExecThread::STATUS
+CP2ExecThread::status()
+{
+	return _status;
+}
 /////////////////////////////////////////////////////////////////////
