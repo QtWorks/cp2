@@ -1,7 +1,7 @@
 
 #include "CP2Scope.h"
 #include <ScopePlot/ScopePlot.h>
-#include <TwoKnobs/TwoKnobs.h>
+#include <Knob/Knob.h>
 
 #include <qbuttongroup.h>
 #include <qlabel.h>
@@ -25,6 +25,8 @@
 #include <iostream>
 #include <time.h>
 
+#include <qwt_wheel.h>
+
 //////////////////////////////////////////////////////////////////////
 CP2Scope::CP2Scope():
 _pPulseSocket(0),    
@@ -33,7 +35,9 @@ _pPulseSocketBuf(0),
 _tsDisplayCount(0),
 _productDisplayCount(0),
 _statsUpdateInterval(5),
-_rawPlot(TRUE)
+_rawPlot(TRUE),
+_performAutoScale(false),
+_dataChannel(0)
 {
 	_pulseDataPort	= 3100;
 	_productDataPort = 3200;
@@ -58,15 +62,17 @@ _rawPlot(TRUE)
 	// in the plot type tab widget
 	initPlots();
 
-	_gainOffsetKnobs->setRanges(-5, 5, -10, 10);
-	_gainOffsetKnobs->setTitles("Gain", "Offset");
+	_gainKnob->setRange(-5, 5);
+	_gainKnob->setTitle("Gain");
 
 	// set the minor ticks
-	_gainOffsetKnobs->setScaleMaxMinor(1, 5);
-	_gainOffsetKnobs->setScaleMaxMinor(2, 5);
+	_gainKnob->setScaleMaxMajor(5);
+	_gainKnob->setScaleMaxMinor(5);
 
-	_scopeGain = 1;
-	_scopeOffset = 0.0;
+	_graphRange = 1;
+	_graphCenter = 0.0;
+	_knobGain = 0.0;
+	_knobOffset = 0.0;
 
 	// set leds to green
 	_chan0led->setBackgroundColor(QColor("green"));
@@ -151,18 +157,6 @@ void CP2Scope::resizeDataVectors()	{
 	}
 }
 
-//////////////////////////////////////////////////////////////////////
-void CP2Scope::gainChangeSlot(double gain)	{	
-	_powerCorrection = gain; 
-	_scopeGain = pow(10.0,-gain);
-	_gain = gain;
-}
-
-//////////////////////////////////////////////////////////////////////
-void CP2Scope::offsetChangeSlot(double offset)	{
-	_scopeOffset = _scopeGain*offset;
-	_offset = offset;
-}
 
 //////////////////////////////////////////////////////////////////////
 void 
@@ -171,7 +165,6 @@ CP2Scope::DataChannelSpinBox_valueChanged( int dataChannel )
 	//	change the data channel
 	_dataChannel = dataChannel;	
 }
-
 
 //////////////////////////////////////////////////////////////////////
 void 
@@ -371,17 +364,22 @@ CP2Scope::processProduct(CP2Product* pProduct)
 void
 CP2Scope::displayData() 
 {
-
+	double yBottom = _graphCenter - _graphRange;
+	double yTop =    _graphCenter + _graphRange;
 	if (_rawPlot) {
 		PlotInfo* pi = &_plotInfo[_plotType];
 
 		switch (pi->getDisplayType())
 		{
 		case ScopePlot::TIMESERIES:
-			_scopePlot->TimeSeries(I, Q, -_scopeGain+_scopeOffset, _scopeGain+_scopeOffset, 1);
+			if (_performAutoScale)
+				autoScale(I, Q);
+			_scopePlot->TimeSeries(I, Q, yBottom, yTop, 1);
 			break;
 		case ScopePlot::IVSQ:
-			_scopePlot->IvsQ(I, Q, -_scopeGain+_scopeOffset, _scopeGain+_scopeOffset, 1); 
+			if (_performAutoScale)
+				autoScale(I, Q);
+			_scopePlot->IvsQ(I, Q, yBottom, yTop, 1); 
 			break;
 		case ScopePlot::SPECTRUM:
 			_scopePlot->Spectrum(_spectrum, -100, 20.0, 1000000, false, "Frequency (Hz)", "Power (dB)");	
@@ -389,11 +387,13 @@ CP2Scope::displayData()
 		}
 
 	} else {
+		if (_performAutoScale)
+			autoScale(_ProductData);
 		PlotInfo* pi = &_prodPlotInfo[_productType];
 		_scopePlot->Product(_ProductData, 
 			pi->getId(), 
-			-_scopeGain+_scopeOffset, 
-			_scopeGain+_scopeOffset, 
+			yBottom, 
+			yTop, 
 			_ProductData.size());
 	}
 }
@@ -532,33 +532,83 @@ CP2Scope::powerSpectrum()
 }
 ////////////////////////////////////////////////////////////////////
 void
-CP2Scope::plotTypeSlot(int newPlotType)
-{
-	_rawPlot = true;
+CP2Scope::plotTypeSlot(int plotType) {
+	// find out the index of the current page
+	int pageNum = _typeTab->currentPageIndex();
 
-	if (newPlotType == _plotType) {
-		return;
+	// get the radio button id of the currently selected button
+	// on that page.
+	int ptype = _tabButtonGroups[pageNum]->selectedId();
+
+	if (pageNum == 0) {
+		// change to a raw plot type
+		PLOTTYPE plotType = (PLOTTYPE)ptype;
+		plotTypeChange(&_plotInfo[plotType], plotType, (PRODUCT_TYPES)0 , true);
+	} else {
+		// change to a product plot type
+		PRODUCT_TYPES productType = (PRODUCT_TYPES)ptype;
+		plotTypeChange(&_prodPlotInfo[productType], (PLOTTYPE)0, productType , false);
 	}
+}
+//////////////////////////////////////////////////////////////////////
+void
+CP2Scope::tabChangeSlot(QWidget* w) 
+{
+	// find out the index of the current page
+	int pageNum = _typeTab->currentPageIndex();
 
-	PlotInfo* pi;
+	// get the radio button id of the currently selected button
+	// on that page.
+	int ptype = _tabButtonGroups[pageNum]->selectedId();
 
-	// save the gain and offset of the existing plot type
-	pi = &_plotInfo[_plotType];
-	pi->setGain(pi->getGainMin(), pi->getGainMax(), _gain);
-	pi->setOffset(pi->getOffsetMin(), pi->getOffsetMax(), _offset);
+	if (pageNum == 0) {
+		// change to a raw plot type
+		PLOTTYPE plotType = (PLOTTYPE)ptype;
+		plotTypeChange(&_plotInfo[plotType], plotType, (PRODUCT_TYPES)0 , true);
+	} else {
+		// change to a product plot type
+		PRODUCT_TYPES productType = (PRODUCT_TYPES)ptype;
+		plotTypeChange(&_prodPlotInfo[productType], (PLOTTYPE)0, productType , false);
+	}
+}
 
-	// change the plot type
-	_plotType = (PLOTTYPE)newPlotType;
+////////////////////////////////////////////////////////////////////
+void
+CP2Scope::plotTypeChange(PlotInfo* pi, 
+					   PLOTTYPE newPlotType, 
+					   PRODUCT_TYPES newProductType, 
+					   bool rawPlot)
+{
 
-	// restore gain and offset 
-	pi = &_plotInfo[_plotType];
+	// save the gain and offset of the current plot type
+	PlotInfo* currentPi;
+	if (_rawPlot) {
+		currentPi = &_plotInfo[_plotType];
+	} else {
+		currentPi = &_prodPlotInfo[_productType];
+	}
+	currentPi->setGain(pi->getGainMin(), pi->getGainMax(), _knobGain);
+	currentPi->setOffset(pi->getOffsetMin(), pi->getOffsetMax(), _graphCenter);
+
+	// restore gain and offset for new plot type
 	gainChangeSlot(pi->getGainCurrent());
-	offsetChangeSlot(pi->getOffsetCurrent());
+	_graphCenter = pi->getOffsetCurrent();
+
 
 	// set the knobs for the new plot type
-	_gainOffsetKnobs->setValues(pi->getGainCurrent(), pi->getOffsetCurrent());
+	_gainKnob->setValue(_knobGain);
 
-	// change data channel if necessary
+	// change the plot type
+	if (rawPlot) {
+		_plotType = newPlotType;
+	} else {
+		_productType = newProductType;
+	}
+	
+	_rawPlot = rawPlot;
+
+	if (_rawPlot) {
+		// change data channel if necessary
 	switch(_plotType) 
 	{
 	case S_TIMESERIES:	// S time series
@@ -579,36 +629,10 @@ CP2Scope::plotTypeSlot(int newPlotType)
 	default:
 		break;
 	}
-
-}
-////////////////////////////////////////////////////////////////////
-void
-CP2Scope::productTypeSlot(int newPlotType)
-{
-	_rawPlot = false;
-
-	if (newPlotType == _productType) {
-		return;
 	}
 
-	PlotInfo* pi;
-
-	// save the gain and offset of the existing plot type
-	pi = &_prodPlotInfo[_productType];
-	pi->setGain(pi->getGainMin(), pi->getGainMax(), _gain);
-	pi->setOffset(pi->getOffsetMin(), pi->getOffsetMax(), _offset);
-
-	// change the plot type
-	_productType = (PRODUCT_TYPES)newPlotType;
-
-	// restore gain and offset 
-	gainChangeSlot(pi->getGainCurrent());
-	offsetChangeSlot(pi->getOffsetCurrent());
-
-	// set the knobs for the new plot type
-	_gainOffsetKnobs->setValues(pi->getGainCurrent(), pi->getOffsetCurrent());
-
 }
+
 ////////////////////////////////////////////////////////////////////
 void
 CP2Scope::initPlots()
@@ -692,26 +716,6 @@ CP2Scope::initPlots()
 	connect(_typeTab, SIGNAL(currentChanged(QWidget *)), 
 		this, SLOT(tabChangeSlot(QWidget*)));
 }
-//////////////////////////////////////////////////////////////////////
-void
-CP2Scope::tabChangeSlot(QWidget* w) 
-{
-	// find out the index of the current page
-	int pageNum = _typeTab->currentPageIndex();
-
-	// get the radio button id of the currently selected button
-	// on that page.
-	int plotType = _tabButtonGroups[pageNum]->selectedId();
-
-	if (pageNum == 0) {
-	// change the raw plot type
-	plotTypeSlot(plotType);
-	} else {
-		// change the product plot type
-		productTypeSlot(plotType);
-	}
-}
-
 //////////////////////////////////////////////////////////////////////
 QButtonGroup*
 CP2Scope::addPlotTypeTab(std::string tabName, std::set<PLOTTYPE> types)
@@ -804,7 +808,7 @@ CP2Scope::addProductTypeTab(std::string tabName, std::set<PRODUCT_TYPES> types)
 
 	// connect the button released signal to our
 	// our plot type change slot.
-	connect(pGroup, SIGNAL(released(int)), this, SLOT(productTypeSlot(int)));
+	connect(pGroup, SIGNAL(released(int)), this, SLOT(plotTypeSlot(int)));
 
 	return pGroup;
 }
@@ -829,3 +833,88 @@ CP2Scope::timerEvent(QTimerEvent*)
 	_chan2pulseRate->setNum(rate[2]);
 	_chan2errors->setNum(_errorCount[2]);
 }
+
+//////////////////////////////////////////////////////////////////////
+void CP2Scope::gainChangeSlot(double gain)	{	
+
+	// keep a local copy of the gain knob value
+	_knobGain = gain;
+
+	_powerCorrection = gain; 
+
+	_graphRange = pow(10.0,-gain);
+
+	_gainKnob->setValue(gain);
+
+}
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+void 
+CP2Scope::upSlot()	{
+	_graphCenter -= 0.03*_graphRange;
+}
+//////////////////////////////////////////////////////////////////////
+void 
+CP2Scope::dnSlot()	{
+	_graphCenter += 0.03*_graphRange;
+}
+//////////////////////////////////////////////////////////////////////
+void 
+CP2Scope::autoScale(std::vector<double>& data)
+{
+	double min = 1.0e10;
+	double max = -1.0e10;
+	for (int i = 0; i < data.size(); i++) {
+		if (data[i] > max)
+			max = data[i]; 
+		else
+			if (data[i] < min)
+				min = data[i];
+	}
+	adjustGainOffset(min, max);
+	_performAutoScale = false;
+}
+//////////////////////////////////////////////////////////////////////
+void 
+CP2Scope::autoScale(std::vector<double>& data1, std::vector<double>& data2)
+{
+	double min = 1.0e10;
+	double max = -1.0e10;
+	for (int i = 0; i < data1.size(); i++) {
+		if (data1[i] > max)
+			max = data1[i]; 
+		else
+			if (data1[i] < min)
+				min = data1[i];
+	}
+
+	for  (int i = 0; i < data2.size(); i++) {
+		if (data2[i] > max)
+			max = data2[i]; 
+		else
+			if (data2[i] < min)
+				min = data2[i];
+	}
+	adjustGainOffset(min, max);
+	_performAutoScale = false;
+}
+//////////////////////////////////////////////////////////////////////
+void 
+CP2Scope::adjustGainOffset(double min, double max)
+{
+	double factor = 0.8;
+	_graphCenter = (min+max)/2.0;
+	_graphRange = (1/factor)*(max - min)/2.0;
+
+	_knobGain = -log10(_graphRange);
+
+	_gainKnob->setValue(_knobGain);
+}
+//////////////////////////////////////////////////////////////////////
+void 
+CP2Scope::autoScaleSlot()
+{
+	_performAutoScale = true;
+}
+

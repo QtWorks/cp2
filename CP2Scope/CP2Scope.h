@@ -76,13 +76,19 @@ public slots:
 	void newProductSlot(int socket);
 
 	virtual void plotTypeSlot(int plotType);
-
-	virtual void productTypeSlot(int plotType);
+	
+	void plotTypeChange(PlotInfo* pi, 
+					   PLOTTYPE plotType, 
+					   PRODUCT_TYPES prodType, 
+					   bool rawPlot);
 
 	void tabChangeSlot(QWidget* w);
 
 	virtual void gainChangeSlot( double );	
-	virtual void offsetChangeSlot( double );	
+	virtual void upSlot();
+	virtual void dnSlot();
+	/// Perform an autoscale
+	virtual void autoScaleSlot();
 	virtual void dataSetSlot(bool);
 	virtual void DataSetGateSpinBox_valueChanged( int ); 
 	virtual void xFullScaleBox_valueChanged( int );	
@@ -128,13 +134,28 @@ protected:
 	///	decimation factor for products display: currently set 50
 	unsigned int	_productsDecimation;	
 
-	double          _gain;
-	double          _offset;
-	double			_scopeGain;						
-	double			_scopeOffset;							
-	double			_xFullScale;		
-
-	/// Holds I data for time series and I vs. Q display
+	double          _knobGain;
+	double          _knobOffset;
+	double			_graphRange;	
+	double			_graphCenter;
+	double			_xFullScale;	
+	/// Set true to cause an autoscale 
+	/// to take place on the next data series
+	bool _performAutoScale;
+	/// set the _graphRange and _graphOffset based
+	/// on the data series.
+	/// @param data The data series to be analyzed.
+	void autoScale(std::vector<double>& data);
+	/// set the _graphRange and _graphOffset based
+	/// on the two data series.
+	/// @param data1 The first data series to be analyzed.
+	/// @param data2 The second data series to be analyzed.
+	void autoScale(std::vector<double>& data1, std::vector<double>& data2);
+	/// Adjust the _graphRange and _graphOffset values.
+	/// @param min Desired scale minimum
+	/// @param max Desired scale maximum
+	void adjustGainOffset(double min, double max);
+	/// Holds I data for time series and I vs. Q 	
 	std::vector<double> I;
 	/// Holds Q data for time series and I vs. Q display
 	std::vector<double> Q;

@@ -116,6 +116,9 @@ CP2Moments::initializeSockets()
 	_pPulseSocket = new QSocketDevice(QSocketDevice::Datagram);
 	_pProductSocket = new QSocketDevice(QSocketDevice::Datagram);
 
+	_pPulseSocket->setAddressReusable(true);
+	_pProductSocket->setAddressReusable(true);
+
 	// find out our IP address and name
 	char nameBuf[1000];
 	if (gethostname(nameBuf, sizeof(nameBuf))) {

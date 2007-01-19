@@ -61,19 +61,23 @@ void CP2ScopeBase::gainChangeSlot( double )
 }
 
 
-void CP2ScopeBase::offsetChangeSlot( double )
+
+
+
+void CP2ScopeBase::autoScaleSlot()
 {
 
 }
 
 
-void CP2ScopeBase::gainChangeSlot( int )
+
+void CP2ScopeBase::upSlot()
 {
 
 }
 
 
-void CP2ScopeBase::offsetChangeSlot( int )
+void CP2ScopeBase::dnSlot()
 {
 
 }
