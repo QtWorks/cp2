@@ -62,7 +62,7 @@ _dataChannel(0)
 	// in the plot type tab widget
 	initPlots();
 
-	_gainKnob->setRange(-5, 5);
+	_gainKnob->setRange(-7, 7);
 	_gainKnob->setTitle("Gain");
 
 	// set the minor ticks
@@ -279,6 +279,9 @@ CP2Scope::newPulseSlot(int)
 void
 CP2Scope::processPulse(CP2Pulse* pPulse) 
 {
+	if (!_rawPlot)
+		return;
+
 	int chan = pPulse->header.channel;
 
 	// look for pulse number errors
@@ -863,6 +866,10 @@ CP2Scope::dnSlot()	{
 void 
 CP2Scope::autoScale(std::vector<double>& data)
 {
+	if (data.size() == 0) {
+		_performAutoScale = false;
+		return;
+	}
 	double min = 1.0e10;
 	double max = -1.0e10;
 	for (int i = 0; i < data.size(); i++) {
@@ -879,6 +886,11 @@ CP2Scope::autoScale(std::vector<double>& data)
 void 
 CP2Scope::autoScale(std::vector<double>& data1, std::vector<double>& data2)
 {
+	if (data1.size() == 0 || data2.size() == 0) {
+		_performAutoScale = false;
+		return;
+	}
+
 	double min = 1.0e10;
 	double max = -1.0e10;
 	for (int i = 0; i < data1.size(); i++) {
