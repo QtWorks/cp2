@@ -690,8 +690,9 @@ CP2Scope::initPlots()
 	_prodPlotInfo[PROD_S_VEL]         = PlotInfo(        PROD_S_VEL,    PRODUCT, "Velocity", "S:  Velocity", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
 	_prodPlotInfo[PROD_S_SNR]         = PlotInfo(        PROD_S_SNR,    PRODUCT, "SNR", "S:  SNR", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
 	_prodPlotInfo[PROD_S_RHOHV]       = PlotInfo(      PROD_S_RHOHV,    PRODUCT, "Rhohv", "S:  Rhohv", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_prodPlotInfo[PROD_S_PHIDP]       = PlotInfo(      PROD_S_RHOHV,    PRODUCT, "Phidp", "S:  Phidp", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_prodPlotInfo[PROD_S_PHIDP]       = PlotInfo(      PROD_S_PHIDP,    PRODUCT, "Phidp", "S:  Phidp", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
 	_prodPlotInfo[PROD_S_ZDR]         = PlotInfo(      PROD_S_ZDR,      PRODUCT, "Zdr", "S:  Zdr", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+
 	_prodPlotInfo[PROD_X_DBMHC]       = PlotInfo(      PROD_X_DBMHC,    PRODUCT, "H Dbm", "Xh: Dbm", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
 	_prodPlotInfo[PROD_X_DBMVX]       = PlotInfo(      PROD_X_DBMVX,    PRODUCT, "V Cross Dbm", "Xv: Dbm", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
 	_prodPlotInfo[PROD_X_DBZHC]       = PlotInfo(      PROD_X_DBZHC,    PRODUCT, "H Dbz", "Xh: Dbz", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
