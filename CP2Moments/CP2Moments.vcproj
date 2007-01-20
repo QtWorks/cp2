@@ -101,7 +101,7 @@
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="TRUE"
 				AdditionalDependencies="qt-mt335.lib qtmain.lib ..\Moments\Release\Moments.lib ..\CP2Net\Release\CP2Net.lib ..\..\fftw3.1\libfftw3-3.lib ws2_32.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib imm32.lib winmm.lib wsock32.lib winspool.lib delayimp.lib"
-				OutputFile="Release\CP2Moments.exe"
+				OutputFile="Debug\CP2Moments.exe"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="$(QTDIR)\lib"
 				GenerateDebugInformation="TRUE"

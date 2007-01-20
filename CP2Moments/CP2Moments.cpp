@@ -203,6 +203,13 @@ CP2Moments::newPulseDataSlot(int)
 			for (int i = 0; i < _pulsePacket.numPulses(); i++) {
 				CP2Pulse* pPulse = _pulsePacket.getPulse(i);
 				if (pPulse) {
+					// scale the I/Q counts to something. we will probably do 
+					// this eventually in cp2exec.
+					float* pData = pPulse->data;
+					int gates = pPulse->header.gates;
+					for (int i = 0; i < 2*gates; i++) {
+						pData[i]   *= PIRAQ3D_SCALE;
+					}
 					int chan = pPulse->header.channel;
 					if (chan >= 0 && chan < 3) {
 
@@ -456,6 +463,10 @@ CP2Moments::xDatagram(Beam* pBeam)
 
 	header.prodType = PROD_X_DBMHC;
 	for (int i = 0; i < gates; i++) { _xProductData[i] = fields[i].dbmhc;}
+	sendProduct(header, _xProductData, _xProductPacket);
+
+	header.prodType = PROD_X_DBMVX;
+	for (int i = 0; i < gates; i++) { _xProductData[i] = fields[i].dbmvx;}
 	sendProduct(header, _xProductData, _xProductPacket);
 
 	header.prodType =  PROD_X_DBZHC;	///< X-band dBz horizontal co-planar

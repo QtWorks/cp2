@@ -6,6 +6,7 @@
 #include <qsocketnotifier.h>
 #include <qevent.h>
 #include <qbuttongroup.h>
+#include <math.h>
 
 #include <deque>
 #include <set>
@@ -15,6 +16,7 @@
 #include "CP2MomentsBase.h"
 #include "MomentThread.h"
 
+#define PIRAQ3D_SCALE	1.0/(unsigned int)pow(2,31)	
 /// request this much space for the pulse socket receive buffer
 #define CP2MOMENTS_PULSE_RCVBUF 100000000
 /// request this much space for the product socket send buffer
