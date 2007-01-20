@@ -9,9 +9,9 @@
 ** 1999/03/14 14:18:54
 *=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*/
 ///////////////////////////////////////////////////////////////
-// MomentsCompute.cc
+// MomentsEngine.cc
 //
-// MomentsCompute object
+// MomentsEngine object
 //
 // Mike Dixon, RAP, NCAR, P.O.Box 3000, Boulder, CO, 80307-3000, USA
 //
@@ -19,7 +19,7 @@
 //
 ///////////////////////////////////////////////////////////////
 //
-// MomentsCompute reads raw time-series data, and
+// MomentsEngine reads raw time-series data, and
 // computes the moments.
 //
 ////////////////////////////////////////////////////////////////
@@ -29,15 +29,15 @@
 #include <cmath>
 #include <iostream>
 #include <iomanip>
-#include "MomentsCompute.hh"
+#include "MomentsEngine.hh"
 using namespace std;
 
-const double MomentsCompute::_missingDbl = -9999.0;
+const double MomentsEngine::_missingDbl = -9999.0;
 
 ////////////////////////////////////////////////////
 // Constructor
 
-MomentsCompute::MomentsCompute(Params params):
+MomentsEngine::MomentsEngine(Params params):
 _currentBeam(0),
 _params(params)
 {
@@ -84,12 +84,12 @@ _params(params)
 //////////////////////////////////////////////////////////////////
 // destructor
 
-MomentsCompute::~MomentsCompute()
+MomentsEngine::~MomentsEngine()
 
 {
 
 	for (size_t ii = 0; ii < _pulseQueue.size(); ii++) {
-		if (_pulseQueue[ii]->removeClient("MomentsCompute destructor") == 0) {
+		if (_pulseQueue[ii]->removeClient("MomentsEngine destructor") == 0) {
 			delete _pulseQueue[ii];
 		}
 	} // ii
@@ -99,15 +99,15 @@ MomentsCompute::~MomentsCompute()
 
 // set debugging
 
-void MomentsCompute::setDebug()
+void MomentsEngine::setDebug()
 {
 	_params.debug = Params::DEBUG_NORM;
 }
-void MomentsCompute::setDebugVerbose()
+void MomentsEngine::setDebugVerbose()
 {
 	_params.debug = Params::DEBUG_VERBOSE;
 }
-void MomentsCompute::setDebugExtraVerbose()
+void MomentsEngine::setDebugExtraVerbose()
 {
 	_params.debug = Params::DEBUG_EXTRA_VERBOSE;
 }
@@ -117,7 +117,7 @@ void MomentsCompute::setDebugExtraVerbose()
 //
 // Side effects: sets _az, _midIndex1, _midIndex2
 
-bool MomentsCompute::_beamReady(double& beamAz)
+bool MomentsEngine::_beamReady(double& beamAz)
 {
 
 	_countSinceBeam++;
@@ -245,7 +245,7 @@ bool MomentsCompute::_beamReady(double& beamAz)
 /////////////////////////////////////////////////
 // compute moments for the beam
 
-int MomentsCompute::_computeBeamMoments(Beam *beam)
+int MomentsEngine::_computeBeamMoments(Beam *beam)
 
 {
 
@@ -283,7 +283,7 @@ int MomentsCompute::_computeBeamMoments(Beam *beam)
 /////////////////////////////////////////////////
 // add the pulse to the pulse queue
 
-void MomentsCompute::_addPulseToQueue(Pulse *pulse)
+void MomentsEngine::_addPulseToQueue(Pulse *pulse)
 
 {
 
@@ -317,7 +317,7 @@ void MomentsCompute::_addPulseToQueue(Pulse *pulse)
 /////////////////////////////////////////////////////////////
 
 int 
-MomentsCompute::processPulse(
+MomentsEngine::processPulse(
 							 float* data,
 							 float* crossdata,
 							 int gates, 
@@ -376,7 +376,7 @@ MomentsCompute::processPulse(
 		// _currentBeam via getNewBeam(),
 		// then _currentBeam was set to null, 
 		// and it is up to the owner of
-		// MomentsCompute to delete that beam when finished with it.
+		// MomentsEngine to delete that beam when finished with it.
 		if (_currentBeam)
 			delete _currentBeam;
 
@@ -391,7 +391,7 @@ MomentsCompute::processPulse(
 /////////////////////////////////////////////////////////////
 
 Beam*
-MomentsCompute::getNewBeam() {
+MomentsEngine::getNewBeam() {
 
 	Beam* retval = _currentBeam;
 

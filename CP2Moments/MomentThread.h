@@ -10,7 +10,7 @@
 #include "CP2Net.h"
 
 // Clases used in the moments computatons:
-#include "MomentsCompute.hh"
+#include "MomentsEngine.hh"
 #include "MomentsMgr.hh"
 #include "Params.hh"
 #include "Pulse.hh"
@@ -54,7 +54,7 @@ protected:
 	QWaitCondition _queueWait;
 
 	/// The compute engine for the moments
-	MomentsCompute* _momentsCompute;
+	MomentsEngine* _momentsEngine;
 
 	/// The parameters for the moments compute engine.
 	Params _params;

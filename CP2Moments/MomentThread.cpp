@@ -21,7 +21,7 @@ void
 MomentThread::run()
 {
 	// create the moment compute engine for S band
-	_momentsCompute = new MomentsCompute(_params);
+	_momentsEngine = new MomentsEngine(_params);
 
 	while (1) {
 		_queueWait.wait();
@@ -31,7 +31,7 @@ MomentThread::run()
 			CP2FullPulse* p1 = pp.first;
 			CP2FullPulse* p2 = pp.second;
 			if (p2) {
-			_momentsCompute->processPulse(
+			_momentsEngine->processPulse(
 				p1->data(),
 				p2->data(),
 				p1->header()->gates,
@@ -41,7 +41,7 @@ MomentThread::run()
 				p1->header()->pulse_num,
 				p1->header()->horiz);
 			} else {
-			_momentsCompute->processPulse(
+			_momentsEngine->processPulse(
 				p1->data(),
 				0,
 				p1->header()->gates,
@@ -56,7 +56,7 @@ MomentThread::run()
 			if (p2) {
 				delete p2;
 			}
-			Beam* pBeam = _momentsCompute->getNewBeam();
+			Beam* pBeam = _momentsEngine->getNewBeam();
 			if (pBeam)
 			{
 				_beamQueueMutex.lock();

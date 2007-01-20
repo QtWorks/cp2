@@ -118,7 +118,7 @@
 				RelativePath=".\Moments.cc">
 			</File>
 			<File
-				RelativePath=".\MomentsCompute.cc">
+				RelativePath=".\MomentsEngine.cc">
 			</File>
 			<File
 				RelativePath=".\MomentsMgr.cc">
@@ -153,7 +153,7 @@
 				RelativePath=".\Moments.hh">
 			</File>
 			<File
-				RelativePath=".\MomentsCompute.hh">
+				RelativePath=".\MomentsEngine.hh">
 			</File>
 			<File
 				RelativePath=".\MomentsMgr.hh">

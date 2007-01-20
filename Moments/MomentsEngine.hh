@@ -9,7 +9,7 @@
 ** 1999/03/14 14:18:54
 *=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*/
 /////////////////////////////////////////////////////////////
-// MomentsCompute.hh
+// MomentsEngine.hh
 //
 // Mike Dixon, RAP, NCAR
 // P.O.Box 3000, Boulder, CO, 80307-3000, USA
@@ -18,8 +18,8 @@
 //
 ///////////////////////////////////////////////////////////////
 
-#ifndef MomentsCompute_hh
-#define MomentsCompute_hh
+#ifndef MomentsEngine_hh
+#define MomentsEngine_hh
 
 #include <string>
 #include <vector>
@@ -34,17 +34,17 @@ using namespace std;
 ////////////////////////
 // This class
 
-class MomentsCompute {
+class MomentsEngine {
 
 public:
 
 	// constructor
 
-	MomentsCompute(Params params);
+	MomentsEngine(Params params);
 
 	// destructor
 
-	~MomentsCompute();
+	~MomentsEngine();
 
         // process a pulse
 
