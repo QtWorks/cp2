@@ -296,7 +296,7 @@ CP2Moments::processPulse(CP2Pulse* pPulse)
 		// 0 if nothing is ready yet.
 		pBeam = _pSmomentThread->getNewBeam();
 		if (pBeam) {
-			sDatagram(pBeam);
+			sBeamOut(pBeam);
 			delete pBeam;
 			_sBeamCount++;
 		}
@@ -345,7 +345,7 @@ CP2Moments::processPulse(CP2Pulse* pPulse)
 		}
 		if (pBeam) {
 			// we have X products
-			xDatagram(pBeam);
+			xBeamOut(pBeam);
 			delete pBeam;
 			_xBeamCount++;
 		}
@@ -388,7 +388,7 @@ CP2Moments::sendProduct(CP2ProductHeader& header,
 }
 ////////////////////////////////////////////////////////////////////
 void 
-CP2Moments::sDatagram(Beam* pBeam)
+CP2Moments::sBeamOut(Beam* pBeam)
 {
 	int gates = pBeam->getNGatesOut();
 
@@ -446,7 +446,7 @@ CP2Moments::sDatagram(Beam* pBeam)
 }
 /////////////////////////////////////////////////////////////////////
 void 
-CP2Moments::xDatagram(Beam* pBeam)
+CP2Moments::xBeamOut(Beam* pBeam)
 {
 	int gates = pBeam->getNGatesOut();
 

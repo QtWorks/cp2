@@ -66,10 +66,10 @@ protected:
 	void processPulse(CP2Pulse* pPulse);
 	/// Send out a products data gram for S band.
 	/// @param pBeam The Sband beam.
-	void sDatagram(Beam* pBeam);
+	void sBeamOut(Beam* pBeam);
 	/// Send out a products data gram for X band.
 	/// @param pBeam The Xband beam.
-	void xDatagram(Beam* pBeam);
+	void xBeamOut(Beam* pBeam);
 	void sendProduct(CP2ProductHeader& header, 
 						 std::vector<double>& data,
 						 CP2Packet& packet,
