@@ -136,8 +136,7 @@ CP2ExecThread::run()
 	// find the PMAC card
 	PMACphysAddr = findPMACdpram();
 	if (PMACphysAddr == 0) {
-		printf("unable to locate PMAC dpram\n");
-		exit();
+		printf("unable to locate PMAC dpram, piraqs will be told to ignore PMAC\n");
 	}
 	printf("PMAC DPRAM base addr is 0x%08x\n", PMACphysAddr);
 

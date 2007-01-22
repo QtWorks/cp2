@@ -262,6 +262,11 @@ readPMAC(PPACKET* pPkt)
 	volatile unsigned int  dmrr;
 	volatile unsigned int  dmpbam;
 
+	// if the PMAC doesn't exist, as indicated by
+	// a zero base address, do nothing
+	if (!pPMACdpram)
+		return;
+
 	// PCI physical address of PMAC dpram.
 	// wading through some old PMAC code,
 	// it looks like the offsets to parameters into
