@@ -82,6 +82,9 @@ protected:
 	/// The _eof flag is set when an EOF is discovered in
 	/// a pulse. It is cleared when the eof() function is called.
 	bool _eof;
+	/// count pulses, for diagnostic purposes. this will
+	/// be removed in production software
+	long long _nPulses;
 
 	float _prt;				
 	int _prt2;   

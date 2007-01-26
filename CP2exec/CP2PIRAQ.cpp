@@ -1,5 +1,6 @@
 #include "CP2PIRAQ.h"
 
+#include <iostream>
 #include "piraqComm.h"
 
 #include "subs.h"
@@ -33,7 +34,8 @@ _pmacDpramAddr(pmacDpramAddr),
 _boardnum(boardnum),
 _rcvrType(rcvrType),
 _PNerrors(0),
-_eof(false)
+_eof(false),
+_nPulses(0)
 {
 	init(configFname, dspObjFname);
 }
@@ -199,7 +201,19 @@ CP2PIRAQ::poll()
 					thisPulseNumber - _lastPulseNumber);  
 				_PNerrors++; 
 			}
-			_lastPulseNumber = thisPulseNumber; // previous hit PN
+			_lastPulseNumber = thisPulseNumber; // previous PN
+
+			_nPulses++;
+			if (!(_nPulses %1000)) {
+				float iFloat = ppacket->data[header.gates];
+				float qFloat = ppacket->data[header.gates+1];
+				int iInt = iFloat;
+				int qInt = qFloat;
+				printf("piraq %d gate %d I %09.1e %010d 0x%08x   Q %09.1e %010d 0x%08x\n",
+					_boardnum, header.gates/2,
+					iFloat, iInt, iInt, 
+					qFloat, qInt, qInt);
+			}
 		}
 
 		int bytesSent = sendData(_cp2Packet.packetSize(),_cp2Packet.packetData());
