@@ -183,7 +183,7 @@ long  HPIB::coffload( char *pFilePathAndName, char* cErrorString)
 	// Get section header 
 
 	//**************** Loop on the number of sections **************************
-	for(i=1; i<=FileHeader.sections; i++)
+	for(int i=1; i<=FileHeader.sections; i++)
 	{
 		// For the total number of sections in the input file do the following 
 
@@ -305,7 +305,7 @@ long HPIB::Download (struct InputBufferStructure *aData, unsigned long lDestinat
 
 	// Read the data back from the DSP
 	lAddress = lDestinationAddress;
-	for (i=0; i<lLength/2; i+=2,lAddress+=4)
+	for (int i=0; i<lLength/2; i+=2,lAddress+=4)
 	{
 		lCRC_Out+= ReadLocation(lAddress);
 	}

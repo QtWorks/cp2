@@ -1,24 +1,50 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
+	Version="8.00"
 	Name="PiraqDriver"
 	ProjectGUID="{751C4798-1A1B-4C55-A711-D136DADA2B79}"
-	SccProjectName=""
-	SccLocalPath=".">
+	SccLocalPath="."
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory=".\Debug"
 			IntermediateDirectory=".\Debug"
 			ConfigurationType="2"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="_DEBUG"
+				MkTypLibCompatible="true"
+				SuppressStartupBanner="true"
+				TargetEnvironment="1"
+				TypeLibraryName=".\Debug/PiraqIII_RevD_Driver.tlb"
+				HeaderFileName=""
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
@@ -26,123 +52,160 @@
 				PreprocessorDefinitions="PiraqIII_RevD_Driver.dsp_EXPORTS;WIN32;_DEBUG;_WINDOWS;_USRDLL;LITTLE_ENDIAN"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\Debug/PiraqIII_RevD_Driver.pch"
 				AssemblerListingLocation=".\Debug/"
 				ObjectFile=".\Debug/"
 				ProgramDataBaseFileName=".\Debug/"
 				BrowseInformation="1"
 				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
+				SuppressStartupBanner="true"
 				DebugInformationFormat="4"
-				CompileAs="0"/>
+				CompileAs="0"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="plxapi.lib odbc32.lib odbccp32.lib"
 				OutputFile="c:/windows/system32/PiraqIII_RevD_Driver.dll"
 				LinkIncremental="1"
-				SuppressStartupBanner="TRUE"
+				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="C:\Plx\PciSdk\Win32\Api\Debug;&quot;./plx 3.2/lib&quot;"
-				GenerateDebugInformation="TRUE"
+				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/PiraqIII_RevD_Driver.pdb"
 				ImportLibrary=".\Debug/PiraqIII_RevD_Driver.lib"
-				TargetMachine="1"/>
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG"
-				MkTypLibCompatible="TRUE"
-				SuppressStartupBanner="TRUE"
-				TargetEnvironment="1"
-				TypeLibraryName=".\Debug/PiraqIII_RevD_Driver.tlb"
-				HeaderFileName=""/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCAppVerifierTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCWebDeploymentTool"
+			/>
 			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory=".\Release"
 			IntermediateDirectory=".\Release"
 			ConfigurationType="2"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG"
+				MkTypLibCompatible="true"
+				SuppressStartupBanner="true"
+				TargetEnvironment="1"
+				TypeLibraryName=".\Release/PiraqIII_RevD_Driver.tlb"
+				HeaderFileName=""
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="&quot;C:\Program Files\TVicSoft\TVicHW50&quot;;C:\Plx\PciSdk\Inc"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;PiraqIII_RevD_Driver.dsp_EXPORTS"
-				StringPooling="TRUE"
+				StringPooling="true"
 				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="TRUE"
-				UsePrecompiledHeader="2"
+				EnableFunctionLevelLinking="true"
+				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\Release/PiraqIII_RevD_Driver.pch"
 				AssemblerListingLocation=".\Release/"
 				ObjectFile=".\Release/"
 				ProgramDataBaseFileName=".\Release/"
 				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
-				CompileAs="0"/>
+				SuppressStartupBanner="true"
+				CompileAs="0"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="odbc32.lib odbccp32.lib plxapi.lib"
 				OutputFile="c:/windows/system32/PiraqIII_RevD_Driver.dll"
 				LinkIncremental="1"
-				SuppressStartupBanner="TRUE"
+				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="C:\Plx\PciSdk\Win32\Api\Release;&quot;./plx 3.2/lib&quot;"
 				ProgramDatabaseFile=".\Release/PiraqIII_RevD_Driver.pdb"
 				ImportLibrary=".\Release/PiraqIII_RevD_Driver.lib"
-				TargetMachine="1"/>
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG"
-				MkTypLibCompatible="TRUE"
-				SuppressStartupBanner="TRUE"
-				TargetEnvironment="1"
-				TypeLibraryName=".\Release/PiraqIII_RevD_Driver.tlb"
-				HeaderFileName=""/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
-				Culture="1033"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCAppVerifierTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCWebDeploymentTool"
+			/>
 			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
@@ -150,170 +213,212 @@
 	<Files>
 		<Filter
 			Name="Source Files"
-			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
+			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+			>
 			<File
-				RelativePath="Control.cpp">
+				RelativePath="Control.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions="_MBCS;PiraqIII_RevD_Driver.dsp_EXPORTS;WIN32;_DEBUG;_WINDOWS;_USRDLL;LITTLE_ENDIAN;$(NoInherit)"
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;PiraqIII_RevD_Driver.dsp_EXPORTS;$(NoInherit)"/>
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;PiraqIII_RevD_Driver.dsp_EXPORTS;$(NoInherit)"
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="FirFilters.cpp">
+				RelativePath="FirFilters.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions="_MBCS;PiraqIII_RevD_Driver.dsp_EXPORTS;WIN32;_DEBUG;_WINDOWS;_USRDLL;LITTLE_ENDIAN;$(NoInherit)"
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;PiraqIII_RevD_Driver.dsp_EXPORTS;$(NoInherit)"/>
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;PiraqIII_RevD_Driver.dsp_EXPORTS;$(NoInherit)"
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="HPIB.cpp">
+				RelativePath="HPIB.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions="_MBCS;PiraqIII_RevD_Driver.dsp_EXPORTS;WIN32;_DEBUG;_WINDOWS;_USRDLL;LITTLE_ENDIAN;$(NoInherit)"
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;PiraqIII_RevD_Driver.dsp_EXPORTS;$(NoInherit)"/>
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;PiraqIII_RevD_Driver.dsp_EXPORTS;$(NoInherit)"
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Piraq.cpp">
+				RelativePath="Piraq.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions="_MBCS;PiraqIII_RevD_Driver.dsp_EXPORTS;WIN32;_DEBUG;_WINDOWS;_USRDLL;LITTLE_ENDIAN;$(NoInherit)"
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;PiraqIII_RevD_Driver.dsp_EXPORTS;$(NoInherit)"/>
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;PiraqIII_RevD_Driver.dsp_EXPORTS;$(NoInherit)"
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="PLX.cpp">
+				RelativePath="PLX.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions="_MBCS;PiraqIII_RevD_Driver.dsp_EXPORTS;WIN32;_DEBUG;_WINDOWS;_USRDLL;LITTLE_ENDIAN;$(NoInherit)"
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;PiraqIII_RevD_Driver.dsp_EXPORTS;$(NoInherit)"/>
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;PiraqIII_RevD_Driver.dsp_EXPORTS;$(NoInherit)"
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="StdAfx.cpp">
+				RelativePath="StdAfx.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions="_MBCS;PiraqIII_RevD_Driver.dsp_EXPORTS;WIN32;_DEBUG;_WINDOWS;_USRDLL;LITTLE_ENDIAN;$(NoInherit)"
 						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
+						BrowseInformation="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;PiraqIII_RevD_Driver.dsp_EXPORTS;$(NoInherit)"/>
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;PiraqIII_RevD_Driver.dsp_EXPORTS;$(NoInherit)"
+					/>
 				</FileConfiguration>
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl">
+			Filter="h;hpp;hxx;hm;inl"
+			>
 			<File
-				RelativePath="Control.h">
+				RelativePath="Control.h"
+				>
 			</File>
 			<File
-				RelativePath="FirFilters.h">
+				RelativePath="FirFilters.h"
+				>
 			</File>
 			<File
-				RelativePath="HPIB.h">
+				RelativePath="HPIB.h"
+				>
 			</File>
 			<File
-				RelativePath="Piraq.h">
+				RelativePath="Piraq.h"
+				>
 			</File>
 			<File
-				RelativePath="PLX.h">
+				RelativePath="PLX.h"
+				>
 			</File>
 			<File
-				RelativePath="StdAfx.h">
+				RelativePath="StdAfx.h"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
-			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
+			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
+			>
 		</Filter>
 		<File
-			RelativePath="Architecture_Overview.txt">
+			RelativePath="Architecture_Overview.txt"
+			>
 		</File>
 		<File
-			RelativePath="..\..\..\Plx\PciSdk\Win32\Api\Release\PlxApi.lib">
+			RelativePath="..\..\..\Plx\PciSdk\Win32\Api\Release\PlxApi.lib"
+			>
 		</File>
 	</Files>
 	<Globals>
 		<Global
 			Name="DevPartner_IsInstrumented"
-			Value="0"/>
+			Value="0"
+		/>
 	</Globals>
 </VisualStudioProject>

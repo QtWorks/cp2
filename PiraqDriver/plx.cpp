@@ -87,6 +87,7 @@ PLX::~PLX(void)
 // LAST MODIFIED BY: Milan Pipersky 02-18-03
 //
 /////////////////////////////////////////////////////////////////////////////////////////
+int
 PLX::InitPLX(  unsigned short shVendorID, unsigned short shDeviceID, unsigned short shBus, unsigned short shSlot, char *cSN )
 {
 	m_pPLX_Handle=(HANDLE)0xffffffffff;
