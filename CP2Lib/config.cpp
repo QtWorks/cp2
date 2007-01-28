@@ -68,25 +68,11 @@ void readconfig(char *fname, CONFIG *config)
    config->ethernet = 0;
    config->boardnum = 0;
 
-   /* if a filename is given, then append .dsp to it and use it */
-   /* default file is ..\config.dsp */ 
+   fp = 0;
+   filename[0] = 0;
+   strcat(filename, fname);
    if(strcmp(fname,""))        
       {
-      // config file in .exe parent directory: 
-	  strcpy(&filename[0],"../"); 
-	  for(i=0; fname[i] && fname[i] != '.'; i++)  
-		  filename[i+3] = fname[i];
-	  strcpy(&filename[i+3],".dsp");
-      fp = fopen(filename,"r");
-      if(!fp)
-	 {
-	 strcpy(filename,"../config.dsp");
-	 fp = fopen(filename,"r");
-	 }
-      }
-   else 
-      {
-      strcpy(filename,"config.dsp");
       fp = fopen(filename,"r");
       }
 
