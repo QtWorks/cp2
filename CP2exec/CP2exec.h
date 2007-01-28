@@ -1,9 +1,10 @@
 #ifndef CP2EXECH_
 #define CP2EXECH_
 
+#include "ui_CP2Exec.h"
 #include "CP2PIRAQ.h"
-#include "CP2ExecBase.h"
 #include "CP2ExecThread.h"
+#include <QPalette>
 
 /// CP2Exec is the main Qt dialog that
 /// manages the CP2 Piraq data acquisition
@@ -18,11 +19,11 @@
 /// CP2Exec calls status functions
 /// in CP2ExecThread to query the state
 /// of that thread. 
-class CP2Exec: public CP2ExecBase 
+class CP2Exec: public QDialog, public Ui::CP2Exec 
 {
 	Q_OBJECT
 public:
-	CP2Exec(std::string dspObjFile, std::string configFile);
+	CP2Exec(QDialog* parent, std::string dspObjFile, std::string configFile);
 	virtual ~CP2Exec();
 
 public slots:
@@ -57,6 +58,10 @@ protected:
 	/// so that we don't keep setting it if it is 
 	/// already set.
 	bool _eofLed2;
+	/// Palette for making the leds green
+	QPalette _greenPalette;
+	/// Platette for maing the leds red
+	QPalette _redPalette;
 
 };
 

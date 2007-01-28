@@ -1,5 +1,6 @@
 #include <qapplication.h>
 #include <iostream>
+#include <qdialog.h>
 
 #include "CP2Exec.h"
 #include "CP2ExecThread.h"
@@ -20,16 +21,15 @@ main(int argc, char* argv[], char* envp[])
 
 	// create the Qt application
 	QApplication app( argc, argv );
+	QDialog* dialog = new QDialog;
 
 	// create our main window. It wants to know about the piraq executin
 	// thread so that it can query the thread for status information.
-	CP2Exec cp2exec(argv[1], argv[2]);
+	CP2Exec cp2exec(dialog, argv[1], argv[2]);
 
 	// if we don't show() the  dialog, nothing appears!
-	cp2exec.show();
+	dialog->show();
 
-	app.setMainWidget(&cp2exec);
-	
 	return app.exec();
 }
 

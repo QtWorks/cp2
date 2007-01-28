@@ -6,8 +6,7 @@
 #include "config.h"
 #include "subs.h"
 
-#include <qsocketdevice.h>
-#include <qhostaddress.h>
+#include <QUdpSocket>
 
 class CP2PIRAQ: public PIRAQ {
 
@@ -16,7 +15,7 @@ public:
 	CP2PIRAQ( 
 		QHostAddress* pHostAddr,
 		int portNumber,
-		QSocketDevice* pSocketDevice,
+		QUdpSocket* pSocketDevice,
 		char* configFname,
 		char* dspObjFnamefloat,
 		unsigned int pulsesPerPciXfer,
@@ -31,6 +30,7 @@ public:
 	void stop();
 	int poll();
 	float prt();
+	float xmit_pulsewidth();
 	PINFOHEADER info();
 	int pnErrors();
 	double sampleRate();
@@ -68,7 +68,7 @@ protected:
 	/// Destination port.
 	int _portNumber;
 	/// outgoing socket
-	QSocketDevice* _pSocketDevice;
+	QUdpSocket* _pSocketDevice;
 	/// The pci bus address for the PMAC dpram; this
 	/// is passed to the piraq so that it can read
 	/// az and el angles directly from the PMAC.

@@ -1,11 +1,27 @@
 TEMPLATE	= vcapp
 LANGUAGE	= C++
 
-CONFIG += release
 CONFIG += qt 
 CONFIG += thread
 CONFIG += warn_on 
 CONFIG += exceptions
+CONFIG += embed_manifest_exe
+
+QT     += network
+
+CONFIG(release, debug|release) {
+  LIBS += ../Moments/release/Moments.lib
+  LIBS += ../CP2Net/release/CP2Net.lib
+  LIBS += ../PiraqDriver/release/PiraqIII_RevD_Driver.lib
+} else {
+  LIBS += ../Moments/debug/Moments.lib
+  LIBS += ../CP2Net/debug/CP2Net.lib
+  LIBS += ../PiraqDriver/debug/PiraqIII_RevD_Driver.lib
+}
+
+LIBS += "\"c:/Program Files/TVicSoft/TVicHW50/MSVC/TVicHW32.lib\""
+LIBS += ../../fftw3.1/libfftw3-3.lib
+LIBS += C:/Plx/PciSdk/Win32/Api/Debug/plxapi.lib
 
 HEADERS += CP2Exec.h
 HEADERS += CP2ExecThread.h
@@ -19,29 +35,16 @@ SOURCES += CP2ExecThread.cpp
 SOURCES += CP2PIRAQ.cpp
 SOURCES += ../CP2Piraq/piraqComm.c
 
-FORMS	= CP2ExecBase.ui
+FORMS	= CP2Exec.ui
 
 INCLUDEPATH	+= ../
 INCLUDEPATH += ../../
-INCLUDEPATH += ../../fftw3.1
-INCLUDEPATH += ../../Qttoolbox
 INCLUDEPATH += ../CP2Net
 INCLUDEPATH += ../CP2Lib
 INCLUDEPATH += ../CP2Piraq
-INCLUDEPATH += ../CP2PPI
 INCLUDEPATH += ../PiraqDriver
 INCLUDEPATH += ../Moments
 INCLUDEPATH += C:/Plx/PciSdk/Inc
 INCLUDEPATH += "C:/Program Files/TVicSoft/TVicHW50/MSVC"
-
-LIBS += ../Moments/Release/Moments.lib
-LIBS += ../CP2Net/Release/CP2Net.lib
-LIBS += ../../fftw3.1/libfftw3-3.lib
-LIBS += C:/Plx/PciSdk/Win32/Api/Debug/plxapi.lib
-LIBS += "C:/Program Files/TVicSoft/TVicHW50/MSVC/TVicHW32.lib"
-LIBS += ws2_32.lib
-
-DESTDIR = Debug
-
 
 

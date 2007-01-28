@@ -40,7 +40,6 @@ _pulses2(0),
 _pulses3(0),
 _stop(false),
 _outPort(3100),
-_socketDevice(QSocketDevice::Datagram, QSocketDevice::IPv4, 0),
 _status(STARTUP)
 {
 }
@@ -74,8 +73,13 @@ CP2ExecThread::run()
 {
 	_status = PIRAQINIT;
 
+	float prt;
+	float xmit_pulsewidth;
+
 	CONFIG *config1, *config2, *config3;
-	char fname1[100]; char fname2[100]; char fname3[100]; // configuration filenames
+	char fname1[100]; 
+	char fname2[100]; 
+	char fname3[100]; // configuration filenames
 	char* destIP = "192.168.3.255";
 	//destIP = "127.0.0.1";
 
@@ -156,6 +160,8 @@ CP2ExecThread::run()
 	_piraq3 = new CP2PIRAQ(&_hostAddr, _outPort, &_socketDevice, fname3, dname, 
 		_pulsesPerPciXfer, PMACphysAddr, 2, XV);
 
+	prt = _piraq3->prt();
+	xmit_pulsewidth = _piraq3->xmit_pulsewidth();
 	delete [] dname;
 
 	///////////////////////////////////////////////////////////////////////////
@@ -164,8 +170,6 @@ CP2ExecThread::run()
 	//     These are passed on to the piraqs, so that they all
 	//     start with the same beam and pulse number.
 
-	float prt;
-	prt = _piraq3->prt();
 	unsigned int pri; 
 	pri = (unsigned int)((((float)COUNTFREQ)/(float)(1/prt)) + 0.5); 
 	time_t now = time(&now);
@@ -200,7 +204,7 @@ CP2ExecThread::run()
 
 	PINFOHEADER info;
 	info = _piraq3->info();
-	cp2timer_config(&ext_timer, &info, config3->prt, config3->xmit_pulsewidth);
+	cp2timer_config(&ext_timer, &info, prt, xmit_pulsewidth);
 	cp2timer_set(&ext_timer);		// put the timer structure into the timer DPRAM 
 	cp2timer_reset(&ext_timer);	// tell the timer to initialize with the values from DPRAM 
 	cp2timer_start(&ext_timer);	// start timer 

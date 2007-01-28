@@ -16,7 +16,7 @@
 CP2PIRAQ::CP2PIRAQ(
     QHostAddress* pHostAddr,
 	int portNumber,
-	QSocketDevice* pSocketDevice,
+	QUdpSocket* pSocketDevice,
 	char* configFname, 
 	char* dspObjFname,
 	unsigned int pulsesPerPciXfer,
@@ -35,7 +35,8 @@ _boardnum(boardnum),
 _rcvrType(rcvrType),
 _PNerrors(0),
 _eof(false),
-_nPulses(0)
+_nPulses(0),
+_sampleRate(0)
 {
 	init(configFname, dspObjFname);
 }
@@ -234,7 +235,7 @@ int
 CP2PIRAQ::sendData(int size, 
 				   void* data)
 {
-	int bytesSent = _pSocketDevice->writeBlock((const char*)data, size, *_pHostAddr, _portNumber);
+	int bytesSent = _pSocketDevice->writeDatagram((const char*)data, size, *_pHostAddr, _portNumber);
 	// return the number of bytes sent, or -1 if an error.
 	return bytesSent;
 }
@@ -259,6 +260,14 @@ CP2PIRAQ::prt()
 {
 	return _prt;
 }
+
+///////////////////////////////////////////////////////////////////////////
+float
+CP2PIRAQ::xmit_pulsewidth()
+{
+	return _xmit_pulsewidth;
+}
+
 
 PINFOHEADER
 CP2PIRAQ::info()

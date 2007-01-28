@@ -3,8 +3,7 @@
 
 #include <string>
 #include <qthread.h>
-#include <qsocketdevice.h>
-#include <qhostaddress.h>
+#include <QUdpSocket>
 
 #include "CP2PIRAQ.h"
 #include "CP2Net.h"
@@ -45,7 +44,7 @@ protected:
 	/// feeds the PCI transfer. 
 	unsigned int _pulsesPerPciXfer;
 	/// The output socket
-	QSocketDevice _socketDevice;
+	QUdpSocket _socketDevice;
 	/// The destination datagram port.
 	int _outPort;
 	/// The destination network.
