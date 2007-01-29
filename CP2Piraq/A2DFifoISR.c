@@ -212,10 +212,16 @@ int toFloats(int ngates, int *pIn, float *pOut) {
 		q1i = (*iptr++);
 
 		// Convert ints to floats and store
+if (0) {
 		*iqptr++ = (float)(i0i) - ioffset0; 
 		*iqptr++ = (float)(q0i) - qoffset0; 
 		*iqptr++ = (float)(i1i) - ioffset1; 
 		*iqptr++ = (float)(q1i) - qoffset1;
+}
+		*iqptr++ = (float)(i0i); 
+		*iqptr++ = (float)(q0i); 
+		*iqptr++ = (float)(i1i); 
+		*iqptr++ = (float)(q1i);
 
 	}
 	temp = 1 ;
