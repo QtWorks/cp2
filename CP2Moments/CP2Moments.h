@@ -2,10 +2,10 @@
 #define CP2MomentsH_
 
 #include <winsock2.h>		//	no redefinition errors if before Qt includes?
-#include <qsocketdevice.h> 
-#include <qsocketnotifier.h>
-#include <qevent.h>
-#include <qbuttongroup.h>
+#include <QUdpSocket> 
+#include <QSocketNotifier>
+#include <QEvent>
+#include <QButtonGroup>
 #include <math.h>
 
 #include <deque>
@@ -13,10 +13,10 @@
 #include <map>
 #include <string>
 
-#include "CP2MomentsBase.h"
+#include "ui_CP2Moments.h"
 #include "MomentThread.h"
 
-#define PIRAQ3D_SCALE	1.0/(unsigned int)pow(2,31)	
+#define PIRAQ3D_SCALE	1.0/(unsigned int)pow(2.0,31)	
 /// request this much space for the pulse socket receive buffer
 #define CP2MOMENTS_PULSE_RCVBUF 100000000
 /// request this much space for the product socket send buffer
@@ -41,19 +41,18 @@
 /// datagrams, a collator is used to align Xh and Xv
 /// pulses with identical timestamps, before delivering
 /// them to the moments computation.
-class CP2Moments: public CP2MomentsBase 
+class CP2Moments: public QDialog, public Ui::CP2Moments 
 {
 	Q_OBJECT
 public:
-	CP2Moments();
+	CP2Moments(QDialog* parent=0);
 	virtual ~CP2Moments();
 
 public slots:
 	/// stop/start the products generation
 	void startStopSlot(bool);
-	/// Call when new pulse data is available on the data socket.
-	/// @param socket File descriptor of the data socket
-	void newPulseDataSlot(int socket);
+	/// Call when new pulse data is available on the pulse socket.
+	void newPulseDataSlot();
 
 protected:
 	/// The builtin timer will be used to display statistics.
@@ -91,18 +90,18 @@ protected:
 	/// Set true if the X band pulses are to be processed.
 	bool _processXband;
 	/// The time series raw data socket.
-	QSocketDevice*   _pPulseSocket;
+	QUdpSocket*   _pPulseSocket;
 	/// A notifier for incoming time series data.
 	QSocketNotifier* _pPulseSocketNotifier;
+	/// The port number for incoming pulses.
+	int	_pulsePort;
+	/// The host address for the incoming pulses. 
+	QHostAddress _inIpAddr;
 	/// The socket that data products are transmitted on.
-	QSocketDevice*   _pProductSocket;
-	/// The port number for incoming time series data.
-	int	_timeSeriesPort;
+	QUdpSocket*   _pProductSocket;
 	/// The host address for the outgoing products. Probably
 	/// will be a broadcast address.
-	QHostAddress _outHostAddr;
-	/// The IP name for the outgoing products
-	QString _outHostIP;
+	QHostAddress _outIpAddr;
 	/// The port number for outgoing products.
 	int	_productsPort;
 	/// The maximum message size that we can send

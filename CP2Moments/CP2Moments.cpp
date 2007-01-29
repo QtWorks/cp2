@@ -1,12 +1,15 @@
+#include <QNetworkInterface>
+#include <QLabel>
+#include <QPushButton>
+#include <QDialog>
 #include "CP2Moments.h"
 #include "CP2Net.h"
-#include <winsock2.h>
+//#include <winsock2.h>
 #include <ws2tcpip.h>
-#include <qlabel.h>
-#include <qpushbutton.h>
+#include <iostream>
 
-CP2Moments::CP2Moments():
-CP2MomentsBase(),
+CP2Moments::CP2Moments(QDialog* parent):
+QDialog(parent),
 _pPulseSocket(0),    
 _pPulseSocketNotifier(0),
 _pPulseSocketBuf(0),	
@@ -17,8 +20,10 @@ _statsUpdateInterval(5),
 _processSband(true),
 _processXband(true)
 {
+	setupUi(parent);
+
 	// assign the incoming and outgoing port numbers.
-	_timeSeriesPort	= 3100;
+	_pulsePort	= 3100;
 	_productsPort   = 3200;
 
 	// initialize the statictics and error monitoring.
@@ -89,13 +94,13 @@ CP2Moments::timerEvent(QTimerEvent*)
 
 	int collatorErrors = _collator.discards();
 
-	_piraq1Errors->setNum(_errorCount[0]);
-	_piraq2Errors->setNum(_errorCount[1]);
-	_piraq3Errors->setNum(_errorCount[2]);
+	_piraq0Errors->setNum(_errorCount[0]);
+	_piraq1Errors->setNum(_errorCount[1]);
+	_piraq2Errors->setNum(_errorCount[2]);
 
-	_piraq1rate->setNum(rate[0]);
-	_piraq2rate->setNum(rate[1]);
-	_piraq3rate->setNum(rate[2]);
+	_piraq0rate->setNum(rate[0]);
+	_piraq1rate->setNum(rate[1]);
+	_piraq2rate->setNum(rate[2]);
 
 	_sBeams->setNum(_sBeamCount);
 	_xBeams->setNum(_xBeamCount);
@@ -113,51 +118,61 @@ CP2Moments::initializeSockets()
 	// create the sockets
 	// this initializes the socket system, otherwise gethostname()
 	// will fail (below).
-	_pPulseSocket = new QSocketDevice(QSocketDevice::Datagram);
-	_pProductSocket = new QSocketDevice(QSocketDevice::Datagram);
+	_pPulseSocket = new QUdpSocket;
+	_pProductSocket = new QUdpSocket;
 
-	_pPulseSocket->setAddressReusable(true);
-	_pProductSocket->setAddressReusable(true);
+	QList<QNetworkInterface> allIfaces = QNetworkInterface::allInterfaces();
 
-	// find out our IP address and name
-	char nameBuf[1000];
-	if (gethostname(nameBuf, sizeof(nameBuf))) {
-		qWarning("gethostname failed");
-		exit(1);
+	QNetworkAddressEntry addrEntry;
+	std::string requiredInterface = "192.168.3.7";
+	for (int i = 0; i < allIfaces.size(); i++) {
+		QNetworkInterface iface = allIfaces[i];
+		QList<QNetworkAddressEntry> addrs = iface.addressEntries();
+		for (int j = 0; i < addrs.size(); j++) {
+			std::string thisIp = addrs[j].ip().toString().toAscii();
+			if (thisIp.find(requiredInterface)!= std::string::npos) {
+				addrEntry = addrs[j];
+				break;
+			}
+		}
 	}
-	//strcpy(nameBuf, "127.0.0.1");
-	struct hostent* pHostEnt = gethostbyname(nameBuf);
-	if (!pHostEnt) {
-		qWarning("gethostbyname failed");
-		exit(1);
-	}
 
-	// display some of the IP information
-	std::string myIPname = nameBuf;
-	std::string myIPaddress = inet_ntoa(*(struct in_addr*)pHostEnt->h_addr_list[0]);
-	std::cout << "ip name: " << myIPname.c_str() << ", id address  " << myIPaddress.c_str() << std::endl;
-	//	m_pTextIPname->setText(myIPname.c_str());
-	//	m_pTextIPaddress->setNum(+_timeSeriesPort);	// diagnostic print
+	_outIpAddr = addrEntry.broadcast();
+	// this doesn't seem to be working....grr....
+	_outIpAddr = QHostAddress("192.168.3.255");
 
-	QHostAddress qHost;
-	qHost.setAddress(myIPaddress.c_str());
+	_inIpAddr  = addrEntry.ip();
+
+	_outIpText->setText(_outIpAddr.toString().toAscii().constData());
+	_inIpText->setText(_inIpAddr.toString().toAscii().constData());
+	_outPortText->setNum(_productsPort);
+	_inPortText->setNum(_pulsePort);
 
 	//////////////////////////////////////////////////////////////////////////////////////////
 	//
 	// Set up the pulse incoming socket.
 	// bind to the pulse socket
-	if (!_pPulseSocket->bind(qHost, _timeSeriesPort)) {
-		qWarning("Unable to bind to %s:%d", qHost.toString().ascii(), _timeSeriesPort);
+	if (!_pPulseSocket->bind(_inIpAddr, _pulsePort)) {
+		qWarning("Unable to bind to %s:%d", _inIpAddr.toString().toAscii().constData(), _pulsePort);
 		exit(1); 
 	}
 
 	// set the system socket buffer size - necessary to avoid dropped pulses.
-	_pPulseSocket->setReceiveBufferSize(CP2MOMENTS_PULSE_RCVBUF);
+	//_pPulseSocket->setReadBufferSize(CP2MOMENTS_PULSE_RCVBUF);
+
+	int sockbufsize = CP2MOMENTS_PULSE_RCVBUF;
+	int result = setsockopt (_pPulseSocket->socketDescriptor(),
+		SOL_SOCKET,
+		SO_RCVBUF,
+		(char *) &sockbufsize,
+		sizeof sockbufsize);
+	if (result) {
+		qWarning("Set receive buffer size for socket failed");
+		exit(1); 
+	}
 
 	// set up the socket notifier for pulse datagrams
-	_pPulseSocketNotifier = new QSocketNotifier(_pPulseSocket->socket(), QSocketNotifier::Read);
-	// and connect to pulse slot
-	connect(_pPulseSocketNotifier, SIGNAL(activated(int)), this, SLOT(newPulseDataSlot(int)));
+	connect(_pPulseSocket, SIGNAL(readyRead()), this, SLOT(newPulseDataSlot()));
 
 	//////////////////////////////////////////////////////////////////////////////////////////
 	//
@@ -165,27 +180,30 @@ CP2Moments::initializeSockets()
 
 	// set the system socket buffer size - to try to
 	// avoid blocking on data sends.
-	_pProductSocket->setSendBufferSize(CP2MOMENTS_PROD_SNDBUF);
-
-	std::vector<char> n;
-	for (unsigned int i=0; i < myIPaddress.size(); i++)
-		n.push_back(myIPaddress[i]);
-	n.push_back(0);
-	Q_UINT32 a = GetBroadcastAddress(&n[0]);
-	_outHostAddr.setAddress(a);
-	QString s = _outHostAddr.toString();
-	_outHostIP = s;
-
-	_outHostAddr.setAddress("192.168.3.255");
+	//	_pProductSocket->setSendBufferSize(CP2MOMENTS_PROD_SNDBUF);
+	sockbufsize = CP2MOMENTS_PROD_SNDBUF;
+	result = setsockopt (_pPulseSocket->socketDescriptor(),
+		SOL_SOCKET,
+		SO_SNDBUF,
+		(char *) &sockbufsize,
+		sizeof sockbufsize);
+	if (result) {
+		qWarning("Set send buffer size for socket failed");
+		exit(1); 
+	}
 
 	_soMaxMsgSize = 64000;
 
+	//	if (!_pProductSocket->bind(_outIpAddr, _productsPort)) {
+	//		qWarning("Unable to bind to %s:%d", _outIpAddr.toString().toAscii().constData(), _productsPort);
+	//		exit(1); 
+	//	}
 }
 //////////////////////////////////////////////////////////////////////
 void 
-CP2Moments::newPulseDataSlot(int)
+CP2Moments::newPulseDataSlot()
 {
-	int	readBufLen = _pPulseSocket->readBlock(
+	int	readBufLen = _pPulseSocket->readDatagram(
 		(char *)_pPulseSocketBuf, 
 		sizeof(short)*1000000);
 
@@ -362,27 +380,28 @@ CP2Moments::sendProduct(CP2ProductHeader& header,
 	// if this packet will get too large by adding new data, 
 	// go ahead and send it
 	if (packet.packetSize()+incr > _soMaxMsgSize) {
-		int n = _pProductSocket->writeBlock(
+		int bytesSent;
+		bytesSent = _pProductSocket->writeDatagram(
 			(const char*)packet.packetData(),
 			packet.packetSize(),
-			_outHostAddr,
+			_outIpAddr,
 			_productsPort);
-		int s = _xProductPacket.packetSize();
-		int err = WSAGetLastError();
-
+		if(bytesSent != packet.packetSize()){
+		}
 		packet.clear();
 	}
 
 	packet.addProduct(header, data.size(), &data[0]);
 	if (forceSend) {
-		int n = _pProductSocket->writeBlock(
+		int bytesSent;
+		bytesSent = _pProductSocket->writeDatagram(
 			(const char*)packet.packetData(),
 			packet.packetSize(),
-			_outHostAddr,
+			_outIpAddr,
 			_productsPort);
-		int s = _xProductPacket.packetSize();
-		int err = WSAGetLastError();
-
+		if (bytesSent != packet.packetSize());
+		{
+		}
 		packet.clear();
 	}
 }
@@ -509,23 +528,23 @@ CP2Moments::GetBroadcastAddress(char* IPname)
 		(void*)info, sizeof(info), &dwBytesRead, NULL, NULL) != 0) {
 			closesocket(s);
 			return INADDR_BROADCAST;
+	}
+
+	DWORD dwBroadcast = INADDR_BROADCAST;
+
+	// Search all ip infos for the requested ip number
+	for(unsigned int i = 0; i < (dwBytesRead / sizeof(INTERFACE_INFO)); i++) {
+		// Notice: the INTERFACE_INFO contains a broadcast address
+		// but that can't be used since it is always 255.255.255.255
+		if(info[i].iiAddress.AddressIn.sin_addr.s_addr == dwIp) {
+			DWORD dwSubnet = info[i].iiNetmask.AddressIn.sin_addr.s_addr;
+			dwBroadcast = dwIp | ~(dwSubnet);
+			break;
 		}
+	}
 
-		DWORD dwBroadcast = INADDR_BROADCAST;
+	closesocket(s);
 
-		// Search all ip infos for the requested ip number
-		for(unsigned int i = 0; i < (dwBytesRead / sizeof(INTERFACE_INFO)); i++) {
-			// Notice: the INTERFACE_INFO contains a broadcast address
-			// but that can't be used since it is always 255.255.255.255
-			if(info[i].iiAddress.AddressIn.sin_addr.s_addr == dwIp) {
-				DWORD dwSubnet = info[i].iiNetmask.AddressIn.sin_addr.s_addr;
-				dwBroadcast = dwIp | ~(dwSubnet);
-				break;
-			}
-		}
-
-		closesocket(s);
-
-		return dwBroadcast; 
+	return dwBroadcast; 
 }
 

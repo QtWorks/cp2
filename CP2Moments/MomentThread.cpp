@@ -7,8 +7,6 @@ MomentThread::MomentThread(Params::moments_mode_t mode,
 						   int nSamples):
 _params(mode, nSamples)
 {
-
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -24,8 +22,8 @@ MomentThread::run()
 	_momentsEngine = new MomentsEngine(_params);
 
 	while (1) {
-		_queueWait.wait();
 		_pulseQueueMutex.lock();
+		_queueWait.wait(&_pulseQueueMutex);
 		while (_pulseQueue.size() > 0) {
 			std::pair<CP2FullPulse*, CP2FullPulse*> pp = _pulseQueue[0];
 			CP2FullPulse* p1 = pp.first;
