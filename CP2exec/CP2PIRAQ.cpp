@@ -205,15 +205,17 @@ CP2PIRAQ::poll()
 			_lastPulseNumber = thisPulseNumber; // previous PN
 
 			_nPulses++;
-			if (!(_nPulses %1000)) {
+			if (!(_nPulses %1000 ) && _boardnum == 0) {
 				float iFloat = ppacket->data[header.gates];
 				float qFloat = ppacket->data[header.gates+1];
 				int iInt = iFloat;
 				int qInt = qFloat;
-				printf("piraq %d gate %d I %09.1e %010d 0x%08x   Q %09.1e %010d 0x%08x\n",
+				int az = ppacket->info.antAz;
+				printf("piraq %d gate %d I %09.1e %010d 0x%08x   Q %09.1e %010d 0x%08x  %d\n",
 					_boardnum, header.gates/2,
 					iFloat, iInt, iInt, 
-					qFloat, qInt, qInt);
+					qFloat, qInt, qInt,
+					az);
 			}
 		}
 
