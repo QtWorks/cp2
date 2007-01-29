@@ -22,6 +22,7 @@ CONFIG(release, debug|release) {
 LIBS += "\"c:/Program Files/TVicSoft/TVicHW50/MSVC/TVicHW32.lib\""
 LIBS += ../../fftw3.1/libfftw3-3.lib
 LIBS += C:/Plx/PciSdk/Win32/Api/Debug/plxapi.lib
+LIBS += ws2_32.lib
 
 HEADERS += CP2Exec.h
 HEADERS += CP2ExecThread.h

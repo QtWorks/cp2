@@ -235,8 +235,17 @@ int
 CP2PIRAQ::sendData(int size, 
 				   void* data)
 {
-	int bytesSent = _pSocketDevice->writeDatagram((const char*)data, size, *_pHostAddr, _portNumber);
-	// return the number of bytes sent, or -1 if an error.
+	int bytesSent;
+
+	// @todo This code looks gnarly. It was added during the upgrade to 
+	// Qt4, when the datagram write started returning -1, and
+	// an error code of 7. It looks like the send buffering is
+	// just not large enough. It seemed to work fine under
+	// Qt3. Bears looking into.
+	do {
+		bytesSent = _pSocketDevice->writeDatagram((const char*)data, size, *_pHostAddr, _portNumber);
+	} while (bytesSent != size);
+
 	return bytesSent;
 }
 

@@ -120,6 +120,17 @@ CP2ExecThread::run()
 	_outPort = 3100; 
 	_hostAddr.setAddress(QString(destIP));
 
+	int sockbufsize = 10000000;
+	int result = setsockopt (_socketDevice.socketDescriptor(),
+		SOL_SOCKET,
+		SO_SNDBUF,
+		(char *) &sockbufsize,
+		sizeof sockbufsize);
+	if (result) {
+		qWarning("Set send buffer size for socket failed");
+		exit(1); 
+	}
+
 	// stop timer card
 	cp2timer_stop(&ext_timer);  
 

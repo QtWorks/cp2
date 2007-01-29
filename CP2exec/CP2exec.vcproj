@@ -70,7 +70,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalDependencies="c:\Qt\4.2.2\lib\qtmaind.lib ../Moments/debug/Moments.lib ../CP2Net/debug/CP2Net.lib ../PiraqDriver/debug/PiraqIII_RevD_Driver.lib &quot;c:/Program Files/TVicSoft/TVicHW50/MSVC/TVicHW32.lib&quot; ../../fftw3.1/libfftw3-3.lib C:/Plx/PciSdk/Win32/Api/Debug/plxapi.lib c:\Qt\4.2.2\lib\QtGuid4.lib c:\Qt\4.2.2\lib\QtNetworkd4.lib c:\Qt\4.2.2\lib\QtCored4.lib"
+				AdditionalDependencies="c:\Qt\4.2.2\lib\qtmaind.lib ../Moments/debug/Moments.lib ../CP2Net/debug/CP2Net.lib ../PiraqDriver/debug/PiraqIII_RevD_Driver.lib &quot;c:/Program Files/TVicSoft/TVicHW50/MSVC/TVicHW32.lib&quot; ../../fftw3.1/libfftw3-3.lib C:/Plx/PciSdk/Win32/Api/Debug/plxapi.lib c:\Qt\4.2.2\lib\QtGuid4.lib c:\Qt\4.2.2\lib\QtNetworkd4.lib c:\Qt\4.2.2\lib\QtCored4.lib ws2_32.lib"
 				OutputFile="debug\CP2exec.exe"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="c:\Qt\4.2.2\lib"
@@ -160,7 +160,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalDependencies="c:\Qt\4.2.2\lib\qtmain.lib ../Moments/release/Moments.lib ../CP2Net/release/CP2Net.lib ../PiraqDriver/release/PiraqIII_RevD_Driver.lib &quot;c:/Program Files/TVicSoft/TVicHW50/MSVC/TVicHW32.lib&quot; ../../fftw3.1/libfftw3-3.lib C:/Plx/PciSdk/Win32/Api/Debug/plxapi.lib c:\Qt\4.2.2\lib\QtGui4.lib c:\Qt\4.2.2\lib\QtNetwork4.lib c:\Qt\4.2.2\lib\QtCore4.lib"
+				AdditionalDependencies="c:\Qt\4.2.2\lib\qtmain.lib ../Moments/release/Moments.lib ../CP2Net/release/CP2Net.lib ../PiraqDriver/release/PiraqIII_RevD_Driver.lib &quot;c:/Program Files/TVicSoft/TVicHW50/MSVC/TVicHW32.lib&quot; ../../fftw3.1/libfftw3-3.lib C:/Plx/PciSdk/Win32/Api/Debug/plxapi.lib c:\Qt\4.2.2\lib\QtGui4.lib c:\Qt\4.2.2\lib\QtNetwork4.lib c:\Qt\4.2.2\lib\QtCore4.lib ws2_32.lib"
 				OutputFile="release\CP2exec.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
