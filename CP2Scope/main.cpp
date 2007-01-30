@@ -1,6 +1,7 @@
 #include "CP2Scope.h"
 
 #include <qapplication.h>
+#include <QDialog>
 #include <qstring.h>
 #include <iostream>
 #include <qtimer.h>
@@ -13,10 +14,11 @@ main(int argc, char** argv)
 {
 
 	QApplication app(argc, argv);
+	QDialog* dialog = new QDialog();
 
 	// create our test dialog. It will contain a ScopePlot and 
 	// other buttons etc.
-	CP2Scope scope;
+	CP2Scope scope(dialog);
 
 	// connect the grid select and pause buttons
 	QObject::connect(scope.xGrid, SIGNAL(toggled(bool)),
@@ -27,13 +29,9 @@ main(int argc, char** argv)
         scope._scopePlot, SLOT(pause(bool)));
 
 	// if we don't show() the test dialog, nothing appears!
-	scope.show();
+	dialog->show();
 
- 	// This tells qt to stop running when scopeTestDialog
-	// closes.
-	app.setMainWidget(&scope);
-
-	// run the whole thing
+ 	// run the whole thing
 	app.exec();
 
 	return 0;

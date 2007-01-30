@@ -2,8 +2,8 @@
 #define CP2SCOPE_H
 
 #include <winsock2.h>		//	no redefinition errors if before Qt includes?
-#include <qsocketdevice.h> 
-#include <qsocketnotifier.h>
+#include <QUdpSocket> 
+#include <QDialog>
 #include <qevent.h>
 #include <deque>
 #include <set>
@@ -16,10 +16,10 @@
 #include <fftw3.h>
 
 // The base class created from the designer .ui specification
-#include "CP2ScopeBase.h"
+#include "ui_CP2Scope.h"
 
 // Coponents from the QtToolbox
-#include <ScopePlot/ScopePlot.h>
+#include <ScopePlot.h>
 
 // CP2 timeseries network transfer protocol.
 #include "CP2Net.h"
@@ -29,7 +29,7 @@
 
 #define	ySCALEMIN		0.0
 #define	ySCALEMAX		1.0
-#define PIRAQ3D_SCALE	1.0/(unsigned int)pow(2,31)	
+#define PIRAQ3D_SCALE	1.0/(unsigned int)pow(2,31.0)	
 
 enum DATASET {	
 	DATA_SET_PULSE,	
@@ -59,21 +59,19 @@ enum SCOPEPLOTTYPE {
 };
 
 
-class CP2Scope : public CP2ScopeBase {
+class CP2Scope : public QDialog, public Ui::CP2Scope {
 	Q_OBJECT
 public:
-	CP2Scope();
+	CP2Scope(QDialog* parent = 0);
 	~CP2Scope();
 	void displayData(); 
 	void resizeDataVectors(); 
 
 public slots:
 	// Call when data is available on the pulse data socket.
-	///@param socket File descriptor of the data socket
-	void newPulseSlot(int socket);
+	void newPulseSlot();
 	// Call when data is available on the product data socket.
-	///@param socket File descriptor of the data socket
-	void newProductSlot(int socket);
+	void newProductSlot();
 
 	virtual void plotTypeSlot(int plotType);
 	
@@ -100,17 +98,13 @@ protected:
 	/// to the data handling slots.
 	void initSockets(); 
 	/// The socket that pulse data is received on.
-	QSocketDevice*   _pPulseSocket;
-	/// The socket notifier for the pulse data socket.
-	QSocketNotifier* _pPulseSocketNotifier;
+	QUdpSocket*   _pPulseSocket;
 	/// The port for the pulse data.
 	int				_pulseDataPort;
 	/// The buffer for incoming pulse datagrams
 	std::vector<char> _pPulseSocketBuf;
 	/// The socket that product data is received on.
-	QSocketDevice*   _pProductSocket;
-	/// The socket notifier for the product data socket.
-	QSocketNotifier* _pProductSocketNotifier;
+	QUdpSocket*   _pProductSocket;
 	/// The port for the product data.
 	int				_productDataPort;
 	/// The buffer for incoming product datagrams

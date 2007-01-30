@@ -1,7 +1,9 @@
 
+#include <QNetworkInterface>
+#include <QNetworkAddressEntry>
 #include "CP2Scope.h"
-#include <ScopePlot/ScopePlot.h>
-#include <Knob/Knob.h>
+#include <ScopePlot.h>
+#include <Knob.h>
 
 #include <qbuttongroup.h>
 #include <qlabel.h>
@@ -14,7 +16,7 @@
 #include <qwidget.h>
 #include <qradiobutton.h>
 #include <qbuttongroup.h>
-#include <qvbox.h>
+//#include <qvbox.h>
 #include <qframe.h>
 #include <qpushbutton.h>
 #include <qpalette.h>
@@ -28,9 +30,9 @@
 #include <qwt_wheel.h>
 
 //////////////////////////////////////////////////////////////////////
-CP2Scope::CP2Scope():
+CP2Scope::CP2Scope(QDialog* parent):
+QDialog(parent),
 _pPulseSocket(0),    
-_pPulseSocketNotifier(0),
 _pPulseSocketBuf(0),	
 _tsDisplayCount(0),
 _productDisplayCount(0),
@@ -39,6 +41,8 @@ _rawPlot(TRUE),
 _performAutoScale(false),
 _dataChannel(0)
 {
+	setupUi(parent);
+
 	_pulseDataPort	= 3100;
 	_productDataPort = 3200;
 
@@ -75,9 +79,9 @@ _dataChannel(0)
 	_knobOffset = 0.0;
 
 	// set leds to green
-	_chan0led->setBackgroundColor(QColor("green"));
-	_chan1led->setBackgroundColor(QColor("green"));
-	_chan2led->setBackgroundColor(QColor("green"));
+//	_chan0led->setBackgroundColor(QColor("green"));
+//	_chan1led->setBackgroundColor(QColor("green"));
+//	_chan2led->setBackgroundColor(QColor("green"));
 
 	// set the intial plot type
 	plotTypeSlot(S_TIMESERIES);
@@ -110,14 +114,8 @@ _dataChannel(0)
 }
 //////////////////////////////////////////////////////////////////////
 CP2Scope::~CP2Scope() {
-	if (_pPulseSocketNotifier)
-		delete _pPulseSocketNotifier;
-
 	if (_pPulseSocket)
 		delete _pPulseSocket;
-
-	if (_pProductSocketNotifier)
-		delete _pProductSocketNotifier;
 
 	if (_pProductSocket)
 		delete _pProductSocket;
@@ -127,18 +125,18 @@ CP2Scope::~CP2Scope() {
 void 
 CP2Scope::dataSetSlot(bool b)	{
 	b = b;  // so we don't get the unreferenced warning
-	switch (buttonGroup2->selectedId()) {
-		case 0:
-			_dataSet = DATA_SET_PULSE;
+//	switch (buttonGroup2->selectedId()) {
+//		case 0:
+//			_dataSet = DATA_SET_PULSE;
 			//	disable gate spinner
-			break;
-		case 1:
-			_dataSet = DATA_SET_GATE;
+//			break;
+//		case 1:
+//			_dataSet = DATA_SET_GATE;
 			//	enable gate spinner
-			break;
-		default: {}
-	}
-	resizeDataVectors();	//	resize data vectors
+//			break;
+//		default: {}
+//	}
+//	resizeDataVectors();	//	resize data vectors
 }
 
 
@@ -184,10 +182,10 @@ CP2Scope::xFullScaleBox_valueChanged( int xFullScale )	{
 
 //////////////////////////////////////////////////////////////////////
 void 
-CP2Scope::newProductSlot(int)
+CP2Scope::newProductSlot()
 {
 	CP2Packet packet;
-	int	readBufLen = _pProductSocket->readBlock(
+	int	readBufLen = _pProductSocket->readDatagram(
 		&_pProductSocketBuf[0], 
 		_pProductSocketBuf.size());
 
@@ -217,10 +215,10 @@ CP2Scope::newProductSlot(int)
 
 //////////////////////////////////////////////////////////////////////
 void 
-CP2Scope::newPulseSlot(int)
+CP2Scope::newPulseSlot()
 {
 	CP2Packet packet;
-	int	readBufLen = _pPulseSocket->readBlock(
+	int	readBufLen = _pPulseSocket->readDatagram(
 		&_pPulseSocketBuf[0], 
 		_pPulseSocketBuf.size());
 
@@ -248,19 +246,19 @@ CP2Scope::newPulseSlot(int)
 							case 0:
 								if (!_eof[0]) {
 									_eof[0] = true;
-									_chan0led->setBackgroundColor(QColor("red"));
+//									_chan0led->setBackgroundColor(QColor("red"));
 								}
 								break;
 							case 1:
 								if (!_eof[1]) {
 									_eof[1] = true;
-									_chan1led->setBackgroundColor(QColor("red"));
+//									_chan1led->setBackgroundColor(QColor("red"));
 								}
 								break;
 							case 2:
 								if (!_eof[2]) {
 									_eof[2] = true;
-									_chan2led->setBackgroundColor(QColor("red"));
+//									_chan2led->setBackgroundColor(QColor("red"));
 								}
 								break;
 							}
@@ -311,7 +309,7 @@ CP2Scope::processPulse(CP2Pulse* pPulse)
 				}
 				double zeroMoment = powerSpectrum();
 				// correct unscaled power data using knob setting: 
-				for(j = 0; j < _fftBlockSize; j++)	{
+				for(int j = 0; j < _fftBlockSize; j++)	{
 					_spectrum[j] += _powerCorrection;
 				}
 				displayData();	
@@ -412,80 +410,70 @@ CP2Scope::initSockets()
 	_pProductSocketBuf.resize(1000000);
 
 	// creat the sockets
-	_pPulseSocket = new QSocketDevice(QSocketDevice::Datagram);
-	_pProductSocket = new QSocketDevice(QSocketDevice::Datagram);
+	_pPulseSocket = new QUdpSocket;
+	_pProductSocket = new QUdpSocket;
 
-	// get the IP name for this machine.
-	// hmmm - how does it know which interface to use?
-	// This could be a problem
-	char nameBuf[1000];
-	if (gethostname(nameBuf, sizeof(nameBuf))) {
-		qWarning("gethostname failed");
-		exit(1);
-	}
-	//strcpy(nameBuf, "127.0.0.1");
-	struct hostent* pHostEnt = gethostbyname(nameBuf);
-	if (!pHostEnt) {
-		qWarning("gethostbyname failed");
-		exit(1);
+	std::string requiredInterface = "192.168.3.7";
+
+	QList<QNetworkInterface> allIfaces = QNetworkInterface::allInterfaces();
+
+	QNetworkAddressEntry addrEntry;
+	for (int i = 0; i < allIfaces.size(); i++) {
+		QNetworkInterface iface = allIfaces[i];
+		QList<QNetworkAddressEntry> addrs = iface.addressEntries();
+		for (int j = 0; j < addrs.size(); j++) {
+			std::string thisIp = addrs[j].ip().toString().toAscii();
+			if (thisIp.find(requiredInterface)!= std::string::npos) {
+				addrEntry = addrs[j];
+				break;
+			}
+		}
 	}
 
-	std::string myIPname = nameBuf;
-	std::string myIPaddress = inet_ntoa(*(struct in_addr*)pHostEnt->h_addr_list[0]);
-	m_pTextIPname->setText(myIPname.c_str());
-	m_pTextIPaddress->setNum(+_pulseDataPort);	
+	QHostAddress qHost = addrEntry.ip();
+
+	m_pTextIPaddress->setText(qHost.toString().toAscii().constData());
 
 	// bind sockets to port/network
-	QHostAddress qHost;
-	qHost.setAddress(myIPaddress.c_str());
 	int optval = 1;
-	result = setsockopt(_pPulseSocket->socket(), 
-		SOL_SOCKET, 
-		SO_REUSEADDR, 
-		(const char*)&optval, 
-		sizeof(optval)); 
 	if (!_pPulseSocket->bind(qHost, _pulseDataPort)) {
-		qWarning("Unable to bind to %s:%d", qHost.toString().ascii(), _pulseDataPort);
-		exit(1); 
+		qWarning("Unable to bind to %s:%d", qHost.toString().toAscii().constData(), _pulseDataPort);
 	}
-	result = setsockopt(_pProductSocket->socket(), 
+	result = setsockopt(_pPulseSocket->socketDescriptor(), 
 		SOL_SOCKET, 
 		SO_REUSEADDR, 
 		(const char*)&optval, 
 		sizeof(optval)); 
-	if (!_pProductSocket->bind(qHost, _productDataPort)) {
-		qWarning("Unable to bind to %s:%d", qHost.toString().ascii(), _productDataPort);
-		exit(1); 
-	}
-
-	// set the system recevie buffer size
+	// set the system receive buffer size
 	int sockbufsize = CP2SCOPE_RCVBUF;
-
-	result = setsockopt (_pPulseSocket->socket(),
+	result = setsockopt (_pPulseSocket->socketDescriptor(),
 		SOL_SOCKET,
 		SO_RCVBUF,
 		(char *) &sockbufsize,
 		sizeof sockbufsize);
 	if (result) {
 		qWarning("Set receive buffer size for socket failed");
-		exit(1); 
 	}
-	result = setsockopt (_pProductSocket->socket(),
+
+	if (!_pProductSocket->bind(qHost, _productDataPort)) {
+		qWarning("Unable to bind to %s:%d", qHost.toString().toAscii().constData(), _productDataPort);
+	}
+	result = setsockopt(_pProductSocket->socketDescriptor(), 
+		SOL_SOCKET, 
+		SO_REUSEADDR, 
+		(const char*)&optval, 
+		sizeof(optval)); 
+	result = setsockopt (_pProductSocket->socketDescriptor(),
 		SOL_SOCKET,
 		SO_RCVBUF,
 		(char *) &sockbufsize,
 		sizeof sockbufsize);
 	if (result) {
 		qWarning("Set receive buffer size for socket failed");
-		exit(1); 
 	}
 
-	// create notifiers and connect to slots
-	_pPulseSocketNotifier = new QSocketNotifier(_pPulseSocket->socket(), QSocketNotifier::Read);
-	_pProductSocketNotifier = new QSocketNotifier(_pProductSocket->socket(), QSocketNotifier::Read);
-
-	connect(_pPulseSocketNotifier, SIGNAL(activated(int)), this, SLOT(newPulseSlot(int)));
-	connect(_pProductSocketNotifier, SIGNAL(activated(int)), this, SLOT(newProductSlot(int)));
+	connect(_pPulseSocket, SIGNAL(readyRead()), this, SLOT(newPulseSlot()));
+	connect(_pProductSocket, SIGNAL(readyRead()), this, SLOT(newProductSlot()));
 
 }
 
@@ -537,11 +525,11 @@ CP2Scope::powerSpectrum()
 void
 CP2Scope::plotTypeSlot(int plotType) {
 	// find out the index of the current page
-	int pageNum = _typeTab->currentPageIndex();
+	int pageNum = _typeTab->currentIndex();
 
 	// get the radio button id of the currently selected button
 	// on that page.
-	int ptype = _tabButtonGroups[pageNum]->selectedId();
+	int ptype = _tabButtonGroups[pageNum]->checkedId();
 
 	if (pageNum == 0) {
 		// change to a raw plot type
@@ -558,11 +546,11 @@ void
 CP2Scope::tabChangeSlot(QWidget* w) 
 {
 	// find out the index of the current page
-	int pageNum = _typeTab->currentPageIndex();
+	int pageNum = _typeTab->currentIndex();
 
 	// get the radio button id of the currently selected button
 	// on that page.
-	int ptype = _tabButtonGroups[pageNum]->selectedId();
+	int ptype = _tabButtonGroups[pageNum]->checkedId();
 
 	if (pageNum == 0) {
 		// change to a raw plot type
@@ -702,7 +690,7 @@ CP2Scope::initPlots()
 	_prodPlotInfo[PROD_X_LDR]         = PlotInfo(        PROD_X_LDR,    PRODUCT, "LDR", "Xhv:LDR", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
 
 	// remove the one tab that was put there by designer
-	_typeTab->removePage(_typeTab->page(0));
+	_typeTab->removeTab(0);
 
 	// add tabs, and save the button group for
 	// for each tab.
@@ -724,33 +712,27 @@ CP2Scope::initPlots()
 QButtonGroup*
 CP2Scope::addPlotTypeTab(std::string tabName, std::set<PLOTTYPE> types)
 {
-	QWidget* pPage;
-	QButtonGroup* pGroup;
-	QVBoxLayout* pVbox;
-	QVBoxLayout* pButtonVbox;
-	QRadioButton* pRadio;
-
-	pPage = new QWidget(_typeTab, tabName.c_str());
-	pVbox = new QVBoxLayout(pPage);
-
-	pGroup = new QButtonGroup(pPage);
-	pGroup->setColumnLayout(0, Qt::Vertical );
-	pGroup->layout()->setSpacing( 6 );
-	pGroup->layout()->setMargin( 11 );
-
-	pButtonVbox = new QVBoxLayout(pGroup->layout());
-	pButtonVbox->setAlignment( Qt::AlignTop );
+	// The page that will be added to the tab widget
+	QWidget* pPage = new QWidget;
+	// the layout manager for the page, will contain the buttons
+	QVBoxLayout* pVbox = new QVBoxLayout;
+	// the button group manager, which has nothing to do with rendering
+	QButtonGroup* pGroup = new QButtonGroup;
 
 	std::set<PLOTTYPE>::iterator i;
 
 	for (i = types.begin(); i != types.end(); i++) 
 	{
+		// create the radio button
 		int id = _plotInfo[*i].getId();
-		pRadio = new QRadioButton(pGroup);
-		pGroup->insert(pRadio, id);
+		QRadioButton* pRadio = new QRadioButton;
 		const QString label = _plotInfo[*i].getLongName().c_str();
 		pRadio->setText(label);
-		pButtonVbox->addWidget(pRadio);
+
+		// put the button in the button group
+		pGroup->addButton(pRadio, id);
+		// assign the button to the layout manager
+		pVbox->addWidget(pRadio);
 
 		// set the first radio button of the group
 		// to be selected.
@@ -758,13 +740,14 @@ CP2Scope::addPlotTypeTab(std::string tabName, std::set<PLOTTYPE> types)
 			pRadio->setChecked(true);
 		}
 	}
+	// associate the layout manager with the page
+	pPage->setLayout(pVbox);
 
-	pVbox->addWidget(pGroup);
-	_typeTab->insertTab(pPage, tabName.c_str());
+	// put the page on the tab
+	_typeTab->insertTab(-1, pPage, tabName.c_str());
 
-	// connect the button released signal to our
-	// our plot type change slot.
-	connect(pGroup, SIGNAL(released(int)), this, SLOT(plotTypeSlot(int)));
+	// connect the button released signal to our plot type change slot.
+	connect(pGroup, SIGNAL(buttonReleased(int)), this, SLOT(plotTypeSlot(int)));
 
 	return pGroup;
 }
@@ -772,33 +755,27 @@ CP2Scope::addPlotTypeTab(std::string tabName, std::set<PLOTTYPE> types)
 QButtonGroup*
 CP2Scope::addProductTypeTab(std::string tabName, std::set<PRODUCT_TYPES> types)
 {
-	QWidget* pPage;
-	QButtonGroup* pGroup;
-	QVBoxLayout* pVbox;
-	QVBoxLayout* pButtonVbox;
-	QRadioButton* pRadio;
-
-	pPage = new QWidget(_typeTab, tabName.c_str());
-	pVbox = new QVBoxLayout(pPage);
-
-	pGroup = new QButtonGroup(pPage);
-	pGroup->setColumnLayout(0, Qt::Vertical );
-	pGroup->layout()->setSpacing( 6 );
-	pGroup->layout()->setMargin( 11 );
-
-	pButtonVbox = new QVBoxLayout(pGroup->layout());
-	pButtonVbox->setAlignment( Qt::AlignTop );
+	// The page that will be added to the tab widget
+	QWidget* pPage = new QWidget;
+	// the layout manager for the page, will contain the buttons
+	QVBoxLayout* pVbox = new QVBoxLayout;
+	// the button group manager, which has nothing to do with rendering
+	QButtonGroup* pGroup = new QButtonGroup;
 
 	std::set<PRODUCT_TYPES>::iterator i;
 
 	for (i = types.begin(); i != types.end(); i++) 
 	{
+		// create the radio button
 		int id = _prodPlotInfo[*i].getId();
-		pRadio = new QRadioButton(pGroup);
-		pGroup->insert(pRadio, id);
+		QRadioButton* pRadio = new QRadioButton;
 		const QString label = _prodPlotInfo[*i].getLongName().c_str();
 		pRadio->setText(label);
-		pButtonVbox->addWidget(pRadio);
+
+		// put the button in the button group
+		pGroup->addButton(pRadio, id);
+		// assign the button to the layout manager
+		pVbox->addWidget(pRadio);
 
 		// set the first radio button of the group
 		// to be selected.
@@ -806,13 +783,14 @@ CP2Scope::addProductTypeTab(std::string tabName, std::set<PRODUCT_TYPES> types)
 			pRadio->setChecked(true);
 		}
 	}
+	// associate the layout manager with the page
+	pPage->setLayout(pVbox);
 
-	pVbox->addWidget(pGroup);
-	_typeTab->insertTab(pPage, tabName.c_str());
+	// put the page on the tab
+	_typeTab->insertTab(-1, pPage, tabName.c_str());
 
-	// connect the button released signal to our
-	// our plot type change slot.
-	connect(pGroup, SIGNAL(released(int)), this, SLOT(plotTypeSlot(int)));
+	// connect the button released signal to our plot type change slot.
+	connect(pGroup, SIGNAL(buttonReleased(int)), this, SLOT(plotTypeSlot(int)));
 
 	return pGroup;
 }
