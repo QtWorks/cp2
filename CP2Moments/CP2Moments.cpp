@@ -112,6 +112,8 @@ CP2Moments::timerEvent(QTimerEvent*)
 void
 CP2Moments::initializeSockets()	
 {
+	std::string requiredInterface = "192.168.3.7";
+
 	// allocate the buffer that will recieve the incoming pulse data
 	_pPulseSocketBuf = new char[1000000];
 
@@ -124,11 +126,10 @@ CP2Moments::initializeSockets()
 	QList<QNetworkInterface> allIfaces = QNetworkInterface::allInterfaces();
 
 	QNetworkAddressEntry addrEntry;
-	std::string requiredInterface = "192.168.3.7";
 	for (int i = 0; i < allIfaces.size(); i++) {
 		QNetworkInterface iface = allIfaces[i];
 		QList<QNetworkAddressEntry> addrs = iface.addressEntries();
-		for (int j = 0; i < addrs.size(); j++) {
+		for (int j = 0; j < addrs.size(); j++) {
 			std::string thisIp = addrs[j].ip().toString().toAscii();
 			if (thisIp.find(requiredInterface)!= std::string::npos) {
 				addrEntry = addrs[j];
@@ -137,11 +138,11 @@ CP2Moments::initializeSockets()
 		}
 	}
 
+	_inIpAddr  = addrEntry.ip();
 	_outIpAddr = addrEntry.broadcast();
-	// this doesn't seem to be working....grr....
+	// addrEntry.broadcast() doesn't seem to be working....grr....
 	_outIpAddr = QHostAddress("192.168.3.255");
 
-	_inIpAddr  = addrEntry.ip();
 
 	_outIpText->setText(_outIpAddr.toString().toAscii().constData());
 	_inIpText->setText(_inIpAddr.toString().toAscii().constData());
@@ -158,7 +159,10 @@ CP2Moments::initializeSockets()
 	}
 
 	// set the system socket buffer size - necessary to avoid dropped pulses.
-	//_pPulseSocket->setReadBufferSize(CP2MOMENTS_PULSE_RCVBUF);
+	//this used to work under Qt3, but doesn't seem to now; as a matter of
+	// fact they say that it is a noop for QUdpSocket:
+	// _pPulseSocket->setReadBufferSize(CP2MOMENTS_PULSE_RCVBUF);
+	// So, revert to the windows network code:
 
 	int sockbufsize = CP2MOMENTS_PULSE_RCVBUF;
 	int result = setsockopt (_pPulseSocket->socketDescriptor(),
@@ -168,7 +172,6 @@ CP2Moments::initializeSockets()
 		sizeof sockbufsize);
 	if (result) {
 		qWarning("Set receive buffer size for socket failed");
-		exit(1); 
 	}
 
 	// set up the socket notifier for pulse datagrams
@@ -181,23 +184,25 @@ CP2Moments::initializeSockets()
 	// set the system socket buffer size - to try to
 	// avoid blocking on data sends.
 	//	_pProductSocket->setSendBufferSize(CP2MOMENTS_PROD_SNDBUF);
+	// FYI, it must be bound (binded?) in order to get a socketDescriptor()
+	if (!_pProductSocket->bind(QHostAddress(requiredInterface.c_str()), _productsPort)) 
+	{
+			qWarning("Unable to bind to %s:%d", requiredInterface.c_str(), _productsPort);
+	}	
 	sockbufsize = CP2MOMENTS_PROD_SNDBUF;
-	result = setsockopt (_pPulseSocket->socketDescriptor(),
+	result = setsockopt (_pProductSocket->socketDescriptor(),
 		SOL_SOCKET,
 		SO_SNDBUF,
 		(char *) &sockbufsize,
 		sizeof sockbufsize);
 	if (result) {
 		qWarning("Set send buffer size for socket failed");
-		exit(1); 
 	}
 
+	// The max datagram message must be smaller than 64K
 	_soMaxMsgSize = 64000;
 
-	//	if (!_pProductSocket->bind(_outIpAddr, _productsPort)) {
-	//		qWarning("Unable to bind to %s:%d", _outIpAddr.toString().toAscii().constData(), _productsPort);
-	//		exit(1); 
-	//	}
+
 }
 //////////////////////////////////////////////////////////////////////
 void 
