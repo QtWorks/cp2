@@ -96,6 +96,7 @@ protected:
 	int _boardnum;
 	RCVRTYPE _rcvrType;
 	double _sampleRate;
+	int _resendCount;
 
 	int sendData(int size, void* data);
 

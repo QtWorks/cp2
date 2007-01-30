@@ -120,15 +120,25 @@ CP2ExecThread::run()
 	_outPort = 3100; 
 	_hostAddr.setAddress(QString(destIP));
 
+	// bind the socket, and set it's send buffer. The
+	// send buffer size used to be settable in Qt3, but
+	// for some bonehead reason they got rid of it in
+	// Qt4, and so we will use the windows networking
+	// call to do that. Rumour has it that the feature will
+	// be reintroduced in a later Qt release. Contrary to 
+	// the Trolltech documentation, it is very important
+	// and has a drastic effect on whether the datagram writes
+	// will succeed or not.
+	_socketDevice.bind(QHostAddress(destIP), 3100);
 	int sockbufsize = 10000000;
-	int result = setsockopt (_socketDevice.socketDescriptor(),
+	int sockFd = _socketDevice.socketDescriptor();
+	int result = setsockopt (sockFd,
 		SOL_SOCKET,
 		SO_SNDBUF,
 		(char *) &sockbufsize,
 		sizeof sockbufsize);
 	if (result) {
 		qWarning("Set send buffer size for socket failed");
-		exit(1); 
 	}
 
 	// stop timer card

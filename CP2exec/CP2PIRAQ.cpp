@@ -36,7 +36,8 @@ _rcvrType(rcvrType),
 _PNerrors(0),
 _eof(false),
 _nPulses(0),
-_sampleRate(0)
+_sampleRate(0),
+_resendCount(0)
 {
 	init(configFname, dspObjFname);
 }
@@ -246,6 +247,9 @@ CP2PIRAQ::sendData(int size,
 	// Qt3. Bears looking into.
 	do {
 		bytesSent = _pSocketDevice->writeDatagram((const char*)data, size, *_pHostAddr, _portNumber);
+		if (bytesSent != size) {
+			_resendCount++;
+		}
 	} while (bytesSent != size);
 
 	return bytesSent;
