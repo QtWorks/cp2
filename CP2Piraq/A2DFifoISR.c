@@ -37,7 +37,7 @@ extern int*    a2dFifoBuffer;			// receives the I/Q data from the A2D fifos.
 extern unsigned long pulse_num_low;
 extern unsigned long pulse_num_high;
 extern RCVRTYPE rcvrType;
-extern horiz;
+extern short horiz;
 extern 	float        IQoffset[4*NUMCHANS];
 
 extern	unsigned int channelMode; // sets channelselect() processing mode
@@ -212,17 +212,10 @@ int toFloats(int ngates, int *pIn, float *pOut) {
 		q1i = (*iptr++);
 
 		// Convert ints to floats and store
-if (0) {
 		*iqptr++ = (float)(i0i) - ioffset0; 
 		*iqptr++ = (float)(q0i) - qoffset0; 
 		*iqptr++ = (float)(i1i) - ioffset1; 
 		*iqptr++ = (float)(q1i) - qoffset1;
-}
-		*iqptr++ = (float)(i0i); 
-		*iqptr++ = (float)(q0i); 
-		*iqptr++ = (float)(i1i); 
-		*iqptr++ = (float)(q1i);
-
 	}
 	temp = 1 ;
 	return(temp);
@@ -267,6 +260,7 @@ readPMAC(PPACKET* pPkt)
 {
 	volatile unsigned int  dmrr;
 	volatile unsigned int  dmpbam;
+	volatile unsigned short* antennaData;
 
 	// if the PMAC doesn't exist, as indicated by
 	// a zero base address, do nothing
@@ -300,16 +294,24 @@ readPMAC(PPACKET* pPkt)
 	// set DMPBAM to access the PMAC dpram
 	*(volatile unsigned int *)0x14000A8 = (unsigned int)pPMACdpram + (dmpbam & 0xFFFF);  
 
-	// read the PMAC locations.
-	pPkt->info.antAz    = *(unsigned short*)((unsigned char*)PCIBASE + 0 );
-	pPkt->info.antEl    = *(unsigned short*)((unsigned char*)PCIBASE + 2 );
-	pPkt->info.scanType = *(unsigned short*)((unsigned char*)PCIBASE + 4 );
-	pPkt->info.sweepNum = *(unsigned short*)((unsigned char*)PCIBASE + 6 );
-	pPkt->info.volNum   = *(unsigned short*)((unsigned char*)PCIBASE + 8 );
-	pPkt->info.antSize  = *(unsigned short*)((unsigned char*)PCIBASE + 10);
-	pPkt->info.antTrans = *(unsigned short*)((unsigned char*)PCIBASE + 12);
+	// restore PLX chip to high speed
+	WriteCE1(HIGH_SPEED_MODE);
 
-	// restore DMRR
+	// read the PMAC locations.
+	antennaData = (unsigned short*)(PCIBASE + 0x800);
+
+	pPkt->info.antAz    = antennaData[0];
+	pPkt->info.antEl    = antennaData[1];
+	pPkt->info.scanType = antennaData[2];
+	pPkt->info.sweepNum = antennaData[3];
+	pPkt->info.volNum   = antennaData[4];
+	pPkt->info.antSize  = antennaData[5];
+	pPkt->info.antTrans = antennaData[6];
+
+	// set PLX chip to configuration speed
+	WriteCE1(PLX_CFG_MODE);
+
+    // restore DMRR
 	*(volatile unsigned int *)0x140009C = dmrr;
 
 	// restore DMPBAM
