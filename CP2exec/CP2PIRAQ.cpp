@@ -206,18 +206,15 @@ CP2PIRAQ::poll()
 			_lastPulseNumber = thisPulseNumber; // previous PN
 
 			_nPulses++;
-			if (!(_nPulses %1000 ) && _boardnum == 0) {
-				float iFloat = ppacket->data[header.gates];
-				float qFloat = ppacket->data[header.gates+1];
-				int iInt = iFloat;
-				int qInt = qFloat;
-				int az = ppacket->info.antAz;
-				printf("piraq %d gate %d I %09.1e %011d 0x%08x   Q %09.1e %011d 0x%08x  resends %d az %d\n",
-					_boardnum, header.gates/2,
-					iFloat, iInt, iInt, 
-					qFloat, qInt, qInt,
-					_resendCount,
-					az);
+			if (!(_nPulses %1000 )) {
+				double factor = 360.0/65536;
+				short az = ppacket->info.antAz;
+				short el = ppacket->info.antEl;
+				short scan = ppacket->info.scanType;
+				short vol = ppacket->info.volNum;
+				short sweep = ppacket->info.sweepNum;
+				printf("piraq %d resends %06d az %6.1f el %6.1f sweep %05d scan type %05d vol %05d\n",
+					_boardnum, _resendCount, az*factor, el*factor, sweep, scan, vol);
 			}
 		}
 
