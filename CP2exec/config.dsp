@@ -8,8 +8,8 @@ timingmode      0       ;0 = continuous, 1 = triggered, 2 = sync,
 delay           1       ; (no effect in mode 0) delay to first sample (special case: timingmode 2)
 gates           950     ;
 hits            10      ; 100b/s @ 1KHz
-rcvr_pulsewidth 3       ;
-xmit_pulsewidth 3       ;1us pulses (150m) ;
+rcvr_pulsewidth 6       ;
+xmit_pulsewidth 6       ;1us pulses (150m) ;
 prt		6000	;1000 Hz 
 ;prt2		2000	;3000 Hz
 tpdelay         8       ; test pulse delay in 6MHz counts (line-up G0)
@@ -32,7 +32,7 @@ afcgain         1e5     ;use positive sign if high voltage = > 60MHz IF
 ;afchigh        9450e6  ;highest afc frequency
 ;afclow         9440e6  ;lowest afc frequency
 locktime        10.0
-debug           on      ;turns on certain debug printouts
+debug           off      ;turns on certain debug printouts
 dataformat      18      ; PIRAQ_CP2_TIMESERIES: CP2
 meters_to_first_gate	100.0	; 1551
 gate_spacing_meters	20.0	; 
