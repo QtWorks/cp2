@@ -112,7 +112,7 @@ CP2Moments::timerEvent(QTimerEvent*)
 void
 CP2Moments::initializeSockets()	
 {
-	std::string requiredInterface = "192.168.3.7";
+	std::string requiredInterface = "192.168.3";
 
 	// allocate the buffer that will recieve the incoming pulse data
 	_pPulseSocketBuf = new char[1000000];
@@ -173,6 +173,15 @@ CP2Moments::initializeSockets()
 	if (result) {
 		qWarning("Set receive buffer size for socket failed");
 	}
+	int optval = 1;
+	result = setsockopt(_pPulseSocket->socketDescriptor(), 
+		SOL_SOCKET, 
+		SO_REUSEADDR, 
+		(const char*)&optval, 
+		sizeof(optval));
+	if (result) {
+		qWarning("Set reuse address for socket failed");
+	}
 
 	// set up the socket notifier for pulse datagrams
 	connect(_pPulseSocket, SIGNAL(readyRead()), this, SLOT(newPulseDataSlot()));
@@ -198,6 +207,15 @@ CP2Moments::initializeSockets()
 	if (result) {
 		qWarning("Set send buffer size for socket failed");
 	}
+	result = setsockopt(_pProductSocket->socketDescriptor(), 
+		SOL_SOCKET, 
+		SO_REUSEADDR, 
+		(const char*)&optval, 
+		sizeof(optval));
+	if (result) {
+		qWarning("Set reuse address for socket failed");
+	}
+
 
 	// The max datagram message must be smaller than 64K
 	_soMaxMsgSize = 64000;
