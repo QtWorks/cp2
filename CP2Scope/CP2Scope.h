@@ -59,75 +59,91 @@ enum SCOPEPLOTTYPE {
 };
 
 
+/// Provides a real time display of either pulse data or a product
+/// extracted from beams. Only a fraction of the incoming data stream is
+/// displayed, since the human eye could not discern the whole bandwidth,
+/// and would use up the cpu anyway.
 class CP2Scope : public QDialog, public Ui::CP2Scope {
 	Q_OBJECT
 public:
 	CP2Scope(QDialog* parent = 0);
 	~CP2Scope();
-	void displayData(); 
-	void resizeDataVectors(); 
 
 public slots:
-	// Call when data is available on the pulse data socket.
+	/// Call when data is available on the pulse data socket.
 	void newPulseSlot();
-	// Call when data is available on the product data socket.
+	/// Call when data is available on the product data socket.
 	void newProductSlot();
-
+	/// Call when the plot type is changed. This function 
+	/// must determine which of the two families of
+	/// plots, _pulsePlotInfo, or _prodPlotInfo, the
+	/// previous and new plot types belong to.
 	virtual void plotTypeSlot(int plotType);
-	
+	/// call to save the current plotting parameters for the
+	/// current plot type, and reload the parameters for the 
+	/// the new plot type. It handles both pulse and beam
+	/// displays. pulsePlot is used to differentiate between the
+	/// two.
 	void plotTypeChange(PlotInfo* pi, 
 					   PLOTTYPE plotType, 
 					   PRODUCT_TYPES prodType, 
-					   bool rawPlot);
-
+					   bool pulsePlot);
+	/// A different tab has been selected. Change the plot type to the
+	/// currently selected button on that tab.
 	void tabChangeSlot(QWidget* w);
-
+    /// The gain knob value has changed.
 	virtual void gainChangeSlot( double );	
+	/// slide the plot up.
 	virtual void upSlot();
+	/// Slide the plot down.
 	virtual void dnSlot();
-	/// Perform an autoscale
+	/// Initiate an autoscale
 	virtual void autoScaleSlot();
 	virtual void dataSetSlot(bool);
 	virtual void DataSetGateSpinBox_valueChanged( int ); 
 	virtual void xFullScaleBox_valueChanged( int );	
 	virtual void DataChannelSpinBox_valueChanged( int ); 
 
-protected:
+protected:	
+	/// Send the data for the current plot type to the ScopePlot.
+	void displayData(); 
+	void resizeDataVectors(); 
+
 	/// Initialize the pulse and product sockets. The
 	/// notifiers will be created, and connected
 	/// to the data handling slots.
 	void initSockets(); 
 	/// The socket that pulse data is received on.
-	QUdpSocket*   _pPulseSocket;
+	QUdpSocket*      _pPulseSocket;
 	/// The port for the pulse data.
-	int				_pulseDataPort;
+	int				 _pulsePort;
 	/// The buffer for incoming pulse datagrams
 	std::vector<char> _pPulseSocketBuf;
 	/// The socket that product data is received on.
-	QUdpSocket*   _pProductSocket;
+	QUdpSocket*       _pProductSocket;
 	/// The port for the product data.
-	int				_productDataPort;
+	int				  _productPort;
 	/// The buffer for incoming product datagrams
 	std::vector<char> _pProductSocketBuf;
 	///	board source of data CP2 PIRAQ 1-3 
-	int				_dataChannel;					
+	int				  _dataChannel;					
 	///	gate in packet to display 	
-	int				_dataSetGate;				
+	int				  _dataSetGate;				
 	///	prior cumulative pulse count, used for throughput calcs
-	int				_prevPulseCount[3];		
+	int				  _prevPulseCount[3];		
 	///	cumulative pulse count
-	int				_pulseCount[3];		
+	int				  _pulseCount[3];		
 	///	cumulative error count
-	int				_errorCount[3];		
+	int				  _errorCount[3];		
 	///  last pulse number
-	long long		_lastPulseNum[3];		
+	long long		  _lastPulseNum[3];		
 	///    set true when fifo eof occurs. Used so that we don't keep setting the fifo eof led.
-	bool			_eof[3];						
+	bool			  _eof[3];						
 	///	decimation factor for along range (DATA_SET_PULSE) display: currently set 50
-	unsigned int	_pulseDecimation;
+	unsigned int	  _pulseDecimation;
 	///	decimation factor for products display: currently set 50
-	unsigned int	_productsDecimation;	
-
+	unsigned int	  _productsDecimation;	
+ 
 	double          _knobGain;
 	double          _knobOffset;
 	double			_graphRange;	
@@ -149,25 +165,24 @@ protected:
 	/// @param min Desired scale minimum
 	/// @param max Desired scale maximum
 	void adjustGainOffset(double min, double max);
-	/// Holds I data for time series and I vs. Q 	
+	/// Holds I data from a pulse for time series and I vs. Q 	
 	std::vector<double> I;
-	/// Holds Q data for time series and I vs. Q display
+	/// Holds Q data from a pulse for time series and I vs. Q display
 	std::vector<double> Q;
-	/// Used to collect the spectrum values
+	/// Used to collect the spectrum values calculated from pulses
 	std::vector<double> _spectrum;
-	/// Used to collect product data
+	/// Used to collect product data from beams
 	std::vector<double> _ProductData;
-
 	// how often to update the statistics (in seconds)
 	int _statsUpdateInterval;
-
-	/// Set true if raw plots are selected,
-	/// false for product type plots
-	bool _rawPlot;
+	/// Set true if raw plots are selected, false for product type plots
+	bool _pulsePlot;
 	/// The current selected plot type.
-	PLOTTYPE        _plotType;
+	PLOTTYPE        _pulsePlotType;
 	/// The current selected product type.
-	PRODUCT_TYPES   _productType;
+	PRODUCT_TYPES   _productPlotType;
+
+
 	int				_dataSet;		//	data grouping for scope displays: along pulse, or gate
 	unsigned int	_dataSetSize;	//	size of data vector for display or calculations 
 
@@ -219,7 +234,7 @@ protected:
 	double powerSpectrum();
 
 	/// For each PLOTTYPE, there will be an entry in this map.
-	std::map<PLOTTYPE, PlotInfo> _plotInfo;
+	std::map<PLOTTYPE, PlotInfo> _pulsePlotInfo;
 
 	/// For each PRODUCT_TYPES, there will be an entry in this map.
 	std::map<PRODUCT_TYPES, PlotInfo> _prodPlotInfo;
@@ -228,7 +243,7 @@ protected:
 	std::set<PLOTTYPE> _timeSeriesPlots;
 
 	/// This set contains PLOTTYPEs for all raw data plots
-	std::set<PLOTTYPE> _rawPlots;
+	std::set<PLOTTYPE> _pulsePlots;
 
 	/// This set contains PLOTTYPEs for all S band moments plots
 	std::set<PRODUCT_TYPES> _sMomentsPlots;
@@ -247,7 +262,7 @@ protected:
 	/// add a rw plot tab to the plot type selection tab widget.
 	/// Radio buttons are created for all of specified
 	/// plty types, and grouped into one button group.
-	/// _plotInfo provides the label information for
+	/// _pulsePlotInfo provides the label information for
 	/// the radio buttons.
 	/// @param tabName The title for the tab.
 	/// @param types A set of the desired PLOTTYPE types 
@@ -257,7 +272,7 @@ protected:
 	/// add a products tab to the plot type selection tab widget.
 	/// Radio buttons are created for all of specified
 	/// plty types, and grouped into one button group.
-	/// _plotInfo provides the label information for
+	/// _pulsePlotInfo provides the label information for
 	/// the radio buttons.
 	/// @param tabName The title for the tab.
 	/// @param types A set of the desired PLOTTYPE types 

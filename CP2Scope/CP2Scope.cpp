@@ -37,15 +37,17 @@ _pPulseSocketBuf(0),
 _tsDisplayCount(0),
 _productDisplayCount(0),
 _statsUpdateInterval(5),
-_rawPlot(TRUE),
+_pulsePlot(TRUE),
 _performAutoScale(false),
 _dataChannel(0)
 {
 	setupUi(parent);
 
-	_pulseDataPort	= 3100;
-	_productDataPort = 3200;
+	// assign the incoming data ports
+	_pulsePort	= 3100;
+	_productPort = 3200;
 
+	// initialize running statistics
 	for (int i = 0; i < 3; i++) {
 		_pulseCount[i]	= 0;
 		_prevPulseCount[i] = 0;
@@ -54,11 +56,16 @@ _dataChannel(0)
 		_lastPulseNum[i] = 0;
 	}
 
-	_plotType = S_TIMESERIES;
+	// The initial plot type will be Sband I and Q
+	_pulsePlotType = S_TIMESERIES;
 
-	// intialize the data reception socket.
-	// set up the ocket notifier and connect it
-	// to the data reception slot
+	// connect the controls
+	connect(_autoScale, SIGNAL(released()),           this, SLOT(autoScaleSlot()));
+	connect(_gainKnob,  SIGNAL(valueChanged(double)), this, SLOT(gainChangeSlot(double)));
+	connect(_up,        SIGNAL(released()),           this, SLOT(upSlot()));
+	connect(_dn,        SIGNAL(released()),           this, SLOT(dnSlot()));
+	
+	// intialize the data reception sockets.
 	initSockets();	
 
 	// initialize the book keeping for the plots.
@@ -144,7 +151,7 @@ CP2Scope::dataSetSlot(bool b)	{
 //	set data array sizes based on plot type, UI x-scale max setting
 void CP2Scope::resizeDataVectors()	{	
 	//	resize data vectors to x-axis max, not gates: fft size if that is the plot type. 
-	if	(_plotType >= ScopePlot::PRODUCT)	{	//	current product to display
+	if	(_pulsePlotType >= ScopePlot::PRODUCT)	{	//	current product to display
 		_ProductData.resize(_xFullScale); 
 		//	enable x-scale spinner
 	}
@@ -174,7 +181,7 @@ CP2Scope::DataSetGateSpinBox_valueChanged( int SpinBoxGate )	{
 void 
 CP2Scope::xFullScaleBox_valueChanged( int xFullScale )	{
 	//	change the gate for assembling data sets 
-	if	(_plotType == ScopePlot::SPECTRUM)	//	fft: disable spinner
+	if	(_pulsePlotType == ScopePlot::SPECTRUM)	//	fft: disable spinner
 		return;
 	_xFullScale    = xFullScale;
 	resizeDataVectors();	//	resize data vectors
@@ -277,7 +284,7 @@ CP2Scope::newPulseSlot()
 void
 CP2Scope::processPulse(CP2Pulse* pPulse) 
 {
-	if (!_rawPlot)
+	if (!_pulsePlot)
 		return;
 
 	int chan = pPulse->header.channel;
@@ -292,7 +299,7 @@ CP2Scope::processPulse(CP2Pulse* pPulse)
 
 	float* data = &(pPulse->data[0]);
 
-	PlotInfo* pi = &_plotInfo[_plotType];
+	PlotInfo* pi = &_pulsePlotInfo[_pulsePlotType];
 	switch (pi->getDisplayType()) 
 	{
 	case ScopePlot::SPECTRUM:
@@ -345,12 +352,12 @@ void
 CP2Scope::processProduct(CP2Product* pProduct) 
 {
 	// if we are displaying a raw plot, just ignore
-	if (_rawPlot) 
+	if (_pulsePlot) 
 		return;
 
 	PRODUCT_TYPES prodType = pProduct->header.prodType;
 
-	if (prodType == _productType) {
+	if (prodType == _productPlotType) {
 		// this is the product that we are currntly displaying
 		// extract the data and display it.
 		_ProductData.resize(pProduct->header.gates);
@@ -367,8 +374,8 @@ CP2Scope::displayData()
 {
 	double yBottom = _graphCenter - _graphRange;
 	double yTop =    _graphCenter + _graphRange;
-	if (_rawPlot) {
-		PlotInfo* pi = &_plotInfo[_plotType];
+	if (_pulsePlot) {
+		PlotInfo* pi = &_pulsePlotInfo[_pulsePlotType];
 
 		switch (pi->getDisplayType())
 		{
@@ -390,7 +397,7 @@ CP2Scope::displayData()
 	} else {
 		if (_performAutoScale)
 			autoScale(_ProductData);
-		PlotInfo* pi = &_prodPlotInfo[_productType];
+		PlotInfo* pi = &_prodPlotInfo[_productPlotType];
 		_scopePlot->Product(_ProductData, 
 			pi->getId(), 
 			yBottom, 
@@ -413,7 +420,7 @@ CP2Scope::initSockets()
 	_pPulseSocket = new QUdpSocket;
 	_pProductSocket = new QUdpSocket;
 
-	std::string requiredInterface = "192.168.3.7";
+	std::string requiredInterface = "192.168.3";
 
 	QList<QNetworkInterface> allIfaces = QNetworkInterface::allInterfaces();
 
@@ -436,8 +443,8 @@ CP2Scope::initSockets()
 
 	// bind sockets to port/network
 	int optval = 1;
-	if (!_pPulseSocket->bind(qHost, _pulseDataPort)) {
-		qWarning("Unable to bind to %s:%d", qHost.toString().toAscii().constData(), _pulseDataPort);
+	if (!_pPulseSocket->bind(qHost, _pulsePort)) {
+		qWarning("Unable to bind to %s:%d", qHost.toString().toAscii().constData(), _pulsePort);
 	}
 	result = setsockopt(_pPulseSocket->socketDescriptor(), 
 		SOL_SOCKET, 
@@ -455,8 +462,8 @@ CP2Scope::initSockets()
 		qWarning("Set receive buffer size for socket failed");
 	}
 
-	if (!_pProductSocket->bind(qHost, _productDataPort)) {
-		qWarning("Unable to bind to %s:%d", qHost.toString().toAscii().constData(), _productDataPort);
+	if (!_pProductSocket->bind(qHost, _productPort)) {
+		qWarning("Unable to bind to %s:%d", qHost.toString().toAscii().constData(), _productPort);
 	}
 	result = setsockopt(_pProductSocket->socketDescriptor(), 
 		SOL_SOCKET, 
@@ -534,7 +541,7 @@ CP2Scope::plotTypeSlot(int plotType) {
 	if (pageNum == 0) {
 		// change to a raw plot type
 		PLOTTYPE plotType = (PLOTTYPE)ptype;
-		plotTypeChange(&_plotInfo[plotType], plotType, (PRODUCT_TYPES)0 , true);
+		plotTypeChange(&_pulsePlotInfo[plotType], plotType, (PRODUCT_TYPES)0 , true);
 	} else {
 		// change to a product plot type
 		PRODUCT_TYPES productType = (PRODUCT_TYPES)ptype;
@@ -555,7 +562,7 @@ CP2Scope::tabChangeSlot(QWidget* w)
 	if (pageNum == 0) {
 		// change to a raw plot type
 		PLOTTYPE plotType = (PLOTTYPE)ptype;
-		plotTypeChange(&_plotInfo[plotType], plotType, (PRODUCT_TYPES)0 , true);
+		plotTypeChange(&_pulsePlotInfo[plotType], plotType, (PRODUCT_TYPES)0 , true);
 	} else {
 		// change to a product plot type
 		PRODUCT_TYPES productType = (PRODUCT_TYPES)ptype;
@@ -568,15 +575,15 @@ void
 CP2Scope::plotTypeChange(PlotInfo* pi, 
 					   PLOTTYPE newPlotType, 
 					   PRODUCT_TYPES newProductType, 
-					   bool rawPlot)
+					   bool pulsePlot)
 {
 
 	// save the gain and offset of the current plot type
 	PlotInfo* currentPi;
-	if (_rawPlot) {
-		currentPi = &_plotInfo[_plotType];
+	if (_pulsePlot) {
+		currentPi = &_pulsePlotInfo[_pulsePlotType];
 	} else {
-		currentPi = &_prodPlotInfo[_productType];
+		currentPi = &_prodPlotInfo[_productPlotType];
 	}
 	currentPi->setGain(pi->getGainMin(), pi->getGainMax(), _knobGain);
 	currentPi->setOffset(pi->getOffsetMin(), pi->getOffsetMax(), _graphCenter);
@@ -590,17 +597,19 @@ CP2Scope::plotTypeChange(PlotInfo* pi,
 	_gainKnob->setValue(_knobGain);
 
 	// change the plot type
-	if (rawPlot) {
-		_plotType = newPlotType;
+	if (pulsePlot) {
+		_pulsePlotType = newPlotType;
 	} else {
-		_productType = newProductType;
+		_productPlotType = newProductType;
 	}
 	
-	_rawPlot = rawPlot;
+	_pulsePlot = pulsePlot;
 
-	if (_rawPlot) {
+	// select the piraq discriminator based
+	// on the plot type.
+	if (_pulsePlot) {
 		// change data channel if necessary
-	switch(_plotType) 
+	switch(_pulsePlotType) 
 	{
 	case S_TIMESERIES:	// S time series
 	case S_IQ:			// S IQ
@@ -629,17 +638,17 @@ void
 CP2Scope::initPlots()
 {
 
-	_rawPlots.insert(S_TIMESERIES);
-	_rawPlots.insert(XH_TIMESERIES);
-	_rawPlots.insert(XV_TIMESERIES);
+	_pulsePlots.insert(S_TIMESERIES);
+	_pulsePlots.insert(XH_TIMESERIES);
+	_pulsePlots.insert(XV_TIMESERIES);
 
-	_rawPlots.insert(S_IQ);
-	_rawPlots.insert(XH_IQ);
-	_rawPlots.insert(XV_IQ);
+	_pulsePlots.insert(S_IQ);
+	_pulsePlots.insert(XH_IQ);
+	_pulsePlots.insert(XV_IQ);
 
-	_rawPlots.insert(S_SPECTRUM);
-	_rawPlots.insert(XH_SPECTRUM);
-	_rawPlots.insert(XV_SPECTRUM);
+	_pulsePlots.insert(S_SPECTRUM);
+	_pulsePlots.insert(XH_SPECTRUM);
+	_pulsePlots.insert(XV_SPECTRUM);
 
 	_sMomentsPlots.insert(PROD_S_DBMHC);
 	_sMomentsPlots.insert(PROD_S_DBMVC);
@@ -660,15 +669,15 @@ CP2Scope::initPlots()
 	//	_xMomentsPlots.insert(PROD_X_VEL);
 	_xMomentsPlots.insert(PROD_X_LDR);
 
-	_plotInfo[S_TIMESERIES]  = PlotInfo( S_TIMESERIES, TIMESERIES, "I and Q", "S:  I and Q", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_plotInfo[XH_TIMESERIES] = PlotInfo(XH_TIMESERIES, TIMESERIES, "I and Q", "Xh: I and Q", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_plotInfo[XV_TIMESERIES] = PlotInfo(XV_TIMESERIES, TIMESERIES, "I and Q", "Xv: I and Q", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_plotInfo[S_IQ]          = PlotInfo(         S_IQ,       IVSQ, "I vs Q", "S:  I vs Q", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_plotInfo[XH_IQ]         = PlotInfo(        XH_IQ,       IVSQ, "I vs Q", "Xh: I vs Q", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_plotInfo[XV_IQ]         = PlotInfo(        XV_IQ,       IVSQ, "I vs Q", "Xv: I vs Q", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_plotInfo[S_SPECTRUM]    = PlotInfo(   S_SPECTRUM,   SPECTRUM, "Power Spectrum", "S:  Power Spectrum", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_plotInfo[XH_SPECTRUM]   = PlotInfo(  XH_SPECTRUM,   SPECTRUM, "Power Spectrum", "Xh: Power Spectrum", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_plotInfo[XV_SPECTRUM]   = PlotInfo(  XV_SPECTRUM,   SPECTRUM, "Power Spectrum", "Xv: Power Spectrum", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_pulsePlotInfo[S_TIMESERIES]  = PlotInfo( S_TIMESERIES, TIMESERIES, "I and Q", "S:  I and Q", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_pulsePlotInfo[XH_TIMESERIES] = PlotInfo(XH_TIMESERIES, TIMESERIES, "I and Q", "Xh: I and Q", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_pulsePlotInfo[XV_TIMESERIES] = PlotInfo(XV_TIMESERIES, TIMESERIES, "I and Q", "Xv: I and Q", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_pulsePlotInfo[S_IQ]          = PlotInfo(         S_IQ,       IVSQ, "I vs Q", "S:  I vs Q", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_pulsePlotInfo[XH_IQ]         = PlotInfo(        XH_IQ,       IVSQ, "I vs Q", "Xh: I vs Q", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_pulsePlotInfo[XV_IQ]         = PlotInfo(        XV_IQ,       IVSQ, "I vs Q", "Xv: I vs Q", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_pulsePlotInfo[S_SPECTRUM]    = PlotInfo(   S_SPECTRUM,   SPECTRUM, "Power Spectrum", "S:  Power Spectrum", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_pulsePlotInfo[XH_SPECTRUM]   = PlotInfo(  XH_SPECTRUM,   SPECTRUM, "Power Spectrum", "Xh: Power Spectrum", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_pulsePlotInfo[XV_SPECTRUM]   = PlotInfo(  XV_SPECTRUM,   SPECTRUM, "Power Spectrum", "Xv: Power Spectrum", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
 
 	_prodPlotInfo[PROD_S_DBMHC]       = PlotInfo(      PROD_S_DBMHC,    PRODUCT, "H Dbm", "Sh: Dbm", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
 	_prodPlotInfo[PROD_S_DBMVC]       = PlotInfo(      PROD_S_DBMVC,    PRODUCT, "V Dbm", "Sv: Dbm", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
@@ -696,7 +705,7 @@ CP2Scope::initPlots()
 	// for each tab.
 	QButtonGroup* pGroup;
 
-	pGroup = addPlotTypeTab("Raw", _rawPlots);
+	pGroup = addPlotTypeTab("Raw", _pulsePlots);
 	_tabButtonGroups.push_back(pGroup);
 
 	pGroup = addProductTypeTab("S", _sMomentsPlots);
@@ -724,9 +733,9 @@ CP2Scope::addPlotTypeTab(std::string tabName, std::set<PLOTTYPE> types)
 	for (i = types.begin(); i != types.end(); i++) 
 	{
 		// create the radio button
-		int id = _plotInfo[*i].getId();
+		int id = _pulsePlotInfo[*i].getId();
 		QRadioButton* pRadio = new QRadioButton;
-		const QString label = _plotInfo[*i].getLongName().c_str();
+		const QString label = _pulsePlotInfo[*i].getLongName().c_str();
 		pRadio->setText(label);
 
 		// put the button in the button group
