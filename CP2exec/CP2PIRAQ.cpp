@@ -212,10 +212,11 @@ CP2PIRAQ::poll()
 				int iInt = iFloat;
 				int qInt = qFloat;
 				int az = ppacket->info.antAz;
-				printf("piraq %d gate %d I %09.1e %010d 0x%08x   Q %09.1e %010d 0x%08x  %d\n",
+				printf("piraq %d gate %d I %09.1e %011d 0x%08x   Q %09.1e %011d 0x%08x  resends %d az %d\n",
 					_boardnum, header.gates/2,
 					iFloat, iInt, iInt, 
 					qFloat, qInt, qInt,
+					_resendCount,
 					az);
 			}
 		}
