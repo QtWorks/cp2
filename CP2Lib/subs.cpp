@@ -19,6 +19,8 @@
 
 #define REF     100e3
 
+#define NCAR_DRX
+
 //void delay(int time); //!!!all calls replaced w/Sleep() w/no change to passed parameter
 
 /*
