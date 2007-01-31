@@ -312,7 +312,6 @@ void readconfig(char *fname, CONFIG *config)
       printf("%-18s %d\n",parms[34],config->clutter_end);
       printf("%-18s %f\n",parms[35],config->meters_to_first_gate);
       printf("%-18s %f\n",parms[36],config->gate_spacing_meters);
-      exit(0);
       }
    
    if(err) exit(-1);
