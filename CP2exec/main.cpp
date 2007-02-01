@@ -21,7 +21,7 @@ main(int argc, char* argv[], char* envp[])
 
 	// create the Qt application
 	QApplication app( argc, argv );
-	QDialog* dialog = new QDialog;
+	QDialog* dialog = new QDialog(0, Qt::WindowMinimizeButtonHint);
 
 	// create our main window. It wants to know about the piraq executin
 	// thread so that it can query the thread for status information.

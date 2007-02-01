@@ -6,7 +6,7 @@
 int main( int argc, char** argv )
 {
     QApplication app( argc, argv );
-	QDialog* dialog = new QDialog;
+	QDialog* dialog = new QDialog(0, Qt::WindowMinimizeButtonHint);
 
 	// create our main window. It may contain a PPI sometime, and 
 	// other buttons etc.

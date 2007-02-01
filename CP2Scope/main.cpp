@@ -14,7 +14,7 @@ main(int argc, char** argv)
 {
 
 	QApplication app(argc, argv);
-	QDialog* dialog = new QDialog();
+	QDialog* dialog = new QDialog(0, Qt::WindowMinMaxButtonsHint);
 
 	// create our test dialog. It will contain a ScopePlot and 
 	// other buttons etc.
