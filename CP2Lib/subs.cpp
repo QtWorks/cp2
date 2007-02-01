@@ -713,7 +713,8 @@ printf("< 1uSec: full rate mode: no output decimation\n");
 #ifdef NCAR_DRX 
 //			sum += COEFF(31-i);
 #endif
-printf("i = %d FIRCH1_Iindex[128 + 2 * i - 1] = %d FIRCH1_Iindex[192 + 2 * i - 1] = %d COEFF(31-i) = %d\n",i,(128 + 2 * i - 1),(192 + 2 * i - 1),COEFF(31-i)); 
+			printf("i = %d FIRCH1_Iindex[%d] FIRCH1_Iindex[%d] COEFF(31-i) = %d\n",
+				i,( 128 + 2 * i - 1), (192 + 2 * i - 1), COEFF(31-i)); 
             }
          else	/* if even */
             {
@@ -721,7 +722,8 @@ printf("i = %d FIRCH1_Iindex[128 + 2 * i - 1] = %d FIRCH1_Iindex[192 + 2 * i - 1
             piraq->FIRCH1_Q[192 + 2 * i + 1] = 
             piraq->FIRCH2_Q[128 + 2 * i + 1] = 
             piraq->FIRCH2_Q[192 + 2 * i + 1] = COEFF(31-i);
-printf("i = %d FIRCH1_Qindex[128 + 2 * i + 1] = %d FIRCH1_Qindex[192 + 2 * i + 1] = %d COEFF(31-i) = %d\n",i,(128 + 2 * i + 1),(192 + 2 * i + 1),COEFF(31-i)); 
+			printf("i = %d FIRCH1_Qindex[%d] FIRCH1_Qindex[%d] COEFF(31-i) = %d\n",
+				i, (128 + 2 * i + 1), (192 + 2 * i + 1), COEFF(31-i)); 
 			sum += COEFF(31-i);
             }
       sum *= 2;
