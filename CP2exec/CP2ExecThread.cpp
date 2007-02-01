@@ -32,9 +32,9 @@
 CP2ExecThread::CP2ExecThread(std::string dspObjFile, std::string configFile):
 _dspObjFile(dspObjFile),
 _configFile(configFile),
+_piraq0(0),
 _piraq1(0),
 _piraq2(0),
-_piraq3(0),
 _pulses1(0),
 _pulses2(0),
 _pulses3(0),
@@ -174,15 +174,15 @@ CP2ExecThread::run()
 	char* dname = new char[_dspObjFile.size()+1];
 	strcpy(dname, _dspObjFile.c_str());
 
-	_piraq1 = new CP2PIRAQ(&_hostAddr, _outPort, &_socketDevice, fname1, dname, 
+	_piraq0 = new CP2PIRAQ(&_hostAddr, _outPort, &_socketDevice, fname1, dname, 
 		_pulsesPerPciXfer, PMACphysAddr, 0, SHV);
-	_piraq2 = new CP2PIRAQ(&_hostAddr, _outPort, &_socketDevice, fname2, dname, 
+	_piraq1 = new CP2PIRAQ(&_hostAddr, _outPort, &_socketDevice, fname2, dname, 
 		_pulsesPerPciXfer, PMACphysAddr, 1, XH);
-	_piraq3 = new CP2PIRAQ(&_hostAddr, _outPort, &_socketDevice, fname3, dname, 
+	_piraq2 = new CP2PIRAQ(&_hostAddr, _outPort, &_socketDevice, fname3, dname, 
 		_pulsesPerPciXfer, PMACphysAddr, 2, XV);
 
-	prt = _piraq3->prt();
-	xmit_pulsewidth = _piraq3->xmit_pulsewidth();
+	prt = _piraq2->prt();
+	xmit_pulsewidth = _piraq2->xmit_pulsewidth();
 	delete [] dname;
 
 	///////////////////////////////////////////////////////////////////////////
@@ -201,15 +201,15 @@ CP2ExecThread::run()
 	//
 	//      start the piraqs, waiting for each to indicate they are ready
 
-	if (_piraq1->start(pulsenum)) {
+	if (_piraq0->start(pulsenum)) {
 		std::cerr << "unable to start piraq1\n";
 		exit();
 	} 
-	if (_piraq2->start(pulsenum)) {
+	if (_piraq1->start(pulsenum)) {
 		std::cerr << "unable to start piraq2\n";
 		exit();
 	} 
-	if (_piraq3->start(pulsenum)) {
+	if (_piraq2->start(pulsenum)) {
 		std::cerr << "unable to start piraq3\n";
 		exit();
 	} 
@@ -224,7 +224,7 @@ CP2ExecThread::run()
 	// start timer board immediately
 
 	PINFOHEADER info;
-	info = _piraq3->info();
+	info = _piraq2->info();
 	cp2timer_config(&ext_timer, &info, prt, xmit_pulsewidth);
 	cp2timer_set(&ext_timer);		// put the timer structure into the timer DPRAM 
 	cp2timer_reset(&ext_timer);	// tell the timer to initialize with the values from DPRAM 
@@ -233,9 +233,9 @@ CP2ExecThread::run()
 	_status = RUNNING;
 
 	while(1) { 
-		_pulses1 += _piraq1->poll();
-		_pulses2 += _piraq2->poll();
-		_pulses3 += _piraq3->poll();
+		_pulses1 += _piraq0->poll();
+		_pulses2 += _piraq1->poll();
+		_pulses3 += _piraq2->poll();
 
 		if (_stop)
 			break;
@@ -245,16 +245,16 @@ CP2ExecThread::run()
 	// active w/o go.exe running. 12-9-04
 	cp2timer_stop(&ext_timer); 
 
+	if (_piraq0)
+		delete _piraq0; 
 	if (_piraq1)
 		delete _piraq1; 
 	if (_piraq2)
-		delete _piraq2; 
-	if (_piraq3)
-		delete _piraq3;
+		delete _piraq2;
 
+	_piraq0 = 0;
 	_piraq1 = 0;
 	_piraq2 = 0;
-	_piraq3 = 0;
 
 	_stop = false;
 
@@ -270,23 +270,23 @@ CP2ExecThread::stop()
 void 
 CP2ExecThread::pnErrors(int& errors1, int& errors2, int& errors3)
 {
-	if (!_piraq1 || !_piraq2 || !_piraq3) {
+	if (!_piraq0 || !_piraq1 || !_piraq2) {
 		errors1 = 0.0;
 		errors2 = 0.0;
 		errors3 = 0.0;
 		return;
 	}
 
-	errors1 = _piraq1->pnErrors();
-	errors2 = _piraq2->pnErrors();
-	errors3 = _piraq3->pnErrors();
+	errors1 = _piraq0->pnErrors();
+	errors2 = _piraq1->pnErrors();
+	errors3 = _piraq2->pnErrors();
 
 }/////////////////////////////////////////////////////////////////////
 void 
 CP2ExecThread::antennaInfo(unsigned short* az, unsigned short* el, 
 						   unsigned short* sweep, unsigned short* volume)
 {
-	if (!_piraq1 || !_piraq2 || !_piraq3) {
+	if (!_piraq0 || !_piraq1 || !_piraq2) {
 		for (int i = 0; i < 3; i++) {
 			az[i] = 0;
 			el[i] = 0;
@@ -296,24 +296,24 @@ CP2ExecThread::antennaInfo(unsigned short* az, unsigned short* el,
 		return;
 	}
 
-	_piraq1->antennaInfo(az[0], el[0], sweep[0], volume[0]);
-	_piraq2->antennaInfo(az[1], el[1], sweep[1], volume[1]);
-	_piraq3->antennaInfo(az[2], el[2], sweep[2], volume[2]);
+	_piraq0->antennaInfo(az[0], el[0], sweep[0], volume[0]);
+	_piraq1->antennaInfo(az[1], el[1], sweep[1], volume[1]);
+	_piraq2->antennaInfo(az[2], el[2], sweep[2], volume[2]);
 }
 /////////////////////////////////////////////////////////////////////
 void 
 CP2ExecThread::rates(double& rate1, double& rate2, double& rate3)
 {
-	if (!_piraq1 || !_piraq2 || !_piraq3) {
+	if (!_piraq0 || !_piraq1 || !_piraq2) {
 		rate1 = 0.0;
 		rate2 = 0.0;
 		rate3 = 0.0;
 		return;
 	}
 
-	rate1 = _piraq1->sampleRate();
-	rate2 = _piraq2->sampleRate();
-	rate3 = _piraq3->sampleRate();
+	rate1 = _piraq0->sampleRate();
+	rate2 = _piraq1->sampleRate();
+	rate3 = _piraq2->sampleRate();
 }
 /////////////////////////////////////////////////////////////////////
 void
@@ -327,16 +327,16 @@ CP2ExecThread::pulses(int& pulses1, int& pulses2, int& pulses3) {
 void
 CP2ExecThread::eof(bool eofflags[3])
 {
-	if (!_piraq1 || !_piraq2 || !_piraq3) 
+	if (!_piraq0 || !_piraq1 || !_piraq2) 
 	{
 		eofflags[0] = false;
 		eofflags[1] = false;
 		eofflags[2] = false; 
 		return;
 	}
-	eofflags[0] = _piraq1->eof();
-	eofflags[1] = _piraq2->eof();
-	eofflags[2] = _piraq3->eof(); 
+	eofflags[0] = _piraq0->eof();
+	eofflags[1] = _piraq1->eof();
+	eofflags[2] = _piraq2->eof(); 
 
 }
 /////////////////////////////////////////////////////////////////////

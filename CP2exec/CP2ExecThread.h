@@ -33,11 +33,11 @@ protected:
 	/// @return The pci physical address of the PMAC dual ported ram.
 	unsigned int findPMACdpram();
 	/// The S band piraq
-	CP2PIRAQ* _piraq1;
+	CP2PIRAQ* _piraq0;
 	/// The Xh piraq
-	CP2PIRAQ* _piraq2;
+	CP2PIRAQ* _piraq1;
 	/// The Xv piraq
-	CP2PIRAQ* _piraq3;
+	CP2PIRAQ* _piraq2;
 	/// The dsp object code file name
 	std::string _dspObjFile;
 	/// The configuration file name
