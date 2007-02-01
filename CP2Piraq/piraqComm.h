@@ -139,13 +139,13 @@ typedef struct PINFOHEADER
 							///< to calculate beam number from pulse numbers.
     uint4  bytespergate;	///< The number of bytes per gate (2*sizeof(float)),  set by the host.
 	uint4  PMACdpramAddr;   ///< The PCI bus address of the PMAC dpram
-    short  antAz;			///< The azimuth read by the Piraq from the PMAC
-    short  antEl;			///< The elevation read by the Piraq from the PMAC
-	short  scanType;		///< The scan type read by the Piraq from the PMAC
-	short  sweepNum;		///< The sweep number read by the Piraq from the PMAC
-	short  volNum;			///< The volume number read by the Piraq from the PMAC
-	short  antSize;			///< The size (whatever this means) read by the Piraq from the PMAC
-	short  antTrans;		///< The antenna transition flag read by the Piraq from the PMAC
+    unsigned short  antAz;		///< The azimuth read by the Piraq from the PMAC
+    unsigned short  antEl;		///< The elevation read by the Piraq from the PMAC
+	unsigned short  scanType;	///< The scan type read by the Piraq from the PMAC
+	unsigned short  sweepNum;	///< The sweep number read by the Piraq from the PMAC
+	unsigned short  volNum;		///< The volume number read by the Piraq from the PMAC
+	unsigned short  antSize;	///< The size (whatever this means) read by the Piraq from the PMAC
+	unsigned short  antTrans;	///< The antenna transition flag read by the Piraq from the PMAC
 #ifdef _TMS320C6X			///        TI doesn't support long long 
     uint4 pulse_num_low;	///< Pulse number least significant word, on Piraq
     uint4 pulse_num_high;	///< Pulse number most significant word, on Piraq

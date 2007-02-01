@@ -34,7 +34,8 @@ public:
 	PINFOHEADER info();
 	int pnErrors();
 	double sampleRate();
-	void antennaInfo(short& az, short& el, short& sweep, short& volume);
+	void antennaInfo(unsigned short& az, unsigned short& el, 
+		unsigned short& sweep, unsigned short& volume);
 
 	/// @return the current eof indicator flag. 
 	/// The flag is cleared when this function is called.
