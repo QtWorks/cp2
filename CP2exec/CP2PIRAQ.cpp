@@ -14,15 +14,15 @@
 
 ///////////////////////////////////////////////////////////////////////////
 CP2PIRAQ::CP2PIRAQ(
-    QHostAddress* pHostAddr,
-	int portNumber,
-	QUdpSocket* pSocketDevice,
-	char* configFname, 
-	char* dspObjFname,
-	unsigned int pulsesPerPciXfer,
-	unsigned int pmacDpramAddr,
-	int boardnum,
-	RCVRTYPE rcvrType):
+				   QHostAddress* pHostAddr,
+				   int portNumber,
+				   QUdpSocket* pSocketDevice,
+				   char* configFname, 
+				   char* dspObjFname,
+				   unsigned int pulsesPerPciXfer,
+				   unsigned int pmacDpramAddr,
+				   int boardnum,
+				   RCVRTYPE rcvrType):
 PIRAQ(),
 _pHostAddr(pHostAddr),
 _portNumber(portNumber),
@@ -37,7 +37,11 @@ _PNerrors(0),
 _eof(false),
 _nPulses(0),
 _sampleRate(0),
-_resendCount(0)
+_resendCount(0),
+_az(0),
+_el(0),
+_sweep(0),
+_volume(0)
 {
 	init(configFname, dspObjFname);
 }
@@ -192,6 +196,11 @@ CP2PIRAQ::poll()
 			}
 			header.horiz     = ppacket->info.horiz;
 
+			_az     = header.antAz;
+			_el     = header.antEl;
+			_volume = header.volNum;
+			_sweep  = header.sweepNum;
+
 			// add pulse to the outgoing packet
 			_cp2Packet.addPulse(header, header.gates*2, ppacket->data);
 			pulses++;
@@ -206,16 +215,18 @@ CP2PIRAQ::poll()
 			_lastPulseNumber = thisPulseNumber; // previous PN
 
 			_nPulses++;
+			/**
 			if (!(_nPulses %1000 )) {
-				double factor = 360.0/65536;
-				short az = ppacket->info.antAz;
-				short el = ppacket->info.antEl;
-				short scan = ppacket->info.scanType;
-				short vol = ppacket->info.volNum;
-				short sweep = ppacket->info.sweepNum;
-				printf("piraq %d resends %06d az %6.1f el %6.1f sweep %05d scan type %05d vol %05d\n",
-					_boardnum, _resendCount, az*factor, el*factor, sweep, scan, vol);
+			double factor = 360.0/65536;
+			short az = ppacket->info.antAz;
+			short el = ppacket->info.antEl;
+			short scan = ppacket->info.scanType;
+			short vol = ppacket->info.volNum;
+			short sweep = ppacket->info.sweepNum;
+			printf("piraq %d resends %06d az %6.1f el %6.1f sweep %05d scan type %05d vol %05d\n",
+			_boardnum, _resendCount, az*factor, el*factor, sweep, scan, vol);
 			}
+			**/
 		}
 
 		int bytesSent = sendData(_cp2Packet.packetSize(),_cp2Packet.packetData());
@@ -259,11 +270,20 @@ CP2PIRAQ::pnErrors()
 	return _PNerrors;
 }
 
+
 ///////////////////////////////////////////////////////////////////////////
 double
 CP2PIRAQ::sampleRate()
 {
 	return _sampleRate;;
+}
+///////////////////////////////////////////////////////////////////////////
+void
+CP2PIRAQ::antennaInfo(short& az, short& el, short& sweep, short& volume) {
+	az     = _az;
+	el     = _el;
+	sweep  = _sweep;
+	volume = _volume;
 }
 
 ///////////////////////////////////////////////////////////////////////////

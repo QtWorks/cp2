@@ -34,6 +34,8 @@ public:
 	PINFOHEADER info();
 	int pnErrors();
 	double sampleRate();
+	void antennaInfo(short& az, short& el, short& sweep, short& volume);
+
 	/// @return the current eof indicator flag. 
 	/// The flag is cleared when this function is called.
 	bool eof();
@@ -55,9 +57,13 @@ protected:
 	/// Cumulative pulse number errors
 	int _PNerrors;
 	/// current azimuth
-	float az;
+	short _az;
 	/// current elevation
-	float el; 
+	short _el; 
+	/// current volume
+	short _volume;
+	/// current sweep
+	short _sweep;
 	/// the number of bytes per gate
 	int _bytespergate;
 	/// the number of hits in each block transfer

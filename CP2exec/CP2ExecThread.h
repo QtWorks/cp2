@@ -21,6 +21,7 @@ public:
 	void pulses(int& pulses1, int& pulses2, int& pulses);
 	void rates(double& rate1, double& rate2, double& rate3);
 	void eof(bool eof[3]);
+	void antennaInfo(short* az, short* el, short* sweep, short* volume);
 
 protected:
 	/// The piraq dsp's will read the antenna pointing information

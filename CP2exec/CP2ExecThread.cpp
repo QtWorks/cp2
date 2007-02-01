@@ -281,6 +281,23 @@ CP2ExecThread::pnErrors(int& errors1, int& errors2, int& errors3)
 	errors2 = _piraq2->pnErrors();
 	errors3 = _piraq3->pnErrors();
 
+}/////////////////////////////////////////////////////////////////////
+void 
+CP2ExecThread::antennaInfo(short* az, short* el, short* sweep, short* volume)
+{
+	if (!_piraq1 || !_piraq2 || !_piraq3) {
+		for (int i = 0; i < 3; i++) {
+			az[i] = 0;
+			el[i] = 0;
+			sweep[i] = 0;
+			volume[i] = 0;
+		}
+		return;
+	}
+
+	_piraq1->antennaInfo(az[0], el[0], sweep[0], volume[0]);
+	_piraq2->antennaInfo(az[1], el[1], sweep[1], volume[1]);
+	_piraq3->antennaInfo(az[2], el[2], sweep[2], volume[2]);
 }
 /////////////////////////////////////////////////////////////////////
 void 
