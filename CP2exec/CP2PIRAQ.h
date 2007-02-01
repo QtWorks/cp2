@@ -8,6 +8,18 @@
 
 #include <QUdpSocket>
 
+///
+///\brief
+///Write brief comment for CP2PIRAQ here.
+///
+///Write detailed description for CP2PIRAQ here.
+///
+///\remarks
+///Write remarks for CP2PIRAQ here.
+///
+///\see
+///Separate items with the '|' character.
+///
 class CP2PIRAQ: public PIRAQ {
 
 public:

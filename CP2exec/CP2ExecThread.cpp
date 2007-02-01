@@ -258,6 +258,10 @@ CP2ExecThread::run()
 
 	_stop = false;
 
+	// The thread will finish execution when it returns 
+	// from run()  (right here!). The owner can wait
+	// for this by calling QThread::wait()
+
 }
 
 /////////////////////////////////////////////////////////////////////

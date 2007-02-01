@@ -316,6 +316,42 @@ CP2PIRAQ::stop()
 }
 
 ///////////////////////////////////////////////////////////////////////////
+///
+///\brief
+///Write brief comment for eof here.
+///
+///\returns
+///Write description of return value here.
+///
+///\throws <exception class>
+///Description of criteria for throwing this exception.
+///
+///Write detailed description for eof here.
+///
+///\remarks
+///Write remarks for eof here.
+///
+///\see
+///Separate items with the '|' character.
+///
+///
+///\brief
+///Write brief comment for eof here.
+///
+///\returns
+///Write description of return value here.
+///
+///\throws <exception class>
+///Description of criteria for throwing this exception.
+///
+///Write detailed description for eof here.
+///
+///\remarks
+///Write remarks for eof here.
+///
+///\see
+///Separate items with the '|' character.
+///
 bool
 CP2PIRAQ::eof() 
 {
@@ -357,8 +393,8 @@ int CP2PIRAQ::start(long long firstPulseNum)
 	printf("waiting for pkt->data.info.flag = 1\n");
 	i = 0; 
 	while((_pConfigPacket->info.flag != 1) && (i++ < 10)) { // wait for DSP program to set it
-		printf("still waiting for pkt->data.info.flag = 1\n"); 
 		Sleep(500); 
+		printf("still waiting for pkt->data.info.flag = 1\n"); 
 	} 
 
 	this->GetControl()->SetBit_StatusRegister0(STAT0_TRESET);
