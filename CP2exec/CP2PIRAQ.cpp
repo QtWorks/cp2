@@ -316,42 +316,6 @@ CP2PIRAQ::stop()
 }
 
 ///////////////////////////////////////////////////////////////////////////
-///
-///\brief
-///Write brief comment for eof here.
-///
-///\returns
-///Write description of return value here.
-///
-///\throws <exception class>
-///Description of criteria for throwing this exception.
-///
-///Write detailed description for eof here.
-///
-///\remarks
-///Write remarks for eof here.
-///
-///\see
-///Separate items with the '|' character.
-///
-///
-///\brief
-///Write brief comment for eof here.
-///
-///\returns
-///Write description of return value here.
-///
-///\throws <exception class>
-///Description of criteria for throwing this exception.
-///
-///Write detailed description for eof here.
-///
-///\remarks
-///Write remarks for eof here.
-///
-///\see
-///Separate items with the '|' character.
-///
 bool
 CP2PIRAQ::eof() 
 {
