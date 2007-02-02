@@ -225,7 +225,7 @@ CP2ExecThread::run()
 
 	PINFOHEADER info;
 	info = _piraq2->info();
-	cp2timer_config(&ext_timer, &info, prt, xmit_pulsewidth);
+	cp2timer_config(config1, &ext_timer, &info, prt, xmit_pulsewidth);
 	cp2timer_set(&ext_timer);		// put the timer structure into the timer DPRAM 
 	cp2timer_reset(&ext_timer);	// tell the timer to initialize with the values from DPRAM 
 	cp2timer_start(&ext_timer);	// start timer 
