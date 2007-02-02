@@ -8,7 +8,7 @@ timingmode      0       ;0 = continuous, 1 = triggered, 2 = sync,
 delay           1       ; (no effect in mode 0) delay to first sample (special case: timingmode 2)
 gates           950     ;
 hits            10      ; 100b/s @ 1KHz
-rcvr_pulsewidth 6       ;
+rcvr_pulsewidth 100       ;
 xmit_pulsewidth 6       ;1us pulses (150m) ;
 prt		6000	;1000 Hz 
 ;prt2		2000	;3000 Hz
