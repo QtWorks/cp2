@@ -1,4 +1,4 @@
-;rem
+;rem This is the infamous config.dsp
 ;outpath         c:\data\
 ;outfilename     record.dat
 ethernet        0xFFFFFFFF   ; ethernet address
