@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../CP2Piraq/piraqComm.h"
+#include "config.h"
 
 #define SYSTEM_CLOCK		48e6        // SYSTEM_IF = 48.0MHz
 #define SYSTEM_CLOCK_INT	48000000    // INTEGER EQUIVALENT
@@ -71,7 +72,7 @@ typedef	struct TIMER {
 static	int	FIRSTIMER=1;
 #define	OFFSET	10
 
-int  cp2timer_config(TIMER *timer, PINFOHEADER *info, float radar_prt, float xmit_pulsewidth);
+int  cp2timer_config(CONFIG *config, TIMER *timer, PINFOHEADER *info, float radar_prt, float xmit_pulsewidth);
 int  cp2timer_init(TIMER *timer, int boardnumber);
 void cp2timer_reset(TIMER *timer);
 void cp2timer_set(TIMER *timer);
