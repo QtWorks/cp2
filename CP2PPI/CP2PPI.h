@@ -1,10 +1,9 @@
 #ifndef CP2PPIH
 #define CP2PPIH
 #include <winsock2.h>		//	no redefinition errors if before Qt includes?
-#include <qsocketdevice.h> 
-#include <qsocketnotifier.h>
-#include <qevent.h>
-#include <qbuttongroup.h>
+#include <QUdpSocket> 
+#include <QEvent>
+#include <QButtonGroup>
 
 #include <deque>
 #include <set>
@@ -14,8 +13,8 @@
 // request this much space for the socket receive buffer
 #define CP2PPI_RCVBUF 100000000
 
-// The base class created from the designer .ui specification
-#include "CP2PPIBase.h"
+// The UI class created from the designer .ui specification
+#include "ui_CP2PPI.h"
 
 // Components from the QtToolbox
 #include <PPI/PPI.h>
@@ -31,17 +30,15 @@
 
 #define PIRAQ3D_SCALE	1.0/(unsigned int)pow(2,31)	
 
-class CP2PPI : public CP2PPIBase {
+class CP2PPI : public QDialog, public Ui::CP2PPI {
 	Q_OBJECT
 public:
-	CP2PPI();
+	CP2PPI(QDialog* parent = 0);
 	~CP2PPI();
 
 public slots:
 	// Call when data is available on the data socket.
-	void newDataSlot(
-		int socket         ///< File descriptor of the data socket
-		);
+	void newDataSlot();
 	virtual void ppiTypeSlot(int ppiType);
 	void tabChangeSlot(QWidget* w);
 	void pauseSlot(bool flag);	//	start/stop process, display
@@ -65,10 +62,7 @@ protected:
 	/// beam number, it will not be displayed.
 	void processProduct(CP2Product* pProduct);
 	/// The incoming product socket.
-	QSocketDevice*   _pSocket;
-	/// The notifier for the data socket; it is connected
-	/// to new data slot.
-	QSocketNotifier* _pSocketNotifier;
+	QUdpSocket*   _pSocket;
 	/// The buffer that the product data will be read into
 	/// from the socket.
 	char*   _pSocketBuf;
@@ -127,26 +121,27 @@ protected:
     // true to pause the display. Data will still be coming in,
 	// but not sent to the display.
 	bool _pause;
-	
-	ColorBar* _colorBar;
+	/// The number of gates
 	int _gates;
+	/// The beam width of each beam (degrees)
 	double _beamWidth;
-
 	/// Set true when the Sband ppi is active,
 	/// false when Xband is active.
 	bool _ppiSactive;
-
+	/// The number of Sband variables
 	int _nVarsSband;
+	/// Color maps for each Sband variable
 	std::vector<ColorMap*> _mapsSband;
+	/// Will hold the beam values for all S band variables in one beam
 	std::vector<std::vector<double> > _beamSdata;
-
+	/// The number of X band variables
 	int _nVarsXband;
+	/// Color maps for each X band variable
 	std::vector<ColorMap*> _mapsXband;
+	/// Will hold the beamvalues for all X band vbariables in one beam.
 	std::vector<std::vector<double> > _beamXdata;
-
+	/// A CP2Packet will be assembled here from the datagram.
 	CP2Packet packet;
-
-
   };
 
 #endif

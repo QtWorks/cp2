@@ -1,22 +1,22 @@
 #include "CP2PPI.h"
 #include <PPI/PPI.h>
 #include "CP2PPI.h"
-#include <qlabel.h>
-#include <qtimer.h>
-#include <qspinbox.h>	
-#include <qlcdnumber.h>
-#include <qslider.h>
-#include <qlayout.h>
-#include <qtabwidget.h>
-#include <qwidget.h>
-#include <qradiobutton.h>
-#include <qbuttongroup.h>
-#include <qvbox.h>
-#include <qframe.h>
-#include <qpushbutton.h>
-#include <qpalette.h>
-#include <qwidgetstack.h>
-#include <qcheckbox.h>
+#include <QLabel>
+#include <QTimer>
+#include <QSpinbox>	
+#include <QLcdNumber>
+#include <QSlider>
+#include <QLayout>
+#include <QTabWidget>
+#include <QWidget>
+#include <QRadioButton>
+#include <QButtonGroup>
+//#include <QVBox>
+#include <QFrame>
+#include <QPushButton>
+#include <QPalette>
+#include <QStackedWidget>
+#include <QCheckBox>
 
 #include <iostream>
 #include <algorithm>
@@ -25,11 +25,10 @@
 #include <iostream>
 #include <time.h>
 
-CP2PPI::CP2PPI():
-CP2PPIBase(),
-_gates(1000),
+CP2PPI::CP2PPI(QDialog* parent):
+QDialog(parent),
+_gates(10),
 _pSocket(0),    
-_pSocketNotifier(0),
 _pSocketBuf(0),	
 _statsUpdateInterval(5),
 _currentSbeamNum(0),
@@ -37,6 +36,8 @@ _currentXbeamNum(0),
 _pause(false),
 _ppiSactive(true)
 {
+	setupUi(parent);
+
 	_dataGramPort	= 3200;
 	for (int i = 0; i < 3; i++) {
 		_pulseCount[i]	= 0;
@@ -56,9 +57,6 @@ _ppiSactive(true)
 	// gave us
 	_nVarsSband = _sMomentsList.size();
 	_nVarsXband = _xMomentsList.size();
-
-	// set the intial plot type
-	ppiTypeSlot(PROD_S_DBZHC);
 
 	// create the Sband color maps
 	std::set<PRODUCT_TYPES>::iterator pSet;
@@ -87,8 +85,8 @@ _ppiSactive(true)
 	// beams.
 	// The configure must be called after initPlots(), bcause
 	// that is when _nVarsSband and _nVarsXband are determined.
-	_ppiS->configure(_nVarsSband, _gates, 360);
-	_ppiX->configure(_nVarsXband, _gates, 360);
+	_ppiS->configure(_nVarsSband, _gates, 10);
+	_ppiX->configure(_nVarsXband, _gates, 10);
 
 	// allocate the beam data arrays
 	_beamSdata.resize(_nVarsSband);
@@ -101,11 +99,10 @@ _ppiSactive(true)
 		_beamXdata[i].resize(_gates);
 	}
 
-	QVBoxLayout* colorBarLayout = new QVBoxLayout(frameColorBar);
-	_colorBar = new ColorBar(frameColorBar);
-	_colorBar->configure(*_mapsSband[0]);
-	colorBarLayout->addWidget(_colorBar);
-
+	// set the intial plot type
+	_ppiSType = PROD_S_DBMHC;
+	ppiTypeSlot(PROD_S_DBZHC);
+	
 	// start the statistics timer
 	startTimer(_statsUpdateInterval*1000);
 
@@ -116,8 +113,6 @@ _ppiSactive(true)
 
 CP2PPI::~CP2PPI() 
 {
-	if (_pSocketNotifier)
-		delete _pSocketNotifier;
 
 	if (_pSocket)
 		delete _pSocket;
@@ -130,9 +125,9 @@ CP2PPI::~CP2PPI()
 }
 //////////////////////////////////////////////////////////////////////
 void 
-CP2PPI::newDataSlot(int)
+CP2PPI::newDataSlot()
 {
-	int	readBufLen = _pSocket->readBlock((char *)_pSocketBuf, sizeof(short)*1000000);
+	int	readBufLen = _pSocket->readDatagram((char *)_pSocketBuf, sizeof(short)*1000000);
 
 	if (readBufLen > 0) {
 		// put this datagram into a packet
@@ -229,56 +224,13 @@ CP2PPI::processProduct(CP2Product* pProduct)
 void
 CP2PPI::initializeSocket()	
 {
-	_pSocket = new QSocketDevice(QSocketDevice::Datagram);
+	_pSocket = new QUdpSocket;
 
 	QHostAddress qHost;
 
-	char nameBuf[1000];
-	if (gethostname(nameBuf, sizeof(nameBuf))) {
-		qWarning("gethostname failed");
-		exit(1);
-	}
-
-	//strcpy(nameBuf, "127.0.0.1");
-
-	struct hostent* pHostEnt = gethostbyname(nameBuf);
-	if (!pHostEnt) {
-		qWarning("gethostbyname failed");
-		exit(1);
-	}
 	_pSocketBuf = new char[1000000];
 
-	std::string myIPname = nameBuf;
-	std::string myIPaddress = inet_ntoa(*(struct in_addr*)pHostEnt->h_addr_list[0]);
-	std::cout << "ip name: " << myIPname.c_str() << ", id address  " << myIPaddress.c_str() << std::endl;
-
-	m_pTextIPname->setText(myIPname.c_str());
-
-	m_pTextIPaddress->setNum(+_dataGramPort);	// diagnostic print
-	qHost.setAddress(myIPaddress.c_str());
-
-	std::cout << "qHost:" << qHost.toString() << std::endl;
-	std::cout << "datagram port:" << _dataGramPort << std::endl;
-
-	if (!_pSocket->bind(qHost, _dataGramPort)) {
-		qWarning("Unable to bind to %s:%d", qHost.toString().ascii(), _dataGramPort);
-		exit(1); 
-	}
-	int sockbufsize = CP2PPI_RCVBUF;
-
-	int result = setsockopt (_pSocket->socket(),
-		SOL_SOCKET,
-		SO_RCVBUF,
-		(char *) &sockbufsize,
-		sizeof sockbufsize);
-	if (result) {
-		qWarning("Set receive buffer size for socket failed");
-		exit(1); 
-	}
-
-	_pSocketNotifier = new QSocketNotifier(_pSocket->socket(), QSocketNotifier::Read);
-
-	connect(_pSocketNotifier, SIGNAL(activated(int)), this, SLOT(newDataSlot(int)));
+	connect(_pSocket, SIGNAL(readyRead()), this, SLOT(newDataSlot()));
 }
 ////////////////////////////////////////////////////////////////////
 void
@@ -334,9 +286,7 @@ CP2PPI::initPlots()
 	_ppiInfo[PROD_X_SNR]         = PpiInfo(  PROD_X_SNR,        "SNR", "Xh: SNR",     230.0, 260.0,   ppiVarIndex++);
 	_ppiInfo[PROD_X_LDR]         = PpiInfo(  PROD_X_LDR,        "LDR", "Xhv:LDR",       0.0,   1.0,   ppiVarIndex++);
 
-	// remove the one tab that was put there by designer
-	_typeTab->removePage(_typeTab->page(0));
-
+	_typeTab->removeTab(0);
 	// add tabs, and save the button group for
 	// for each tab.
 	QButtonGroup* pGroup;
@@ -355,20 +305,20 @@ void
 CP2PPI::tabChangeSlot(QWidget* w) 
 {
 	// find out the index of the current page
-	int pageNum = _typeTab->currentPageIndex();
+	int pageNum = _typeTab->currentIndex();
 
 	// get the radio button id of the currently selected button
 	// on that page.
-	int plotType = _tabButtonGroups[pageNum]->selectedId();
+	int plotType = _tabButtonGroups[pageNum]->checkedId();
 
 	// change the plot type
 	ppiTypeSlot(plotType);
 
 	if (pageNum == 0) {
-		_ppiStack->raiseWidget(0);
+		_ppiStack->setCurrentIndex(0);
 		_ppiSactive = true;
 	} else {
-		_ppiStack->raiseWidget(1);
+		_ppiStack->setCurrentIndex(1);
 		_ppiSactive = false;
 	}
 }
@@ -377,33 +327,27 @@ CP2PPI::tabChangeSlot(QWidget* w)
 QButtonGroup*
 CP2PPI::addPlotTypeTab(std::string tabName, std::set<PRODUCT_TYPES> types)
 {
-	QWidget* pPage;
-	QButtonGroup* pGroup;
-	QVBoxLayout* pVbox;
-	QVBoxLayout* pButtonVbox;
-	QRadioButton* pRadio;
-
-	pPage = new QWidget(_typeTab, tabName.c_str());
-	pVbox = new QVBoxLayout(pPage);
-
-	pGroup = new QButtonGroup(pPage);
-	pGroup->setColumnLayout(0, Qt::Vertical );
-	pGroup->layout()->setSpacing( 6 );
-	pGroup->layout()->setMargin( 11 );
-
-	pButtonVbox = new QVBoxLayout(pGroup->layout());
-	pButtonVbox->setAlignment( Qt::AlignTop );
+	// The page that will be added to the tab widget
+	QWidget* pPage = new QWidget;
+	// the layout manager for the page, will contain the buttons
+	QVBoxLayout* pVbox = new QVBoxLayout;
+	// the button group manager, which has nothing to do with rendering
+	QButtonGroup* pGroup = new QButtonGroup;
 
 	std::set<PRODUCT_TYPES>::iterator i;
 
 	for (i = types.begin(); i != types.end(); i++) 
 	{
+		// create the radio button
 		int id = _ppiInfo[*i].getId();
-		pRadio = new QRadioButton(pGroup);
-		pGroup->insert(pRadio, id);
+		QRadioButton* pRadio = new QRadioButton;
 		const QString label = _ppiInfo[*i].getLongName().c_str();
 		pRadio->setText(label);
-		pButtonVbox->addWidget(pRadio);
+
+		// put the button in the button group
+		pGroup->addButton(pRadio, id);
+		// assign the button to the layout manager
+		pVbox->addWidget(pRadio);
 
 		// set the first radio button of the group
 		// to be selected.
@@ -411,13 +355,14 @@ CP2PPI::addPlotTypeTab(std::string tabName, std::set<PRODUCT_TYPES> types)
 			pRadio->setChecked(true);
 		}
 	}
+	// associate the layout manager with the page
+	pPage->setLayout(pVbox);
 
-	pVbox->addWidget(pGroup);
-	_typeTab->insertTab(pPage, tabName.c_str());
+	// put the page on the tab
+	_typeTab->insertTab(-1, pPage, tabName.c_str());
 
-	// connect the button released signal to our
-	// our plot type change slot.
-	connect(pGroup, SIGNAL(released(int)), this, SLOT(ppiTypeSlot(int)));
+	// connect the button released signal to our plot type change slot.
+	connect(pGroup, SIGNAL(buttonReleased(int)), this, SLOT(ppiTypeSlot(int)));
 
 	return pGroup;
 }
