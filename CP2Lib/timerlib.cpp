@@ -125,8 +125,7 @@ if (timer->timingmode == 1)
 	}
 else
 	{
-	timer->sync.byte.lo = 0;		// synclo;  
-	timer->sync.byte.hi = 0;		// synchi; 
+	timer->sync.hilo = 1;		// sync;  
 	}
 	timer->clockfreq = SYSTEM_CLOCK;
 	timer->reffreq = 10.0E6;
