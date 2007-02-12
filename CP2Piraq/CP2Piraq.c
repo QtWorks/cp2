@@ -14,10 +14,6 @@
 #include <mem.h>
 #include <math.h>
 
-#define		NUMVARS			3		// Number of variables (ABP)
-#define		NUMCHANS		2		// Number of channels
-#define		CHIRP_GATES		0 		//12 -- This will mess up malloc's if other than 0!!!
-
 #define		FIFOCLR	 		0x1400200;
 #define		FIFO1			0x1400204;
 #define		FIFO2			0x1400208;
@@ -72,8 +68,6 @@ static int dmaGlobalIndexRegA   = 0x01840030U;
 static int dmaGlobalIndexRegB   = 0x01840034U;
 /// receives the I/Q data from the A2D fifos
 int *a2dFifoBuffer;		
-///	compute offsets for both CHA and CHB
-float IQoffset[4*NUMCHANS];	
 /// pointer to the PMAC dpram
 unsigned int* pPMACdpram;
 /// Receiver type flag
@@ -108,13 +102,9 @@ PPACKET	*sbsRamBuffer;		// sbsram N-PACKET MEM_alloc w/1-channel data
 int		nPacketsPerBlock;       // #hits combined for one PCI Bus transfer
 int     sbsram_hits;   // #hits in SBSRAM
 
-float 	ioffset0, qoffset0, ioffset1, qoffset1;	// DC offsets
-
 int	    led0flag;       // holds the state of led0
 unsigned int*	pLed0 = (unsigned int *)(0x1400308);  /* LED0 */  
 unsigned int*	pLed1 = (unsigned int *)(0x140030C);  /* LED1 */
-
-float   sumnorm;
 
 unsigned long pulse_num_low;
 unsigned long pulse_num_high;
@@ -166,18 +156,7 @@ void initTask(void)
     sbsram_seg = MEM_define((Ptr) 0x400000, 0x40000, 0);
 	sbsram_hits = 0; 
 
-	// Zero IQ offset array
-
-	IQoffset[0] = 0.0;
-	IQoffset[1] = 0.0;
-	IQoffset[2] = 0.0;
-	IQoffset[3] = 0.0;
-	
-	ioffset0 = 0.0;
-	qoffset0 = 0.0;
-	ioffset1 = 0.0;
-	qoffset1 = 0.0;
-	
+	// clear the fifo	
 	fifoclr = (int *)FIFOCLR;
 
 	Fifo = cb_open();  /* the argument is not used */
@@ -242,10 +221,6 @@ void initTask(void)
 	/* Initialize pulse and beam counters */
 	pulse_num_low  = CurPkt->info.pulse_num_low;
 	pulse_num_high = CurPkt->info.pulse_num_high;
-
-	//	Calculate DC offset normalization
-	// CP2 nix hits in normalization.
-	sumnorm = 1.0/((float)CurPkt->info.gates);  
 
 	/* Clear the PCI FIFO */
 

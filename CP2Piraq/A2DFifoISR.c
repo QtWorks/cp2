@@ -5,8 +5,7 @@
 //
 //////////////////////////////////////////////////
 
-#define		NUMVARS		2		// Number of variables (I,Q)
-#define		NUMCHANS	1		// Number of channels
+#define     NUM_NORMALIZE 	1		// number of pulses to collect DC offset over
  
 #include 	<std.h>
 #include 	<sem.h>
@@ -27,18 +26,13 @@
 extern CircularBuffer*   Fifo;
 extern PPACKET* CurPkt;
 extern PPACKET* sbsRamBuffer;		// sbsram N-PACKET MEM_alloc w/1-channel data 
-extern float   ioffset0; 
-extern float   qoffset0; 
-extern float   ioffset1; 
-extern float   qoffset1; 
-extern float   sumnorm;
+
 extern int     led0flag;
 extern int*    a2dFifoBuffer;			// receives the I/Q data from the A2D fifos.
 extern unsigned long pulse_num_low;
 extern unsigned long pulse_num_high;
 extern RCVRTYPE rcvrType;
 extern short horiz;
-extern 	float        IQoffset[4*NUMCHANS];
 
 extern	unsigned int channelMode; // sets channelselect() processing mode
 
@@ -60,11 +54,17 @@ void 	sumTimeseries(int Ngates, float * restrict pIn, float *pOut);
 void    setPulseNumber(PPACKET* pPkt);
 void    readPMAC(PPACKET* pPkt);
 
+int nSum = NUM_NORMALIZE;
+float   ioffset0 = 0.0; 			
+float   qoffset0 = 0.0; 
+float   ioffset1 = 0.0; 
+float   qoffset1 = 0.0; 
+float   sumIQ[4] = {0.0, 0.0, 0.0, 0.0};
 ///////////////////////////////////////////////////////////
 
 void A2DFifoISR(void) {    
+
 	volatile int temp;
-	int iqOffsets=0;
 	int* sbsRamDst;	
 	int* fifo1I;
 	int* fifo1Q;
@@ -123,15 +123,19 @@ void A2DFifoISR(void) {
 	/* Convert I,Q integers to floats in-place */
 	toFloats(gates, a2dFifoBuffer, (float *) a2dFifoBuffer); 
 
-	//  For first dwell sum timeseries to determine Piraq3 DC offset
-	if(!iqOffsets) {	//	I,Q offsets not calcuated
-		sumTimeseries(gates, (float *)a2dFifoBuffer, IQoffset);
-		ioffset0 = IQoffset[0]*sumnorm;	//	CP2: normalize to #gates only
-		qoffset0 = IQoffset[1]*sumnorm;
-		ioffset1 = IQoffset[2]*sumnorm;
-		qoffset1 = IQoffset[3]*sumnorm;
-		iqOffsets = 1;	//	now they are
+	// Collect and calculate the dc offset over 
+	// NUM_NORMALIZE pulses. 
+	if(nSum) {
+
+		sumTimeseries(gates, (float *)a2dFifoBuffer, sumIQ);
+
+		nSum--;	
+		ioffset0 = sumIQ[0] / ((NUM_NORMALIZE-nSum)*gates);	
+		qoffset0 = sumIQ[1] / ((NUM_NORMALIZE-nSum)*gates);
+		ioffset1 = sumIQ[2] / ((NUM_NORMALIZE-nSum)*gates);
+		qoffset1 = sumIQ[3] / ((NUM_NORMALIZE-nSum)*gates);
 	}
+
 	// inject test data after channel-select
 #ifdef	CP2_TEST_RAMP		// CP2 test linear ramp along pulse in timeseries data	
 	// write an integer ramp across raw data -- see what happens in the host. 
@@ -211,7 +215,7 @@ int toFloats(int ngates, int *pIn, float *pOut) {
 		i1i = (*iptr++);
 		q1i = (*iptr++);
 
-		// Convert ints to floats and store
+		// Convert ints to floats, remove the dc offset, and store
 		*iqptr++ = (float)(i0i) - ioffset0; 
 		*iqptr++ = (float)(q0i) - qoffset0; 
 		*iqptr++ = (float)(i1i) - ioffset1; 
