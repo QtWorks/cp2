@@ -116,8 +116,8 @@ int cp2timer_config(CONFIG *config, TIMER *timer, PINFOHEADER *info, float radar
 	// CP2:	set timingmode 1 for external triggering of EOL Timing Board. 
 	//		set a nonzero value of sync. 
 
-	timer->timingmode = config->timingmode;
-	printf("timingmode = %d\n",config->timingmode);
+	timer->timingmode = config->pcitimermode;
+	printf("timingmode = %d\n",config->pcitimermode);
 if (timer->timingmode == 1)
 	{
 	timer->sync.byte.lo = 1;		// synclo;  

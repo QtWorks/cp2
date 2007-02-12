@@ -61,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/CP2Lib.lib"
+				OutputFile="$(OutDir)/CP2Libd.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"

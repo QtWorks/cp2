@@ -40,6 +40,7 @@ typedef struct CONFIG
 	int             boardnum;  /* which of n cards are we refering to */
 	float           meters_to_first_gate; 
 	float           gate_spacing_meters; 
+	int				pcitimermode;  // timing mode for the pci timer card
 } CONFIG;
 
 void readconfig(char *fname, CONFIG *config);
