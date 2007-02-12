@@ -11,6 +11,7 @@
 #include "plx.h"
 #include "control.h"
 #include "HPIB.h"
+#include "FirFilters.h"
 
 ///////////////////////////////////////////////////////////////////////////
 CP2PIRAQ::CP2PIRAQ(
@@ -76,6 +77,10 @@ CP2PIRAQ::init(char* configFname, char* dspObjFname)
 		printf("error: %s\n", errmsg); 
 		return -1; 
 	}
+
+//	this->GetFilter()->ClearFilter();
+//	this->GetFilter()->FIR_BoxCar(SYSTEM_CLOCK, 1000000000*(8*_config.rcvr_pulsewidth/SYSTEM_CLOCK), 0);
+//	this->GetFilter()->StartFilter();
 
 	/* put the DSP into a known state where HPI reads/writes will work */
 	this->ResetPiraq();  
