@@ -1,15 +1,19 @@
 TEMPLATE	= vclib
 LANGUAGE	= C++
 
-CONFIG += qt 
 CONFIG += thread
 CONFIG += warn_on 
 CONFIG += exceptions
+CONFIG += staticlib
 
 QT     += network
 
-CONFIG(release, debug|release) {
+CONFIG(debug, debug|release) {
+  TARGET = CP2Netd
+  DESTDIR = ./debug
 } else {
+  TARGET = CP2Net 
+  DESTDIR = ./release
 }
 LIBS += ws2_32.lib
 
