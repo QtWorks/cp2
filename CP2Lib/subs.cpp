@@ -681,8 +681,6 @@ void FIR_gaussian(CONFIG *config, PIRAQ *piraq, float tbw, float pw)
 	int	i,p,sum=0,s,f;
 	double	bw,sigma,timestep;
 
-	return;
-
 	bw = tbw / (2.0*pw);		/* compute the bandwidth */
 
 	sigma = sqrt(log(2.0) / pow(2.0 * M_PI * bw,2.0));
