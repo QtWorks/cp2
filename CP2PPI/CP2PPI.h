@@ -10,6 +10,8 @@
 #include <map>
 #include <string>
 
+#include "CP2UdpSocket.h"
+
 // request this much space for the socket receive buffer
 #define CP2PPI_RCVBUF 100000000
 
@@ -62,7 +64,7 @@ protected:
 	/// beam number, it will not be displayed.
 	void processProduct(CP2Product* pProduct);
 	/// The incoming product socket.
-	QUdpSocket*   _pSocket;
+	CP2UdpSocket*   _pSocket;
 	/// The buffer that the product data will be read into
 	/// from the socket.
 	char*   _pSocketBuf;

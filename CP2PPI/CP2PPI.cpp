@@ -224,10 +224,12 @@ CP2PPI::processProduct(CP2Product* pProduct)
 void
 CP2PPI::initializeSocket()	
 {
-	_pSocket = new QUdpSocket;
+	_pSocket = new CP2UdpSocket("192.168.3", 3200, false, 10000000, 0);
 
-	QHostAddress qHost;
-
+	if (!_pSocket->ok()) {
+		qWarning("Unable to create the data socket");
+		return;
+	}
 	_pSocketBuf = new char[1000000];
 
 	connect(_pSocket, SIGNAL(readyRead()), this, SLOT(newDataSlot()));
