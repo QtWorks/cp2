@@ -70,7 +70,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalDependencies="c:\Qt\4.2.2\lib\qtmaind.lib ../Moments/Debug/Moments.lib ../CP2Net/Debug/CP2Net.lib ../../fftw3.1/libfftw3-3.lib ws2_32.lib c:\Qt\4.2.2\lib\QtGuid4.lib c:\Qt\4.2.2\lib\QtNetworkd4.lib c:\Qt\4.2.2\lib\QtCored4.lib"
+				AdditionalDependencies="c:\Qt\4.2.2\lib\qtmaind.lib ../Moments/Debug/Moments.lib ../CP2Net/Debug/CP2Netd.lib ../../fftw3.1/libfftw3-3.lib ws2_32.lib c:\Qt\4.2.2\lib\QtGuid4.lib c:\Qt\4.2.2\lib\QtNetworkd4.lib c:\Qt\4.2.2\lib\QtCored4.lib"
 				OutputFile="debug\CP2Moments.exe"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="c:\Qt\4.2.2\lib"
@@ -263,10 +263,10 @@
 			UniqueIdentifier="{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}"
 			>
 			<File
-				RelativePath="release\moc_CP2Moments.cpp"
+				RelativePath="debug\moc_CP2Moments.cpp"
 				>
 				<FileConfiguration
-					Name="Debug|Win32"
+					Name="Release|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -275,10 +275,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="debug\moc_CP2Moments.cpp"
+				RelativePath="release\moc_CP2Moments.cpp"
 				>
 				<FileConfiguration
-					Name="Release|Win32"
+					Name="Debug|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
