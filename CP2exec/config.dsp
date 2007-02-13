@@ -4,18 +4,18 @@
 ethernet        0xFFFFFFFF   ; ethernet address
 freq            9240e6  ;stalo frequency (Hz)
 velsign         1       ;use 1 if stalo < xmit, -1 if stalo > xmit
-timingmode      0       ;0 = continuous, 1 = triggered, 2 = sync, 
+timingmode      1       ;0 = continuous, 1 = triggered, 2 = sync, 
 delay           1       ; (no effect in mode 0) delay to first sample (special case: timingmode 2)
 gates           950     ;
 hits            10      ; 100b/s @ 1KHz
-rcvr_pulsewidth 100       ;
-xmit_pulsewidth 6       ;1us pulses (150m) ;
-prt		6000	;1000 Hz 
+rcvr_pulsewidth 12       ;
+xmit_pulsewidth 12       ;1us pulses (150m) ;
+prt		12000	;500 Hz 
 ;prt2		2000	;3000 Hz
 tpdelay         8       ; test pulse delay in 6MHz counts (line-up G0)
 tpwidth         17      ; (6 X pulsewidth + 4) test pulse delay in 100nS counts
 trigger         on
-testpulse	on
+testpulse	off
 gate0mode       off     ;high rate sampling of gate 0 (on or off)
 phasecorrect    off     ;remove gate0 phase from all gates (for magnetron)
 ;phasecorrect   off     ;remove gate0 phase from all gates (for magnetron)
@@ -36,6 +36,7 @@ debug           off      ;turns on certain debug printouts
 dataformat      18      ; PIRAQ_CP2_TIMESERIES: CP2
 meters_to_first_gate	100.0	; 1551
 gate_spacing_meters	20.0	; 
+pcitimermode    0
 
 
 ; for 48 MHz operation, the timing reference is based on a 6 MHz clock.
