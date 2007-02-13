@@ -78,8 +78,9 @@ CP2PIRAQ::init(char* configFname, char* dspObjFname)
 		return -1; 
 	}
 
+	// configure the GreyChip filters
 //	this->GetFilter()->ClearFilter();
-//	this->GetFilter()->FIR_BoxCar(SYSTEM_CLOCK, 1000000000*(8*_config.rcvr_pulsewidth/SYSTEM_CLOCK), 0);
+//	this->GetFilter()->Gaussian(SYSTEM_CLOCK, 1000000000*(8*_config.rcvr_pulsewidth/SYSTEM_CLOCK), 0);
 //	this->GetFilter()->StartFilter();
 
 	/* put the DSP into a known state where HPI reads/writes will work */
