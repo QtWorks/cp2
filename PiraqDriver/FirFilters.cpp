@@ -111,8 +111,7 @@ void FIRFILTER::Gaussian(float fFrequencyHz, long lTransmitPulseWidthNs, long lN
 		for(int i=0; i<32; i++)	      
 		{
 			// Calculate Coefficient
-
-			short shValue = (short)((SCALE * exp( -pow(((31-i)*dTimeStep),2.0) / (2*2*dSigma*dSigma) )) + .5);
+			short shValue = (short)((SCALE * exp( -pow(((31-i)*dTimeStep),2.0) / (dSigma*dSigma) )) + .5);
 			
 			// Both the A and B paths get same coefficients */
 			// Both channel 1 and channel 2 get same settings */
@@ -163,7 +162,7 @@ void FIRFILTER::Gaussian(float fFrequencyHz, long lTransmitPulseWidthNs, long lN
 		for(int i=0; i<64; i++)	
 		{
 			// Calculate Coefficient
-			short shValue = (short)((SCALE * exp( -pow(((63-i)*dTimeStep),2.0) / (2*2*dSigma*dSigma) )) + .5);
+			short shValue = (short)((SCALE * exp( -pow(((63-i)*dTimeStep),2.0) / (dSigma*dSigma) )) + .5);
 
 			switch(i%4)
 			{
@@ -211,7 +210,7 @@ void FIRFILTER::Gaussian(float fFrequencyHz, long lTransmitPulseWidthNs, long lN
 		for(int i=0; i<128; i++)
 		{
 			// Calculate Coefficient
-			short shValue = (short)((SCALE * exp( -pow(((127-i)*dTimeStep),2.0) / (2*2*dSigma*dSigma) )) + .5);
+			short shValue = (short)((SCALE * exp( -pow(((127-i)*dTimeStep),2.0) / (dSigma*dSigma) )) + .5);
 
 			if(i&1)		
 			{
