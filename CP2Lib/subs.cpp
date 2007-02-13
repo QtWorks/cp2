@@ -263,12 +263,8 @@ int timerset(CONFIG *config, PIRAQ *piraq)
 	//!!!note this is from orphan code\SUBS_gaussian.c, from QNX. the pll was programmed w/
 	//   pll(10e6,config->stalofreq,REF,piraq);
 
-	//FIR_gaussian(config, piraq, 0.734, config->pulsewidth * 1e-6 / 32.0); translates to: 
-	// which is temporarily resident in this module
-
-	FIR_gaussian(config, piraq, 1.04/*0.734*/, config->rcvr_pulsewidth * 1e-6 / (SYSTEM_CLOCK/8.0e6)); // !use config->... here
+	// FIR_gaussian(config, piraq, 1.04/*0.734*/, config->rcvr_pulsewidth * 1e-6 / (SYSTEM_CLOCK/8.0e6)); // !use config->... here
 	
-	// !investigate I,Q asymmetry in diagnostic timeseries: 2-12-04
 	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!   is this the right value to pgm FIR filter width!!!!!!
 	return(1);
 }
