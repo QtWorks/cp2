@@ -32,6 +32,8 @@ public:
 	std::string toString();
 	/// @return true if the socket could be configured correctly, false otherwise
 	bool ok();
+	/// @return The most recent error message
+	std::string errorMsg();
 
 protected:
 	/// set true if the socket will be broadcasting
@@ -50,6 +52,8 @@ protected:
 	int _port;
 	/// set true if socket is usable.
 	bool _ok;
+	/// The last error message.
+	std::string _errorMsg;
 };
 
 #endif

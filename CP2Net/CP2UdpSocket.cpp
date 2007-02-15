@@ -24,6 +24,7 @@ _ok(false)
 
 	QNetworkAddressEntry addrEntry;
 	int i;
+	bool found = false;
 	for (i = 0; i < allIfaces.size(); i++) {
 		QNetworkInterface iface = allIfaces[i];
 		QList<QNetworkAddressEntry> addrs = iface.addressEntries();
@@ -31,13 +32,18 @@ _ok(false)
 			std::string thisIp = addrs[j].ip().toString().toAscii();
 			if (thisIp.find(_network)!= std::string::npos) {
 				addrEntry = addrs[j];
+				found = true;
 				break;
 			}
 		}
 	}
 
-	if (i == allIfaces.size())
+	if (!found) {
+		_errorMsg += "Unaable to find interface for network ";
+		_errorMsg += _network;
+		_errorMsg += "\n";
 		return;
+	}
 
 	if (!broadcast) {
 		_hostAddress = addrEntry.ip();
@@ -48,10 +54,14 @@ _ok(false)
 	// bind socket to port/network
 	int optval = 1;
 	if (!bind(_hostAddress, _port)) {
-		qWarning("Unable to bind to %s:%d", 
-			_hostAddress.toString().toAscii().constData(), 
-			_port);
+		_errorMsg += "Unable to bind datagram port ";
+		_errorMsg += _hostAddress.toString().toAscii().constData();
+		_errorMsg += ":";
+		_errorMsg += QString("%1").arg(_port).toAscii().constData();
+		_errorMsg += "\n";
+		return;
 	}
+
 	int result = setsockopt(socketDescriptor(), 
 		SOL_SOCKET, 
 		SO_REUSEADDR, 
@@ -67,7 +77,7 @@ _ok(false)
 			(char *) &sockbufsize,
 			sizeof sockbufsize);
 		if (result) {
-			qWarning("Set send buffer size for socket failed");
+			_errorMsg += "Set send buffer size for socket failed\n";
 		}
 	}
 
@@ -80,7 +90,7 @@ _ok(false)
 			(char *) &sockbufsize,
 			sizeof sockbufsize);
 		if (result) {
-			qWarning("Set receive buffer size for socket failed");
+			_errorMsg += "Set receive buffer size for socket failed\n";
 		}
 	}
 
@@ -98,6 +108,12 @@ CP2UdpSocket::ok()
 {
 	return _ok;
 }
+///////////////////////////////////////////////////////////
+std::string
+CP2UdpSocket::errorMsg() {
+	return _errorMsg;
+}
+
 ///////////////////////////////////////////////////////////
 std::string
 CP2UdpSocket::toString()
