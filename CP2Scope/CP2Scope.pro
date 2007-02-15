@@ -16,7 +16,7 @@ CONFIG(release, debug|release) {
 } else {
   LIBS += ../../Qttoolbox/ScopePlot/debug/ScopePlotd.lib
   LIBS += ../../Qttoolbox/Knob/debug/Knobd.lib
-  LIBS += ../CP2Net/debug/CP2Net.lib
+  LIBS += ../CP2Net/debug/CP2Netd.lib
   LIBS += c:/Projects/Qwt/lib/qwt5d.lib
 }
 LIBS += ../../fftw3.1/libfftw3-3.lib

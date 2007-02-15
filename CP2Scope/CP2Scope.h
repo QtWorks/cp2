@@ -2,12 +2,13 @@
 #define CP2SCOPE_H
 
 #include <winsock2.h>		//	no redefinition errors if before Qt includes?
-#include <QUdpSocket> 
 #include <QDialog>
 #include <qevent.h>
 #include <deque>
 #include <set>
 #include <map>
+
+#include "CP2UdpSocket.h"
 
 // request this much space for the socket receive buffer
 #define CP2SCOPE_RCVBUF 25000000
@@ -114,13 +115,13 @@ protected:
 	/// to the data handling slots.
 	void initSockets(); 
 	/// The socket that pulse data is received on.
-	QUdpSocket*      _pPulseSocket;
+	CP2UdpSocket*      _pPulseSocket;
 	/// The port for the pulse data.
 	int				 _pulsePort;
 	/// The buffer for incoming pulse datagrams
 	std::vector<char> _pPulseSocketBuf;
 	/// The socket that product data is received on.
-	QUdpSocket*       _pProductSocket;
+	CP2UdpSocket*       _pProductSocket;
 	/// The port for the product data.
 	int				  _productPort;
 	/// The buffer for incoming product datagrams

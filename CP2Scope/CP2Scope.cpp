@@ -5,6 +5,7 @@
 #include <ScopePlot.h>
 #include <Knob.h>
 
+#include <QMessageBox>
 #include <qbuttongroup.h>
 #include <qlabel.h>
 #include <qtimer.h>
@@ -34,6 +35,8 @@ CP2Scope::CP2Scope(QDialog* parent):
 QDialog(parent),
 _pPulseSocket(0),    
 _pPulseSocketBuf(0),	
+_pProductSocket(0),    
+_pProductSocketBuf(0),	
 _tsDisplayCount(0),
 _productDisplayCount(0),
 _statsUpdateInterval(5),
@@ -416,67 +419,22 @@ CP2Scope::initSockets()
 	_pPulseSocketBuf.resize(1000000);
 	_pProductSocketBuf.resize(1000000);
 
+	std::string interfaceIP = "192.168.3";
+
 	// creat the sockets
-	_pPulseSocket = new QUdpSocket;
-	_pProductSocket = new QUdpSocket;
-
-	std::string requiredInterface = "192.168.3";
-
-	QList<QNetworkInterface> allIfaces = QNetworkInterface::allInterfaces();
-
-	QNetworkAddressEntry addrEntry;
-	for (int i = 0; i < allIfaces.size(); i++) {
-		QNetworkInterface iface = allIfaces[i];
-		QList<QNetworkAddressEntry> addrs = iface.addressEntries();
-		for (int j = 0; j < addrs.size(); j++) {
-			std::string thisIp = addrs[j].ip().toString().toAscii();
-			if (thisIp.find(requiredInterface)!= std::string::npos) {
-				addrEntry = addrs[j];
-				break;
-			}
-		}
+	_pPulseSocket   = new CP2UdpSocket(interfaceIP, _pulsePort,   false, 0, 10000000);
+	if (!_pPulseSocket->ok()) {
+		QMessageBox e;
+		e.warning(this, "Error",_pPulseSocket->errorMsg().c_str(), 
+			QMessageBox::Ok, QMessageBox::NoButton);
+		return;
 	}
-
-	QHostAddress qHost = addrEntry.ip();
-
-	m_pTextIPaddress->setText(qHost.toString().toAscii().constData());
-
-	// bind sockets to port/network
-	int optval = 1;
-	if (!_pPulseSocket->bind(qHost, _pulsePort)) {
-		qWarning("Unable to bind to %s:%d", qHost.toString().toAscii().constData(), _pulsePort);
-	}
-	result = setsockopt(_pPulseSocket->socketDescriptor(), 
-		SOL_SOCKET, 
-		SO_REUSEADDR, 
-		(const char*)&optval, 
-		sizeof(optval)); 
-	// set the system receive buffer size
-	int sockbufsize = CP2SCOPE_RCVBUF;
-	result = setsockopt (_pPulseSocket->socketDescriptor(),
-		SOL_SOCKET,
-		SO_RCVBUF,
-		(char *) &sockbufsize,
-		sizeof sockbufsize);
-	if (result) {
-		qWarning("Set receive buffer size for socket failed");
-	}
-
-	if (!_pProductSocket->bind(qHost, _productPort)) {
-		qWarning("Unable to bind to %s:%d", qHost.toString().toAscii().constData(), _productPort);
-	}
-	result = setsockopt(_pProductSocket->socketDescriptor(), 
-		SOL_SOCKET, 
-		SO_REUSEADDR, 
-		(const char*)&optval, 
-		sizeof(optval)); 
-	result = setsockopt (_pProductSocket->socketDescriptor(),
-		SOL_SOCKET,
-		SO_RCVBUF,
-		(char *) &sockbufsize,
-		sizeof sockbufsize);
-	if (result) {
-		qWarning("Set receive buffer size for socket failed");
+	_pProductSocket = new CP2UdpSocket(interfaceIP, _productPort, false, 0, 10000000);
+	if (!_pProductSocket->ok()) {
+		QMessageBox e;
+		e.warning(this, "Error",_pProductSocket->errorMsg().c_str(), 
+			QMessageBox::Ok, QMessageBox::NoButton);
+		return;
 	}
 
 	connect(_pPulseSocket, SIGNAL(readyRead()), this, SLOT(newPulseSlot()));
