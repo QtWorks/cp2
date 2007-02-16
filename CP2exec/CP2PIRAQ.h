@@ -38,24 +38,97 @@ public:
 
 	~CP2PIRAQ();
 
+	/// Signal the Piraq to start taking data and transmitting
+	/// to the host. The data flow on the Piraq is driven by the 
+	/// A/D fifo getting filled, which will not happen until
+	/// the sample clock is running. Thus to coordinate Piraqs,
+	/// the start() method is called for all of them, and
+	/// then the sample clock is started.
+	/// @param firstPulseNum The pulse number to assign to the 
+	/// first pulse. Consecutive pulses have incremented
+	/// pulse numbers.
 	int start(long long firstPulseNum);
+	/// Stop the Piraq data sampling.
 	void stop();
+	/// Poll the Piraq DMA buffer. If data is found,
+	/// repackaged it and transmit as datagrams on the network.
 	int poll();
+	/// @return The prt in nanoseconds.
 	float prt();
+	/// @return The transmit pulse width in nanoseconds.
 	float xmit_pulsewidth();
+	/// @return The configuration that is passed to the Piraq.
+	/// @todo Users should not really be querying the Piraq for 
+	/// this information, since they configured it in the first
+	/// place. Eventually remove this, as it is inappropriate.
 	PINFOHEADER info();
+	/// @return The number of detected pulse number errors. This
+	/// value increments ever time two consecutive pulses do not have
+	/// consecutive pulse numbers. It is not the number of dropped
+	/// pulses.
 	int pnErrors();
+	/// @return The estimated sample rate, in pulses per second.
+	/// There will be some jitter in this value, since the measurment 
+	/// is made in between polls.
 	double sampleRate();
+	/// Return information from the antennna control system that is 
+	/// captured by the piraq.
+	/// @param az The azimuth, in countes, is returned here.
+	/// @param el The elevation, in counts, is returned here
+	/// @param sweep The sweep number, an arbitrary value, is returned here
+	/// @param volume The volume number, an arbitrary value, is returned here.
 	void antennaInfo(unsigned short& az, unsigned short& el, 
 		unsigned short& sweep, unsigned short& volume);
-
-	/// @return the current eof indicator flag. 
+	/// @return The current eof indicator flag. 
 	/// The flag is cleared when this function is called.
 	bool eof();
 
 protected:
+	/// Initialize the piraq card, loading the DSP with a program.
 	int init(char* configFname, char* dspObjFname);
-
+	/// output a stream of serial data to the PLL 
+	///----------------------
+	/// PLL bits definition  
+	///----------------------
+	///  2   |   1   |   0   
+	///------+-------+-------
+	/// DATA |  LE   | CLOCK 
+	///----------------------
+	/// @param data The value to be sent to the pll chip.
+	void plldata(int data);
+	/// program the phase locked loop
+	/// @param ref
+	/// @param freq
+	/// @param cmpfreq
+	void pll(double ref, double freq, double cmpfreq);
+	/// Program the registers for one section of a three section timer timer.
+	/// @param section The timer section of this timer block (0, 1, 2)
+	/// @param mode The mode to set the timer to
+	/// @param count The timer count
+	/// @iobase The virtual address of the timer block.
+	void timerRegisterSet(int section, int mode, int count, unsigned short *iobase);
+	///
+	/// program the timer for different modes with
+	///
+	///
+	/// mode:           0 = continuous mode, 1 = trigger mode, 2 = sync mode
+	/// gate0mode:      0 = regular gate 0, 1 = expanded gate 0
+	/// gatecounts:     gate spacing in 10 MHz counts
+	/// num bergates:    number of range gates
+	/// timecounts:     modes 1 and 2: delay (in 10 MHz counts) after trigger
+	/// mode 0: pulse repetition interval in 10 MHz counts
+	///
+	/// For sync mode (mode 0), delaycounts defines the sync time.  The prt
+	/// delay must be reprogrammed after the FIRST signal is detected.  
+	///
+	/// OTHER RESULTS:
+	/// 1)  the timing state machine is reset
+	///
+	/// this routine leaves the timer in a known state 
+	/// the timer is assumed stopped on entry (important!) 
+	int timerset(CONFIG *config);
+	/// make sure the timer is stopped and no fifo data is pending 
+	void stop_piraq();
 	/// A configurtion which will be created from
 	/// a supplied file name
 	CONFIG _config;
@@ -104,19 +177,38 @@ protected:
 	/// count pulses, for diagnostic purposes. this will
 	/// be removed in production software
 	long long _nPulses;
-
+	/// The prt in nanoseconds.
 	float _prt;				
+	/// prt2 in nanoseconds.
 	int _prt2;   
+	/// The Piraq card timing mode.
+	/// 0: software free running mode
+	/// 1: external trigger mode
+	/// 2: external sync free running mode
 	int _timing_mode;
+	/// The number of gates.
 	int _gates;
+	///The number of pulses that will make up a beam. It really
+	/// does not belong here.
+	/// @todo remove _hits from the raw data stream.
 	int _hits;
+	/// The transmit pulse width in nanoseconds.
 	float _xmit_pulsewidth;	
 	unsigned int _totalHits;
+	/// The Piraq board number (0,1, 2).
 	int _boardnum;
+	/// Tell the Piraq what type of recevier it is connected to.
+	/// This afffects the setting of the polarization flag.
 	RCVRTYPE _rcvrType;
+	/// The calculated sample rate, in pulses per second.
 	double _sampleRate;
+	/// The number of datagram resend attempts that have been made.
+	/// These are done wheh the datagram write returns an indication
+	/// that it failed.
 	int _resendCount;
-
+	/// Send an opaque datagram.
+	/// @param size The size, in bytes.
+	/// @param data The data buffer.
 	int sendData(int size, void* data);
 
 };

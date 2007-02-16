@@ -66,9 +66,3 @@
 #define	PATHA_COEFF	0x80
 #define	PATHB_COEFF	0xC0
 
-void timer(int timernum,int timermode,int count,unsigned short *iobase);
-void plldata(int data, PIRAQ *piraq);
-void FIR_gaussian(CONFIG *config, PIRAQ *piraq, float tbw, float pw);
-void pll(double ref, double freq, double cmpfreq, PIRAQ *piraq);
-int timerset(CONFIG *config, PIRAQ *piraq);
-void    stop_piraq(CONFIG *config,PIRAQ *piraq);

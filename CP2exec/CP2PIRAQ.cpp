@@ -99,7 +99,7 @@ CP2PIRAQ::init(char* configFname, char* dspObjFname)
 
 	//	send CHA by default; SEND_COMBINED after dynamic-range extension implemented
 	this->SetCP2PIRAQTestAction(SEND_CHA);	 
-	stop_piraq(&_config, this);
+	stop_piraq();
 
 	// create the data fifo and initialize members.
 	_pFifo = (CircularBuffer *)this->GetBuffer(); 
@@ -139,7 +139,7 @@ CP2PIRAQ::init(char* configFname, char* dspObjFname)
 	r_c = this->LoadDspCode(d);					// load entered DSP executable filename
 	delete [] d;
 	printf("loading %s: this->LoadDspCode returns %d\n", dspObjFname, r_c);  
-	timerset(&_config, this);								// !note: also programs pll and FIR filter. 
+	timerset(&_config);								// !note: also programs pll and FIR filter. 
 
 	this->SetCP2PIRAQTestAction(SEND_CHA);					//	send CHA by default; SEND_COMBINED after dynamic-range extension implemented 
 	return 0;
@@ -287,10 +287,10 @@ CP2PIRAQ::sampleRate()
 void
 CP2PIRAQ::antennaInfo(unsigned short& az, unsigned short& el, 
 					  unsigned short& sweep, unsigned short& volume) {
-	az     = _az;
-	el     = _el;
-	sweep  = _sweep;
-	volume = _volume;
+						  az     = _az;
+						  el     = _el;
+						  sweep  = _sweep;
+						  volume = _volume;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -318,7 +318,7 @@ CP2PIRAQ::info()
 void
 CP2PIRAQ::stop() 
 {
-	stop_piraq(&_config, this);
+	stop_piraq();
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -375,7 +375,7 @@ int CP2PIRAQ::start(long long firstPulseNum)
 		first = time(NULL) + 3;   /* wait up to 3 seconds */
 		while(!STATUSRD1(this,STAT1_FIRST_TRIG))
 			if(time(NULL) > first)
-				::timer(1,5,_prt2-2 ,this->timer);   /* odd prt (2) */
+				timerRegisterSet(1,5,_prt2-2 ,this->timer);   /* odd prt (2) */
 		break;
 	case 0:   /* continuous (software triggered) */
 	case 1:   /* external trigger */
@@ -393,5 +393,316 @@ int CP2PIRAQ::start(long long firstPulseNum)
 	_lastTickCount = GetTickCount();
 
 	return(0);  /* everything is OK */
+}
+
+#define STOPDELAY 30
+
+#define REF     100e3
+
+#define NCAR_DRX
+
+//void delay(int time); //!!!all calls replaced w/Sleep() w/no change to passed parameter
+
+
+///////////////////////////////////////////////////////////////////////////
+int  
+CP2PIRAQ::timerset(CONFIG *config)
+{
+	int  S,D,N,i,clk,freq,glen,spare23;
+	int  rcvr_pulsewidth; // local computed on 24/32 MHz timebase: config->rcvr_pulsewidth computed on 6/8 MHz
+
+	rcvr_pulsewidth = config->rcvr_pulsewidth*4; 
+
+	// use local rcvr_pulsewidth instead of config->rcvr_pulsewidth; local (and code below) assumes 24/32 MHz timebase. 
+	/* check for mode within bounds */
+	if(config->timingmode < 0 || config->timingmode > 2)
+	{printf("TIMERSET: invalid mode %d\n",config->timingmode); return(0);}
+
+	/* check for gate0mode within bounds */
+	if(config->gate0mode < 0 || config->gate0mode > 1)
+	{printf("TIMERSET: invalid gate0mode %d\n",config->gate0mode); return(0);}
+
+	/* check for receiver pulsewidth within bounds */
+	/* the pulsewidth defines the FIFO clock rate in 32MHz counts (or 24MHz) */
+	if(rcvr_pulsewidth == 0)
+	{printf("TIMERSET: invalid receiver pulsewidth count: %d\n",rcvr_pulsewidth); return(0);}
+
+	if(rcvr_pulsewidth >= 32 && rcvr_pulsewidth < 64 && (rcvr_pulsewidth & 1))
+	{printf("TIMERSET: invalid receiver pulsewidth count: %d\n",rcvr_pulsewidth);
+	printf("            If receiver pulse width greater than 32, it must be even\n",rcvr_pulsewidth);	 return(0);}
+
+	if(rcvr_pulsewidth >= 64 && (rcvr_pulsewidth & 3))
+	{printf("TIMERSET: invalid receiver pulsewidth count: %d\n",rcvr_pulsewidth);
+	printf("            If pulse width greater than 64, it must be divisible by four\n",rcvr_pulsewidth);	 return(0);}
+
+	if((config->gatesa * rcvr_pulsewidth)<12)
+	{printf("TIMERSET: number of Channel A gates X receiver pulsewidth must be 12 or greater\n"); return(0);}
+
+	if((config->gatesb * rcvr_pulsewidth)<12)
+	{printf("TIMERSET: number of Channel B gates X receiver pulsewidth must be 12 or greater\n"); return(0);}
+
+	/* check for numbergates within bounds */
+	if(config->gatesa == 0)
+	{printf("TIMERSET: invalid number of gates for channel A: %d\n",config->gatesa); return(0);}
+
+	/* check for numbergates within bounds */
+	if(config->gatesb == 0)
+	{printf("TIMERSET: invalid number of gates for channel B: %d\n",config->gatesb); return(0);}
+
+	/* check to see that the sampling interval can be measured in 8 MHz counts */
+	if((config->gatesa * rcvr_pulsewidth) & 3)
+	{printf("TIMERSET: Invalid number of gates/receiver pulsewidth combination %d %d for Channel A\n",config->gatesa,rcvr_pulsewidth);
+	printf("            number of gates X pulsewidth should be a multiple of 4\n");
+	return(0);}
+
+	if((config->gatesb * rcvr_pulsewidth) & 3)
+	{printf("TIMERSET: Invalid number of gates/receiver pulsewidth combination %d %d for Channel B\n",config->gatesb,rcvr_pulsewidth);
+	printf("            number of gates X pulsewidth should be a multiple of 4\n");
+	return(0);}
+
+	/* check for sync timecounts within bounds */
+	if((config->sync == 0 || config->sync > 65535) && config->timingmode != 2)
+	{printf("TIMERSET: invalid sync delay %d\n",config->sync); return(0);}
+
+	/* check for delay timecounts within bounds */
+	if((config->delay == 0 || config->delay > 65535) && config->timingmode != 2)
+	{printf("TIMERSET: invalid delay %d\n",config->delay); return(0);}
+
+	/* check for tpdelay timecounts within bounds */
+	if(config->tpdelay >= 65536 || config->tpdelay <= -65536)
+	{printf("TIMERSET: invalid testpulse delay %d\n",config->tpdelay); return(0);}
+
+	/* check for prt timecounts within bounds */
+	if(config->prt == 0 || config->prt > 65535)
+	{printf("TIMERSET: invalid prt %d\n",config->prt); return(0);}
+
+	/* check for prt2 timecounts within bounds */
+	if(config->prt2 == 0 || config->prt2 > 65535)
+	{printf("TIMERSET: invalid prt %d\n",config->prt2); return(0);}
+
+	/* double check that all the gates and the delay fit into a prt */
+	if(config->prt <= rcvr_pulsewidth * (config->gatesa + 1) / 4.0)
+	{
+		printf("TIMERSET: Gates, Delay, and EOF do not fit in PRT of %8.2f uS\n",config->prt/10.0); 
+		printf("          Delay is %8.2f uS (%d 10 MHz counts)\n",config->delay/10.0,config->delay);
+		printf("          %d gates at %8.2f uS (%7.1f m) + EOF = %8.2f uS\n"
+			,config->gatesa
+			,rcvr_pulsewidth/10.0
+			,1e-6*C*.5*rcvr_pulsewidth/10.0
+			,(config->gatesa + 1) * rcvr_pulsewidth / 10.0);
+		return(0);
+	}
+
+	/* stop the timer */
+	GetControl()->StopTimers();
+
+	GetControl()->UnSetBit_StatusRegister1(STAT1_EXTTRIGEN);	
+
+	Sleep(STOPDELAY);       /* wait for all timers to time-out */
+
+	/* program all the timers */
+	/* the three timers of chip 0 */
+	switch(config->timingmode)
+	{
+	case 0:   /* software free running mode */
+		// !!!
+		printf("TIMERSET: config->prt = %d config->prt2 = %d rcvr_pulsewidth = %d\n",config->prt, config->prt2, rcvr_pulsewidth); 
+		timerRegisterSet(0,5,config->prt-2                    ,timer);   /* even - odd prt */
+		timerRegisterSet(1,5,config->prt2-2   ,timer); /* even prt (1) */
+
+		printf("tpdelay = %d\n***********************************************************\n",config->tpdelay);
+		if(config->tpdelay >= 0) /* handle the zero case here */
+		{
+			if(config->tpdelay > 0)
+				timerRegisterSet(2,5,config->tpdelay,timer); /* delay from gate0 to tp */
+			else
+				timerRegisterSet(2,5,1,timer); /* delay from gate0 to tp */
+		}
+		else
+		{
+			timerRegisterSet(2,5,-config->tpdelay,timer); /* delay from tp to gate0 */
+		}
+		break;
+	case 1:   /* external trigger mode */
+		timerRegisterSet(0,5,config->prt-2,timer);   /* even - odd prt */
+		if(config->tpdelay >= 0)        /* handle the 0 case here */
+		{
+			timerRegisterSet(1,5,config->delay  ,timer); /* delay from trig to gate0 */
+			if(config->tpdelay == 0)
+				timerRegisterSet(2,5,config->tpdelay+1,timer); /* delay from gate0 to tp */
+			else
+				timerRegisterSet(2,5,config->tpdelay  ,timer); /* delay from gate0 to tp */
+		}
+		else   /* if tp comes before gate0 */
+		{
+			if(config->delay + config->tpdelay > 0)
+			{
+				timerRegisterSet(1,5,config->delay + config->tpdelay,timer); /* delay from trig to tp */
+				timerRegisterSet(2,5,-config->tpdelay,timer); /* delay from tp to gate0 */
+			}
+			else
+			{
+				if(config->delay > 1)
+				{
+					timerRegisterSet(1,5,1,timer); /* delay from trig to tp */
+					timerRegisterSet(2,5,config->delay-1,timer); /* delay from tp to gate0 */
+				}
+				else
+				{
+					timerRegisterSet(1,5,1,timer); /* delay from trig to tp */
+					timerRegisterSet(2,5,1,timer); /* delay from tp to gate0 */
+				}
+			}
+		}
+		break;
+	case 2:   /* external sync free running mode */
+		timerRegisterSet(0,5,config->prt-2,timer);   /* even - odd prt */
+		timerRegisterSet(1,5,config->sync,timer); /* even prt (1) */
+		if(config->tpdelay >= 0) /* handle the zero case here */
+		{
+			if(config->tpdelay > 0)
+				timerRegisterSet(2,5,config->tpdelay,timer); /* delay from gate0 to tp */
+			else
+				timerRegisterSet(2,5,1,timer); /* delay from gate0 to tp */
+		}
+		else
+		{
+			timerRegisterSet(2,5,-config->tpdelay,timer); /* delay from tp to gate0 */
+		}
+		break;
+	}
+
+	/* the three timers of chip 1 */
+	timerRegisterSet(0,1,config->tpwidth,timer + 8);   /* test pulse width */
+	timerRegisterSet(1,5,(config->gatesa * rcvr_pulsewidth)/4-2 ,timer + 8);   /* number of A gates */
+	timerRegisterSet(2,5,(config->gatesb * rcvr_pulsewidth)/4-2 ,timer + 8);   /* number of B gates */
+
+	/* gate length control */
+	/* depending on the gate length, the FIR is either in /1 , /2 or /4 mode */
+	if(rcvr_pulsewidth < SYSTEM_CLOCK/2.0e6) // < 1uSec: divisor timebase counts/uSec
+	{
+		glen = ((rcvr_pulsewidth & 0x1F)-1) << 9; 
+		spare23 = 0x000;
+	}
+	//!!!   else if(config->pulsewidth < 64) 
+	else if(rcvr_pulsewidth < 2*(SYSTEM_CLOCK/2.0e6)) // < 2uSec 
+	{
+		glen = ((rcvr_pulsewidth & 0x3E)-2) << 8;
+		spare23 = 0x400;
+	}
+	else
+	{
+		glen = ((rcvr_pulsewidth & 0x7C)-4) << 7;
+		spare23 = 0x800;
+	}
+	printf("glen = %d rcvr_pulsewidth = %d\n",glen,rcvr_pulsewidth);
+
+	/* set up all PIRAQ registers */ //???
+	GetControl()->SetValue_StatusRegister0(
+		glen | (config->testpulse << 6)   |	 /* odd and even testpulse bits */
+		(config->trigger << 4)              |  /* odd and even trigger bits */
+		((config->timingmode == 1) ? STAT0_TMODE : 0) |  /* tmode timing mode */
+		//	 ((config->timingmode == 2) ? STAT0_TRIGSEL : 0) |  /* if sync mode, then choose 1PPS input */
+		//         ((config->gate0mode == 1) ? (STAT0_GATE0MODE /* | STAT0_SWCTRL */) : 0) |
+		//	 ((config->gate0mode == 1) ? (STAT0_GATE0MODE | STAT0_SWCTRL) : 0) |
+		((config->tpdelay >= 0) ? STAT0_DELAY_SIGN : 0) | (STAT0_SW_RESET) // !TURN RESET OFF! mp 10-18-02 see singlepiraq ongoing
+		//         STAT0_SWSEL | STAT0_SWCTRL       /* set to channel B (top channel) */
+		);   /* start from scratch */
+
+	GetControl()->SetValue_StatusRegister1(spare23);
+
+	pll(10e6, SYSTEM_CLOCK, 50e3);
+	Sleep(STOPDELAY);   //	??I,Q unequal amplitude on first powerup: 6-22-06 mp
+	return(1);
+}
+
+///////////////////////////////////////////////////////////////////////////
+void  
+CP2PIRAQ::timerRegisterSet(int timernum,
+						   int timermode,
+						   int count,
+						   unsigned short *iobase)
+{
+	if(timernum < 0 || timernum > 2)
+	{printf("TIMER: invalid timernum %d\n",timernum); return;}
+	if(timermode < 0 || timermode > 5)
+	{printf("TIMER: invalid timermode %d\n",timermode); return;}
+
+	Sleep(1);
+	*((volatile short *)iobase +     3   ) = (0x30 + timernum * 0x40 + timermode * 2);
+	Sleep(1);
+	*((volatile short *)iobase + timernum) = count;
+	Sleep(1);
+	*((volatile short *)iobase + timernum) = (count >> 8);
+}
+
+///////////////////////////////////////////////////////////////////////////
+void     
+CP2PIRAQ::stop_piraq()
+{
+	int  i;
+
+	/* stop the timer */
+	//STATCLR0(piraq,STAT0_TRESET | STAT0_TMODE);
+	GetControl()->UnSetBit_StatusRegister0(STAT0_TRESET | STAT0_TMODE);	
+
+	/* make sure that all possible timer time-outs occur */
+	Sleep(STOPDELAY);    /* wait some number of milliseconds */
+
+	StopDsp();
+}
+
+
+
+
+///////////////////////////////////////////////////////////////////////////
+void  
+CP2PIRAQ::pll(double ref, double freq, double cmpfreq)
+{
+	int  i,data,r,n,a;
+
+	/* initialize and configure the pll at least once */
+	/* this needs to be done every time, following the convoluted QNX code, and experimental results! ... here simplified */
+	plldata(0x10FA93);     /* r data with reset bit */
+
+	/* compute the data to go into the register */
+	n = 0.5 + freq / cmpfreq;
+	a = n & 7;
+	n /= 8;
+	r = 0.5 + ref / cmpfreq;
+
+	plldata(r << 2 | 0x100000);     /* r data with reset bit */
+	plldata(n << 7 | a << 2 | 0x100001);     /* r data with reset bit */
+	Sleep(1); // ape delay(1); on QNX box
+}
+
+///////////////////////////////////////////////////////////////////////////
+void 
+CP2PIRAQ::plldata(int data)
+{
+	int  i;
+	/*----------------------*/
+	/* PLL bits definition  */
+	/*----------------------*/
+	/*  2   |   1   |   0   */
+	/*------+-------+-------*/
+	/* DATA |  LE   | CLOCK */
+	/*----------------------*/
+
+	int Status1; 
+	for(i=0; i<21; i++,data<<=1) {
+		if (data & 0x100000) { // data bit set 
+			GetControl()->SetBit_StatusRegister1(STAT1_PLL_DATA);   // set PLL data bit 
+			GetControl()->SetBit_StatusRegister1(STAT1_PLL_CLOCK); // set PLL data bit, set clock  
+		} 
+		else { // data bit clear 
+			GetControl()->UnSetBit_StatusRegister1(STAT1_PLL_DATA); // clear PLL data bit
+			GetControl()->SetBit_StatusRegister1(STAT1_PLL_CLOCK);  // set clock
+		} 
+		GetControl()->UnSetBit_StatusRegister1(STAT1_PLL_CLOCK);    // clear PLL clock bit
+	} 
+	/* toggle LE signal */
+	GetControl()->SetBit_StatusRegister1(STAT1_PLL_LE);   // set LE
+	GetControl()->UnSetBit_StatusRegister1(STAT1_PLL_LE); // clear LE
 }
 
