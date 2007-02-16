@@ -1,12 +1,11 @@
 #include "CP2PIRAQ.h"
-
 #include <iostream>
+
+// The specification of the host <-> Piraq data communication:
 #include "piraqComm.h"
-
-#include "subs.h"
+// The PCI timer card interface:
 #include "timerlib.h"
-#include "subs.h"
-
+// Components of the Piraq driver:
 #include "piraq.h"
 #include "plx.h"
 #include "control.h"
@@ -373,7 +372,7 @@ int CP2PIRAQ::start(long long firstPulseNum)
 	{
 	case 2:   /* continuous with sync delay */
 		first = time(NULL) + 3;   /* wait up to 3 seconds */
-		while(!STATUSRD1(this,STAT1_FIRST_TRIG))
+		while(!STATUSRD1(this, STAT1_FIRST_TRIG))
 			if(time(NULL) > first)
 				timerRegisterSet(1,5,_prt2-2 ,this->timer);   /* odd prt (2) */
 		break;
