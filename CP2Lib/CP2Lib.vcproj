@@ -163,10 +163,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\subs.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\timerlib.cpp"
 				>
 			</File>
@@ -186,10 +182,6 @@
 			</File>
 			<File
 				RelativePath=".\pci_w32.h"
-				>
-			</File>
-			<File
-				RelativePath=".\subs.h"
 				>
 			</File>
 			<File
