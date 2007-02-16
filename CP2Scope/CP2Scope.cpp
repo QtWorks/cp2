@@ -437,6 +437,8 @@ CP2Scope::initSockets()
 		return;
 	}
 
+	m_pTextIPaddress->setText(_pPulseSocket->toString().c_str());
+
 	connect(_pPulseSocket, SIGNAL(readyRead()), this, SLOT(newPulseSlot()));
 	connect(_pProductSocket, SIGNAL(readyRead()), this, SLOT(newProductSlot()));
 
