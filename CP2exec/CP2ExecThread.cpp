@@ -92,6 +92,8 @@ CP2ExecThread::run()
 
 	int	PIRAQadjustAmplitude = 0; 
 	int	PIRAQadjustFrequency = 1; 
+
+	/// @todo Conslidate PCI Timer control into a class.
 	TIMER ext_timer; // structure defining external timer parameters 
 
 	config1	= new CONFIG; 
