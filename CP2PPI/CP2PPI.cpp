@@ -17,6 +17,7 @@
 #include <QPalette>
 #include <QStackedWidget>
 #include <QCheckBox>
+#include <QMessageBox>
 
 #include <iostream>
 #include <algorithm>
@@ -34,11 +35,11 @@ _statsUpdateInterval(5),
 _currentSbeamNum(0),
 _currentXbeamNum(0),
 _pause(false),
-_ppiSactive(true)
+_ppiSactive(true),
+_productPort(3200)
 {
 	setupUi(parent);
 
-	_dataGramPort	= 3200;
 	for (int i = 0; i < 3; i++) {
 		_pulseCount[i]	= 0;
 	}
@@ -46,7 +47,7 @@ _ppiSactive(true)
 	// intialize the data reception socket.
 	// set up the ocket notifier and connect it
 	// to the data reception slot
-	initializeSocket();	
+	initSocket();	
 
 	// initialize the book keeping for the plots.
 	// This also sets up the radio buttons 
@@ -79,27 +80,8 @@ _ppiSactive(true)
 		_mapsXband[index] = new ColorMap(scaleMin, scaleMax);
 	}
 
-	// Note that the following call determines whether PPI will 
-	// use preallocated or dynamically allocated beams. If a third
-	// parameter is specifiec, it will set the number of preallocated
-	// beams.
-	// The configure must be called after initPlots(), bcause
-	// that is when _nVarsSband and _nVarsXband are determined.
-	_ppiS->configure(_nVarsSband, _gates, 10);
-	_ppiX->configure(_nVarsXband, _gates, 10);
-
-	// allocate the beam data arrays
-	_beamSdata.resize(_nVarsSband);
-	for (int i = 0; i < _nVarsSband; i++) {
-		_beamSdata[i].resize(_gates);
-	}
-
-	_beamXdata.resize(_nVarsXband);
-	for (int i = 0; i < _nVarsXband; i++) {
-		_beamXdata[i].resize(_gates);
-	}
-
-	// set the intial plot type
+	configureForGates();
+// set the intial plot type
 	_ppiSType = PROD_S_DBMHC;
 	ppiTypeSlot(PROD_S_DBZHC);
 	
@@ -123,6 +105,32 @@ CP2PPI::~CP2PPI()
 	for (int i = 0; i < _mapsSband.size(); i++)
 		delete _mapsSband[i];
 }
+
+//////////////////////////////////////////////////////////////////////
+void
+CP2PPI::configureForGates() 
+{
+	// Note that the following call determines whether PPI will 
+	// use preallocated or dynamically allocated beams. If a third
+	// parameter is specifiec, it will set the number of preallocated
+	// beams.
+	// The configure must be called after initPlots(), bcause
+	// that is when _nVarsSband and _nVarsXband are determined.
+	_ppiS->configure(_nVarsSband, _gates, 360);
+	_ppiX->configure(_nVarsXband, _gates, 360);
+
+	// allocate the beam data arrays
+	_beamSdata.resize(_nVarsSband);
+	for (int i = 0; i < _nVarsSband; i++) {
+		_beamSdata[i].resize(_gates);
+	}
+
+	_beamXdata.resize(_nVarsXband);
+	for (int i = 0; i < _nVarsXband; i++) {
+		_beamXdata[i].resize(_gates);
+	}
+}
+
 //////////////////////////////////////////////////////////////////////
 void 
 CP2PPI::newDataSlot()
@@ -162,13 +170,12 @@ CP2PPI::processProduct(CP2Product* pProduct)
 	double az = pProduct->header.antAz;
 	double el = pProduct->header.antEl;
 
+	if (gates != _gates) {
+		_gates = gates;
+		configureForGates();
+	}
+
 	if (_sMomentsList.find(prodType) != _sMomentsList.end()) {
-		// see if the number of gates has changed
-		if (gates != _beamSdata[0].size()) {
-			for (int i = 0; i < _nVarsSband; i++) {
-				_beamSdata[i].resize(_gates);
-			}
-		}
 		// product is one we want for S band
 		if (beamNum != _currentSbeamNum) {
 			// beam number has changed; start fresh
@@ -190,13 +197,6 @@ CP2PPI::processProduct(CP2Product* pProduct)
 	} else {
 		if (_xMomentsList.find(prodType) != _xMomentsList.end()) {
 			// product is one that we want for X band
-			// see if the number of gates has changed
-			if (gates != _beamXdata[0].size()) {
-				for (int i = 0; i < _nVarsXband; i++) {
-					_beamXdata[i].resize(_gates);
-				}
-			}
-			// product is one we want for S band
 			if (beamNum != _currentXbeamNum) {
 				// beam number has changed; start fresh
 				_currentXbeamNum = beamNum;
@@ -222,12 +222,14 @@ CP2PPI::processProduct(CP2Product* pProduct)
 
 //////////////////////////////////////////////////////////////////////
 void
-CP2PPI::initializeSocket()	
+CP2PPI::initSocket()	
 {
-	_pSocket = new CP2UdpSocket("192.168.3", 3200, false, 10000000, 0);
+	_pSocket = new CP2UdpSocket("192.168.3", _productPort, false, 10000000, 0);
 
 	if (!_pSocket->ok()) {
-		qWarning("Unable to create the data socket");
+		QMessageBox e;
+		e.warning(this, "Error",_pSocket->errorMsg().c_str(), 
+			QMessageBox::Ok, QMessageBox::NoButton);
 		return;
 	}
 	_pSocketBuf = new char[1000000];

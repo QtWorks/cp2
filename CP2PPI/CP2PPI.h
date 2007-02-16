@@ -45,7 +45,6 @@ public slots:
 	void tabChangeSlot(QWidget* w);
 	void pauseSlot(bool flag);	//	start/stop process, display
     void zoomInSlot();
-
 	void doSslot(bool);
 	void doXslot(bool);
     void zoomOutSlot();
@@ -54,7 +53,7 @@ public slots:
 protected:
 	// intialize the socket that the product data 
 	// is received on
-	void initializeSocket(); 
+	void initSocket(); 
 	/// Process the products as they come in. 
 	/// Sband and X band products with identical 
 	/// beam numbers are collected until a full
@@ -63,13 +62,16 @@ protected:
 	/// If a complete set is not collected for a given
 	/// beam number, it will not be displayed.
 	void processProduct(CP2Product* pProduct);
+	/// Configure the ppi displays and the beam data vectors for
+	/// for the number of gates.
+	void configureForGates();
 	/// The incoming product socket.
 	CP2UdpSocket*   _pSocket;
 	/// The buffer that the product data will be read into
 	/// from the socket.
 	char*   _pSocketBuf;
 	/// Incoming produt port number.
-	int	_dataGramPort;
+	int	_productPort;
 	int	_pulseCount[3];				
 	// how often to update the statistics (in seconds)
 	int _statsUpdateInterval;
