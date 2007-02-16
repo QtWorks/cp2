@@ -196,7 +196,7 @@ CP2Moments::initializeSockets()
 	// FYI, it must be bound (binded?) in order to get a socketDescriptor()
 	if (!_pProductSocket->bind(QHostAddress(requiredInterface.c_str()), _productsPort)) 
 	{
-			qWarning("Unable to bind to %s:%d", requiredInterface.c_str(), _productsPort);
+		qWarning("Unable to bind to %s:%d", requiredInterface.c_str(), _productsPort);
 	}	
 	sockbufsize = CP2MOMENTS_PROD_SNDBUF;
 	result = setsockopt (_pProductSocket->socketDescriptor(),
@@ -409,7 +409,14 @@ CP2Moments::sendProduct(CP2ProductHeader& header,
 			packet.packetSize(),
 			_outIpAddr,
 			_productsPort);
-		if(bytesSent != packet.packetSize()){
+		if(bytesSent != packet.packetSize())
+		{
+			// try again
+			bytesSent = _pProductSocket->writeDatagram(
+				(const char*)packet.packetData(),
+				packet.packetSize(),
+				_outIpAddr,
+				_productsPort);
 		}
 		packet.clear();
 	}
@@ -422,8 +429,14 @@ CP2Moments::sendProduct(CP2ProductHeader& header,
 			packet.packetSize(),
 			_outIpAddr,
 			_productsPort);
-		if (bytesSent != packet.packetSize());
+		if (bytesSent != packet.packetSize())
 		{
+			// try again
+			bytesSent = _pProductSocket->writeDatagram(
+				(const char*)packet.packetData(),
+				packet.packetSize(),
+				_outIpAddr,
+				_productsPort);
 		}
 		packet.clear();
 	}
