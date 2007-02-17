@@ -176,6 +176,7 @@ CP2PPI::processProduct(CP2Product* pProduct)
 	}
 
 	if (_sMomentsList.find(prodType) != _sMomentsList.end()) {
+		// std::cout << "S product " << prodType << "   " << beamNum << "\n";
 		// product is one we want for S band
 		if (beamNum != _currentSbeamNum) {
 			// beam number has changed; start fresh
@@ -196,7 +197,8 @@ CP2PPI::processProduct(CP2Product* pProduct)
 		}
 	} else {
 		if (_xMomentsList.find(prodType) != _xMomentsList.end()) {
-			// product is one that we want for X band
+			// std::cout << "X product " << prodType << "   " << beamNum << "\n";
+				// product is one that we want for X band
 			if (beamNum != _currentXbeamNum) {
 				// beam number has changed; start fresh
 				_currentXbeamNum = beamNum;
@@ -216,6 +218,7 @@ CP2PPI::processProduct(CP2Product* pProduct)
 			}
 		} else {
 			// unwanted product
+			// std::cout << "U product " << prodType << "   " << beamNum << "\n";			
 		}
 	}
 }
@@ -224,7 +227,7 @@ CP2PPI::processProduct(CP2Product* pProduct)
 void
 CP2PPI::initSocket()	
 {
-	_pSocket = new CP2UdpSocket("192.168.3", _productPort, false, 10000000, 0);
+	_pSocket = new CP2UdpSocket("192.168.3", _productPort, false, 0, 10000000);
 
 	if (!_pSocket->ok()) {
 		QMessageBox e;
@@ -276,18 +279,18 @@ CP2PPI::initPlots()
 	_xMomentsList.insert(PROD_X_LDR);
 
 	int ppiVarIndex = 0;
-	_ppiInfo[PROD_S_DBZHC]       = PpiInfo(PROD_S_DBZHC,      "H Dbz", "Sh: Dbz",     -20.0,  60.0,   ppiVarIndex++);
-	_ppiInfo[PROD_S_DBZVC]       = PpiInfo(PROD_S_DBZVC,      "V Dbz", "Sv: Dbz",     -20.0,  60.0,   ppiVarIndex++);
+	_ppiInfo[PROD_S_DBZHC]       = PpiInfo(PROD_S_DBZHC,      "H Dbz", "Sh: Dbz",     -70.0,   0.0,   ppiVarIndex++);
+	_ppiInfo[PROD_S_DBZVC]       = PpiInfo(PROD_S_DBZVC,      "V Dbz", "Sv: Dbz",     -70.0,   0.0,   ppiVarIndex++);
 	_ppiInfo[PROD_S_WIDTH]       = PpiInfo(PROD_S_WIDTH,      "Width", "S:  Width",     0.0,   5.0,   ppiVarIndex++);
 	_ppiInfo[PROD_S_VEL]         = PpiInfo(  PROD_S_VEL,   "Velocity", "S:  Velocity",-20.0,  20.0,   ppiVarIndex++);
-	_ppiInfo[PROD_S_SNR]         = PpiInfo(  PROD_S_SNR,        "SNR", "S:  SNR",     100.0, 150.0,   ppiVarIndex++);
-	_ppiInfo[PROD_S_RHOHV]       = PpiInfo(PROD_S_RHOHV,      "Rhohv", "S:  Rhohv",     0.0,  50.0,   ppiVarIndex++);
+	_ppiInfo[PROD_S_SNR]         = PpiInfo(  PROD_S_SNR,        "SNR", "S:  SNR",     -40.0,  10.0,   ppiVarIndex++);
+	_ppiInfo[PROD_S_RHOHV]       = PpiInfo(PROD_S_RHOHV,      "Rhohv", "S:  Rhohv",     0.0,   1.0,   ppiVarIndex++);
 	_ppiInfo[PROD_S_PHIDP]       = PpiInfo(PROD_S_PHIDP,      "Phidp", "S:  Phidp",     0.0, 360.0,   ppiVarIndex++);
 	_ppiInfo[PROD_S_ZDR]         = PpiInfo(  PROD_S_ZDR,        "Zdr", "S:  Zdr",     -70.0,   0.0,   ppiVarIndex++);
 	// restart the X band ppi indices at 0
 	ppiVarIndex = 0;
-	_ppiInfo[PROD_X_DBZHC]       = PpiInfo(PROD_X_DBZHC,      "H Dbz", "Xh: Dbz",     -20.0,  60.0,   ppiVarIndex++);
-	_ppiInfo[PROD_X_SNR]         = PpiInfo(  PROD_X_SNR,        "SNR", "Xh: SNR",     230.0, 260.0,   ppiVarIndex++);
+	_ppiInfo[PROD_X_DBZHC]       = PpiInfo(PROD_X_DBZHC,      "H Dbz", "Xh: Dbz",     -70.0,   0.0,   ppiVarIndex++);
+	_ppiInfo[PROD_X_SNR]         = PpiInfo(  PROD_X_SNR,        "SNR", "Xh: SNR",     -40.0,   0.0,   ppiVarIndex++);
 	_ppiInfo[PROD_X_LDR]         = PpiInfo(  PROD_X_LDR,        "LDR", "Xhv:LDR",       0.0,   1.0,   ppiVarIndex++);
 
 	_typeTab->removeTab(0);
