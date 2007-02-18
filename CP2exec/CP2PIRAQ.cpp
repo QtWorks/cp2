@@ -184,8 +184,8 @@ CP2PIRAQ::poll()
 		// add all beams to the outgoing packet and to the pulse queue
 		for (int i = 0; i < _pulsesPerPciXfer; i++) {
 			PPACKET* ppacket = (PPACKET*)((char*)&_pFifoPiraq->info + i*piraqPacketSize);
-			header.antAz     = ppacket->info.antAz;
-			header.antEl     = ppacket->info.antEl;
+			header.az        = ppacket->info.antAz * 360.0/65536;
+			header.el        = ppacket->info.antEl * 360.0/65536;
 			header.scanType  = ppacket->info.scanType;
 			header.volNum    = ppacket->info.volNum;
 			header.sweepNum  = ppacket->info.sweepNum;
@@ -201,8 +201,8 @@ CP2PIRAQ::poll()
 			}
 			header.horiz     = ppacket->info.horiz;
 
-			_az     = header.antAz;
-			_el     = header.antEl;
+			_az     = header.az;
+			_el     = header.el;
 			_volume = header.volNum;
 			_sweep  = header.sweepNum;
 
@@ -220,18 +220,6 @@ CP2PIRAQ::poll()
 			_lastPulseNumber = thisPulseNumber; // previous PN
 
 			_nPulses++;
-			/**
-			if (!(_nPulses %1000 )) {
-			double factor = 360.0/65536;
-			short az = ppacket->info.antAz;
-			short el = ppacket->info.antEl;
-			short scan = ppacket->info.scanType;
-			short vol = ppacket->info.volNum;
-			short sweep = ppacket->info.sweepNum;
-			printf("piraq %d resends %06d az %6.1f el %6.1f sweep %05d scan type %05d vol %05d\n",
-			_boardnum, _resendCount, az*factor, el*factor, sweep, scan, vol);
-			}
-			**/
 		}
 
 		int bytesSent = sendData(_cp2Packet.packetSize(),_cp2Packet.packetData());
@@ -284,8 +272,8 @@ CP2PIRAQ::sampleRate()
 }
 ///////////////////////////////////////////////////////////////////////////
 void
-CP2PIRAQ::antennaInfo(unsigned short& az, unsigned short& el, 
-					  unsigned short& sweep, unsigned short& volume) {
+CP2PIRAQ::antennaInfo(double& az, double& el, 
+					  int& sweep, int& volume) {
 						  az     = _az;
 						  el     = _el;
 						  sweep  = _sweep;

@@ -9,7 +9,7 @@ delay           1       ; (no effect in mode 0) delay to first sample (special c
 gates           950     ;
 hits            10      ; 100b/s @ 1KHz
 rcvr_pulsewidth 12       ;
-xmit_pulsewidth 12       ;1us pulses (150m) ;
+xmit_pulsewidth 12      ;1us pulses (150m) ;
 prt		12000	;500 Hz 
 ;prt2		2000	;3000 Hz
 tpdelay         8       ; test pulse delay in 6MHz counts (line-up G0)

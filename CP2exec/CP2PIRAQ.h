@@ -122,8 +122,8 @@ public:
 	/// @param el The elevation, in counts, is returned here
 	/// @param sweep The sweep number, an arbitrary value, is returned here
 	/// @param volume The volume number, an arbitrary value, is returned here.
-	void antennaInfo(unsigned short& az, unsigned short& el, 
-		unsigned short& sweep, unsigned short& volume);
+	void antennaInfo(double& az, double& el, 
+		int& sweep, int& volume);
 	/// @return The current eof indicator flag. 
 	/// The flag is cleared when this function is called.
 	bool eof();
@@ -188,13 +188,13 @@ protected:
 	/// Cumulative pulse number errors
 	int _PNerrors;
 	/// current azimuth
-	short _az;
+	double _az;
 	/// current elevation
-	short _el; 
+	double _el; 
 	/// current volume
-	short _volume;
+	int _volume;
 	/// current sweep
-	short _sweep;
+	int _sweep;
 	/// the number of bytes per gate
 	int _bytespergate;
 	/// the number of hits in each block transfer
