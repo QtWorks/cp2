@@ -34,8 +34,8 @@ MomentThread::run()
 				p2->data(),
 				p1->header()->gates,
 				1.0e-6,
-				p1->header()->antEl,
-				p1->header()->antAz,
+				p1->header()->el,
+				p1->header()->az,
 				p1->header()->pulse_num,
 				p1->header()->horiz);
 			} else {
@@ -44,8 +44,8 @@ MomentThread::run()
 				0,
 				p1->header()->gates,
 				1.0e-6,
-				p1->header()->antEl,
-				p1->header()->antAz,
+				p1->header()->el,
+				p1->header()->az,
 				p1->header()->pulse_num,
 				p1->header()->horiz);
 			}

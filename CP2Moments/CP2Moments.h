@@ -1,9 +1,6 @@
 #ifndef CP2MomentsH_
 #define CP2MomentsH_
 
-#include <winsock2.h>		//	no redefinition errors if before Qt includes?
-#include <QUdpSocket> 
-#include <QSocketNotifier>
 #include <QEvent>
 #include <QButtonGroup>
 #include <math.h>
@@ -15,6 +12,7 @@
 
 #include "ui_CP2Moments.h"
 #include "MomentThread.h"
+#include "CP2UdpSocket.h" 
 
 #define PIRAQ3D_SCALE	1.0/(unsigned int)pow(2.0,31)	
 /// request this much space for the pulse socket receive buffer
@@ -73,13 +71,7 @@ protected:
 						 std::vector<double>& data,
 						 CP2Packet& packet,
 						 bool forceSend=false);
-	/// Calculates a suitable broadcast address to use with
-	/// the supplied IP number.
-	/// @param dwIp The IP number in net byte order
-	/// @return A broadcast address for that IP (255.255.255.255 if 
-	/// that IP wasn't found)
-	unsigned long CP2Moments::GetBroadcastAddress(char* IPname);
-	/// set true if products are to be caclualed; false otherwise.
+	/// set true if products are to be calculated; false otherwise.
 	bool _run;
 	/// The thread which will compute S band moments
 	MomentThread* _pSmomentThread;
@@ -90,15 +82,13 @@ protected:
 	/// Set true if the X band pulses are to be processed.
 	bool _processXband;
 	/// The time series raw data socket.
-	QUdpSocket*   _pPulseSocket;
-	/// A notifier for incoming time series data.
-	QSocketNotifier* _pPulseSocketNotifier;
+	CP2UdpSocket*   _pPulseSocket;
 	/// The port number for incoming pulses.
 	int	_pulsePort;
 	/// The host address for the incoming pulses. 
 	QHostAddress _inIpAddr;
 	/// The socket that data products are transmitted on.
-	QUdpSocket*   _pProductSocket;
+	CP2UdpSocket*   _pProductSocket;
 	/// The host address for the outgoing products. Probably
 	/// will be a broadcast address.
 	QHostAddress _outIpAddr;
@@ -125,20 +115,12 @@ protected:
 	int _xBeamCount;
 	/// A buffer which will receive the time series data from the socket.
 	char*   _pPulseSocketBuf;
-	/// Moment computation parameters for S band
-	Params _Sparams;
-	/// Moment computation parameters for X band
-	Params _Xparams;
 	/// S band product data are copied here from the moments computation,
 	/// before being added to the outgoing produtcs CP2Packet
 	std::vector<double> _sProductData;
 	/// X band product data are copied here from the moments computation,
 	/// before being added to the outgoing produtcs CP2Packet
 	std::vector<double> _xProductData;
-	/// The current S band azimuth
-	double _azSband;
-	/// The current X band azimuth
-	double _azXband;
 	/// The collator collects and matches time tags
 	/// from H and V Xband channels
 	CP2PulseCollator _collator;
