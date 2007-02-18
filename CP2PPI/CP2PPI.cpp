@@ -451,8 +451,10 @@ CP2PPI::displaySbeam(double az, double el)
 	if (!_pause) {
 		int gates = _beamSdata[0].size();
 		_ppiS->addBeam(az - 0.5, az + 0.5, gates, _beamSdata, 1, _mapsSband);
-		if (_ppiSactive)
+		if (_ppiSactive) {
 			_azLCD->display((int)az);
+			_elLCD->display((int)el);
+		}
 	}
 }
 //////////////////////////////////////////////////////////////////////
@@ -462,8 +464,10 @@ CP2PPI::displayXbeam(double az, double el)
 	if (!_pause) {
 		int gates = _beamXdata[0].size();
 		_ppiX->addBeam(az - 0.5, az + 0.5, gates, _beamXdata, 1, _mapsXband);
-		if (!_ppiSactive)
+		if (!_ppiSactive) {
 			_azLCD->display((int)az);
+			_elLCD->display((int)el);
+		}
 	}
 }
 
