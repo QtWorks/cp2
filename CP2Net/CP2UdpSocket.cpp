@@ -36,6 +36,8 @@ _ok(false)
 				break;
 			}
 		}
+		if (found)
+			break;
 	}
 
 	if (!found) {
@@ -48,18 +50,25 @@ _ok(false)
 	if (!broadcast) {
 		_hostAddress = addrEntry.ip();
 	} else {
+		/// @todo Find out why QNetworkAddressEntry.broadcast() doesn't work,
+		/// or how it is supposed to be used.
+		addrEntry.setBroadcast(QHostAddress("192.168.3.255"));
 		_hostAddress = addrEntry.broadcast();
 	}
 
 	// bind socket to port/network
 	int optval = 1;
-	if (!bind(_hostAddress, _port)) {
-		_errorMsg += "Unable to bind datagram port ";
-		_errorMsg += _hostAddress.toString().toAscii().constData();
-		_errorMsg += ":";
-		_errorMsg += QString("%1").arg(_port).toAscii().constData();
-		_errorMsg += "\n";
-		return;
+	if (!broadcast) {
+		if (!bind(_hostAddress, _port, QUdpSocket::ShareAddress)) {
+			_errorMsg += "Unable to bind datagram port ";
+			_errorMsg += _hostAddress.toString().toStdString();
+			_errorMsg += ":";
+			_errorMsg += QString("%1").arg(_port).toStdString();
+			_errorMsg += "\n";
+			_errorMsg += this->errorString().toStdString();
+			_errorMsg += "\n";
+			return;
+		}
 	}
 
 	int result = setsockopt(socketDescriptor(), 
@@ -95,6 +104,13 @@ _ok(false)
 	}
 
 	_ok = true;
+}
+
+///////////////////////////////////////////////////////////
+int
+CP2UdpSocket::writeDatagram(const char* data, int size) 
+{
+	return QUdpSocket::writeDatagram(data, size, _hostAddress, _port);
 }
 
 ///////////////////////////////////////////////////////////

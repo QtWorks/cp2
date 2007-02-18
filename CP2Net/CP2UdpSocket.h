@@ -26,6 +26,11 @@ public:
 
 	virtual ~CP2UdpSocket();
 
+	/// Send the data
+	/// @param data The data
+	/// @param size Size in bytes
+	/// @returns The number of bytes written, or -1 on error.
+	int writeDatagram(const char* data, int size);
 	/// @return The IP address for this socket.
 	QHostAddress hostAddress();
 	/// @return The IP number as a string
