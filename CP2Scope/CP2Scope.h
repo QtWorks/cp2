@@ -98,7 +98,8 @@ public slots:
 	virtual void upSlot();
 	/// Slide the plot down.
 	virtual void dnSlot();
-	/// Initiate an autoscale
+	/// Initiate an autoscale. A flag is set; during the next 
+	/// pulse reception an autoscale computation is made.
 	virtual void autoScaleSlot();
 	virtual void dataSetSlot(bool);
 	virtual void DataSetGateSpinBox_valueChanged( int ); 
@@ -147,8 +148,10 @@ protected:
  
 	double          _knobGain;
 	double          _knobOffset;
-	double			_graphRange;	
-	double			_graphCenter;
+	double			_xyGraphRange;	
+	double			_xyGraphCenter;
+	double			_specGraphRange;	
+	double			_specGraphCenter;
 	double			_xFullScale;	
 	/// Set true to cause an autoscale 
 	/// to take place on the next data series

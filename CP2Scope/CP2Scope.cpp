@@ -83,10 +83,12 @@ _dataChannel(0)
 	_gainKnob->setScaleMaxMajor(5);
 	_gainKnob->setScaleMaxMinor(5);
 
-	_graphRange = 1;
-	_graphCenter = 0.0;
+	_xyGraphRange = 1;
+	_xyGraphCenter = 0.0;
 	_knobGain = 0.0;
 	_knobOffset = 0.0;
+	_specGraphRange = 120.0;
+	_specGraphCenter = -40.0;
 
 	// set leds to green
 //	_chan0led->setBackgroundColor(QColor("green"));
@@ -375,8 +377,8 @@ CP2Scope::processProduct(CP2Product* pProduct)
 void
 CP2Scope::displayData() 
 {
-	double yBottom = _graphCenter - _graphRange;
-	double yTop =    _graphCenter + _graphRange;
+	double yBottom = _xyGraphCenter - _xyGraphRange;
+	double yTop =    _xyGraphCenter + _xyGraphRange;
 	if (_pulsePlot) {
 		PlotInfo* pi = &_pulsePlotInfo[_pulsePlotType];
 
@@ -393,7 +395,13 @@ CP2Scope::displayData()
 			_scopePlot->IvsQ(I, Q, yBottom, yTop, 1); 
 			break;
 		case ScopePlot::SPECTRUM:
-			_scopePlot->Spectrum(_spectrum, -100, 20.0, 1000000, false, "Frequency (Hz)", "Power (dB)");	
+			_scopePlot->Spectrum(_spectrum, 
+				_specGraphCenter-_specGraphRange/2.0, 
+				_specGraphCenter+_specGraphRange/2.0, 
+				1000000, 
+				false, 
+				"Frequency (Hz)", 
+				"Power (dB)");	
 			break;
 		}
 
@@ -546,11 +554,11 @@ CP2Scope::plotTypeChange(PlotInfo* pi,
 		currentPi = &_prodPlotInfo[_productPlotType];
 	}
 	currentPi->setGain(pi->getGainMin(), pi->getGainMax(), _knobGain);
-	currentPi->setOffset(pi->getOffsetMin(), pi->getOffsetMax(), _graphCenter);
+	currentPi->setOffset(pi->getOffsetMin(), pi->getOffsetMax(), _xyGraphCenter);
 
 	// restore gain and offset for new plot type
 	gainChangeSlot(pi->getGainCurrent());
-	_graphCenter = pi->getOffsetCurrent();
+	_xyGraphCenter = pi->getOffsetCurrent();
 
 
 	// set the knobs for the new plot type
@@ -793,7 +801,7 @@ void CP2Scope::gainChangeSlot(double gain)	{
 
 	_powerCorrection = gain; 
 
-	_graphRange = pow(10.0,-gain);
+	_xyGraphRange = pow(10.0,-gain);
 
 	_gainKnob->setValue(gain);
 
@@ -803,12 +811,39 @@ void CP2Scope::gainChangeSlot(double gain)	{
 //////////////////////////////////////////////////////////////////////
 void 
 CP2Scope::upSlot()	{
-	_graphCenter -= 0.03*_graphRange;
+	bool spectrum = false;
+
+	if (_pulsePlot) {
+		PlotInfo* pi = &_pulsePlotInfo[_pulsePlotType];
+		if (pi->getDisplayType() == ScopePlot::SPECTRUM) {
+			spectrum = true;
+		} 
+	}
+
+	if (!spectrum) {
+		_xyGraphCenter -= 0.03*_xyGraphRange;
+	} else {
+		_specGraphCenter -= 0.03*_specGraphRange;
+	}
 }
 //////////////////////////////////////////////////////////////////////
 void 
 CP2Scope::dnSlot()	{
-	_graphCenter += 0.03*_graphRange;
+
+	bool spectrum = false;
+
+	if (_pulsePlot) {
+		PlotInfo* pi = &_pulsePlotInfo[_pulsePlotType];
+		if (pi->getDisplayType() == ScopePlot::SPECTRUM) {
+			spectrum = true;
+		} 
+	}
+
+	if (!spectrum) {
+		_xyGraphCenter += 0.03*_xyGraphRange;
+	} else {
+		_specGraphCenter += 0.03*_specGraphRange;
+	}
 }
 //////////////////////////////////////////////////////////////////////
 void 
@@ -864,10 +899,10 @@ void
 CP2Scope::adjustGainOffset(double min, double max)
 {
 	double factor = 0.8;
-	_graphCenter = (min+max)/2.0;
-	_graphRange = (1/factor)*(max - min)/2.0;
+	_xyGraphCenter = (min+max)/2.0;
+	_xyGraphRange = (1/factor)*(max - min)/2.0;
 
-	_knobGain = -log10(_graphRange);
+	_knobGain = -log10(_xyGraphRange);
 
 	_gainKnob->setValue(_knobGain);
 }
