@@ -435,14 +435,12 @@ CP2Scope::initSockets()
 		QMessageBox e;
 		e.warning(this, "Error",_pPulseSocket->errorMsg().c_str(), 
 			QMessageBox::Ok, QMessageBox::NoButton);
-//		return;
 	}
 	_pProductSocket = new CP2UdpSocket(interfaceIP, _productPort, false, 0, 10000000);
 	if (!_pProductSocket->ok()) {
 		QMessageBox e;
 		e.warning(this, "Error",_pProductSocket->errorMsg().c_str(), 
 			QMessageBox::Ok, QMessageBox::NoButton);
-//		return;
 	}
 
 	m_pTextIPaddress->setText(_pPulseSocket->toString().c_str());
