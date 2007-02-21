@@ -273,7 +273,7 @@ CP2PIRAQ::sampleRate()
 ///////////////////////////////////////////////////////////////////////////
 void
 CP2PIRAQ::antennaInfo(double& az, double& el, 
-					  int& sweep, int& volume) {
+					  unsigned int& sweep, unsigned int& volume) {
 						  az     = _az;
 						  el     = _el;
 						  sweep  = _sweep;

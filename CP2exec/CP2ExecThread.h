@@ -23,8 +23,8 @@ public:
 	void eof(bool eof[3]);
 	void antennaInfo(double* az, 
 		double* el, 
-		int* sweep, 
-		int* volume);
+		unsigned int* sweep, 
+		unsigned int* volume);
 
 protected:
 	/// The piraq dsp's will read the antenna pointing information

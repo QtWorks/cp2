@@ -123,7 +123,7 @@ public:
 	/// @param sweep The sweep number, an arbitrary value, is returned here
 	/// @param volume The volume number, an arbitrary value, is returned here.
 	void antennaInfo(double& az, double& el, 
-		int& sweep, int& volume);
+		unsigned int& sweep, unsigned int& volume);
 	/// @return The current eof indicator flag. 
 	/// The flag is cleared when this function is called.
 	bool eof();
@@ -192,9 +192,9 @@ protected:
 	/// current elevation
 	double _el; 
 	/// current volume
-	int _volume;
+	uint _volume;
 	/// current sweep
-	int _sweep;
+	unsigned int _sweep;
 	/// the number of bytes per gate
 	int _bytespergate;
 	/// the number of hits in each block transfer
