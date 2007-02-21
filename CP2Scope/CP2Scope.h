@@ -110,7 +110,6 @@ protected:
 	/// Send the data for the current plot type to the ScopePlot.
 	void displayData(); 
 	void resizeDataVectors(); 
-
 	/// Initialize the pulse and product sockets. The
 	/// notifiers will be created, and connected
 	/// to the data handling slots.
@@ -157,7 +156,7 @@ protected:
 	/// to take place on the next data series
 	bool _performAutoScale;
 	/// set the _graphRange and _graphOffset based
-	/// on the data series.
+	/// on the single data series.
 	/// @param data The data series to be analyzed.
 	void autoScale(std::vector<double>& data);
 	/// set the _graphRange and _graphOffset based
@@ -165,6 +164,10 @@ protected:
 	/// @param data1 The first data series to be analyzed.
 	/// @param data2 The second data series to be analyzed.
 	void autoScale(std::vector<double>& data1, std::vector<double>& data2);
+	/// set the _specGraphRange and _specGraphCenter based
+	/// on the single data series.
+	/// @param data The spectral series to be analyzed.
+	void specAutoScale(std::vector<double>& data);
 	/// Adjust the _graphRange and _graphOffset values.
 	/// @param min Desired scale minimum
 	/// @param max Desired scale maximum
