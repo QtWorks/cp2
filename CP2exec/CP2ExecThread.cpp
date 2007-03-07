@@ -80,7 +80,7 @@ CP2ExecThread::run()
 	char fname1[100]; 
 	char fname2[100]; 
 	char fname3[100]; // configuration filenames
-	char* destIP = "192.168.3.255";
+	char* destIP = "192.168.1.255";
 	//destIP = "127.0.0.1";
 
 	char c;

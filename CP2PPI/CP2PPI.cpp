@@ -228,7 +228,7 @@ void
 CP2PPI::initSocket()	
 {
 	// create the incoming product socket
-	_pSocket = new CP2UdpSocket("192.168.3", _productPort, false, 0, 10000000);
+	_pSocket = new CP2UdpSocket("192.168.1", _productPort, false, 0, 10000000);
 
 	if (!_pSocket->ok()) {
 		QMessageBox e;

@@ -10,7 +10,7 @@ public:
 	/// @param network Set this to the network IP of the interface
 	/// that the socket will be bound to. The list of interfaces on the 
 	/// system will be scanned for a match on this network. It is acceptable
-	/// to only specify the network portion, such as 192.168.3, since
+	/// to only specify the network portion, such as 192.168.1, since
 	/// on DHCP served systems, we typically won't know the full address.
 	/// @param port The network port.
 	/// @param broadcast Set true if the socket will be broadcasting

@@ -111,7 +111,7 @@ CP2Moments::timerEvent(QTimerEvent*)
 void
 CP2Moments::initializeSockets()	
 {
-	std::string requiredInterface = "192.168.3";
+	std::string requiredInterface = "192.168.1";
 
 	// allocate the buffer that will recieve the incoming pulse data
 	_pPulseSocketBuf = new char[1000000];

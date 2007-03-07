@@ -427,7 +427,7 @@ CP2Scope::initSockets()
 	_pPulseSocketBuf.resize(1000000);
 	_pProductSocketBuf.resize(1000000);
 
-	std::string interfaceIP = "192.168.3";
+	std::string interfaceIP = "192.168.1";
 
 	// creat the sockets
 	_pPulseSocket   = new CP2UdpSocket(interfaceIP, _pulsePort,   false, 0, 10000000);
