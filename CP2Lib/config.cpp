@@ -214,7 +214,7 @@ void readconfig(char *fname, CONFIG *config)
 			set(value,"%f",(int *)&config->gate_spacing_meters,keyword,linenum,filename);
 			break;
 	 case 37:        /* pci timer card timing mode */
-			set(value,"%f",(int *)&config->pcitimermode,keyword,linenum,filename);
+			set(value,"%d",(int *)&config->pcitimermode,keyword,linenum,filename);
 			break;
 
 	 default:
