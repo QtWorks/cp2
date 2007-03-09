@@ -41,6 +41,7 @@ typedef struct CONFIG
 	float           meters_to_first_gate; 
 	float           gate_spacing_meters; 
 	int				pcitimermode;  // timing mode for the pci timer card
+	int             fakeangles;    // set true if angles are to be faked
 } CONFIG;
 
 void readconfig(char *fname, CONFIG *config);

@@ -28,7 +28,7 @@ debug           off      ;turns on certain debug printouts
 dataformat      18      ; PIRAQ_CP2_TIMESERIES: CP2
 meters_to_first_gate	100.0	; 1551
 gate_spacing_meters	20.0	; 
-pcitimermode    1       ; 0 for internal sync, 1 for external sync
+pcitimermode    0       ; 0 for internal sync, 1 for external sync
 fakeangles      1       ; 0 for no, 1 to generate fake angles instead of reading PMAC.
 
 

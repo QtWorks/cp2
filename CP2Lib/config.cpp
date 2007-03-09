@@ -35,7 +35,7 @@ char    *parms[]   = {"gates"        ,"hits"         ,"prt"           ,
 		      "ethernet"          ,"dataformat"   ,"boardnum"      ,
 		      "testpulse"         ,"ts_end_gate"  ,"startgate"	  ,
 			  "clutter_start"     ,"clutter_end"  ,"meters_to_first_gate",
-			  "gate_spacing_meters",	"pcitimermode",           ""};
+			  "gate_spacing_meters",	"pcitimermode",  "fakeangles", ""};
 
 /* read in config.dsp and set the parameters in the config structure */
 /* if fname is NULL string, default file will be loaded. */
@@ -68,6 +68,7 @@ void readconfig(char *fname, CONFIG *config)
    config->ethernet = 0;
    config->boardnum = 0;
    config->pcitimermode = 0;
+   config->fakeangles = 0;
 
    fp = 0;
    filename[0] = 0;
@@ -214,8 +215,11 @@ void readconfig(char *fname, CONFIG *config)
 			set(value,"%f",(int *)&config->gate_spacing_meters,keyword,linenum,filename);
 			break;
 	 case 37:        /* pci timer card timing mode */
-			set(value,"%d",(int *)&config->pcitimermode,keyword,linenum,filename);
-			break;
+		 set(value,"%d",(int *)&config->pcitimermode,keyword,linenum,filename);
+		 break;
+	 case 38:        /* fakeangles */
+		 set(value,"%d",(int *)&config->fakeangles,keyword,linenum,filename);
+		 break;
 
 	 default:
 		printf("unrecognized keyword \"%s\" in line %d of %s\n",keyword,linenum,filename);
