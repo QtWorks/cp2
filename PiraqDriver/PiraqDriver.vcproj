@@ -410,10 +410,6 @@
 			RelativePath="Architecture_Overview.txt"
 			>
 		</File>
-		<File
-			RelativePath="..\..\..\Plx\PciSdk\Win32\Api\Release\PlxApi.lib"
-			>
-		</File>
 	</Files>
 	<Globals>
 		<Global
