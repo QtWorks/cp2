@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="CP2exec"
+	Name="cp2exec"
 	ProjectGUID="{EB607E6C-AF37-4668-854A-DF51A47ED484}"
 	Keyword="Qt4VSv1.0"
 	>
@@ -44,7 +44,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="-Zm200 -EHsc -w34100 -w34189 -Zm200 -EHsc -w34100 -w34189 -w34100 -w34189"
 				Optimization="4"
-				AdditionalIncludeDirectories="&quot;C:/Qt/4.2.2/include/QtCore&quot;,&quot;C:/Qt/4.2.2/include/QtCore&quot;,&quot;C:/Qt/4.2.2/include/QtNetwork&quot;,&quot;C:/Qt/4.2.2/include/QtNetwork&quot;,&quot;C:/Qt/4.2.2/include/QtGui&quot;,&quot;C:/Qt/4.2.2/include/QtGui&quot;,&quot;C:/Qt/4.2.2/include&quot;,&quot;..&quot;,&quot;..\..&quot;,&quot;..\CP2Net&quot;,&quot;..\CP2Lib&quot;,&quot;..\CP2Piraq&quot;,&quot;..\PiraqDriver&quot;,&quot;..\Moments&quot;,&quot;C:/Plx/PciSdk/Inc&quot;,&quot;C:/Program Files/TVicSoft/TVicHW50/MSVC&quot;,&quot;C:/Qt/4.2.2/include/ActiveQt&quot;,&quot;debug&quot;,&quot;.&quot;,..\..\..\Qt\4.2.2\mkspecs\win32-msvc.net"
+				AdditionalIncludeDirectories="&quot;C:/Qt/4.2.2/include/QtCore&quot;,&quot;C:/Qt/4.2.2/include/QtCore&quot;,&quot;C:/Qt/4.2.2/include/QtNetwork&quot;,&quot;C:/Qt/4.2.2/include/QtNetwork&quot;,&quot;C:/Qt/4.2.2/include/QtGui&quot;,&quot;C:/Qt/4.2.2/include/QtGui&quot;,&quot;C:/Qt/4.2.2/include&quot;,&quot;..&quot;,&quot;..\..&quot;,&quot;..\CP2Net&quot;,&quot;..\CP2Lib&quot;,&quot;..\CP2Piraq&quot;,&quot;..\PiraqDriver&quot;,&quot;..\Moments&quot;,&quot;C:/Plx/PciSdk/Inc&quot;,&quot;C:/Program Files/TVicSoft/TVicHW50/MSVC&quot;,&quot;C:/Qt/4.2.2/include/ActiveQt&quot;,&quot;debug&quot;,&quot;.&quot;,c:\Qt\4.2.2\mkspecs\default"
 				PreprocessorDefinitions="_WINDOWS,UNICODE,WIN32,QT_LARGEFILE_SUPPORT,QT_THREAD_SUPPORT,QT_DLL,QT_GUI_LIB,QT_NETWORK_LIB,QT_CORE_LIB"
 				GeneratePreprocessedFile="0"
 				RuntimeLibrary="3"
@@ -71,13 +71,13 @@
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
 				AdditionalDependencies="c:\Qt\4.2.2\lib\qtmaind.lib ../Moments/debug/Moments.lib ../CP2Net/debug/CP2Netd.lib ../CP2Lib/debug/CP2Libd.lib ../PiraqDriver/debug/PiraqIII_RevD_Driver.lib &quot;c:/Program Files/TVicSoft/TVicHW50/MSVC/TVicHW32.lib&quot; ../../fftw3.1/libfftw3-3.lib C:/Plx/PciSdk/Win32/Api/Debug/plxapi.lib ws2_32.lib c:\Qt\4.2.2\lib\QtGuid4.lib c:\Qt\4.2.2\lib\QtNetworkd4.lib c:\Qt\4.2.2\lib\QtCored4.lib"
-				OutputFile="debug\CP2exec.exe"
+				OutputFile="debug\cp2exec.exe"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="c:\Qt\4.2.2\lib"
 				IgnoreDefaultLibraryNames="libc"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=""
-				SubSystem="1"
+				SubSystem="2"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -134,7 +134,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="-Zm200 -EHsc -w34100 -w34189 -Zm200 -EHsc -w34100 -w34189 -w34100 -w34189"
 				Optimization="2"
-				AdditionalIncludeDirectories="&quot;C:/Qt/4.2.2/include/QtCore&quot;,&quot;C:/Qt/4.2.2/include/QtCore&quot;,&quot;C:/Qt/4.2.2/include/QtNetwork&quot;,&quot;C:/Qt/4.2.2/include/QtNetwork&quot;,&quot;C:/Qt/4.2.2/include/QtGui&quot;,&quot;C:/Qt/4.2.2/include/QtGui&quot;,&quot;C:/Qt/4.2.2/include&quot;,&quot;..&quot;,&quot;..\..&quot;,&quot;..\CP2Net&quot;,&quot;..\CP2Lib&quot;,&quot;..\CP2Piraq&quot;,&quot;..\PiraqDriver&quot;,&quot;..\Moments&quot;,&quot;C:/Plx/PciSdk/Inc&quot;,&quot;C:/Program Files/TVicSoft/TVicHW50/MSVC&quot;,&quot;C:/Qt/4.2.2/include/ActiveQt&quot;,&quot;release&quot;,&quot;.&quot;,..\..\..\Qt\4.2.2\mkspecs\win32-msvc.net"
+				AdditionalIncludeDirectories="&quot;C:/Qt/4.2.2/include/QtCore&quot;,&quot;C:/Qt/4.2.2/include/QtCore&quot;,&quot;C:/Qt/4.2.2/include/QtNetwork&quot;,&quot;C:/Qt/4.2.2/include/QtNetwork&quot;,&quot;C:/Qt/4.2.2/include/QtGui&quot;,&quot;C:/Qt/4.2.2/include/QtGui&quot;,&quot;C:/Qt/4.2.2/include&quot;,&quot;..&quot;,&quot;..\..&quot;,&quot;..\CP2Net&quot;,&quot;..\CP2Lib&quot;,&quot;..\CP2Piraq&quot;,&quot;..\PiraqDriver&quot;,&quot;..\Moments&quot;,&quot;C:/Plx/PciSdk/Inc&quot;,&quot;C:/Program Files/TVicSoft/TVicHW50/MSVC&quot;,&quot;C:/Qt/4.2.2/include/ActiveQt&quot;,&quot;release&quot;,&quot;.&quot;,c:\Qt\4.2.2\mkspecs\default"
 				PreprocessorDefinitions="QT_NO_DEBUG,NDEBUG,_WINDOWS,UNICODE,WIN32,QT_LARGEFILE_SUPPORT,QT_THREAD_SUPPORT,QT_DLL,QT_NO_DEBUG,QT_GUI_LIB,QT_NETWORK_LIB,QT_CORE_LIB,NDEBUG"
 				GeneratePreprocessedFile="0"
 				RuntimeLibrary="2"
@@ -161,14 +161,14 @@
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
 				AdditionalDependencies="c:\Qt\4.2.2\lib\qtmain.lib ../Moments/release/Moments.lib ../CP2Net/release/CP2Net.lib ../CP2Lib/release/CP2Lib.lib ../PiraqDriver/release/PiraqIII_RevD_Driver.lib &quot;c:/Program Files/TVicSoft/TVicHW50/MSVC/TVicHW32.lib&quot; ../../fftw3.1/libfftw3-3.lib C:/Plx/PciSdk/Win32/Api/Debug/plxapi.lib ws2_32.lib c:\Qt\4.2.2\lib\QtGui4.lib c:\Qt\4.2.2\lib\QtNetwork4.lib c:\Qt\4.2.2\lib\QtCore4.lib"
-				OutputFile="release\CP2exec.exe"
+				OutputFile="release\cp2exec.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="c:\Qt\4.2.2\lib"
 				IgnoreDefaultLibraryNames="libc"
 				GenerateDebugInformation="false"
 				ProgramDatabaseFile=""
-				SubSystem="1"
+				SubSystem="2"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -239,7 +239,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC CP2Exec.h"
-						CommandLine="c:\Qt\4.2.2\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_THREAD_SUPPORT -DQT_DLL -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -I&quot;C:\Qt\4.2.2\include\QtCore&quot; -I&quot;C:\Qt\4.2.2\include\QtCore&quot; -I&quot;C:\Qt\4.2.2\include\QtNetwork&quot; -I&quot;C:\Qt\4.2.2\include\QtNetwork&quot; -I&quot;C:\Qt\4.2.2\include\QtGui&quot; -I&quot;C:\Qt\4.2.2\include\QtGui&quot; -I&quot;C:\Qt\4.2.2\include&quot; -I&quot;..&quot; -I&quot;..\..&quot; -I&quot;..\CP2Net&quot; -I&quot;..\CP2Lib&quot; -I&quot;..\CP2Piraq&quot; -I&quot;..\PiraqDriver&quot; -I&quot;..\Moments&quot; -I&quot;C:\Plx\PciSdk\Inc&quot; -I&quot;C:\Program Files\TVicSoft\TVicHW50\MSVC&quot; -I&quot;C:\Qt\4.2.2\include\ActiveQt&quot; -I&quot;debug&quot; -I&quot;.&quot; -I..\..\..\Qt\4.2.2\mkspecs\win32-msvc.net -D_MSC_VER=1300 -DWIN32 CP2Exec.h -o debug\moc_CP2Exec.cpp&#x0D;&#x0A;"
+						CommandLine="$(QTDIR)\bin\moc.exe  -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_THREAD_SUPPORT -DQT_DLL -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -I&quot;C:\Qt\4.2.2\include\QtCore&quot; -I&quot;C:\Qt\4.2.2\include\QtCore&quot; -I&quot;C:\Qt\4.2.2\include\QtNetwork&quot; -I&quot;C:\Qt\4.2.2\include\QtNetwork&quot; -I&quot;C:\Qt\4.2.2\include\QtGui&quot; -I&quot;C:\Qt\4.2.2\include\QtGui&quot; -I&quot;C:\Qt\4.2.2\include&quot; -I&quot;.\..&quot; -I&quot;.\..\..&quot; -I&quot;.\..\CP2Net&quot; -I&quot;.\..\CP2Lib&quot; -I&quot;.\..\CP2Piraq&quot; -I&quot;.\..\PiraqDriver&quot; -I&quot;.\..\Moments&quot; -I&quot;C:\Plx\PciSdk\Inc&quot; -I&quot;C:\Program Files\TVicSoft\TVicHW50\MSVC&quot; -I&quot;C:\Qt\4.2.2\include\ActiveQt&quot; -I&quot;.\debug&quot; -I&quot;.&quot; -I&quot;c:\Qt\4.2.2\mkspecs\default&quot; &quot;CP2Exec.h&quot; -o &quot;debug\moc_CP2Exec.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="c:\Qt\4.2.2\bin\moc.exe"
 						Outputs="debug\moc_CP2Exec.cpp"
 					/>
@@ -250,7 +250,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="MOC CP2Exec.h"
-						CommandLine="c:\Qt\4.2.2\bin\moc.exe  -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_THREAD_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -I&quot;C:\Qt\4.2.2\include\QtCore&quot; -I&quot;C:\Qt\4.2.2\include\QtCore&quot; -I&quot;C:\Qt\4.2.2\include\QtNetwork&quot; -I&quot;C:\Qt\4.2.2\include\QtNetwork&quot; -I&quot;C:\Qt\4.2.2\include\QtGui&quot; -I&quot;C:\Qt\4.2.2\include\QtGui&quot; -I&quot;C:\Qt\4.2.2\include&quot; -I&quot;..&quot; -I&quot;..\..&quot; -I&quot;..\CP2Net&quot; -I&quot;..\CP2Lib&quot; -I&quot;..\CP2Piraq&quot; -I&quot;..\PiraqDriver&quot; -I&quot;..\Moments&quot; -I&quot;C:\Plx\PciSdk\Inc&quot; -I&quot;C:\Program Files\TVicSoft\TVicHW50\MSVC&quot; -I&quot;C:\Qt\4.2.2\include\ActiveQt&quot; -I&quot;release&quot; -I&quot;.&quot; -I..\..\..\Qt\4.2.2\mkspecs\win32-msvc.net -D_MSC_VER=1300 -DWIN32 CP2Exec.h -o release\moc_CP2Exec.cpp&#x0D;&#x0A;"
+						CommandLine="$(QTDIR)\bin\moc.exe  -DQT_NO_DEBUG -DNDEBUG -D_WINDOWS -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_THREAD_SUPPORT -DQT_DLL -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DNDEBUG -I&quot;C:\Qt\4.2.2\include\QtCore&quot; -I&quot;C:\Qt\4.2.2\include\QtCore&quot; -I&quot;C:\Qt\4.2.2\include\QtNetwork&quot; -I&quot;C:\Qt\4.2.2\include\QtNetwork&quot; -I&quot;C:\Qt\4.2.2\include\QtGui&quot; -I&quot;C:\Qt\4.2.2\include\QtGui&quot; -I&quot;C:\Qt\4.2.2\include&quot; -I&quot;.\..&quot; -I&quot;.\..\..&quot; -I&quot;.\..\CP2Net&quot; -I&quot;.\..\CP2Lib&quot; -I&quot;.\..\CP2Piraq&quot; -I&quot;.\..\PiraqDriver&quot; -I&quot;.\..\Moments&quot; -I&quot;C:\Plx\PciSdk\Inc&quot; -I&quot;C:\Program Files\TVicSoft\TVicHW50\MSVC&quot; -I&quot;C:\Qt\4.2.2\include\ActiveQt&quot; -I&quot;.\release&quot; -I&quot;.&quot; -I&quot;c:\Qt\4.2.2\mkspecs\default&quot; &quot;CP2Exec.h&quot; -o &quot;release\moc_CP2Exec.cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="c:\Qt\4.2.2\bin\moc.exe"
 						Outputs="release\moc_CP2Exec.cpp"
 					/>

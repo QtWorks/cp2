@@ -1,38 +1,68 @@
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CP2exec", "CP2exec\CP2exec.vcproj", "{EB607E6C-AF37-4668-854A-DF51A47ED484}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cp2exec", "CP2exec\CP2exec.vcproj", "{EB607E6C-AF37-4668-854A-DF51A47ED484}"
+	GlobalSection(Qt) = preSolution
+		Integration = True
+	EndGlobalSection
 	ProjectSection(ProjectDependencies) = postProject
 		{751C4798-1A1B-4C55-A711-D136DADA2B79} = {751C4798-1A1B-4C55-A711-D136DADA2B79}
 		{24F92727-A227-419D-BD34-A56FC7565DB4} = {24F92727-A227-419D-BD34-A56FC7565DB4}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CP2Scope", "CP2Scope\CP2Scope.vcproj", "{7E9275A6-2DE5-4F34-8305-A8BC31999076}"
-	ProjectSection(ProjectDependencies) = postProject
-		{F35D28D3-1DC9-3B24-8E8F-DEA2FE423AEF} = {F35D28D3-1DC9-3B24-8E8F-DEA2FE423AEF}
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Moments", "Moments\Moments.vcproj", "{B4F88715-7416-4BF0-BB8F-E424FD428262}"
+	GlobalSection(Qt) = preSolution
+		Integration = True
+	EndGlobalSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CP2Lib", "CP2Lib\CP2Lib.vcproj", "{24F92727-A227-419D-BD34-A56FC7565DB4}"
+	GlobalSection(Qt) = preSolution
+		Integration = True
+	EndGlobalSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PiraqDriver", "PiraqDriver\PiraqDriver.vcproj", "{751C4798-1A1B-4C55-A711-D136DADA2B79}"
+	GlobalSection(Qt) = preSolution
+		Integration = True
+	EndGlobalSection
 	ProjectSection(ProjectDependencies) = postProject
 		{24F92727-A227-419D-BD34-A56FC7565DB4} = {24F92727-A227-419D-BD34-A56FC7565DB4}
 	EndProjectSection
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "CP2Soft", "CP2Soft\CP2Soft.vdproj", "{81384C12-85CE-4220-8BEA-458FE79E8C7B}"
+	GlobalSection(Qt) = preSolution
+		Integration = True
+	EndGlobalSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CP2PPI", "CP2PPI\CP2PPI.vcproj", "{5368A3B4-79DF-4879-B9BE-5A8468CDCACB}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cp2ppi", "CP2PPI\CP2PPI.vcproj", "{5368A3B4-79DF-4879-B9BE-5A8468CDCACB}"
+	GlobalSection(Qt) = preSolution
+		Integration = True
+	EndGlobalSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CP2Moments", "CP2Moments\CP2Moments.vcproj", "{1A7C4758-8EB6-428C-B589-179937763C9B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cp2moments", "CP2Moments\CP2Moments.vcproj", "{1A7C4758-8EB6-428C-B589-179937763C9B}"
+	GlobalSection(Qt) = preSolution
+		Integration = True
+	EndGlobalSection
 	ProjectSection(ProjectDependencies) = postProject
-		{B4F88715-7416-4BF0-BB8F-E424FD428262} = {B4F88715-7416-4BF0-BB8F-E424FD428262}
 		{F35D28D3-1DC9-3B24-8E8F-DEA2FE423AEF} = {F35D28D3-1DC9-3B24-8E8F-DEA2FE423AEF}
+		{B4F88715-7416-4BF0-BB8F-E424FD428262} = {B4F88715-7416-4BF0-BB8F-E424FD428262}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CP2Netd", "CP2Net\CP2Netd.vcproj", "{F35D28D3-1DC9-3B24-8E8F-DEA2FE423AEF}"
+	GlobalSection(Qt) = preSolution
+		Integration = True
+	EndGlobalSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cp2scope", "CP2Scope\cp2scope.vcproj", "{7C7C989E-0220-3016-8EE3-7E22FAB79CB5}"
+	GlobalSection(Qt) = preSolution
+		Integration = True
+	EndGlobalSection
+	ProjectSection(ProjectDependencies) = postProject
+		{F35D28D3-1DC9-3B24-8E8F-DEA2FE423AEF} = {F35D28D3-1DC9-3B24-8E8F-DEA2FE423AEF}
+	EndProjectSection
 EndProject
 Global
+	GlobalSection(Qt) = preSolution
+		Integration = True
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
 		Release|Win32 = Release|Win32
@@ -42,10 +72,6 @@ Global
 		{EB607E6C-AF37-4668-854A-DF51A47ED484}.Debug|Win32.Build.0 = Debug|Win32
 		{EB607E6C-AF37-4668-854A-DF51A47ED484}.Release|Win32.ActiveCfg = Release|Win32
 		{EB607E6C-AF37-4668-854A-DF51A47ED484}.Release|Win32.Build.0 = Release|Win32
-		{7E9275A6-2DE5-4F34-8305-A8BC31999076}.Debug|Win32.ActiveCfg = Debug|Win32
-		{7E9275A6-2DE5-4F34-8305-A8BC31999076}.Debug|Win32.Build.0 = Debug|Win32
-		{7E9275A6-2DE5-4F34-8305-A8BC31999076}.Release|Win32.ActiveCfg = Release|Win32
-		{7E9275A6-2DE5-4F34-8305-A8BC31999076}.Release|Win32.Build.0 = Release|Win32
 		{B4F88715-7416-4BF0-BB8F-E424FD428262}.Debug|Win32.ActiveCfg = Debug|Win32
 		{B4F88715-7416-4BF0-BB8F-E424FD428262}.Debug|Win32.Build.0 = Debug|Win32
 		{B4F88715-7416-4BF0-BB8F-E424FD428262}.Release|Win32.ActiveCfg = Release|Win32
@@ -73,6 +99,10 @@ Global
 		{F35D28D3-1DC9-3B24-8E8F-DEA2FE423AEF}.Debug|Win32.Build.0 = Debug|Win32
 		{F35D28D3-1DC9-3B24-8E8F-DEA2FE423AEF}.Release|Win32.ActiveCfg = Release|Win32
 		{F35D28D3-1DC9-3B24-8E8F-DEA2FE423AEF}.Release|Win32.Build.0 = Release|Win32
+		{7C7C989E-0220-3016-8EE3-7E22FAB79CB5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7C7C989E-0220-3016-8EE3-7E22FAB79CB5}.Debug|Win32.Build.0 = Debug|Win32
+		{7C7C989E-0220-3016-8EE3-7E22FAB79CB5}.Release|Win32.ActiveCfg = Release|Win32
+		{7C7C989E-0220-3016-8EE3-7E22FAB79CB5}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

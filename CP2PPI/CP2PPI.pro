@@ -21,7 +21,6 @@ CONFIG(release, debug|release) {
   LIBS += ../CP2Net/debug/CP2Netd.lib
   LIBS += c:/Projects/Qwt/lib/qwt5d.lib
 }
-LIBS += ../../fftw3.1/libfftw3-3.lib
 LIBS += ws2_32.lib
 
 HEADERS += CP2PPI.h
@@ -35,10 +34,9 @@ FORMS	= CP2PPI.ui
 
 INCLUDEPATH += ../CP2Net
 INCLUDEPATH += ../../
-INCLUDEPATH += c:/Projects/QtToolbox/PPI
-INCLUDEPATH += c:/Projects/QtToolbox/ColorBar
-INCLUDEPATH += c:/Projects/QtToolbox/
-INCLUDEPATH += c:/Projects/fftw3.1
+INCLUDEPATH += ../../QtToolbox/PPI
+INCLUDEPATH += ../../QtToolbox/ColorBar
+INCLUDEPATH += ../../QtToolbox/
 
 
 

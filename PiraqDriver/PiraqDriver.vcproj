@@ -76,11 +76,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="plxapi.lib odbc32.lib odbccp32.lib"
+				AdditionalDependencies="c:\plx\pcisdk\win32\api\debug\plxapi.lib odbc32.lib odbccp32.lib"
 				OutputFile="c:/windows/system32/PiraqIII_RevD_Driver.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="C:\Plx\PciSdk\Win32\Api\Debug;&quot;./plx 3.2/lib&quot;"
+				AdditionalLibraryDirectories=""
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/PiraqIII_RevD_Driver.pdb"
 				ImportLibrary=".\Debug/PiraqIII_RevD_Driver.lib"
