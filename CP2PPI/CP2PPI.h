@@ -30,6 +30,12 @@
 // PPI product display
 #include "PpiInfo.h"
 
+// Configuration maintenance
+#include "CP2Config.h"
+
+// The color bar setting dialog
+#include "ColorBarSettings.h"
+
 #define PIRAQ3D_SCALE	1.0/(unsigned int)pow(2,31)	
 
 class CP2PPI : public QDialog, public Ui::CP2PPI {
@@ -49,10 +55,17 @@ public slots:
 	void doXslot(bool);
     void zoomOutSlot();
 	void panSlot(int panIndex);
+	/// Activated when a mouse click is released for the color bar
+	void colorBarReleasedSlot();
+	/// Activated when the ColorBarSettings dialog is finished
+	/// @param result The dialog result code
+	void colorBarSettingsFinishedSlot(int result);
 
 protected:
-	// intialize the socket that the product data 
-	// is received on
+	/// The configuration for CP2PPI
+	CP2Config _config;
+	/// intialize the socket that the product data 
+	/// is received on
 	void initSocket(); 
 	/// Process the products as they come in. 
 	/// Sband and X band products with identical 
@@ -122,8 +135,11 @@ protected:
 	void displaySbeam(double az, double el);
 	/// Add a beam of X band products to the ppi
 	void displayXbeam(double az, double el);
-    // true to pause the display. Data will still be coming in,
-	// but not sent to the display.
+	/// @returns The plot index for the plot selected on
+	/// the current tab page.
+	PRODUCT_TYPES currentProductType();
+    /// true to pause the display. Data will still be coming in,
+	/// but not sent to the display.
 	bool _pause;
 	/// The number of gates
 	int _gates;
@@ -146,6 +162,8 @@ protected:
 	std::vector<std::vector<double> > _beamXdata;
 	/// A CP2Packet will be assembled here from the datagram.
 	CP2Packet packet;
+	/// The dialog that will collect colorbar settings
+	ColorBarSettings* _colorBarSettings;
   };
 
 #endif

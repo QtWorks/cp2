@@ -11,13 +11,15 @@
 #include <QWidget>
 #include <QRadioButton>
 #include <QButtonGroup>
-//#include <QVBox>
+#include <QString>
 #include <QFrame>
 #include <QPushButton>
 #include <QPalette>
 #include <QStackedWidget>
 #include <QCheckBox>
 #include <QMessageBox>
+
+#include "ColorBarSettings.h"
 
 #include <iostream>
 #include <algorithm>
@@ -36,11 +38,16 @@ _currentSbeamNum(0),
 _currentXbeamNum(0),
 _pause(false),
 _ppiSactive(true),
-_productPort(3200)
+_productPort(3200),
+_config("NCAR", "CP2PPI")
 {
 	setupUi(parent);
 
+	_config.setString("title", "CP2PPI Plan Position Index Display");
+
 	for (int i = 0; i < 3; i++) {
+		QString a = QString("ColorBar/Key%1").arg(i);
+		_config.setDouble(a.toAscii().data(), i);
 		_pulseCount[i]	= 0;
 	}
 
@@ -84,6 +91,9 @@ _productPort(3200)
 	// set the intial plot type
 	_ppiSType = PROD_S_DBMHC;
 	ppiTypeSlot(PROD_S_DBZHC);
+
+	// capture a user click on the color bar
+	connect(_colorBar, SIGNAL(released()), this, SLOT(colorBarReleasedSlot()));
 
 	// start the statistics timer
 	startTimer(_statsUpdateInterval*1000);
@@ -470,16 +480,92 @@ CP2PPI::displayXbeam(double az, double el)
 		}
 	}
 }
-
 //////////////////////////////////////////////////////////////////////
 void
 CP2PPI::doSslot(bool checked)
 {
 }
+//////////////////////////////////////////////////////////////////////
 void
 CP2PPI::doXslot(bool checked)
 {
 }
-
-
 //////////////////////////////////////////////////////////////////////
+void
+CP2PPI::colorBarReleasedSlot()
+{
+	// get the currently selected plot type
+	PRODUCT_TYPES plotType = currentProductType();
+
+	// get the current settings
+	double min = _ppiInfo[plotType].getScaleMin();
+	double max = _ppiInfo[plotType].getScaleMax();
+
+	// create the color bar settings dialog
+	_colorBarSettings = new ColorBarSettings(min, max, this);
+
+	// connect the finished slot so that the dialog status 
+	// can be captuyred when the dialog closes
+	connect(_colorBarSettings, SIGNAL(finished(int)), 
+		this, SLOT(colorBarSettingsFinishedSlot(int)));
+
+	// and show it
+	_colorBarSettings->show();
+
+}
+//////////////////////////////////////////////////////////////////////////////
+void 
+CP2PPI::colorBarSettingsFinishedSlot(int result)
+{
+	// see if the OK button was hit
+	if (result == QDialog::Accepted) {
+		// get the scale values from the settings dialog
+		double scaleMin = _colorBarSettings->getMinimum();
+		double scaleMax = _colorBarSettings->getMaximum();
+
+		// if the user inverted the values, swap them
+		if (scaleMin > scaleMax) 
+		{
+			double temp = scaleMax;
+			scaleMax = scaleMin;
+			scaleMin = temp;
+		}
+		// find out what product is currently displayed
+		// (it might not be the one selected when the
+		// dialog was acitvated, but that's okay)
+		PRODUCT_TYPES plotType = currentProductType();
+		// assign the new scale values to the current product
+		_ppiInfo[plotType].setScale(scaleMin, scaleMax);
+		// and reconfigure the color bar
+		int index = _ppiInfo[plotType].getPpiIndex();
+		if (_sMomentsList.find(_ppiSType)!=_sMomentsList.end())
+		{
+			// make a new color map
+			delete _mapsSband[index];
+			_mapsSband[index] = new ColorMap(scaleMin, scaleMax);
+			// configure the color bar with it
+			_colorBar->configure(*_mapsSband[index]);
+		} else {
+			// make a new color map
+			delete _mapsXband[index];
+			_mapsXband[index] = new ColorMap(scaleMin, scaleMax);
+			// configure the color bar with it
+			_colorBar->configure(*_mapsXband[index]);
+		}
+	}
+}
+//////////////////////////////////////////////////////////////////////
+PRODUCT_TYPES
+CP2PPI::currentProductType()
+{
+	// find out the index of the current page
+	int pageNum = _typeTab->currentIndex();
+
+	// get the radio button id of the currently selected button
+	// on that page.
+	PRODUCT_TYPES plotType = (PRODUCT_TYPES)_tabButtonGroups[pageNum]->checkedId();
+
+	return plotType;
+}
+//////////////////////////////////////////////////////////////////////
+
