@@ -100,6 +100,9 @@ CP2ExecThread::run()
 	char* destIP = new char[pulseNetwork.size()+1];
 	strcpy(destIP, pulseNetwork.c_str());
 
+	// Get the output port
+	_outPort = _config.getInt("Network/PulsePort", 3100); 
+
 	char c;
 	int piraqs = 0;   // board count -- default to single board operation 
 	FILE * dspEXEC; 
@@ -136,7 +139,6 @@ CP2ExecThread::run()
 	printf(" config3 filename %s will be used\n", fname3);
 
 	// Initialize the network
-	_outPort = 3100; 
 	_hostAddr.setAddress(QString(destIP));
 
 	// bind the socket, and set it's send buffer. The

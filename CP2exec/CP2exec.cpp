@@ -1,5 +1,7 @@
 #include "CP2Exec.h"
 #include <qlabel.h>
+#include "CP2Config.h"
+
 
 CP2Exec::CP2Exec(QDialog* parent, std::string dspObjFile, std::string configFile):
 QDialog(parent),
@@ -13,6 +15,13 @@ _timerReset(false),
 _pThread(0)
 {
 	setupUi(parent);
+
+	// get the network configuration
+	CP2Config config("NCAR", "CP2Exec");
+	int outPort = config.getInt("Network/PulsePort", 3100);
+	_networkPort->setNum(outPort);
+	std::string pulseInterface = config.getString("Network/PulseNetwork", "192.168.1");
+	_networkIP->setText(pulseInterface.c_str());
 
 	// create the main piraq execution thread.
 	_pThread = new CP2ExecThread(_dspObjFile, _configFile);
