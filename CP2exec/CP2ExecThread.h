@@ -7,6 +7,7 @@
 
 #include "CP2PIRAQ.h"
 #include "CP2Net.h"
+#include "CP2Config.h"
 
 class CP2ExecThread: public QThread {
 
@@ -27,6 +28,8 @@ public:
 		unsigned int* volume);
 
 protected:
+	/// The configuration for CP2Exec
+	CP2Config _config;
 	/// The piraq dsp's will read the antenna pointing information
 	// directly across the pci bus from the PMAC. They need the 
 	/// PCI physical address of the PMAC dual ported ram.

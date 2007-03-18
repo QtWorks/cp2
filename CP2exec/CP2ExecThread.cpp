@@ -40,7 +40,8 @@ _pulses2(0),
 _pulses3(0),
 _stop(false),
 _outPort(3100),
-_status(STARTUP)
+_status(STARTUP),
+_config("NCAR", "CP2Config")
 {
 }
 
@@ -80,8 +81,24 @@ CP2ExecThread::run()
 	char fname1[100]; 
 	char fname2[100]; 
 	char fname3[100]; // configuration filenames
-	char* destIP = "192.168.1.255";
-	//destIP = "127.0.0.1";
+
+	// get the network designation for the network that
+	// pulses will be broadcast to. This can be a complete
+	// interface address, such as 192.168.1.3, or 127.0.0.1,
+	// or it can be just the network address such as 192.168.1
+	std::string pulseNetwork = _config.getString("Network/PulseNetwork", "192.168.1");
+	int n = 0;
+	for (int i = 0; i < pulseNetwork.size(); i++) {
+		if (pulseNetwork[i] == '.')
+			n++;
+	}
+	// If the network is not a full IP, then add the broadcast
+	// designation to the end of it.
+	if (n < 3)
+		pulseNetwork += ".255";
+
+	char* destIP = new char[pulseNetwork.size()+1];
+	strcpy(destIP, pulseNetwork.c_str());
 
 	char c;
 	int piraqs = 0;   // board count -- default to single board operation 
