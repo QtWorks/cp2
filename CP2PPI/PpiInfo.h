@@ -6,15 +6,14 @@
 class PpiInfo {
 public:
 	PpiInfo();
-	PpiInfo(int id, std::string shortName, std::string longName,
+	PpiInfo(int id, std::string key, std::string shortName, std::string longName,
 		double scaleMin, double scaleMax, int ppiIndex);
 	virtual ~PpiInfo();
 
 	int getId();
 	int getPpiIndex();
-
+	std::string getKey();
 	void setScale(double min, double max);
-
 	double getScaleMin();
 	double getScaleMax();
 	std::string getShortName();
@@ -22,6 +21,7 @@ public:
 
 protected:
 	int _id;
+	std::string _key;
 	std::string _shortName;
 	std::string _longName;
 	double _scaleMin;
