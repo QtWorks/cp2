@@ -41,7 +41,7 @@ _pulses3(0),
 _stop(false),
 _outPort(3100),
 _status(STARTUP),
-_config("NCAR", "CP2Config")
+_config("NCAR", "CP2Exec")
 {
 }
 
