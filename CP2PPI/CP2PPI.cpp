@@ -46,8 +46,6 @@ _config("NCAR", "CP2PPI")
 	_config.setString("title", "CP2PPI Plan Position Index Display");
 
 	for (int i = 0; i < 3; i++) {
-		QString a = QString("ColorBar/Key%1").arg(i);
-		_config.setDouble(a.toAscii().data(), i);
 		_pulseCount[i]	= 0;
 	}
 
@@ -237,8 +235,11 @@ CP2PPI::processProduct(CP2Product* pProduct)
 void
 CP2PPI::initSocket()	
 {
+	// get the interface specification
+	std::string interfaceNetwork;
+	interfaceNetwork = _config.getString("Interface/Network", "192.168.1");
 	// create the incoming product socket
-	_pSocket = new CP2UdpSocket("192.168.1", _productPort, false, 0, 10000000);
+	_pSocket = new CP2UdpSocket(interfaceNetwork, _productPort, false, 0, 10000000);
 
 	if (!_pSocket->ok()) {
 		QMessageBox e;
@@ -296,19 +297,19 @@ CP2PPI::initPlots()
 	_xMomentsList.insert(PROD_X_LDR);
 
 	int ppiVarIndex = 0;
-	_ppiInfo[PROD_S_DBZHC]       = PpiInfo(PROD_S_DBZHC,      "H Dbz", "Sh: Dbz",     -70.0,   0.0,   ppiVarIndex++);
-	_ppiInfo[PROD_S_DBZVC]       = PpiInfo(PROD_S_DBZVC,      "V Dbz", "Sv: Dbz",     -70.0,   0.0,   ppiVarIndex++);
-	_ppiInfo[PROD_S_WIDTH]       = PpiInfo(PROD_S_WIDTH,      "Width", "S:  Width",     0.0,   5.0,   ppiVarIndex++);
-	_ppiInfo[PROD_S_VEL]         = PpiInfo(  PROD_S_VEL,   "Velocity", "S:  Velocity",-20.0,  20.0,   ppiVarIndex++);
-	_ppiInfo[PROD_S_SNR]         = PpiInfo(  PROD_S_SNR,        "SNR", "S:  SNR",     -40.0,  10.0,   ppiVarIndex++);
-	_ppiInfo[PROD_S_RHOHV]       = PpiInfo(PROD_S_RHOHV,      "Rhohv", "S:  Rhohv",     0.0,   1.0,   ppiVarIndex++);
-	_ppiInfo[PROD_S_PHIDP]       = PpiInfo(PROD_S_PHIDP,      "Phidp", "S:  Phidp",  -180.0, 180.0,   ppiVarIndex++);
-	_ppiInfo[PROD_S_ZDR]         = PpiInfo(  PROD_S_ZDR,        "Zdr", "S:  Zdr",     -70.0,   0.0,   ppiVarIndex++);
+	setPpiInfo(PROD_S_DBZHC, "S_DBZHC", "H Dbz", "Sh: Dbz",     -70.0,   0.0,   ppiVarIndex++);
+	setPpiInfo(PROD_S_DBZVC, "S_DBZVC", "V Dbz", "Sv: Dbz",     -70.0,   0.0,   ppiVarIndex++);
+	setPpiInfo(PROD_S_WIDTH, "S_WIDTH", "Width", "S:  Width",     0.0,   5.0,   ppiVarIndex++);
+	setPpiInfo(  PROD_S_VEL, "S_VEL",   "Velocity", "S:  Velocity",-20.0,  20.0,   ppiVarIndex++);
+	setPpiInfo(  PROD_S_SNR, "S_SNR",   "SNR", "S:  SNR",        -40.0,  10.0,   ppiVarIndex++);
+	setPpiInfo(PROD_S_RHOHV, "S_RHOHV", "Rhohv", "S:  Rhohv",     0.0,   1.0,   ppiVarIndex++);
+	setPpiInfo(PROD_S_PHIDP, "S_PHIDP", "Phidp", "S:  Phidp",    -180.0, 180.0,   ppiVarIndex++);
+	setPpiInfo(  PROD_S_ZDR, "S_ZDR",   "Zdr", "S:  Zdr",        -70.0,   0.0,   ppiVarIndex++);
 	// restart the X band ppi indices at 0
 	ppiVarIndex = 0;
-	_ppiInfo[PROD_X_DBZHC]       = PpiInfo(PROD_X_DBZHC,      "H Dbz", "Xh: Dbz",     -70.0,   0.0,   ppiVarIndex++);
-	_ppiInfo[PROD_X_SNR]         = PpiInfo(  PROD_X_SNR,        "SNR", "Xh: SNR",     -40.0,   0.0,   ppiVarIndex++);
-	_ppiInfo[PROD_X_LDR]         = PpiInfo(  PROD_X_LDR,        "LDR", "Xhv:LDR",       0.0,   1.0,   ppiVarIndex++);
+	setPpiInfo(PROD_X_DBZHC,"X_DBZHC",  "H Dbz", "Xh: Dbz",     -70.0,   0.0,   ppiVarIndex++);
+	setPpiInfo(  PROD_X_SNR,"X_SNR",    "SNR", "Xh: SNR",       -40.0,   0.0,   ppiVarIndex++);
+	setPpiInfo(  PROD_X_LDR,"X_LDR",    "LDR", "Xhv:LDR",         0.0,   1.0,   ppiVarIndex++);
 
 	_typeTab->removeTab(0);
 	// add tabs, and save the button group for
@@ -534,8 +535,6 @@ CP2PPI::colorBarSettingsFinishedSlot(int result)
 		// (it might not be the one selected when the
 		// dialog was acitvated, but that's okay)
 		PRODUCT_TYPES plotType = currentProductType();
-		// assign the new scale values to the current product
-		_ppiInfo[plotType].setScale(scaleMin, scaleMax);
 		// and reconfigure the color bar
 		int index = _ppiInfo[plotType].getPpiIndex();
 		if (_sMomentsList.find(_ppiSType)!=_sMomentsList.end())
@@ -552,6 +551,24 @@ CP2PPI::colorBarSettingsFinishedSlot(int result)
 			// configure the color bar with it
 			_colorBar->configure(*_mapsXband[index]);
 		}
+		// assign the new scale values to the current product
+		_ppiInfo[plotType].setScale(scaleMin, scaleMax);
+		// save the new values in the configuration
+		// create the configuration keys
+		std::string key = _ppiInfo[plotType].getKey();
+		std::string minKey = "ColorScales/";
+		minKey += key;
+		minKey += "_min";
+
+		std::string maxKey = "ColorScales/";
+		maxKey += key;
+		maxKey += "_max";
+
+		// get the configuration values
+		_config.setDouble(minKey, scaleMin);
+		_config.setDouble(maxKey, scaleMax);
+
+
 	}
 }
 //////////////////////////////////////////////////////////////////////
@@ -568,4 +585,32 @@ CP2PPI::currentProductType()
 	return plotType;
 }
 //////////////////////////////////////////////////////////////////////
+void 
+CP2PPI::setPpiInfo(PRODUCT_TYPES t, 
+				   std::string key,             
+				   std::string shortName,       
+				   std::string longName,        
+				   double defaultScaleMin,      
+				   double defaultScaleMax,      
+				   int ppiVarIndex)
+{
+	// create the configuration keys
+	std::string minKey = "ColorScales/";
+	minKey += key;
+	minKey += "_min";
+
+	std::string maxKey = "ColorScales/";
+	maxKey += key;
+	maxKey += "_max";
+
+	// get the configuration values
+	double min = _config.getDouble(minKey, defaultScaleMin);
+	double max = _config.getDouble(maxKey, defaultScaleMax);
+
+	// set the ppi configuration
+	_ppiInfo[t] = PpiInfo(t, key, shortName, longName, min, max, ppiVarIndex);
+
+	_config.sync();
+
+}
 

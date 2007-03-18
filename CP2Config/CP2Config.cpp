@@ -26,8 +26,13 @@ CP2Config::setString(std::string key, std::string t)
 std::string
 CP2Config::getString(std::string key, std::string defaultValue) 
 {
-	return std::string(_settings.value(key.c_str(), 
+	std::string s = std::string(_settings.value(key.c_str(), 
 		defaultValue.c_str()).toString().toAscii());
+
+	_settings.setValue(key.c_str(), s.c_str());
+	_settings.sync();
+
+	return s;
 }
 
 //////////////////////////////////////////////////////////
@@ -42,5 +47,33 @@ CP2Config::setDouble(std::string key, double value)
 double
 CP2Config::getDouble(std::string key, double defaultValue) 
 {
-	return _settings.value(key.c_str(), defaultValue).toDouble();
+	double d = _settings.value(key.c_str(), defaultValue).toDouble();
+	_settings.setValue(key.c_str(), d);
+	_settings.sync();
+	return d;
+}
+
+//////////////////////////////////////////////////////////
+void
+CP2Config::setInt(std::string key, int value) 
+{
+	_settings.setValue(key.c_str(), value);
+	_settings.sync();
+}
+
+//////////////////////////////////////////////////////////
+int
+CP2Config::getInt(std::string key, int defaultValue) 
+{
+	int i = _settings.value(key.c_str(), defaultValue).toDouble();
+	_settings.setValue(key.c_str(), i);
+	_settings.sync();
+	return i;
+}
+
+//////////////////////////////////////////////////////////
+void
+CP2Config::sync() 
+{
+	_settings.sync();
 }

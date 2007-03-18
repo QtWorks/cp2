@@ -2,6 +2,7 @@
 
 ////////////////////////////////////////////////////////
 PpiInfo::PpiInfo():
+_key(""),
 _id(0),
 _shortName(""),
 _longName(""),
@@ -11,9 +12,10 @@ _scaleMax(10)
 }
 
 ////////////////////////////////////////////////////////
-PpiInfo::PpiInfo(int id, std::string shortName, std::string longName,
+PpiInfo::PpiInfo(int id, std::string key, std::string shortName, std::string longName,
 		double scaleMin, double scaleMax,
 		int ppiIndex):
+_key(key),
 _id(id),
 _shortName(shortName),
 _longName(longName),
@@ -69,6 +71,13 @@ int
 PpiInfo::getId()
 {
 	return _id;
+}
+
+////////////////////////////////////////////////////////
+std::string 
+PpiInfo::getKey()
+{
+	return _key;
 }
 
 ////////////////////////////////////////////////////////

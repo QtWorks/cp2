@@ -121,6 +121,16 @@ protected:
 	/// initialize all of the book keeping structures
 	/// for the various plots.
 	void initPlots();
+	/// Configure the PpiInfo entry for a product, 
+	/// getting values from the configuration.
+	void setPpiInfo(PRODUCT_TYPES t, ///< The product type
+		std::string key,             ///< The key to use in the configuration
+		std::string shortName,       ///< Short name
+		std::string longName,        ///< Long name
+		double defaultScaleMin,      ///< Colorbar minimum
+		double defaultScaleMax,      ///< Colorbar maximum
+		int ppiVarIndex              ///< Variable index on the selection tab
+		);    
 	/// add a tab to the plot type selection tab widget.
 	/// Radio buttons are created for all of specified
 	/// plty types, and grouped into one button group.

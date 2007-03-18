@@ -41,7 +41,7 @@ _ok(false)
 	}
 
 	if (!found) {
-		_errorMsg += "Unaable to find interface for network ";
+		_errorMsg += "Unable to find interface for network ";
 		_errorMsg += _network;
 		_errorMsg += "\n";
 		return;
