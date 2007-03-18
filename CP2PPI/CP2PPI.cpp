@@ -237,7 +237,7 @@ CP2PPI::initSocket()
 {
 	// get the interface specification
 	std::string interfaceNetwork;
-	interfaceNetwork = _config.getString("Interface/Network", "192.168.1");
+	interfaceNetwork = _config.getString("Network/PulseNetwork", "192.168.1");
 	// create the incoming product socket
 	_pSocket = new CP2UdpSocket(interfaceNetwork, _productPort, false, 0, 10000000);
 
