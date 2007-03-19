@@ -3,10 +3,8 @@
 #include "Piraq.h"
 #include "piraqComm.h"
 #include "CP2Net.h"
+#include "CP2UdpSocket.h"
 #include "config.h"
-
-
-#include <QUdpSocket>
 
 #define C       2.99792458E8
 
@@ -70,9 +68,7 @@ class CP2PIRAQ: public PIRAQ {
 public:
 
 	CP2PIRAQ( 
-		QHostAddress* pHostAddr,
-		int portNumber,
-		QUdpSocket* pSocketDevice,
+		CP2UdpSocket* pPulseSocket,
 		char* configFname,
 		char* dspObjFnamefloat,
 		unsigned int pulsesPerPciXfer,
@@ -200,12 +196,8 @@ protected:
 	/// the number of hits in each block transfer
 	/// from the piraq.
 	unsigned int _pulsesPerPciXfer;
-	/// Host address for datagram writes
-	QHostAddress* _pHostAddr;
-	/// Destination port.
-	int _portNumber;
 	/// outgoing socket
-	QUdpSocket* _pSocketDevice;
+	CP2UdpSocket* _pPulseSocket;
 	/// The pci bus address for the PMAC dpram; this
 	/// is passed to the piraq so that it can read
 	/// az and el angles directly from the PMAC.

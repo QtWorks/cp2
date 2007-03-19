@@ -14,9 +14,7 @@
 
 ///////////////////////////////////////////////////////////////////////////
 CP2PIRAQ::CP2PIRAQ(
-				   QHostAddress* pHostAddr,
-				   int portNumber,
-				   QUdpSocket* pSocketDevice,
+				   CP2UdpSocket* pPulseSocket,
 				   char* configFname, 
 				   char* dspObjFname,
 				   unsigned int pulsesPerPciXfer,
@@ -24,9 +22,7 @@ CP2PIRAQ::CP2PIRAQ(
 				   int boardnum,
 				   RCVRTYPE rcvrType):
 PIRAQ(),
-_pHostAddr(pHostAddr),
-_portNumber(portNumber),
-_pSocketDevice(pSocketDevice),
+_pPulseSocket(pPulseSocket),
 _pulsesPerPciXfer(pulsesPerPciXfer), 
 _lastPulseNumber(0),
 _totalHits(0),
@@ -247,7 +243,7 @@ CP2PIRAQ::sendData(int size,
 	/// putting a Sleep(1) before each resend; for some strange reason
 	/// this caused two of the three piraqs to stop sending data.
 	do {
-		bytesSent = _pSocketDevice->writeDatagram((const char*)data, size, *_pHostAddr, _portNumber);
+		bytesSent = _pPulseSocket->writeDatagram((const char*)data, size);
 		if (bytesSent != size) {
 			_resendCount++;
 		}

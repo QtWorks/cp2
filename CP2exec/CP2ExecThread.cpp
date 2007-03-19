@@ -11,6 +11,8 @@
 #include <time.h>
 #include <iostream>
 
+#include <qmessagebox.h>
+
 // local includes
 #include "CP2exec.h" 
 #include "CP2PIRAQ.h"
@@ -39,16 +41,16 @@ _pulses1(0),
 _pulses2(0),
 _pulses3(0),
 _stop(false),
-_outPort(3100),
 _status(STARTUP),
-_config("NCAR", "CP2Exec")
+_config("NCAR", "CP2Exec"),
+_pPulseSocket(0)
 {
 }
 
 /////////////////////////////////////////////////////////////////////
 CP2ExecThread::~CP2ExecThread()
 {
-
+	delete _pPulseSocket;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -81,27 +83,6 @@ CP2ExecThread::run()
 	char fname1[100]; 
 	char fname2[100]; 
 	char fname3[100]; // configuration filenames
-
-	// get the network designation for the network that
-	// pulses will be broadcast to. This can be a complete
-	// interface address, such as 192.168.1.3, or 127.0.0.1,
-	// or it can be just the network address such as 192.168.1
-	std::string pulseNetwork = _config.getString("Network/PulseNetwork", "192.168.1");
-	int n = 0;
-	for (int i = 0; i < pulseNetwork.size(); i++) {
-		if (pulseNetwork[i] == '.')
-			n++;
-	}
-	// If the network is not a full IP, then add the broadcast
-	// designation to the end of it.
-	if (n < 3)
-		pulseNetwork += ".255";
-
-	char* destIP = new char[pulseNetwork.size()+1];
-	strcpy(destIP, pulseNetwork.c_str());
-
-	// Get the output port
-	_outPort = _config.getInt("Network/PulsePort", 3100); 
 
 	char c;
 	int piraqs = 0;   // board count -- default to single board operation 
@@ -139,29 +120,6 @@ CP2ExecThread::run()
 	printf(" config3 filename %s will be used\n", fname3);
 
 	// Initialize the network
-	_hostAddr.setAddress(QString(destIP));
-
-	// bind the socket, and set it's send buffer. The
-	// send buffer size used to be settable in Qt3, but
-	// for some bonehead reason they got rid of it in
-	// Qt4, and so we will use the windows networking
-	// call to do that. Rumour has it that the feature will
-	// be reintroduced in a later Qt release. Contrary to 
-	// the Trolltech documentation, it is very important
-	// and has a drastic effect on whether the datagram writes
-	// will succeed or not.
-	_socketDevice.bind(QHostAddress(destIP), 3100);
-	int sockbufsize = 10000000;
-	int sockFd = _socketDevice.socketDescriptor();
-	int result = setsockopt (sockFd,
-		SOL_SOCKET,
-		SO_SNDBUF,
-		(char *) &sockbufsize,
-		sizeof sockbufsize);
-	if (result) {
-		qWarning("Set send buffer size for socket failed");
-	}
-
 	// stop timer card
 	cp2timer_stop(&ext_timer);  
 
@@ -186,6 +144,25 @@ CP2ExecThread::run()
 	}
 	printf("PMAC DPRAM base addr is 0x%08x\n", PMACphysAddr);
 
+	// get the network designation for the network that
+	// pulses will be broadcast to. This can be a complete
+	// interface address, such as 192.168.1.3, or 127.0.0.1,
+	// or it can be just the network address such as 192.168.1
+	std::string pulseNetwork = _config.getString("Network/PulseNetwork", "192.168.1");
+	// Get the output port
+	_pulsePort = _config.getInt("Network/PulsePort", 3100); 
+
+	_pPulseSocket = new CP2UdpSocket(pulseNetwork, _pulsePort, true, 10000000, 0);
+	if (!_pPulseSocket->ok()) {
+		std::string errMsg = "Error opening the network port ";
+		errMsg += pulseNetwork;
+		errMsg += ": ";
+		errMsg += _pPulseSocket->errorMsg().c_str();
+		QMessageBox e;
+		e.warning(0, "Network Error", errMsg.c_str(), 
+			QMessageBox::Ok, QMessageBox::NoButton);
+	}
+
 	///////////////////////////////////////////////////////////////////////////
 	//
 	//    Create piraqs. They all have to be created, so that all boards
@@ -195,11 +172,11 @@ CP2ExecThread::run()
 	char* dname = new char[_dspObjFile.size()+1];
 	strcpy(dname, _dspObjFile.c_str());
 
-	_piraq0 = new CP2PIRAQ(&_hostAddr, _outPort, &_socketDevice, fname1, dname, 
+	_piraq0 = new CP2PIRAQ(_pPulseSocket, fname1, dname, 
 		_pulsesPerPciXfer, PMACphysAddr, 0, SHV);
-	_piraq1 = new CP2PIRAQ(&_hostAddr, _outPort, &_socketDevice, fname2, dname, 
+	_piraq1 = new CP2PIRAQ(_pPulseSocket, fname2, dname, 
 		_pulsesPerPciXfer, PMACphysAddr, 1, XH);
-	_piraq2 = new CP2PIRAQ(&_hostAddr, _outPort, &_socketDevice, fname3, dname, 
+	_piraq2 = new CP2PIRAQ(_pPulseSocket, fname3, dname, 
 		_pulsesPerPciXfer, PMACphysAddr, 2, XV);
 
 	prt = _piraq2->prt();

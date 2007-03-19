@@ -7,6 +7,7 @@
 
 #include "CP2PIRAQ.h"
 #include "CP2Net.h"
+#include "CP2UdpSocket.h"
 #include "CP2Config.h"
 
 class CP2ExecThread: public QThread {
@@ -51,9 +52,9 @@ protected:
 	/// feeds the PCI transfer. 
 	unsigned int _pulsesPerPciXfer;
 	/// The output socket
-	QUdpSocket _socketDevice;
+	CP2UdpSocket* _pPulseSocket;
 	/// The destination datagram port.
-	int _outPort;
+	int _pulsePort;
 	/// The destination network.
 	QHostAddress _hostAddr;
 	/// The current status
