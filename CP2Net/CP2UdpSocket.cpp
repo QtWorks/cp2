@@ -52,8 +52,7 @@ _ok(false)
 	} else {
 		/// @todo Find out why QNetworkAddressEntry.broadcast() doesn't work,
 		/// or how it is supposed to be used.
-		addrEntry.setBroadcast(QHostAddress("192.168.1.255"));
-		_hostAddress = addrEntry.broadcast();
+		_hostAddress = QHostAddress(addrEntry.ip().toIPv4Address() | ~addrEntry.netmask().toIPv4Address());
 	}
 
 	// bind socket to port/network
