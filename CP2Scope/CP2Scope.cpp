@@ -42,13 +42,14 @@ _productDisplayCount(0),
 _statsUpdateInterval(5),
 _pulsePlot(TRUE),
 _performAutoScale(false),
-_dataChannel(0)
+_dataChannel(0),
+_config("NCAR", "CP2Scope")
 {
+	// Set up our form
 	setupUi(parent);
 
-	// assign the incoming data ports
-	_pulsePort	= 3100;
-	_productPort = 3200;
+	// get our title from the coniguration
+	std::string title = _config.getString("Title","CP2 Ascope Display");
 
 	// initialize running statistics
 	for (int i = 0; i < 3; i++) {
@@ -421,30 +422,37 @@ CP2Scope::displayData()
 void
 CP2Scope::initSockets()	
 {
+	// assign the incoming data ports
+	_pulsePort	 = _config.getInt("Network/PulsePort",   3100);
+	_productPort = _config.getInt("Network/ProductPort", 3200);
+
+	// get the interface addresses
+	std::string pulseNetwork   = _config.getString("Network/PulseNetwork", "192.168.1");
+	std::string productNetwork = _config.getString("Network/ProductNetwork", "192.168.1");
+
 	int result;
 
 	// allocate the socket read buffers
 	_pPulseSocketBuf.resize(1000000);
 	_pProductSocketBuf.resize(1000000);
 
-	std::string interfaceIP = "192.168.1";
-
 	// creat the sockets
-	_pPulseSocket   = new CP2UdpSocket(interfaceIP, _pulsePort,   false, 0, 10000000);
+	_pPulseSocket   = new CP2UdpSocket(pulseNetwork, _pulsePort,   false, 0, 10000000);
 	if (!_pPulseSocket->ok()) {
 		QMessageBox e;
-		e.warning(this, "Error",_pPulseSocket->errorMsg().c_str(), 
+		e.warning(this, "Error opening pulse port",_pPulseSocket->errorMsg().c_str(), 
 			QMessageBox::Ok, QMessageBox::NoButton);
 	}
-	_pProductSocket = new CP2UdpSocket(interfaceIP, _productPort, false, 0, 10000000);
+	_pProductSocket = new CP2UdpSocket(productNetwork, _productPort, false, 0, 10000000);
 	if (!_pProductSocket->ok()) {
 		QMessageBox e;
-		e.warning(this, "Error",_pProductSocket->errorMsg().c_str(), 
+		e.warning(this, "Error opening product port",_pProductSocket->errorMsg().c_str(), 
 			QMessageBox::Ok, QMessageBox::NoButton);
 	}
 
 	m_pTextIPaddress->setText(_pPulseSocket->toString().c_str());
 
+	// connect the incoming data signal to the read slots
 	connect(_pPulseSocket, SIGNAL(readyRead()), this, SLOT(newPulseSlot()));
 	connect(_pProductSocket, SIGNAL(readyRead()), this, SLOT(newProductSlot()));
 

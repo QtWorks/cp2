@@ -9,6 +9,7 @@
 #include <map>
 
 #include "CP2UdpSocket.h"
+#include "CP2Config.h"
 
 // request this much space for the socket receive buffer
 #define CP2SCOPE_RCVBUF 25000000
@@ -286,6 +287,8 @@ protected:
 	/// @return The button group that the inserted buttons
 	/// belong to.
 	QButtonGroup* addPlotTypeTab(std::string tabName, std::set<PLOTTYPE> types);
+	/// The configuration for CP2Scope
+	CP2Config _config;
 
 };
 
