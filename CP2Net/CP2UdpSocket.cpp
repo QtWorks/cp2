@@ -58,7 +58,7 @@ _ok(false)
 	// bind socket to port/network
 	int optval = 1;
 	if (!broadcast) {
-		if (!bind(_hostAddress, _port, QUdpSocket::ShareAddress)) {
+		if (!bind(_hostAddress, _port, QUdpSocket::ShareAddress | QUdpSocket::ReuseAddressHint)) {
 			_errorMsg += "Unable to bind datagram port ";
 			_errorMsg += _hostAddress.toString().toStdString();
 			_errorMsg += ":";
