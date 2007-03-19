@@ -5,7 +5,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>432</width>
     <height>447</height>
    </rect>
   </property>
@@ -459,14 +459,14 @@ Errors&lt;/b>&lt;/font></string>
           <item>
            <widget class="QLabel" name="_inIpText" >
             <property name="text" >
-             <string>TextLabel</string>
+             <string>Network unavailable</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QLabel" name="_inPortText" >
             <property name="text" >
-             <string>TextLabel</string>
+             <string>Port unavailable</string>
             </property>
            </widget>
           </item>
@@ -496,14 +496,14 @@ Errors&lt;/b>&lt;/font></string>
           <item>
            <widget class="QLabel" name="_outIpText" >
             <property name="text" >
-             <string>TextLabel</string>
+             <string>Network unavailable</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QLabel" name="_outPortText" >
             <property name="text" >
-             <string>TextLabel</string>
+             <string>Port unavailable</string>
             </property>
            </widget>
           </item>

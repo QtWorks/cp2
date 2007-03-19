@@ -13,6 +13,7 @@
 #include "ui_CP2Moments.h"
 #include "MomentThread.h"
 #include "CP2UdpSocket.h" 
+#include "CP2Config.h"
 
 #define PIRAQ3D_SCALE	1.0/(unsigned int)pow(2.0,31)	
 /// request this much space for the pulse socket receive buffer
@@ -134,6 +135,8 @@ protected:
 	/// The band beam products will be filled into this packet, and 
 	/// then it will be writen to the network.
 	CP2Packet _xProductPacket;
+	/// The configuration for CP2Moments
+	CP2Config _config;
 };
 
 #endif

@@ -17,13 +17,17 @@ _pPulseSocketBuf(0),
 _collator(5000),
 _statsUpdateInterval(5),
 _processSband(true),
-_processXband(true)
+_processXband(true),
+_config("NCAR", "CP2Moments")
 {
+	// setup our form
 	setupUi(parent);
 
-	// assign the incoming and outgoing port numbers.
-	_pulsePort	= 3100;
-	_productsPort   = 3200;
+	// get the title of the app
+	std::string title = _config.getString("Title", "CP2 Moments Compute Engine");
+
+	// for some reason this doesn't set the dialog title bar
+	this->setWindowTitle(title.c_str());
 
 	// initialize the statictics and error monitoring.
 	for (int i = 0; i < 3; i++) {
@@ -111,13 +115,19 @@ CP2Moments::timerEvent(QTimerEvent*)
 void
 CP2Moments::initializeSockets()	
 {
-	std::string requiredInterface = "192.168.1";
+		// assign the incoming and outgoing port numbers.
+	_pulsePort	    = _config.getInt("Network/PulsePort", 3100);
+	_productsPort   = _config.getInt("Network/ProductPort", 3200);
+
+	// get the network identifiers
+	std::string pulseNetwork   = _config.getString("Network/PulseNetwork", "192.168.1");
+	std::string productNetwork = _config.getString("Network/ProductNetwork", "192.168.1");
 
 	// allocate the buffer that will recieve the incoming pulse data
 	_pPulseSocketBuf = new char[1000000];
 
 	// create the sockets
-	_pPulseSocket   = new CP2UdpSocket(requiredInterface, _pulsePort, false, 0, CP2MOMENTS_PULSE_RCVBUF);
+	_pPulseSocket   = new CP2UdpSocket(pulseNetwork, _pulsePort, false, 0, CP2MOMENTS_PULSE_RCVBUF);
 
 	if (!_pPulseSocket->ok()) {
 		std::string errMsg = _pPulseSocket->errorMsg().c_str();
@@ -127,14 +137,13 @@ CP2Moments::initializeSockets()
 			QMessageBox::Ok, QMessageBox::NoButton);
 	}
 
-	_pProductSocket = new CP2UdpSocket(requiredInterface, _productsPort, true, CP2MOMENTS_PROD_SNDBUF, 0);
+	_pProductSocket = new CP2UdpSocket(productNetwork, _productsPort, true, CP2MOMENTS_PROD_SNDBUF, 0);
 	if (!_pProductSocket->ok()) {
 		std::string errMsg = _pProductSocket->errorMsg().c_str();
 		errMsg += "Products will not be transmitted";
 		QMessageBox e;
 		e.warning(this, "Error", errMsg.c_str(), 
 			QMessageBox::Ok, QMessageBox::NoButton);
-		return;
 	}
 
 	// set the socket info displays
@@ -150,7 +159,6 @@ CP2Moments::initializeSockets()
 
 	// The max datagram message must be smaller than 64K
 	_soMaxMsgSize = 64000;
-
 
 }
 //////////////////////////////////////////////////////////////////////
