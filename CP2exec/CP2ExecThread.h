@@ -30,8 +30,10 @@ public:
 		unsigned int* volume);
 
 protected:
+	/// Initialize the pulse output socket
+	void initSocket();
 	/// Get the simulated angles information from the configuration.
-	/// Will also set the _doSimangles flag.
+	/// Will also set the _doSimAngles flag.
 	SimAngles getSimAngles();
 	/// The configuration for CP2Exec
 	CP2Config _config;

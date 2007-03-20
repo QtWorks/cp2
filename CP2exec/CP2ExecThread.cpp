@@ -78,23 +78,17 @@ CP2ExecThread::run()
 
 	float prt;
 	float xmit_pulsewidth;
-
-
 	char c;
-	int piraqs = 0;   // board count -- default to single board operation 
-	FILE * dspEXEC; 
-
+	int piraqs = 0;   // board count
 	long long pulsenum;
 	unsigned int PMACphysAddr;
-
-	int	PIRAQadjustAmplitude = 0; 
-	int	PIRAQadjustFrequency = 1; 
 
 	/// @todo Conslidate PCI Timer control into a class.
 	TIMER ext_timer; // structure defining external timer parameters 
 
-	_dspObjFile = _config.getString("Piraq/DspObjectFile", "c:/Projects/cp2/cp2piraq/cp2piraq.out");
-
+	// verfy that the dsp object file is accesible
+	std::string _dspObjFile = _config.getString("Piraq/DspObjectFile", "c:/Projects/cp2/cp2piraq/cp2piraq.out");
+	FILE* dspEXEC;
 	if ((dspEXEC = fopen(_dspObjFile.c_str(),"r")) == NULL)  
 	{ 
 		// DSP executable file not found		
@@ -102,27 +96,20 @@ CP2ExecThread::run()
 		exit(); 
 	} 
 	fclose(dspEXEC); // existence test passed; use command-line filename
-
 	std::cout << _dspObjFile << " will be loaded into piraqs\n"; 
 
+	// read in the legacy configuration
 	CONFIG *legacyConfig = new CONFIG; 
 	_configFile = _config.getString("Legacy/LegacyConfigurationFile", "c:/Projects/cp2/cp2exec/config.dsp");
-
-	char fname1[100];
+	char* fname1 = new char[_configFile.size()+1];
 	strcpy(fname1, _configFile.c_str());
-
-	printf(" config1 filename %s will be used\n", fname1);
-
-	// read in fname.dsp, or use configX.dsp if NULL passed. set up all parameters
 	readconfig(fname1, legacyConfig);    
 
-	// Initialize the network
 	// stop timer card
 	cp2timer_stop(&ext_timer);  
 
 	/// NOTE- packetsPerPciXfer is computed here from the size of the PPACKET packet, such that
-	/// it will be smaller than 64K. This must hold true for the PCI 
-	/// bus transfers. 
+	/// it will be smaller than 64K. This must hold true for the PCI bus transfers. 
 	int blocksize = sizeof(PINFOHEADER)+
 		legacyConfig->gatesa * 2 * sizeof(float);
 	_pulsesPerPciXfer = 65536 / blocksize; 
@@ -137,27 +124,10 @@ CP2ExecThread::run()
 		printf("PMAC DPRAM base addr is 0x%08x\n", PMACphysAddr);
 	}
 
-	// get the network designation for the network that
-	// pulses will be broadcast to. This can be a complete
-	// interface address, such as 192.168.1.3, or 127.0.0.1,
-	// or it can be just the network address such as 192.168.1
-	std::string pulseNetwork = _config.getString("Network/PulseNetwork", "192.168.1");
-	// Get the output port
-	_pulsePort = _config.getInt("Network/PulsePort", 3100); 
+	// Initialize the pulse output socket
+	initSocket();
 
-	_pPulseSocket = new CP2UdpSocket(pulseNetwork, _pulsePort, true, 10000000, 0);
-	if (!_pPulseSocket->ok()) {
-		std::string errMsg = "Error opening the network port ";
-		errMsg += pulseNetwork;
-		errMsg += ": ";
-		errMsg += _pPulseSocket->errorMsg().c_str();
-		QMessageBox e;
-		e.warning(0, "Network Error", errMsg.c_str(), 
-			QMessageBox::Ok, QMessageBox::NoButton);
-	}
-
-	///////////////////////////////////////////////////////////////////////////
-	// get the simulated angles configuration
+	// get the simulated angles setup from the configuration
 	SimAngles simAngles = getSimAngles();
 
 	///////////////////////////////////////////////////////////////////////////
@@ -179,7 +149,9 @@ CP2ExecThread::run()
 
 	prt = _piraq2->prt();
 	xmit_pulsewidth = _piraq2->xmit_pulsewidth();
+
 	delete [] dname;
+	delete [] fname1;
 
 	///////////////////////////////////////////////////////////////////////////
 	//
@@ -266,6 +238,32 @@ CP2ExecThread::stop()
 {
 	_stop = true;
 }
+
+/////////////////////////////////////////////////////////////////////
+void
+CP2ExecThread::initSocket()
+{
+	// get the network designation for the network that
+	// pulses will be broadcast to. This can be a complete
+	// interface address, such as 192.168.1.3, or 127.0.0.1,
+	// or it can be just the network address such as 192.168.1
+	std::string pulseNetwork = _config.getString("Network/PulseNetwork", "192.168.1");
+	// Get the output port
+	_pulsePort = _config.getInt("Network/PulsePort", 3100); 
+
+	_pPulseSocket = new CP2UdpSocket(pulseNetwork, _pulsePort, true, 10000000, 0);
+	if (!_pPulseSocket->ok()) {
+		std::string errMsg = "Error opening the network port ";
+		errMsg += pulseNetwork;
+		errMsg += ": ";
+		errMsg += _pPulseSocket->errorMsg().c_str();
+		QMessageBox e;
+		e.warning(0, "Network Error", errMsg.c_str(), 
+			QMessageBox::Ok, QMessageBox::NoButton);
+	}
+
+}
+
 /////////////////////////////////////////////////////////////////////
 void 
 CP2ExecThread::pnErrors(int& errors1, int& errors2, int& errors3)
