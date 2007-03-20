@@ -29,6 +29,9 @@ public:
 	void setInt(std::string key, int i);
 	int getInt(std::string key, int defaultValue);
 
+	void setBool(std::string key, bool b);
+	bool getBool(std::string key, bool defaultValue);
+
 protected:
 	/// The configuration permanent store
 	QSettings _settings;

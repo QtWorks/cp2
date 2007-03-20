@@ -73,6 +73,24 @@ CP2Config::getInt(std::string key, int defaultValue)
 
 //////////////////////////////////////////////////////////
 void
+CP2Config::setBool(std::string key, bool value) 
+{
+	_settings.setValue(key.c_str(), value);
+	_settings.sync();
+}
+
+//////////////////////////////////////////////////////////
+bool
+CP2Config::getBool(std::string key, bool defaultValue) 
+{
+	bool b = _settings.value(key.c_str(), defaultValue).toBool();
+	_settings.setValue(key.c_str(), b);
+	_settings.sync();
+	return b;
+}
+
+//////////////////////////////////////////////////////////
+void
 CP2Config::sync() 
 {
 	_settings.sync();
