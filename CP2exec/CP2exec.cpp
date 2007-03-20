@@ -3,10 +3,8 @@
 #include "CP2Config.h"
 
 
-CP2Exec::CP2Exec(QDialog* parent, std::string dspObjFile, std::string configFile):
+CP2Exec::CP2Exec(QDialog* parent):
 QDialog(parent),
-_dspObjFile(dspObjFile),
-_configFile(configFile),
 _statsUpdateInterval(5),
 _eofLed0(false),
 _eofLed1(false),

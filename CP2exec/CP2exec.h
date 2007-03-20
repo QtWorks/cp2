@@ -23,7 +23,7 @@ class CP2Exec: public QDialog, public Ui::CP2Exec
 {
 	Q_OBJECT
 public:
-	CP2Exec(QDialog* parent, std::string dspObjFile, std::string configFile);
+	CP2Exec(QDialog* parent);
 	virtual ~CP2Exec();
 
 public slots:

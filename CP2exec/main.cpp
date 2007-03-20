@@ -14,18 +14,13 @@ static char THIS_FILE[] = __FILE__;
 int 
 main(int argc, char* argv[], char* envp[])
 {
-	if (argc != 3) {
-		std::cout << "usage: CP2Exec dspObjFile configFile\n";
-		exit(1);
-	}
-
 	// create the Qt application
 	QApplication app( argc, argv );
 	QDialog* dialog = new QDialog(0, Qt::WindowMinimizeButtonHint);
 
 	// create our main window. It wants to know about the piraq executin
 	// thread so that it can query the thread for status information.
-	CP2Exec cp2exec(dialog, argv[1], argv[2]);
+	CP2Exec cp2exec(dialog);
 
 	// if we don't show() the  dialog, nothing appears!
 	dialog->show();

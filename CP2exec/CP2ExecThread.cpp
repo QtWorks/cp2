@@ -79,10 +79,6 @@ CP2ExecThread::run()
 	float prt;
 	float xmit_pulsewidth;
 
-	CONFIG *config1, *config2, *config3;
-	char fname1[100]; 
-	char fname2[100]; 
-	char fname3[100]; // configuration filenames
 
 	char c;
 	int piraqs = 0;   // board count -- default to single board operation 
@@ -97,9 +93,7 @@ CP2ExecThread::run()
 	/// @todo Conslidate PCI Timer control into a class.
 	TIMER ext_timer; // structure defining external timer parameters 
 
-	config1	= new CONFIG; 
-	config2	= new CONFIG; 
-	config3	= new CONFIG; 
+	_dspObjFile = _config.getString("Piraq/DspObjectFile", "c:/Projects/cp2/cp2piraq/cp2piraq.out");
 
 	if ((dspEXEC = fopen(_dspObjFile.c_str(),"r")) == NULL)  
 	{ 
@@ -111,18 +105,16 @@ CP2ExecThread::run()
 
 	std::cout << _dspObjFile << " will be loaded into piraqs\n"; 
 
+	CONFIG *legacyConfig = new CONFIG; 
+	_configFile = _config.getString("Legacy/LegacyConfigurationFile", "c:/Projects/cp2/cp2exec/config.dsp");
+
+	char fname1[100];
 	strcpy(fname1, _configFile.c_str());
-	strcpy(fname2, _configFile.c_str());
-	strcpy(fname3, _configFile.c_str());
 
 	printf(" config1 filename %s will be used\n", fname1);
-	printf(" config2 filename %s will be used\n", fname2);
-	printf(" config3 filename %s will be used\n", fname3);
 
 	// read in fname.dsp, or use configX.dsp if NULL passed. set up all parameters
-	readconfig(fname1, config1);    
-	readconfig(fname2, config2);    
-	readconfig(fname3, config3);   
+	readconfig(fname1, legacyConfig);    
 
 	// Initialize the network
 	// stop timer card
@@ -132,7 +124,7 @@ CP2ExecThread::run()
 	/// it will be smaller than 64K. This must hold true for the PCI 
 	/// bus transfers. 
 	int blocksize = sizeof(PINFOHEADER)+
-		config1->gatesa * 2 * sizeof(float);
+		legacyConfig->gatesa * 2 * sizeof(float);
 	_pulsesPerPciXfer = 65536 / blocksize; 
 	if	(_pulsesPerPciXfer % 2)	//	computed odd #hits
 		_pulsesPerPciXfer--;	//	make it even
@@ -176,12 +168,13 @@ CP2ExecThread::run()
 
 	char* dname = new char[_dspObjFile.size()+1];
 	strcpy(dname, _dspObjFile.c_str());
-
 	_piraq0 = new CP2PIRAQ(_pPulseSocket, fname1, dname, 
 		_pulsesPerPciXfer, PMACphysAddr, 0, SHV, _doSimAngles, simAngles);
-	_piraq1 = new CP2PIRAQ(_pPulseSocket, fname2, dname, 
+
+	_piraq1 = new CP2PIRAQ(_pPulseSocket, fname1, dname, 
 		_pulsesPerPciXfer, PMACphysAddr, 1, XH, _doSimAngles, simAngles);
-	_piraq2 = new CP2PIRAQ(_pPulseSocket, fname3, dname, 
+
+	_piraq2 = new CP2PIRAQ(_pPulseSocket, fname1, dname, 
 		_pulsesPerPciXfer, PMACphysAddr, 2, XV, _doSimAngles, simAngles);
 
 	prt = _piraq2->prt();
@@ -228,7 +221,7 @@ CP2ExecThread::run()
 
 	PINFOHEADER info;
 	info = _piraq2->info();
-	cp2timer_config(config1, &ext_timer, &info, prt, xmit_pulsewidth);
+	cp2timer_config(legacyConfig, &ext_timer, &info, prt, xmit_pulsewidth);
 	cp2timer_set(&ext_timer);		// put the timer structure into the timer DPRAM 
 	cp2timer_reset(&ext_timer);	// tell the timer to initialize with the values from DPRAM 
 	cp2timer_start(&ext_timer);	// start timer 
