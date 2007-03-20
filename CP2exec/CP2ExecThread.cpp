@@ -119,14 +119,14 @@ CP2ExecThread::run()
 	printf(" config2 filename %s will be used\n", fname2);
 	printf(" config3 filename %s will be used\n", fname3);
 
-	// Initialize the network
-	// stop timer card
-	cp2timer_stop(&ext_timer);  
-
 	// read in fname.dsp, or use configX.dsp if NULL passed. set up all parameters
 	readconfig(fname1, config1);    
 	readconfig(fname2, config2);    
 	readconfig(fname3, config3);   
+
+	// Initialize the network
+	// stop timer card
+	cp2timer_stop(&ext_timer);  
 
 	/// NOTE- packetsPerPciXfer is computed here from the size of the PPACKET packet, such that
 	/// it will be smaller than 64K. This must hold true for the PCI 
@@ -141,8 +141,9 @@ CP2ExecThread::run()
 	PMACphysAddr = findPMACdpram();
 	if (PMACphysAddr == 0) {
 		printf("unable to locate PMAC dpram, piraqs will be told to ignore PMAC\n");
+	} else {
+		printf("PMAC DPRAM base addr is 0x%08x\n", PMACphysAddr);
 	}
-	printf("PMAC DPRAM base addr is 0x%08x\n", PMACphysAddr);
 
 	// get the network designation for the network that
 	// pulses will be broadcast to. This can be a complete

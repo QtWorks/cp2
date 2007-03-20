@@ -27,14 +27,13 @@ class SimAngles{
 		virtual ~SimAngles();
 		/// Compute the next angle information
 		void nextAngle(
-			double &az, ///< Next azimuth
-			double &el, ///< Next elevation
-			int &transition, ///< Next transition flag
-			int& volume ///< Next volume
+			double& az, ///< Next azimuth
+			double& el,      ///< Next elevation
+			short& transition, ///< Next transition flag
+			short& sweep,      ///< Next sweep
+			short& volume      ///< Next volume
 			);
-
-
-	protected:
+protected:
 		/// The current azimuth
 		double _az;
 		/// The current elevation
@@ -58,11 +57,17 @@ class SimAngles{
 		/// The transition pulse counter
 		int _nTranPulses;
 		/// set true if we are in a transition
-		int _transition;
+		short _transition;
 		/// The number of pulses in one beam. 
 		int _pulsesPerBeam;
-		/// he current volume number
-		int _volume;
+		/// The current sweep number
+		short _sweep;
+		/// the current volume number
+		short _volume;
+		/// elevation increment during transitions
+		double deltaEl;
+		///
+		double _sweepIncrement;
 };
 
 #endif

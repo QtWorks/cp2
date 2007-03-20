@@ -13,11 +13,15 @@ _mode(mode),
 _pulsesPerBeam(pulsesPerBeam),
 _rhiAzAngle(rhiAzAngle),
 _ppiElIncrement(ppiElIncrement),
-_nTranPulses(0),
 _numPulsesPerTransition(numPulsesPerTransition),
-_transition(0)
+_minEl(elMinAngle),
+_maxEl(elMaxAngle),
+_sweepIncrement(sweepIncrement)
 {
 	_volume = 1;
+	_sweep = 1;
+	_nTranPulses = 0;
+	_transition = 0;
 
 	// initialize elevation
 	_el = elMinAngle;
@@ -42,9 +46,10 @@ SimAngles::~SimAngles()
 ////////////////////////////////////////////////////////////////////////////
 void
 SimAngles::nextAngle(double &az, 
-						  double &el, 
-						  int &transition, 
-						  int& volume)
+					 double &el, 
+					 short &transition, 
+					 short& sweep,
+					 short& volume)
 {
 	switch (_mode) {
 
@@ -55,20 +60,22 @@ SimAngles::nextAngle(double &az,
 				_transition = 0;
 				break;
 			}
-			// Will wrap around. Do the transition 
-			// pulses
-			_transition = 1;
+
 
 			// send out ingremental elevation angles as we move
 			// up in elevation to the next PPI sweep, or incremental 
 			// elevation angles down until we retunr to the bottom.
-			double deltaEl;
-			if (_el + _ppiElIncrement < _minEl) {
-				deltaEl = _ppiElIncrement/_numPulsesPerTransition;
-			} else {
-				deltaEl = -(_maxEl - _minEl)/_numPulsesPerTransition;
+			if (!_transition) {
+				_sweep++;
+				if (_el + _ppiElIncrement < _maxEl) {
+					deltaEl = _ppiElIncrement/_numPulsesPerTransition;
+				} else {
+					deltaEl = -(_maxEl - _minEl)/_numPulsesPerTransition;
+				}
+				_nTranPulses = 0;
 			}
-			_el += deltaEl;
+			_transition = 1;
+			_el += deltaEl;			
 			if (deltaEl < 0) {
 				// descending transition; continue until reaching the
 				// bottom elevation
@@ -90,13 +97,14 @@ SimAngles::nextAngle(double &az,
 			}
 			break;
 
-		// RHI mode
+			// RHI mode
 		case RHI:
 			_az = _rhiAzAngle;
 			if (_el + _angleInc > _maxEl && !_transition) 
 			{
 				// Start a descending RHI transition
 				_transition = 1;
+				_sweep++;
 			}
 			if (!_transition) {
 				_el += _angleInc;
@@ -117,6 +125,7 @@ SimAngles::nextAngle(double &az,
 	az = _az;
 	volume = _volume;
 	transition = _transition;
+	sweep = _sweep;
 }
 ////////////////////////////////////////////////////////////////////////////
 

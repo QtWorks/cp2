@@ -56,6 +56,8 @@ CP2PIRAQ::~CP2PIRAQ()
 int
 CP2PIRAQ::init(char* configFname, char* dspObjFname)	 
 {
+	printf("\n\nreading config file %s\n", configFname);
+	
 	readconfig(configFname, &_config);    
 
 	_timing_mode     = _config.timingmode;
@@ -185,7 +187,6 @@ CP2PIRAQ::poll()
 		for (int i = 0; i < _pulsesPerPciXfer; i++) {
 			PPACKET* ppacket = (PPACKET*)((char*)&_pFifoPiraq->info + i*piraqPacketSize);
 			header.scanType  = ppacket->info.scanType;
-			header.sweepNum  = ppacket->info.sweepNum;
 			header.antSize   = ppacket->info.antSize;
 			header.pulse_num = ppacket->info.pulse_num;
 			header.gates     = ppacket->info.gates;
@@ -202,14 +203,11 @@ CP2PIRAQ::poll()
 			if (!_doSimAngles) {
 				header.az        = ppacket->info.antAz * 360.0/65536;
 				header.el        = ppacket->info.antEl * 360.0/65536;
+				header.sweepNum  = ppacket->info.sweepNum;
 				header.volNum    = ppacket->info.volNum;
 				header.antTrans  = ppacket->info.antTrans;
 			} else {
-				int transition;
-				int volume;
-				_simAngles.nextAngle(header.az, header.el, transition, volume);
-				header.antTrans = transition;
-				header.volNum = volume;
+				_simAngles.nextAngle(header.az, header.el, header.antTrans, header.sweepNum, header.volNum);
 			}
 
 			// Save the current antenna information
