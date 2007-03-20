@@ -20,7 +20,9 @@ CP2PIRAQ::CP2PIRAQ(
 				   unsigned int pulsesPerPciXfer,
 				   unsigned int pmacDpramAddr,
 				   int boardnum,
-				   RCVRTYPE rcvrType):
+				   RCVRTYPE rcvrType,
+				   bool doSimAngles,
+				   SimAngles simAngles):
 PIRAQ(),
 _pPulseSocket(pPulseSocket),
 _pulsesPerPciXfer(pulsesPerPciXfer), 
@@ -37,7 +39,9 @@ _resendCount(0),
 _az(0),
 _el(0),
 _sweep(0),
-_volume(0)
+_volume(0),
+_doSimAngles(doSimAngles),
+_simAngles(simAngles)
 {
 	init(configFname, dspObjFname);
 }
@@ -180,13 +184,9 @@ CP2PIRAQ::poll()
 		// add all beams to the outgoing packet and to the pulse queue
 		for (int i = 0; i < _pulsesPerPciXfer; i++) {
 			PPACKET* ppacket = (PPACKET*)((char*)&_pFifoPiraq->info + i*piraqPacketSize);
-			header.az        = ppacket->info.antAz * 360.0/65536;
-			header.el        = ppacket->info.antEl * 360.0/65536;
 			header.scanType  = ppacket->info.scanType;
-			header.volNum    = ppacket->info.volNum;
 			header.sweepNum  = ppacket->info.sweepNum;
 			header.antSize   = ppacket->info.antSize;
-			header.antTrans  = ppacket->info.antTrans;
 			header.pulse_num = ppacket->info.pulse_num;
 			header.gates     = ppacket->info.gates;
 			header.hits      = ppacket->info.hits;
@@ -197,6 +197,22 @@ CP2PIRAQ::poll()
 			}
 			header.horiz     = ppacket->info.horiz;
 
+			// set the antenna information. If simulating it, 
+			// fabricate it using simAngles
+			if (!_doSimAngles) {
+				header.az        = ppacket->info.antAz * 360.0/65536;
+				header.el        = ppacket->info.antEl * 360.0/65536;
+				header.volNum    = ppacket->info.volNum;
+				header.antTrans  = ppacket->info.antTrans;
+			} else {
+				int transition;
+				int volume;
+				_simAngles.nextAngle(header.az, header.el, transition, volume);
+				header.antTrans = transition;
+				header.volNum = volume;
+			}
+
+			// Save the current antenna information
 			_az     = header.az;
 			_el     = header.el;
 			_volume = header.volNum;

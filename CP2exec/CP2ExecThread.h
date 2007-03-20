@@ -9,6 +9,7 @@
 #include "CP2Net.h"
 #include "CP2UdpSocket.h"
 #include "CP2Config.h"
+#include "SimAngles.h"
 
 class CP2ExecThread: public QThread {
 
@@ -29,6 +30,9 @@ public:
 		unsigned int* volume);
 
 protected:
+	/// Get the simulated angles information from the configuration.
+	/// Will also set the _doSimangles flag.
+	SimAngles getSimAngles();
 	/// The configuration for CP2Exec
 	CP2Config _config;
 	/// The piraq dsp's will read the antenna pointing information
@@ -61,14 +65,19 @@ protected:
 	STATUS _status;
 
 	bool _stop;
+	/// The number of pulses from piraq1
 	int _pulses1;
+	/// The number of pulses from piraq2
 	int _pulses2;
+	/// The number of pulses from piraq3
 	int _pulses3;
 	// will be set true if an EOF is detected by the
 	// CP2PIRAQ since the last time that CP2PIRAQ was
 	// queried. (when queried, CP2PIRAQ returns the
 	// current state, and clears it's internal flag)
 	bool _eofFlags[3];
+	/// Set true if angles are to be simulated
+	bool _doSimAngles;
 
 };
 

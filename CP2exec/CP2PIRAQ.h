@@ -5,6 +5,7 @@
 #include "CP2Net.h"
 #include "CP2UdpSocket.h"
 #include "config.h"
+#include "SimAngles.h"
 
 #define C       2.99792458E8
 
@@ -74,7 +75,9 @@ public:
 		unsigned int pulsesPerPciXfer,
 		unsigned int pmacDpramBusAddr,
 		int boardnum,
-		RCVRTYPE rcvrType
+		RCVRTYPE rcvrType,
+		bool doSimAngles,
+		SimAngles simAngles
 		);
 
 	~CP2PIRAQ();
@@ -247,6 +250,10 @@ protected:
 	/// @param size The size, in bytes.
 	/// @param data The data buffer.
 	int sendData(int size, void* data);
+	/// Set true if angles are to be simulated
+	bool _doSimAngles;
+	/// Angle generator for simulated angles
+	SimAngles _simAngles;
 
 };
 

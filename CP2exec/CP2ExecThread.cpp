@@ -164,6 +164,10 @@ CP2ExecThread::run()
 	}
 
 	///////////////////////////////////////////////////////////////////////////
+	// get the simulated angles configuration
+	SimAngles simAngles = getSimAngles();
+
+	///////////////////////////////////////////////////////////////////////////
 	//
 	//    Create piraqs. They all have to be created, so that all boards
 	//    are found in succesion, even if we will not be collecting data 
@@ -173,11 +177,11 @@ CP2ExecThread::run()
 	strcpy(dname, _dspObjFile.c_str());
 
 	_piraq0 = new CP2PIRAQ(_pPulseSocket, fname1, dname, 
-		_pulsesPerPciXfer, PMACphysAddr, 0, SHV);
+		_pulsesPerPciXfer, PMACphysAddr, 0, SHV, _doSimAngles, simAngles);
 	_piraq1 = new CP2PIRAQ(_pPulseSocket, fname2, dname, 
-		_pulsesPerPciXfer, PMACphysAddr, 1, XH);
+		_pulsesPerPciXfer, PMACphysAddr, 1, XH, _doSimAngles, simAngles);
 	_piraq2 = new CP2PIRAQ(_pPulseSocket, fname3, dname, 
-		_pulsesPerPciXfer, PMACphysAddr, 2, XV);
+		_pulsesPerPciXfer, PMACphysAddr, 2, XV, _doSimAngles, simAngles);
 
 	prt = _piraq2->prt();
 	xmit_pulsewidth = _piraq2->xmit_pulsewidth();
@@ -346,5 +350,40 @@ CP2ExecThread::STATUS
 CP2ExecThread::status()
 {
 	return _status;
+}
+/////////////////////////////////////////////////////////////////////
+SimAngles
+CP2ExecThread::getSimAngles()
+{
+	// enable/disable simulated angles
+	_doSimAngles = _config.getBool("SimulatedAngles/Enabled", false);
+
+	// if PPImode is true, do PPI else RHI
+	bool ppiMode = _config.getBool("SimulatedAngles/PPImode", true);
+	SimAngles::SIMANGLESMODE mode = SimAngles::PPI;
+	if (!ppiMode)
+		mode = SimAngles::RHI;
+
+	int pulsesPerBeam = _config.getInt("SimulatedAngles//PulsesPerBeam", 100);
+	double beamWidth = _config.getDouble("SimulatedAngles//BeamWidth", 1.0);
+	double rhiAzAngle = _config.getDouble("SimulatedAngles//RhiAzAngle", 37.5);
+	double ppiElIncrement = _config.getDouble("SimulatedAngles//PpiElIncrement", 2.5);
+	double elMinAngle = _config.getDouble("SimulatedAngles//ElMinAngle", 3.0);
+	double elMaxAngle = _config.getDouble("SimulatedAngles//ElMaxAngle", 42.0);
+	double sweepIncrement = _config.getDouble("SimulatedAngles//SweepIncrement", 3.0);
+	int numPulsesPerTransition = _config.getInt("SimulatedAngles//PulsesPerTransition", 31);
+
+	SimAngles simAngles(mode,
+		pulsesPerBeam,
+		beamWidth,
+		rhiAzAngle,
+		ppiElIncrement,
+		elMinAngle,		    
+		elMaxAngle,
+		sweepIncrement,
+		numPulsesPerTransition );
+
+	return simAngles;
+
 }
 /////////////////////////////////////////////////////////////////////

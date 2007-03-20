@@ -4,7 +4,7 @@
 /// Manage the creation of simulated angles. The class is
 /// initialized with the simulation parameters. After that,
 /// each call to nextAngles() returns the next simulated angle.
-class SimAngles(
+class SimAngles{
 	public:
 		/// Scan types
 		enum SIMANGLESMODE {
@@ -16,11 +16,12 @@ class SimAngles(
 		SimAngles(SIMANGLESMODE mode,   ///< The simulation mode
 			int pulsesPerBeam,			///< The number of pulses per beam, used to compute the per pulse angle increment.
 			double beamWidthdegrees,	///< The width of a beam in degrees.
-			double azRhiAngle,			///< The azimuth af an RHI simulation
+			double rhiAzAngle,			///< The azimuth af an RHI simulation
+			double ppiElincrement,		///< The elevation increment for a PPI simulation
 			double elMinAngle,		    ///< The beginning elevation angle
 			double elMaxAngle,			///< THe ending elevation angle
 			double sweepIncrement,		///< The angle increment of the opposite mode during scan transitions
-			int numberPulsesPerTransition ///< The number of pulses in a sweep transition
+			int numPulsesPerTransition ///< The number of pulses in a transition, either between PPI sweeps, or when an RHI is descending
 			);
 		/// Destructor
 		virtual ~SimAngles();
@@ -40,5 +41,28 @@ class SimAngles(
 		double _el;
 		/// the current volume
 		int volume;
+		/// The angle simulation mode
+		SIMANGLESMODE _mode;
+		/// The elevation increment between PPI sweeps
+		double _ppiElIncrement;
+		/// The azimuth of an RHI 
+		double _rhiAzAngle;
+		/// The amount to increment each angle
+		double _angleInc;
+		/// The minimum elevation
+		double _minEl;
+		/// The maximum elevation
+		double _maxEl;
+		/// The number of pulses in a transition
+		int _numPulsesPerTransition;
+		/// The transition pulse counter
+		int _nTranPulses;
+		/// set true if we are in a transition
+		int _transition;
+		/// The number of pulses in one beam. 
+		int _pulsesPerBeam;
+		/// he current volume number
+		int _volume;
+};
 
 #endif
