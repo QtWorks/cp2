@@ -25,7 +25,7 @@ class MomentThread :
 	public QThread
 {
 public:
-	MomentThread(Params::moments_mode_t mode, int nSamples);
+	MomentThread(Params params);
 	virtual ~MomentThread(void);
 	virtual void run();
 	void processPulse(CP2FullPulse* pHPulse, CP2FullPulse* pVPulse);

@@ -40,9 +40,25 @@ _config("NCAR", "CP2Moments")
 	_sBeamCount = 0;
 	_xBeamCount = 0;
 
-	// create the moments processing threads
-	_pSmomentThread = new MomentThread(Params::DUAL_FAST_ALT, 50);
-	_pXmomentThread = new MomentThread(Params::DUAL_CP2_XBAND, 50);
+	// get the processing parameters
+	int pulsesPerBeam   = _config.getInt("Processing/PulsesPerBeam", 100);
+	double gateSpacing  = _config.getDouble("Processing/GateSpacingKm", 0.150);
+
+	// create the Sband moments processing thread
+	Params Sparams;
+	Sparams.moments_params.mode         = Params::DUAL_FAST_ALT;
+	Sparams.moments_params.gate_spacing = gateSpacing;
+	Sparams.moments_params.n_samples    = pulsesPerBeam;
+	Sparams.moments_params.algorithm    = Params::ALG_PP;
+	_pSmomentThread = new MomentThread(Sparams);
+
+	// create the Sband moments processing thread
+	Params Xparams;
+	Xparams.moments_params.mode         = Params::DUAL_CP2_XBAND;
+	Xparams.moments_params.gate_spacing = gateSpacing;
+	Xparams.moments_params.n_samples    = pulsesPerBeam;
+	Xparams.moments_params.algorithm    = Params::ALG_PP;
+	_pXmomentThread = new MomentThread(Xparams);
 
 	// start the moments processing threads. They will wait
 	// patiently until their processPulse() functions are

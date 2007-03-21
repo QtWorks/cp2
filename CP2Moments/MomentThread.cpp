@@ -3,9 +3,8 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////////
-MomentThread::MomentThread(Params::moments_mode_t mode,
-						   int nSamples):
-_params(mode, nSamples)
+MomentThread::MomentThread(Params params):
+_params(params)
 {
 }
 

@@ -87,8 +87,6 @@ public:
 
   Params();
 
-  Params(moments_mode_t mode, int samples);
-
   ////////////////////////////////////////////
   // Destructor
   //
