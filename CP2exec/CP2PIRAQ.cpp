@@ -192,6 +192,8 @@ CP2PIRAQ::poll()
 			header.gates     = ppacket->info.gates;
 			header.hits      = ppacket->info.hits;
 			header.status    = 0;
+			header.prt       = _prt;
+			header.xmit_pw   = _xmit_pulsewidth;
 			if (ppacket->info.status & FIFO_EOF) {
 				header.status |= PIRAQ_FIFO_EOF;
 				_eof = true;

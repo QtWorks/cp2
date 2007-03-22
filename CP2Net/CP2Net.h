@@ -8,8 +8,8 @@
 typedef struct CP2PulseHeader {
     long long pulse_num;	///< Pulse number
     long long beam_num;		///< Beam number
-    double az;			///< The azimuth
-    double el;			///< The elevation
+    double az;				///< The azimuth
+    double el;				///< The elevation
 	short scanType;			
 	short sweepNum;
 	short volNum;
@@ -21,6 +21,8 @@ typedef struct CP2PulseHeader {
 							///< to calculate beam number from pulse numbers.
 	short status;           ///< Status that comes from the piraq for each pulse
 	bool horiz;			    ///< set true for horizontal polarization, false for vertical
+	double prt;				///< The prt, in seconds
+	double xmit_pw;			///< The transmited pulse width, in seconds.
 } CP2PulseHeader;
 
 //Bit mask defines for the status field of CP2PulseHeader

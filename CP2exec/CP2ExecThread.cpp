@@ -78,8 +78,9 @@ CP2ExecThread::run()
 
 	float prt;
 	float xmit_pulsewidth;
+	int gates = _config.getInt("Radar/Gates", 984);
 	char c;
-	int piraqs = 0;   // board count
+	int piraqs = 0;   
 	long long pulsenum;
 	unsigned int PMACphysAddr;
 
@@ -98,20 +99,13 @@ CP2ExecThread::run()
 	fclose(dspEXEC); // existence test passed; use command-line filename
 	std::cout << _dspObjFile << " will be loaded into piraqs\n"; 
 
-	// read in the legacy configuration
-	CONFIG *legacyConfig = new CONFIG; 
-	_configFile = _config.getString("Legacy/LegacyConfigurationFile", "c:/Projects/cp2/cp2exec/config.dsp");
-	char* fname1 = new char[_configFile.size()+1];
-	strcpy(fname1, _configFile.c_str());
-	readconfig(fname1, legacyConfig);    
-
 	// stop timer card
 	cp2timer_stop(&ext_timer);  
 
 	/// NOTE- packetsPerPciXfer is computed here from the size of the PPACKET packet, such that
 	/// it will be smaller than 64K. This must hold true for the PCI bus transfers. 
 	int blocksize = sizeof(PINFOHEADER)+
-		legacyConfig->gatesa * 2 * sizeof(float);
+		gates * 2 * sizeof(float);
 	_pulsesPerPciXfer = 65536 / blocksize; 
 	if	(_pulsesPerPciXfer % 2)	//	computed odd #hits
 		_pulsesPerPciXfer--;	//	make it even
@@ -136,6 +130,12 @@ CP2ExecThread::run()
 	//    are found in succesion, even if we will not be collecting data 
 	//    from all of them.
 
+	// CP2Piraq currently uses the legacy configuration file.
+	_configFile = _config.getString("Legacy/LegacyConfigurationFile", "c:/Projects/cp2/cp2exec/config.dsp");
+	char* fname1 = new char[_configFile.size()+1];
+	strcpy(fname1, _configFile.c_str());
+
+	// And it accesses the Piraq dsp object file
 	char* dname = new char[_dspObjFile.size()+1];
 	strcpy(dname, _dspObjFile.c_str());
 	_piraq0 = new CP2PIRAQ(_pPulseSocket, fname1, dname, 
@@ -147,11 +147,11 @@ CP2ExecThread::run()
 	_piraq2 = new CP2PIRAQ(_pPulseSocket, fname1, dname, 
 		_pulsesPerPciXfer, PMACphysAddr, 2, XV, _doSimAngles, simAngles);
 
-	prt = _piraq2->prt();
-	xmit_pulsewidth = _piraq2->xmit_pulsewidth();
-
 	delete [] dname;
 	delete [] fname1;
+
+	prt = _piraq2->prt();
+	xmit_pulsewidth = _piraq2->xmit_pulsewidth();
 
 	///////////////////////////////////////////////////////////////////////////
 	//
@@ -193,7 +193,8 @@ CP2ExecThread::run()
 
 	PINFOHEADER info;
 	info = _piraq2->info();
-	cp2timer_config(legacyConfig, &ext_timer, &info, prt, xmit_pulsewidth);
+	int pciTimerMode = _config.getInt("Timer/PciTimerMode", 1);
+	cp2timer_config(&ext_timer, &info, pciTimerMode, prt, xmit_pulsewidth);
 	cp2timer_set(&ext_timer);		// put the timer structure into the timer DPRAM 
 	cp2timer_reset(&ext_timer);	// tell the timer to initialize with the values from DPRAM 
 	cp2timer_start(&ext_timer);	// start timer 
