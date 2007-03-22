@@ -190,7 +190,7 @@ CP2PIRAQ::poll()
 			header.antSize   = ppacket->info.antSize;
 			header.pulse_num = ppacket->info.pulse_num;
 			header.gates     = ppacket->info.gates;
-			header.hits      = ppacket->info.hits;
+//			header.hits      = ppacket->info.hits;
 			header.status    = 0;
 			header.prt       = _prt;
 			header.xmit_pw   = _xmit_pulsewidth;

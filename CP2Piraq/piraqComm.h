@@ -64,7 +64,7 @@
 
 //--------------------------------------------------------------------
 
-#pragma pack(4)
+#pragma pack (push,4)
 /// A circular buffer that is filled on the Piraq side and
 /// emptied on the host side. The Piraq will increment head whenever
 /// records are added, and the host will increment tail whenever 
@@ -154,6 +154,12 @@ typedef struct PINFOHEADER
 #endif
 } PINFOHEADER;
 #pragma STRUCT_ALIGN (PINFOHEADER, 8);
+
+/// @todo The following pragma really belongs after the CircularBuffer definition. Somehow 
+/// it looks like MSVC needs to have 4 byte alignment specified for PINFO header, even though
+/// it contains the long long. This needs to be looked into. Also beware of changing the 
+/// packing, and forgetting to restore it, which can affect all downstream structure definitions.
+#pragma pack (pop)
 
 /// PPACKET combines the header info from PINFOHEADER with the data array.
 typedef struct PPACKET {
