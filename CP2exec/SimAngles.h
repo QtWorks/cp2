@@ -29,9 +29,9 @@ class SimAngles{
 		void nextAngle(
 			double& az, ///< Next azimuth
 			double& el,      ///< Next elevation
-			short& transition, ///< Next transition flag
-			short& sweep,      ///< Next sweep
-			short& volume      ///< Next volume
+			int& transition, ///< Next transition flag
+			int& sweep,      ///< Next sweep
+			int& volume      ///< Next volume
 			);
 protected:
 		/// The current azimuth

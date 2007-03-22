@@ -10,17 +10,17 @@ typedef struct CP2PulseHeader {
     long long beam_num;		///< Beam number
     double az;				///< The azimuth
     double el;				///< The elevation
-	short scanType;			
-	short sweepNum;
-	short volNum;
-	short antSize;
-	short antTrans;
+	int scanType;			
+	int sweepNum;
+	int volNum;
+	int antSize;
+	int antTrans;
     int  channel;			///< 
     int  gates;				///< The number of gates, set by the host.
     int  hits;				///< The number of hits in a beam, set by the host. Used
 							///< to calculate beam number from pulse numbers.
-	short status;           ///< Status that comes from the piraq for each pulse
-	bool horiz;			    ///< set true for horizontal polarization, false for vertical
+	int status;           ///< Status that comes from the piraq for each pulse
+	int horiz;			    ///< set true for horizontal polarization, false for vertical
 	double prt;				///< The prt, in seconds
 	double xmit_pw;			///< The transmited pulse width, in seconds.
 } CP2PulseHeader;
@@ -97,7 +97,7 @@ public:
 	/// Add a pulse to the packet. This is used for constructing
 	/// a packet of pulses
 	void addPulse(
-		CP2PulseHeader& header,       ///< The pulse header information
+		CP2PulseHeader* header,       ///< The pulse header information
 		int numDataValues,			///< The number of data values.
 		float* data					///< The data for the beam
 		);

@@ -47,9 +47,9 @@ SimAngles::~SimAngles()
 void
 SimAngles::nextAngle(double &az, 
 					 double &el, 
-					 short &transition, 
-					 short& sweep,
-					 short& volume)
+					 int &transition, 
+					 int& sweep,
+					 int& volume)
 {
 	switch (_mode) {
 

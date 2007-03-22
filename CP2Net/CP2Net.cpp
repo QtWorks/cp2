@@ -15,12 +15,12 @@ CP2Packet::~CP2Packet() {
 
 //////////////////////////////////////////////////////////////////////
 void 
-CP2Packet::addPulse(CP2PulseHeader& header,   
+CP2Packet::addPulse(CP2PulseHeader* header,   
 						int numDataValues,			
 						float* data)
 {
 	// resize _packetData if it is not big enough
-	int addDataSize = sizeof(header)+ sizeof(float)*numDataValues;
+	int addDataSize = sizeof(CP2PulseHeader)+ sizeof(float)*numDataValues;
 	int currentSize = _packetData.size();
 	if (currentSize < (_dataSize + addDataSize)) {
 		_packetData.resize(_packetData.size()+addDataSize);
@@ -30,8 +30,8 @@ CP2Packet::addPulse(CP2PulseHeader& header,
 	_pulseOffset.push_back(_dataSize);
 
 	// append the new data to it.
-	memcpy(&_packetData[_dataSize], &header, sizeof(header));
-	_dataSize += sizeof(header);
+	memcpy(&_packetData[_dataSize], header, sizeof(CP2PulseHeader));
+	_dataSize += sizeof(CP2PulseHeader);
 	memcpy(&_packetData[_dataSize], data, sizeof(float)*numDataValues);
 	_dataSize += sizeof(float)*numDataValues;
 }

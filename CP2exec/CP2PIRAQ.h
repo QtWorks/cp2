@@ -217,9 +217,9 @@ protected:
 	/// count pulses, for diagnostic purposes. this will
 	/// be removed in production software
 	long long _nPulses;
-	/// The prt in nanoseconds.
-	float _prt;				
-	/// prt2 in nanoseconds.
+	/// The prt in seconds.
+	double _prt;				
+	/// prt2 in who knows.
 	int _prt2;   
 	/// The Piraq card timing mode.
 	/// 0: software free running mode
@@ -232,8 +232,8 @@ protected:
 	/// does not belong here.
 	/// @todo remove _hits from the raw data stream.
 	int _hits;
-	/// The transmit pulse width in nanoseconds.
-	float _xmit_pulsewidth;	
+	/// The transmit pulse width in seconds.
+	double _xmit_pulsewidth;	
 	unsigned int _totalHits;
 	/// The Piraq board number (0,1, 2).
 	int _boardnum;

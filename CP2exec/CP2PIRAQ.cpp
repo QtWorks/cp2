@@ -219,7 +219,7 @@ CP2PIRAQ::poll()
 			_sweep  = header.sweepNum;
 
 			// add pulse to the outgoing packet
-			_cp2Packet.addPulse(header, header.gates*2, ppacket->data);
+			_cp2Packet.addPulse(&header, header.gates*2, ppacket->data);
 			pulses++;
 
 			// check for pulse number errors
