@@ -65,9 +65,9 @@ CP2PIRAQ::init(char* configFname, char* dspObjFname)
 	_prt             = _config.prt;
 	_gates  	     = _config.gatesa;
 	_hits		     = _config.hits;
-	_xmit_pulsewidth = _config.xmit_pulsewidth;
+	_xmit_pulsewidth = _config.xmit_pulsewidth * (8.0/(float)SYSTEM_CLOCK);;
 	_prt			 = (float)_config.prt * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
-	_bytespergate    = 2*sizeof(float); // CP2: 2 fp I,Q per gate
+	_bytespergate    = 2*sizeof(float); 
 
 	int r_c;   // generic return code
 
