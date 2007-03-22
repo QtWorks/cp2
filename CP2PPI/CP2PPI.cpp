@@ -176,6 +176,12 @@ CP2PPI::processProduct(CP2Product* pProduct)
 	long long beamNum = pProduct->header.beamNum;
 	int gates = pProduct->header.gates;
 	double az = pProduct->header.az;
+	az = 450 - az;
+	if (az < 0) 
+		az += 360.0;
+	else
+		if (az > 360)
+			az -= 360.0;
 	double el = pProduct->header.el;
 
 	if (gates != _gates) {
