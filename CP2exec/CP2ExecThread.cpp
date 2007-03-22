@@ -88,7 +88,7 @@ CP2ExecThread::run()
 	TIMER ext_timer; // structure defining external timer parameters 
 
 	// verfy that the dsp object file is accesible
-	std::string _dspObjFile = _config.getString("Piraq/DspObjectFile", "c:/Projects/cp2/cp2piraq/cp2piraq.out");
+	std::string _dspObjFile = _config.getString("Piraq/DspObjectFile", "c:/Program Files/NCAR/CP2Soft/cp2piraq.out");
 	FILE* dspEXEC;
 	if ((dspEXEC = fopen(_dspObjFile.c_str(),"r")) == NULL)  
 	{ 
