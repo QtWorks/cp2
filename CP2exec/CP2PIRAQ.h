@@ -237,6 +237,8 @@ protected:
 	int _hits;
 	/// The transmit pulse width in seconds.
 	double _xmit_pulsewidth;	
+	/// The recieve pulse width in seconds.
+	double _rcvr_pulsewidth;	
 	unsigned int _totalHits;
 	/// The Piraq board number (0,1, 2).
 	int _boardnum;

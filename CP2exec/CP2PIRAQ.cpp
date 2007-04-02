@@ -63,15 +63,6 @@ CP2PIRAQ::init(char* configFname, char* dspObjFname)
 
 	readconfig(configFname, &_config);    
 
-//	_timing_mode     = _config.timingmode;
-//	_prt2            = _config.prt2;
-//	_prt             = _config.prt;
-//	_gates  	     = _config.gatesa;
-//	_hits		     = _config.hits;
-//	_xmit_pulsewidth = _config.xmit_pulsewidth * (8.0/(float)SYSTEM_CLOCK);;
-//	_prt			 = (float)_config.prt * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
-//	_bytespergate    = 2*sizeof(float); 
-
 	// the timing mode for the onboard piraq timer section. 
 	// 0 = continuous, 1 = triggered, 2 = sync, 
 	_timing_mode     = _cp2execConfig.getInt("Piraq/TimerMode", 1);
@@ -82,14 +73,18 @@ CP2PIRAQ::init(char* configFname, char* dspObjFname)
 	_prt2            = _prt;
 	// transmit pulse width in terms of clock counts. 
 	// The correct time base for this is confusing. See calculations below
+	_rcvr_pulsewidth = _cp2execConfig.getInt("Radar/RcvrWidthCounts", 6);
+	// transmit pulse width in terms of clock counts. 
+	// The correct time base for this is confusing. See calculations below
 	_xmit_pulsewidth = _cp2execConfig.getInt("Radar/XmitWidthCounts", 6);
 	// The number of gates
-	_gates  	     = _cp2execConfig.getInt("Radar/Gates", 984);
+	_gates  	     = _cp2execConfig.getInt("Radar/Gates", 950);
 	// hits should not even be needed. Let's make it zero and see what happens
 	_hits		     = 0;
 
-	// convert the prt and pulse width
-	_xmit_pulsewidth *= (8.0/(float)SYSTEM_CLOCK);;
+	// convert the prt and pulse widths
+	_rcvr_pulsewidth *= (8.0/(float)SYSTEM_CLOCK);
+	_xmit_pulsewidth *= (8.0/(float)SYSTEM_CLOCK);
 	_prt			 *= (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
 
 	_bytespergate    = 2*sizeof(float); 
@@ -106,7 +101,7 @@ CP2PIRAQ::init(char* configFname, char* dspObjFname)
 
 	// configure the GreyChip filters
 	this->GetFilter()->ClearFilter();
-	this->GetFilter()->Gaussian(SYSTEM_CLOCK, 1000000000*(8*_config.rcvr_pulsewidth/SYSTEM_CLOCK), 0);
+	this->GetFilter()->Gaussian(SYSTEM_CLOCK, 1000000000*(_rcvr_pulsewidth), 0);
 	this->GetFilter()->StartFilter();
 
 	/* put the DSP into a known state where HPI reads/writes will work */
