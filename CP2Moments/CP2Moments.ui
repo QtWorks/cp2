@@ -431,7 +431,7 @@ Errors&lt;/b>&lt;/font></string>
    <item>
     <widget class="QGroupBox" name="groupBox_5" >
      <property name="title" >
-      <string>Interfaces</string>
+      <string>Pulse and Product Network Interfaces</string>
      </property>
      <layout class="QVBoxLayout" >
       <property name="margin" >
