@@ -138,13 +138,13 @@ CP2ExecThread::run()
 	// And it accesses the Piraq dsp object file
 	char* dname = new char[_dspObjFile.size()+1];
 	strcpy(dname, _dspObjFile.c_str());
-	_piraq0 = new CP2PIRAQ(_pPulseSocket, fname1, dname, 
+	_piraq0 = new CP2PIRAQ(_pPulseSocket, "NCAR", "CP2Exec", fname1, dname, 
 		_pulsesPerPciXfer, PMACphysAddr, 0, SHV, _doSimAngles, simAngles);
 
-	_piraq1 = new CP2PIRAQ(_pPulseSocket, fname1, dname, 
+	_piraq1 = new CP2PIRAQ(_pPulseSocket, "NCAR", "CP2Exec", fname1, dname, 
 		_pulsesPerPciXfer, PMACphysAddr, 1, XH, _doSimAngles, simAngles);
 
-	_piraq2 = new CP2PIRAQ(_pPulseSocket, fname1, dname, 
+	_piraq2 = new CP2PIRAQ(_pPulseSocket, "NCAR", "CP2Exec", fname1, dname, 
 		_pulsesPerPciXfer, PMACphysAddr, 2, XV, _doSimAngles, simAngles);
 
 	delete [] dname;

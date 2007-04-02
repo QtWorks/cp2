@@ -15,6 +15,8 @@
 ///////////////////////////////////////////////////////////////////////////
 CP2PIRAQ::CP2PIRAQ(
 				   CP2UdpSocket* pPulseSocket,
+				   std::string configOrg,		
+				   std::string configApp,		
 				   char* configFname, 
 				   char* dspObjFname,
 				   unsigned int pulsesPerPciXfer,
@@ -25,6 +27,7 @@ CP2PIRAQ::CP2PIRAQ(
 				   SimAngles simAngles):
 PIRAQ(),
 _pPulseSocket(pPulseSocket),
+_cp2execConfig(configOrg, configApp),
 _pulsesPerPciXfer(pulsesPerPciXfer), 
 _lastPulseNumber(0),
 _totalHits(0),
@@ -57,16 +60,38 @@ int
 CP2PIRAQ::init(char* configFname, char* dspObjFname)	 
 {
 	printf("\n\nreading config file %s\n", configFname);
-	
+
 	readconfig(configFname, &_config);    
 
-	_timing_mode     = _config.timingmode;
-	_prt2            = _config.prt2;
-	_prt             = _config.prt;
-	_gates  	     = _config.gatesa;
-	_hits		     = _config.hits;
-	_xmit_pulsewidth = _config.xmit_pulsewidth * (8.0/(float)SYSTEM_CLOCK);;
-	_prt			 = (float)_config.prt * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
+//	_timing_mode     = _config.timingmode;
+//	_prt2            = _config.prt2;
+//	_prt             = _config.prt;
+//	_gates  	     = _config.gatesa;
+//	_hits		     = _config.hits;
+//	_xmit_pulsewidth = _config.xmit_pulsewidth * (8.0/(float)SYSTEM_CLOCK);;
+//	_prt			 = (float)_config.prt * (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
+//	_bytespergate    = 2*sizeof(float); 
+
+	// the timing mode for the onboard piraq timer section. 
+	// 0 = continuous, 1 = triggered, 2 = sync, 
+	_timing_mode     = _cp2execConfig.getInt("Piraq/TimerMode", 1);
+	// prt in terms of clock counts. 
+	// The correct time base for this is confusing. See calculations below
+	_prt             = _cp2execConfig.getInt("Radar/PrtCounts", 6000);
+	// set prt2 equal to prt for non-staggered prt operation. CP2 can't do otherwise.
+	_prt2            = _prt;
+	// transmit pulse width in terms of clock counts. 
+	// The correct time base for this is confusing. See calculations below
+	_xmit_pulsewidth = _cp2execConfig.getInt("Radar/XmitWidthCounts", 6);
+	// The number of gates
+	_gates  	     = _cp2execConfig.getInt("Radar/Gates", 984);
+	// hits should not even be needed. Let's make it zero and see what happens
+	_hits		     = 0;
+
+	// convert the prt and pulse width
+	_xmit_pulsewidth *= (8.0/(float)SYSTEM_CLOCK);;
+	_prt			 *= (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
+
 	_bytespergate    = 2*sizeof(float); 
 
 	int r_c;   // generic return code
@@ -190,7 +215,7 @@ CP2PIRAQ::poll()
 			header.antSize   = ppacket->info.antSize;
 			header.pulse_num = ppacket->info.pulse_num;
 			header.gates     = ppacket->info.gates;
-//			header.hits      = ppacket->info.hits;
+			//			header.hits      = ppacket->info.hits;
 			header.status    = 0;
 			header.prt       = _prt;
 			header.xmit_pw   = _xmit_pulsewidth;

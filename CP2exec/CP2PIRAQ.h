@@ -6,6 +6,7 @@
 #include "CP2UdpSocket.h"
 #include "config.h"
 #include "SimAngles.h"
+#include "CP2Config.h"
 
 #define C       2.99792458E8
 
@@ -69,15 +70,17 @@ class CP2PIRAQ: public PIRAQ {
 public:
 
 	CP2PIRAQ( 
-		CP2UdpSocket* pPulseSocket,
+		CP2UdpSocket* pPulseSocket, ///< The socket that pulse data will be broadcast on
+		std::string configOrg,		///< The organization name, used to identify the configuration
+		std::string configApp,		///< The application name, used to identify the configuration
 		char* configFname,
 		char* dspObjFnamefloat,
-		unsigned int pulsesPerPciXfer,
-		unsigned int pmacDpramBusAddr,
-		int boardnum,
-		RCVRTYPE rcvrType,
-		bool doSimAngles,
-		SimAngles simAngles
+		unsigned int pulsesPerPciXfer, ///< The number of pulses to include in each PCI transfer
+		unsigned int pmacDpramBusAddr, ///< The physical PCI address of the PMAC DPRAM 
+		int boardnum,				   ///< The piraq board number; used to stagger the PCI transfers.
+		RCVRTYPE rcvrType,			   ///< Identifies the card as Sban, Xh or Xv.
+		bool doSimAngles,			   ///< If true, simulate angles rather than read from the PMAC
+		SimAngles simAngles			   ///< The angle simulation engine.
 		);
 
 	~CP2PIRAQ();
@@ -254,6 +257,8 @@ protected:
 	bool _doSimAngles;
 	/// Angle generator for simulated angles
 	SimAngles _simAngles;
+	/// Configuration
+	CP2Config _cp2execConfig;
 
 };
 
