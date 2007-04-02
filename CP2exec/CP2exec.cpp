@@ -1,6 +1,7 @@
 #include "CP2Exec.h"
 #include <qlabel.h>
 #include "CP2Config.h"
+#include <iostream>
 
 
 CP2Exec::CP2Exec(QDialog* parent):
@@ -13,6 +14,9 @@ _timerReset(false),
 _pThread(0)
 {
 	setupUi(parent);
+
+	// save our start time
+	_startTime = QDateTime::currentDateTime();
 
 	// get the network configuration
 	CP2Config config("NCAR", "CP2Exec");
@@ -154,6 +158,13 @@ CP2Exec::timerEvent(QTimerEvent*)
 			_statusText->setText("Initializing Piraqs...");
 			break;
 	}
+
+	// calculate and display the uptime
+	int elapsedSecs = _startTime.secsTo(QDateTime::currentDateTime());
+	double elapsedHours = elapsedSecs / 3600.0;
+	QString hours = QString("%1").arg(elapsedHours, 0, 'f', 1);
+	_elapsedText->setText(hours);
+	
 
 
 }

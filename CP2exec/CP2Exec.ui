@@ -941,7 +941,7 @@
      <property name="title" >
       <string>Status</string>
      </property>
-     <layout class="QVBoxLayout" >
+     <layout class="QHBoxLayout" >
       <property name="margin" >
        <number>9</number>
       </property>
@@ -965,6 +965,33 @@
          <bool>false</bool>
         </property>
        </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" >
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <property name="spacing" >
+         <number>6</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="label" >
+          <property name="text" >
+           <string>Elapsed Time (hours):</string>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="_elapsedText" >
+          <property name="text" >
+           <string>0.0</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>

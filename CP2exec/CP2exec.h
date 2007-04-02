@@ -5,6 +5,7 @@
 #include "CP2PIRAQ.h"
 #include "CP2ExecThread.h"
 #include <QPalette>
+#include <QDateTime>
 
 /// CP2Exec is the main Qt dialog that
 /// manages the CP2 Piraq data acquisition
@@ -60,8 +61,10 @@ protected:
 	bool _eofLed2;
 	/// Palette for making the leds green
 	QPalette _greenPalette;
-	/// Platette for maing the leds red
+	/// Platette for making the leds red
 	QPalette _redPalette;
+	/// Preserve the time tht we started, so that we can display an uptime
+	QDateTime _startTime;
 
 };
 
