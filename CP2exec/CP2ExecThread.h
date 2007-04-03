@@ -14,20 +14,44 @@
 class CP2ExecThread: public QThread {
 
 public:
-	enum STATUS {STARTUP, PIRAQINIT, RUNNING};
-	CP2ExecThread(std::string dspObjfile, std::string configFile);
+	/// The current state of CP2Exec
+	enum STATUS {
+		STARTUP,   ///< Starting
+		PIRAQINIT, ///< Initializing hardware
+		RUNNING    ///< Piraqs running and data being transmitted to the network
+	};
+	/// Contructor
+	CP2ExecThread(
+		std::string dspObjfile, ///< The path to the dsp object file
+		std::string configFile  ///< The path to the legacy configuration file. This will go away when we have switched to the new configuration scheme.
+		);
+	/// Destructor
 	virtual ~CP2ExecThread();
+	/// Run the CP2ExecThread
 	void run();
+	/// stop the CP2ExecThread
+	/// @todo This currently does not work correctly. We want to be able to stop and
+	/// restart the piraqs without restarting the whole CP2exec application; this
+	/// function is supposed to allow us to do that. But the piraqs don't restart 
+	/// properly. It may relate to the one time timer initialization.
 	void stop();
+	/// @returns The status of the CP2execThread
 	STATUS status();
+	/// Get the pulse number errors for each piraq.
 	void pnErrors(int& errors1, int& errors2, int& errors3);
+	/// Get the total number of pulses processed by each piraq.
 	void pulses(int& pulses1, int& pulses2, int& pulses);
+	/// Get the current pulse throughput rate for each piraq.
 	void rates(double& rate1, double& rate2, double& rate3);
+	/// Get the eof flag for each piraq. Calling this cause the eof flags to be cleared.
 	void eof(bool eof[3]);
-	void antennaInfo(double* az, 
-		double* el, 
-		unsigned int* sweep, 
-		unsigned int* volume);
+	/// Get the current antenna information for each piraq.
+	void antennaInfo(
+		double* az,				///< Azimuth, in degrees magnetic.
+		double* el,				///< Elevation, in degress above horizontal.
+		unsigned int* sweep,	///< Sweep number
+		unsigned int* volume	///< Volume number
+		);	
 
 protected:
 	/// Initialize the pulse output socket
@@ -65,13 +89,14 @@ protected:
 	QHostAddress _hostAddr;
 	/// The current status
 	STATUS _status;
-
+	/// Set true to ask the thread to stop polling the piraqs. 
+	/// Currently does not work correctly (see todo above)
 	bool _stop;
-	/// The number of pulses from piraq1
+	/// The cumulative number of pulses from piraq1
 	int _pulses1;
-	/// The number of pulses from piraq2
+	/// The cumulative number of pulses from piraq2
 	int _pulses2;
-	/// The number of pulses from piraq3
+	/// The cumulative number of pulses from piraq3
 	int _pulses3;
 	// will be set true if an EOF is detected by the
 	// CP2PIRAQ since the last time that CP2PIRAQ was

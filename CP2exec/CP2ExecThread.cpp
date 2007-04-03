@@ -132,26 +132,29 @@ CP2ExecThread::run()
 
 	// CP2Piraq currently uses the legacy configuration file.
 	_configFile = _config.getString("Legacy/LegacyConfigurationFile", "c:/Projects/cp2/cp2exec/config.dsp");
-	char* fname1 = new char[_configFile.size()+1];
-	strcpy(fname1, _configFile.c_str());
+	char* configFileName = new char[_configFile.size()+1];
+	strcpy(configFileName, _configFile.c_str());
 
 	// And it accesses the Piraq dsp object file
-	char* dname = new char[_dspObjFile.size()+1];
-	strcpy(dname, _dspObjFile.c_str());
-	_piraq0 = new CP2PIRAQ(_pPulseSocket, "NCAR", "CP2Exec", fname1, dname, 
+	char* dspObjFileName = new char[_dspObjFile.size()+1];
+	strcpy(dspObjFileName, _dspObjFile.c_str());
+
+	// create the piraqs
+	_piraq0 = new CP2PIRAQ(_pPulseSocket, "NCAR", "CP2Exec", configFileName, dspObjFileName, 
 		_pulsesPerPciXfer, PMACphysAddr, 0, SHV, _doSimAngles, simAngles);
 
-	_piraq1 = new CP2PIRAQ(_pPulseSocket, "NCAR", "CP2Exec", fname1, dname, 
+	_piraq1 = new CP2PIRAQ(_pPulseSocket, "NCAR", "CP2Exec", configFileName, dspObjFileName, 
 		_pulsesPerPciXfer, PMACphysAddr, 1, XH, _doSimAngles, simAngles);
 
-	_piraq2 = new CP2PIRAQ(_pPulseSocket, "NCAR", "CP2Exec", fname1, dname, 
+	_piraq2 = new CP2PIRAQ(_pPulseSocket, "NCAR", "CP2Exec", dspObjFileName, dspObjFileName, 
 		_pulsesPerPciXfer, PMACphysAddr, 2, XV, _doSimAngles, simAngles);
 
-	delete [] dname;
-	delete [] fname1;
+	delete [] dspObjFileName;
+	delete [] dspObjFileName;
 
-	prt = _piraq2->prt();
-	xmit_pulsewidth = _piraq2->xmit_pulsewidth();
+	/// @todo SYSTEM_CLOCK should be moved to the configuration.
+	prt = _config.getInt("Radar/PrtCounts", 6000) * (8.0/(float)SYSTEM_CLOCK);
+	xmit_pulsewidth = _config.getInt("Radar/XmitWidthCounts", 6) * (8.0/(float)SYSTEM_CLOCK);
 
 	///////////////////////////////////////////////////////////////////////////
 	//

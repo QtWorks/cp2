@@ -101,10 +101,6 @@ public:
 	/// Poll the Piraq DMA buffer. If data is found,
 	/// repackaged it and transmit as datagrams on the network.
 	int poll();
-	/// @return The prt in nanoseconds.
-	float prt();
-	/// @return The transmit pulse width in nanoseconds.
-	float xmit_pulsewidth();
 	/// @return The configuration that is passed to the Piraq.
 	/// @todo Users should not really be querying the Piraq for 
 	/// this information, since they configured it in the first

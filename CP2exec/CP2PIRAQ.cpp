@@ -334,21 +334,8 @@ CP2PIRAQ::antennaInfo(double& az, double& el,
 						  volume = _volume;
 }
 
-///////////////////////////////////////////////////////////////////////////
-float
-CP2PIRAQ::prt()
-{
-	return _prt;
-}
 
 ///////////////////////////////////////////////////////////////////////////
-float
-CP2PIRAQ::xmit_pulsewidth()
-{
-	return _xmit_pulsewidth;
-}
-
-
 PINFOHEADER
 CP2PIRAQ::info()
 {
