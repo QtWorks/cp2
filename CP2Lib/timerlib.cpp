@@ -1,6 +1,5 @@
 #include "pci_w32.h"
 #include "timerlib.h"
-#include "config.h"
 #include <time.h>
 #include <stdio.h>
 
@@ -173,7 +172,6 @@ void cp2timer_set(TIMER *timer)
 	int          value,hitcount,i,x,j,reg_base,boardnumber,error,base_add;
 	char         c,buf[80];
 	short        *iq;
-	CONFIG       *config;
 	double       num,den;
 	int 			*iptr;
 	int			a,r,n;

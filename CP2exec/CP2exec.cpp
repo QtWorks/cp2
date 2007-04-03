@@ -26,7 +26,7 @@ _pThread(0)
 	_networkIP->setText(pulseInterface.c_str());
 
 	// create the main piraq execution thread.
-	_pThread = new CP2ExecThread(_dspObjFile, _configFile);
+	_pThread = new CP2ExecThread(_dspObjFile);
 	
 	// start the thread
 	_pThread->start();

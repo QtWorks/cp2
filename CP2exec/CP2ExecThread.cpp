@@ -19,7 +19,6 @@
 
 // from CP2Lib
 #include "timerlib.h"
-#include "config.h"
 #include "pci_w32.h"
 
 // from CP2Piraq
@@ -31,9 +30,8 @@
 #include "control.h"
 #include "HPIB.h"
 
-CP2ExecThread::CP2ExecThread(std::string dspObjFile, std::string configFile):
+CP2ExecThread::CP2ExecThread(std::string dspObjFile):
 _dspObjFile(dspObjFile),
-_configFile(configFile),
 _piraq0(0),
 _piraq1(0),
 _piraq2(0),
@@ -78,7 +76,7 @@ CP2ExecThread::run()
 
 	float prt;
 	float xmit_pulsewidth;
-	int gates = _config.getInt("Radar/Gates", 984);
+	int gates = _config.getInt("Piraq/Gates", 950);
 	char c;
 	int piraqs = 0;   
 	long long pulsenum;
@@ -130,31 +128,25 @@ CP2ExecThread::run()
 	//    are found in succesion, even if we will not be collecting data 
 	//    from all of them.
 
-	// CP2Piraq currently uses the legacy configuration file.
-	_configFile = _config.getString("Legacy/LegacyConfigurationFile", "c:/Projects/cp2/cp2exec/config.dsp");
-	char* configFileName = new char[_configFile.size()+1];
-	strcpy(configFileName, _configFile.c_str());
-
 	// And it accesses the Piraq dsp object file
 	char* dspObjFileName = new char[_dspObjFile.size()+1];
 	strcpy(dspObjFileName, _dspObjFile.c_str());
 
 	// create the piraqs
-	_piraq0 = new CP2PIRAQ(_pPulseSocket, "NCAR", "CP2Exec", configFileName, dspObjFileName, 
+	_piraq0 = new CP2PIRAQ(_pPulseSocket, "NCAR", "CP2Exec", dspObjFileName, 
 		_pulsesPerPciXfer, PMACphysAddr, 0, SHV, _doSimAngles, simAngles);
 
-	_piraq1 = new CP2PIRAQ(_pPulseSocket, "NCAR", "CP2Exec", configFileName, dspObjFileName, 
+	_piraq1 = new CP2PIRAQ(_pPulseSocket, "NCAR", "CP2Exec", dspObjFileName, 
 		_pulsesPerPciXfer, PMACphysAddr, 1, XH, _doSimAngles, simAngles);
 
-	_piraq2 = new CP2PIRAQ(_pPulseSocket, "NCAR", "CP2Exec", dspObjFileName, dspObjFileName, 
+	_piraq2 = new CP2PIRAQ(_pPulseSocket, "NCAR", "CP2Exec", dspObjFileName, 
 		_pulsesPerPciXfer, PMACphysAddr, 2, XV, _doSimAngles, simAngles);
 
 	delete [] dspObjFileName;
-	delete [] dspObjFileName;
 
 	/// @todo SYSTEM_CLOCK should be moved to the configuration.
-	prt = _config.getInt("Radar/PrtCounts", 6000) * (8.0/(float)SYSTEM_CLOCK);
-	xmit_pulsewidth = _config.getInt("Radar/XmitWidthCounts", 6) * (8.0/(float)SYSTEM_CLOCK);
+	prt = _config.getInt("Piraq/PrtCounts", 6000) * (8.0/(float)SYSTEM_CLOCK);
+	xmit_pulsewidth = _config.getInt("Piraq/XmitWidthCounts", 6) * (8.0/(float)SYSTEM_CLOCK);
 
 	///////////////////////////////////////////////////////////////////////////
 	//
@@ -196,7 +188,7 @@ CP2ExecThread::run()
 
 	PINFOHEADER info;
 	info = _piraq2->info();
-	int pciTimerMode = _config.getInt("Timer/PciTimerMode", 1);
+	int pciTimerMode = _config.getInt("PciTimer/TimerMode", 1);
 	cp2timer_config(&ext_timer, &info, pciTimerMode, prt, xmit_pulsewidth);
 	cp2timer_set(&ext_timer);		// put the timer structure into the timer DPRAM 
 	cp2timer_reset(&ext_timer);	// tell the timer to initialize with the values from DPRAM 

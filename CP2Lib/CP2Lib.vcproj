@@ -151,14 +151,6 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\config.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\filesub.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\pci_w32.cpp"
 				>
 			</File>
@@ -172,14 +164,6 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-			<File
-				RelativePath=".\config.h"
-				>
-			</File>
-			<File
-				RelativePath=".\filesub.h"
-				>
-			</File>
 			<File
 				RelativePath=".\pci_w32.h"
 				>
@@ -195,10 +179,6 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 		</Filter>
-		<File
-			RelativePath=".\ReadMe.txt"
-			>
-		</File>
 	</Files>
 	<Globals>
 		<Global

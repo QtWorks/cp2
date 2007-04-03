@@ -22,8 +22,7 @@ public:
 	};
 	/// Contructor
 	CP2ExecThread(
-		std::string dspObjfile, ///< The path to the dsp object file
-		std::string configFile  ///< The path to the legacy configuration file. This will go away when we have switched to the new configuration scheme.
+		std::string dspObjfile ///< The path to the dsp object file
 		);
 	/// Destructor
 	virtual ~CP2ExecThread();

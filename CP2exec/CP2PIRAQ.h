@@ -4,7 +4,6 @@
 #include "piraqComm.h"
 #include "CP2Net.h"
 #include "CP2UdpSocket.h"
-#include "config.h"
 #include "SimAngles.h"
 #include "CP2Config.h"
 #include <fstream>
@@ -74,7 +73,6 @@ public:
 		CP2UdpSocket* pPulseSocket, ///< The socket that pulse data will be broadcast on
 		std::string configOrg,		///< The organization name, used to identify the configuration
 		std::string configApp,		///< The application name, used to identify the configuration
-		char* configFname,
 		char* dspObjFnamefloat,
 		unsigned int pulsesPerPciXfer, ///< The number of pulses to include in each PCI transfer
 		unsigned int pmacDpramBusAddr, ///< The physical PCI address of the PMAC DPRAM 
@@ -129,7 +127,7 @@ public:
 
 protected:
 	/// Initialize the piraq card, loading the DSP with a program.
-	int init(char* configFname, char* dspObjFname);
+	int init(char* dspObjFname);
 	/// output a stream of serial data to the PLL 
 	///----------------------
 	/// PLL bits definition  
@@ -152,8 +150,9 @@ protected:
 	/// @iobase The virtual address of the timer block.
 	void timerRegisterSet(int section, int mode, int count, unsigned short *iobase);
 	///
-	/// program the timer for different modes with
-	///
+	/// program the timer for different modes.
+	/// The following comments were taken out of some legacy code.
+	/// They don't seem to be completely accurate.
 	///
 	/// mode:           0 = continuous mode, 1 = trigger mode, 2 = sync mode
 	/// gate0mode:      0 = regular gate 0, 1 = expanded gate 0
@@ -170,12 +169,9 @@ protected:
 	///
 	/// this routine leaves the timer in a known state 
 	/// the timer is assumed stopped on entry (important!) 
-	int timerset(CONFIG *config);
+	int timerset();
 	/// make sure the timer is stopped and no fifo data is pending 
 	void stop_piraq();
-	/// A configurtion which will be created from
-	/// a supplied file name
-	CONFIG _config;
 	/// The FIFO that is used for data transfering from piraq to host
 	CircularBuffer*   _pFifo;
 	/// This will be the first packet in the fifo. It appears that
