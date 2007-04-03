@@ -7,6 +7,7 @@
 #include "config.h"
 #include "SimAngles.h"
 #include "CP2Config.h"
+#include <fstream>
 
 #define C       2.99792458E8
 
@@ -261,6 +262,11 @@ protected:
 	SimAngles _simAngles;
 	/// Configuration
 	CP2Config _cp2execConfig;
+	/// enable/disable debugging
+	bool _debug;
+	/// debugging output file
+	std::ofstream _debugFile;
+
 
 };
 

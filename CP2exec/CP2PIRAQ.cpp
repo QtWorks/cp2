@@ -12,6 +12,7 @@
 #include "HPIB.h"
 #include "FirFilters.h"
 
+
 ///////////////////////////////////////////////////////////////////////////
 CP2PIRAQ::CP2PIRAQ(
 				   CP2UdpSocket* pPulseSocket,
@@ -44,8 +45,10 @@ _el(0),
 _sweep(0),
 _volume(0),
 _doSimAngles(doSimAngles),
-_simAngles(simAngles)
+_simAngles(simAngles),
+_debug(false)
 {
+
 	init(configFname, dspObjFname);
 }
 
@@ -59,6 +62,15 @@ CP2PIRAQ::~CP2PIRAQ()
 int
 CP2PIRAQ::init(char* configFname, char* dspObjFname)	 
 {
+	_debug = _cp2execConfig.getBool("Debug", false);
+	if(_debug) {
+		std::string filename;
+		filename = "debug";
+		filename += '0'+_boardnum;
+		filename += ".txt";
+		_debugFile.open(filename.c_str());
+	}
+
 	printf("\n\nreading config file %s\n", configFname);
 
 	readconfig(configFname, &_config);    
@@ -228,6 +240,16 @@ CP2PIRAQ::poll()
 				header.sweepNum  = ppacket->info.sweepNum;
 				header.volNum    = ppacket->info.volNum;
 				header.antTrans  = ppacket->info.antTrans;
+
+				if (_debug) {
+					_debugFile 
+						<< header.pulse_num << "   "
+						<< header.az << "   "
+						<< header.el << "   "
+						<< ppacket->info.antAz << "   "
+						<< ppacket->info.antEl << "   "
+						<< std::endl;
+				}
 			} else {
 				_simAngles.nextAngle(header.az, header.el, header.antTrans, header.sweepNum, header.volNum);
 			}
