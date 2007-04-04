@@ -1,4 +1,6 @@
 #include "CP2Config.h"
+#include <qlist>
+#include <qvariant>
 
 //////////////////////////////////////////////////////////
 CP2Config::CP2Config(const std::string organization, const std::string application):
@@ -89,6 +91,52 @@ CP2Config::getBool(std::string key, bool defaultValue)
 	return b;
 }
 
+//////////////////////////////////////////////////////////
+std::vector<CP2Config::TripleInt>
+CP2Config::getArray(
+		std::string key, 
+		std::vector<CP2Config::TripleInt> defaultValues)
+{
+	std::vector<CP2Config::TripleInt> result;
+
+	
+	// Find out if the array exists, and its size
+	int arraySize = _settings.beginReadArray(key.c_str());
+	_settings.endArray();
+
+	if (arraySize != defaultValues.size()) {
+		// if the array doesn't exist, or does exist and
+		// has a different size, remove the existing entries
+		_settings.remove(key.c_str());
+		// and add the default values
+		_settings.beginWriteArray(key.c_str());
+		for (unsigned int i = 0; i < defaultValues.size(); i++) {
+			_settings.setArrayIndex(i);
+			QString tripleString = QString("%1 %2 %3")
+				.arg(defaultValues[i].values[0], 6)
+				.arg(defaultValues[i].values[1], 6)
+				.arg(defaultValues[i].values[2], 6);
+			QList<QVariant> rgb;
+			rgb.append(QVariant(defaultValues[i].values[0]));
+			rgb.append(QVariant(defaultValues[i].values[1]));
+			rgb.append(QVariant(defaultValues[i].values[2]));
+
+			_settings.setValue("RGB", rgb);
+			result.push_back(defaultValues[i]);
+		}
+		_settings.endArray();
+	} else {
+		_settings.beginReadArray(key.c_str());
+		for (unsigned int i = 0; i < arraySize; i++) {
+			_settings.setArrayIndex(i);
+			QList<QVariant> rgb = _settings.value("RGB").toList();
+			CP2Config::TripleInt data = {rgb[0].toInt(), rgb[1].toInt(), rgb[2].toInt()};
+			result.push_back(data);
+		}
+	}
+
+	return result;
+}
 //////////////////////////////////////////////////////////
 void
 CP2Config::sync() 

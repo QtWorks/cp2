@@ -3,6 +3,7 @@
 
 #include <QSettings.h>
 #include <string>
+#include <vector>
 
 /// Provide an interface to configuration
 // management. Configuration items are specified
@@ -15,6 +16,10 @@
 /// Configurations are always synced when a value is written.
 class CP2Config {
 public:
+	struct TripleInt {
+		int values[3];
+	};
+
 	CP2Config(const std::string organization, const std::string application);
 	virtual ~CP2Config();
 
@@ -31,6 +36,8 @@ public:
 
 	void setBool(std::string key, bool b);
 	bool getBool(std::string key, bool defaultValue);
+
+	std::vector<TripleInt> getArray(std::string key, std::vector<TripleInt> defaultValues);
 
 protected:
 	/// The configuration permanent store
