@@ -45,10 +45,9 @@ _config("NCAR", "CP2PPI")
 
 	_config.setString("title", "CP2PPI Plan Position Index Display");
 
-	for (int i = 0; i < 3; i++) {
-		_pulseCount[i]	= 0;
-	}
-
+	// initialize the color maps, reading them from the configuration.
+	initColorMaps();
+	
 	// intialize the data reception socket.
 	// set up the ocket notifier and connect it
 	// to the data reception slot
@@ -237,6 +236,27 @@ CP2PPI::processProduct(CP2Product* pProduct)
 	}
 }
 
+//////////////////////////////////////////////////////////////////////
+void
+CP2PPI::initColorMaps()	
+{
+	ColorMap standardMap(0.0, 100.0);
+	std::vector<int> red = standardMap.red();
+	std::vector<int> green = standardMap.green();
+	std::vector<int> blue = standardMap.blue();
+	
+	std::vector<CP2Config::TripleInt> defaultMap;
+	for (unsigned int i = 0; i < red.size(); i++) {
+		CP2Config::TripleInt triple;
+		triple.values[0] = red[i];
+		triple.values[1] = green[i];
+		triple.values[2] = blue[i];
+		defaultMap.push_back(triple);
+	}
+
+	defaultMap = _config.getArray("ColorMaps/default", defaultMap);
+
+}
 //////////////////////////////////////////////////////////////////////
 void
 CP2PPI::initSocket()	
@@ -562,19 +582,12 @@ CP2PPI::colorBarSettingsFinishedSlot(int result)
 		// save the new values in the configuration
 		// create the configuration keys
 		std::string key = _ppiInfo[plotType].getKey();
-		std::string minKey = "ColorScales/";
-		minKey += key;
-		minKey += "_min";
-
-		std::string maxKey = "ColorScales/";
-		maxKey += key;
-		maxKey += "_max";
+		std::string minKey = key + "/min";
+		std::string maxKey = key + "/max";
 
 		// get the configuration values
 		_config.setDouble(minKey, scaleMin);
 		_config.setDouble(maxKey, scaleMax);
-
-
 	}
 }
 //////////////////////////////////////////////////////////////////////
@@ -601,13 +614,11 @@ CP2PPI::setPpiInfo(PRODUCT_TYPES t,
 				   int ppiVarIndex)
 {
 	// create the configuration keys
-	std::string minKey = "ColorScales/";
-	minKey += key;
-	minKey += "_min";
+	std::string minKey = key;
+	minKey += "/min";
 
-	std::string maxKey = "ColorScales/";
-	maxKey += key;
-	maxKey += "_max";
+	std::string maxKey = key;
+	maxKey += "/max";
 
 	// get the configuration values
 	double min = _config.getDouble(minKey, defaultScaleMin);

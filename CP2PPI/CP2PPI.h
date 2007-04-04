@@ -41,7 +41,9 @@
 class CP2PPI : public QDialog, public Ui::CP2PPI {
 	Q_OBJECT
 public:
+	/// Constructor
 	CP2PPI(QDialog* parent = 0);
+	/// Destructor
 	~CP2PPI();
 
 public slots:
@@ -67,6 +69,11 @@ protected:
 	/// intialize the socket that the product data 
 	/// is received on
 	void initSocket(); 
+	/// initialize all of the book keeping structures
+	/// for the various plots.
+	void initPlots();
+	/// Initialize the color maps
+	void initColorMaps();
 	/// Process the products as they come in. 
 	/// Sband and X band products with identical 
 	/// beam numbers are collected until a full
@@ -85,7 +92,6 @@ protected:
 	char*   _pSocketBuf;
 	/// Incoming produt port number.
 	int	_productPort;
-	int	_pulseCount[3];				
 	// how often to update the statistics (in seconds)
 	int _statsUpdateInterval;
 	/// the currently selected display type
@@ -118,9 +124,6 @@ protected:
 	/// so that we can find the selected button
 	/// and change the plot type when tabs are switched.
 	std::vector<QButtonGroup*> _tabButtonGroups;
-	/// initialize all of the book keeping structures
-	/// for the various plots.
-	void initPlots();
 	/// Configure the PpiInfo entry for a product, 
 	/// getting values from the configuration.
 	void setPpiInfo(PRODUCT_TYPES t, ///< The product type
@@ -174,6 +177,8 @@ protected:
 	CP2Packet packet;
 	/// The dialog that will collect colorbar settings
 	ColorBarSettings* _colorBarSettings;
+	/// The available ColorMaps. They are individually identified by a name.
+	std::map<std::string, ColorMap> _colorMaps;
   };
 
 #endif
