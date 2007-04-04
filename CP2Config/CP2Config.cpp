@@ -1,5 +1,6 @@
 #include "CP2Config.h"
 #include <qlist>
+#include <qstringlist>
 #include <qvariant>
 
 //////////////////////////////////////////////////////////
@@ -17,11 +18,33 @@ CP2Config::~CP2Config()
 }
 
 //////////////////////////////////////////////////////////
+std::vector<std::string>
+CP2Config::childGroups(std::string topGroup) {
+
+	std::vector<std::string> result;
+	
+	// set the top group
+	_settings.beginGroup(topGroup.c_str());
+	
+	// get the child groups
+	QStringList children = _settings.childGroups();
+
+	// save them
+	for (int i = 0; i < children.size(); i++) {
+		result.push_back(children[i].toStdString());
+	}
+
+	_settings.endGroup();
+
+	return result;
+}
+
+//////////////////////////////////////////////////////////
 void
 CP2Config::setString(std::string key, std::string t) 
 {
 	_settings.setValue(key.c_str(), t.c_str());
-	_settings.sync();
+	sync();
 }
 
 //////////////////////////////////////////////////////////
@@ -32,7 +55,7 @@ CP2Config::getString(std::string key, std::string defaultValue)
 		defaultValue.c_str()).toString().toAscii());
 
 	_settings.setValue(key.c_str(), s.c_str());
-	_settings.sync();
+	sync();
 
 	return s;
 }
@@ -42,7 +65,7 @@ void
 CP2Config::setDouble(std::string key, double value) 
 {
 	_settings.setValue(key.c_str(), value);
-	_settings.sync();
+	sync();
 }
 
 //////////////////////////////////////////////////////////
@@ -51,7 +74,7 @@ CP2Config::getDouble(std::string key, double defaultValue)
 {
 	double d = _settings.value(key.c_str(), defaultValue).toDouble();
 	_settings.setValue(key.c_str(), d);
-	_settings.sync();
+	sync();
 	return d;
 }
 
@@ -60,7 +83,7 @@ void
 CP2Config::setInt(std::string key, int value) 
 {
 	_settings.setValue(key.c_str(), value);
-	_settings.sync();
+	sync();
 }
 
 //////////////////////////////////////////////////////////
@@ -69,7 +92,7 @@ CP2Config::getInt(std::string key, int defaultValue)
 {
 	int i = _settings.value(key.c_str(), defaultValue).toDouble();
 	_settings.setValue(key.c_str(), i);
-	_settings.sync();
+	sync();
 	return i;
 }
 
@@ -78,7 +101,7 @@ void
 CP2Config::setBool(std::string key, bool value) 
 {
 	_settings.setValue(key.c_str(), value);
-	_settings.sync();
+	sync();
 }
 
 //////////////////////////////////////////////////////////
@@ -87,41 +110,66 @@ CP2Config::getBool(std::string key, bool defaultValue)
 {
 	bool b = _settings.value(key.c_str(), defaultValue).toBool();
 	_settings.setValue(key.c_str(), b);
-	_settings.sync();
+	sync();
 	return b;
 }
 
 //////////////////////////////////////////////////////////
-std::vector<CP2Config::TripleInt>
-CP2Config::getArray(
-		std::string key, 
-		std::vector<CP2Config::TripleInt> defaultValues)
+void
+CP2Config::setArray(std::string key, 
+					std::string subKey,
+		std::vector<std::vector<int> > defaultValues)
 {
-	std::vector<CP2Config::TripleInt> result;
+	std::vector<std::vector<int> > result;
 
-	
 	// Find out if the array exists, and its size
 	int arraySize = _settings.beginReadArray(key.c_str());
 	_settings.endArray();
 
-	if (arraySize != defaultValues.size()) {
-		// if the array doesn't exist, or does exist and
-		// has a different size, remove the existing entries
-		_settings.remove(key.c_str());
-		// and add the default values
+	if (arraySize != 0) {
+		// if the array already exists
+	}
+
+	// now create the array
 		_settings.beginWriteArray(key.c_str());
 		for (unsigned int i = 0; i < defaultValues.size(); i++) {
 			_settings.setArrayIndex(i);
-			QString tripleString = QString("%1 %2 %3")
-				.arg(defaultValues[i].values[0], 6)
-				.arg(defaultValues[i].values[1], 6)
-				.arg(defaultValues[i].values[2], 6);
-			QList<QVariant> rgb;
-			rgb.append(QVariant(defaultValues[i].values[0]));
-			rgb.append(QVariant(defaultValues[i].values[1]));
-			rgb.append(QVariant(defaultValues[i].values[2]));
+			QList<QVariant> variantList;
+			for (unsigned int j = 0; j < defaultValues[i].size(); j++) {
+				variantList.append(QVariant(defaultValues[i][j]));
+			}
+			_settings.setValue(subKey.c_str(), variantList);
+			result.push_back(defaultValues[i]);
+		}
+		_settings.endArray();
 
-			_settings.setValue("RGB", rgb);
+	sync();
+
+	return;
+}
+//////////////////////////////////////////////////////////
+std::vector<std::vector<int> >
+CP2Config::getArray(std::string key, 
+					std::string subKey,
+		std::vector<std::vector<int> > defaultValues)
+{
+	std::vector<std::vector<int> > result;
+
+	// Find out if the array exists, and its size
+	int arraySize = _settings.beginReadArray(key.c_str());
+	_settings.endArray();
+
+	if (arraySize == 0) {
+		// if the array doesn't exist
+		// add the default values
+		_settings.beginWriteArray(key.c_str());
+		for (unsigned int i = 0; i < defaultValues.size(); i++) {
+			_settings.setArrayIndex(i);
+			QList<QVariant> variantList;
+			for (unsigned int j = 0; j < defaultValues[i].size(); j++) {
+				variantList.append(QVariant(defaultValues[i][j]));
+			}
+			_settings.setValue(subKey.c_str(), variantList);
 			result.push_back(defaultValues[i]);
 		}
 		_settings.endArray();
@@ -129,11 +177,17 @@ CP2Config::getArray(
 		_settings.beginReadArray(key.c_str());
 		for (unsigned int i = 0; i < arraySize; i++) {
 			_settings.setArrayIndex(i);
-			QList<QVariant> rgb = _settings.value("RGB").toList();
-			CP2Config::TripleInt data = {rgb[0].toInt(), rgb[1].toInt(), rgb[2].toInt()};
-			result.push_back(data);
+			QList<QVariant> variantList = _settings.value(subKey.c_str()).toList();
+			std::vector<int> entry;
+			for (int i = 0; i < variantList.size(); i++) {
+				entry.push_back(variantList[i].toInt());
+			}
+			result.push_back(entry);
 		}
+		_settings.endArray();
 	}
+
+	sync();
 
 	return result;
 }

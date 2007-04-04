@@ -12,13 +12,19 @@ _scaleMax(10)
 }
 
 ////////////////////////////////////////////////////////
-PpiInfo::PpiInfo(int id, std::string key, std::string shortName, std::string longName,
-		double scaleMin, double scaleMax,
-		int ppiIndex):
+PpiInfo::PpiInfo(int id, 
+				 std::string key, 
+				 std::string shortName, 
+				 std::string longName,
+				 std::string colorMapName,
+				 double scaleMin, 
+				 double scaleMax,
+				 int ppiIndex):
 _key(key),
 _id(id),
 _shortName(shortName),
 _longName(longName),
+_colorMapName(colorMapName),
 _scaleMin(scaleMin),
 _scaleMax(scaleMax),
 _ppiIndex(ppiIndex)
@@ -71,6 +77,20 @@ int
 PpiInfo::getId()
 {
 	return _id;
+}
+
+////////////////////////////////////////////////////////
+void 
+PpiInfo::setColorMapName(std::string mapName)
+{
+	_colorMapName = mapName;
+}
+
+////////////////////////////////////////////////////////
+std::string 
+PpiInfo::getColorMapName()
+{
+	return _colorMapName;
 }
 
 ////////////////////////////////////////////////////////

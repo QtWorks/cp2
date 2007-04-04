@@ -47,7 +47,7 @@ _config("NCAR", "CP2PPI")
 
 	// initialize the color maps, reading them from the configuration.
 	initColorMaps();
-	
+
 	// intialize the data reception socket.
 	// set up the ocket notifier and connect it
 	// to the data reception slot
@@ -68,20 +68,38 @@ _config("NCAR", "CP2PPI")
 	_mapsSband.resize(_nVarsSband);
 	for (pSet=_sMomentsList.begin(); pSet!=_sMomentsList.end(); pSet++) 
 	{
+		// Set up the color map.
+		// First get the scales.
 		double scaleMin = _ppiInfo[*pSet].getScaleMin();
 		double scaleMax = _ppiInfo[*pSet].getScaleMax();
+		// now get the name
+		std::string mapName = _ppiInfo[*pSet].getColorMapName();
+		// create a copy of the map in our collection which has this name
+		ColorMap* pMap = new ColorMap(_colorMaps[mapName]);
+		// and set its range.
+		pMap->setRange(scaleMin, scaleMax);
+		// Finally save the pointer to the colormap in this variable's _ppiInfo entry.
 		int index = _ppiInfo[*pSet].getPpiIndex();
-		_mapsSband[index] = new ColorMap(scaleMin, scaleMax);
+		_mapsSband[index] = pMap;
 	}
 
 	// create the Xband color maps
 	_mapsXband.resize(_nVarsXband);
 	for (pSet=_xMomentsList.begin(); pSet!=_xMomentsList.end(); pSet++) 
 	{
+		// Set up the color map.
+		// First get the scales.
 		double scaleMin = _ppiInfo[*pSet].getScaleMin();
 		double scaleMax = _ppiInfo[*pSet].getScaleMax();
+		// now get the name
+		std::string mapName = _ppiInfo[*pSet].getColorMapName();
+		// create a copy of the map in our collection which has this name
+		ColorMap* pMap = new ColorMap(_colorMaps[mapName]);
+		// and set its range.
+		pMap->setRange(scaleMin, scaleMax);
+		// Finally save the pointer to the colormap in this variable's _ppiInfo entry.
 		int index = _ppiInfo[*pSet].getPpiIndex();
-		_mapsXband[index] = new ColorMap(scaleMin, scaleMax);
+		_mapsXband[index] = pMap;
 	}
 
 	configureForGates();
@@ -240,22 +258,37 @@ CP2PPI::processProduct(CP2Product* pProduct)
 void
 CP2PPI::initColorMaps()	
 {
+	// make sure that the default map is there. Use the
+	// colors that are found in the default ColorMap
 	ColorMap standardMap(0.0, 100.0);
 	std::vector<int> red = standardMap.red();
 	std::vector<int> green = standardMap.green();
 	std::vector<int> blue = standardMap.blue();
-	
-	std::vector<CP2Config::TripleInt> defaultMap;
+
+	std::vector<std::vector<int> > defaultMap;
 	for (unsigned int i = 0; i < red.size(); i++) {
-		CP2Config::TripleInt triple;
-		triple.values[0] = red[i];
-		triple.values[1] = green[i];
-		triple.values[2] = blue[i];
-		defaultMap.push_back(triple);
+		std::vector<int> rgb;
+		rgb.resize(3);
+		rgb[0] = red[i];
+		rgb[1] = green[i];
+		rgb[2] = blue[i];
+		defaultMap.push_back(rgb);
 	}
+	defaultMap = _config.getArray("ColorMaps/default", "RGB", defaultMap);
 
-	defaultMap = _config.getArray("ColorMaps/default", defaultMap);
+	// get the names of all existing colormaps saved in the configuration.
+	std::vector<std::string> names = _config.childGroups("ColorMaps");
 
+	// save colormaps for each of these choices.
+	for (int i = 0; i < names.size(); i++) {
+		std::vector<std::vector<int> > colors;
+		std::string mapKey("ColorMaps/");
+		mapKey += names[i];
+		colors = _config.getArray(mapKey,"RGB", defaultMap);
+		// create the map. Use a bogus range, which will be reset 
+		// when the map is used by a variable.
+		_colorMaps[names[i]] = ColorMap(0.0, 1.0, colors);
+	}
 }
 //////////////////////////////////////////////////////////////////////
 void
@@ -565,15 +598,13 @@ CP2PPI::colorBarSettingsFinishedSlot(int result)
 		int index = _ppiInfo[plotType].getPpiIndex();
 		if (_sMomentsList.find(_ppiSType)!=_sMomentsList.end())
 		{
-			// make a new color map
-			delete _mapsSband[index];
-			_mapsSband[index] = new ColorMap(scaleMin, scaleMax);
+			// set range on the color map
+			_mapsSband[index]->setRange(scaleMin, scaleMax);
 			// configure the color bar with it
 			_colorBar->configure(*_mapsSband[index]);
 		} else {
-			// make a new color map
-			delete _mapsXband[index];
-			_mapsXband[index] = new ColorMap(scaleMin, scaleMax);
+			// set range on the color map
+			_mapsXband[index]->setRange(scaleMin, scaleMax);
 			// configure the color bar with it
 			_colorBar->configure(*_mapsXband[index]);
 		}
@@ -620,12 +651,19 @@ CP2PPI::setPpiInfo(PRODUCT_TYPES t,
 	std::string maxKey = key;
 	maxKey += "/max";
 
+	std::string mapKey = key;
+	mapKey += "/colorMap";
+
 	// get the configuration values
 	double min = _config.getDouble(minKey, defaultScaleMin);
 	double max = _config.getDouble(maxKey, defaultScaleMax);
+	std::string mapName = _config.getString(mapKey, "default");
+	if (_colorMaps.find(mapName) == _colorMaps.end()) {
+		mapName = "default";
+	}
 
 	// set the ppi configuration
-	_ppiInfo[t] = PpiInfo(t, key, shortName, longName, min, max, ppiVarIndex);
+	_ppiInfo[t] = PpiInfo(t, key, shortName, longName, mapName, min, max, ppiVarIndex);
 
 	_config.sync();
 

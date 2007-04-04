@@ -16,10 +16,6 @@
 /// Configurations are always synced when a value is written.
 class CP2Config {
 public:
-	struct TripleInt {
-		int values[3];
-	};
-
 	CP2Config(const std::string organization, const std::string application);
 	virtual ~CP2Config();
 
@@ -37,7 +33,16 @@ public:
 	void setBool(std::string key, bool b);
 	bool getBool(std::string key, bool defaultValue);
 
-	std::vector<TripleInt> getArray(std::string key, std::vector<TripleInt> defaultValues);
+	void setArray(std::string key, 
+		std::string subKey,
+		std::vector<std::vector<int> > values);
+
+	std::vector<std::vector<int> > getArray(std::string key, 
+		std::string subKey,
+		std::vector<std::vector<int> > defaultValues);
+
+	std::vector<std::string>
+		childGroups(std::string topGroup);
 
 protected:
 	/// The configuration permanent store
