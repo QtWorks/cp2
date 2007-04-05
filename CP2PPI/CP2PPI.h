@@ -52,9 +52,9 @@ public slots:
 	virtual void ppiTypeSlot(int ppiType);
 	void tabChangeSlot(QWidget* w);
 	void pauseSlot(bool flag);	//	start/stop process, display
+	/// To zoom in one level
     void zoomInSlot();
-	void doSslot(bool);
-	void doXslot(bool);
+	/// To zoom out one level
     void zoomOutSlot();
 	void panSlot(int panIndex);
 	/// Activated when a mouse click is released for the color bar
@@ -179,6 +179,8 @@ protected:
 	ColorBarSettings* _colorBarSettings;
 	/// The available ColorMaps. They are individually identified by a name.
 	std::map<std::string, ColorMap> _colorMaps;
+	/// The zoom multiplication factor applied on each zoom request
+	double _zoomFactor;
   };
 
 #endif

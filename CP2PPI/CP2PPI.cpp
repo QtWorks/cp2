@@ -33,7 +33,6 @@ QDialog(parent),
 _gates(10),
 _pSocket(0),    
 _pSocketBuf(0),	
-_statsUpdateInterval(5),
 _currentSbeamNum(0),
 _currentXbeamNum(0),
 _pause(false),
@@ -44,6 +43,8 @@ _config("NCAR", "CP2PPI")
 	setupUi(parent);
 
 	_config.setString("title", "CP2PPI Plan Position Index Display");
+
+	_statsUpdateInterval = _config.getInt("statsUpdateSeconds", 5);
 
 	// initialize the color maps, reading them from the configuration.
 	initColorMaps();
@@ -109,6 +110,12 @@ _config("NCAR", "CP2PPI")
 
 	// capture a user click on the color bar
 	connect(_colorBar, SIGNAL(released()), this, SLOT(colorBarReleasedSlot()));
+
+	// connect the zoom buttons
+	connect(_zoomInButton, SIGNAL(released()), this, SLOT(zoomInSlot()));
+	connect(_zoomOutButton, SIGNAL(released()), this, SLOT(zoomOutSlot()));
+	ZoomFactor->display(1.0);
+	_zoomFactor = _config.getDouble("zoomFactor", 1.2);
 
 	// start the statistics timer
 	startTimer(_statsUpdateInterval*1000);
@@ -342,6 +349,8 @@ CP2PPI::initPlots()
 	// set the initial plot type
 	_ppiSType = PROD_S_DBZHC;
 
+	_sMomentsList.insert(PROD_S_DBMHC);
+	_sMomentsList.insert(PROD_S_DBMVC);
 	_sMomentsList.insert(PROD_S_DBZHC);
 	_sMomentsList.insert(PROD_S_DBZVC);
 	_sMomentsList.insert(PROD_S_WIDTH);
@@ -351,11 +360,15 @@ CP2PPI::initPlots()
 	_sMomentsList.insert(PROD_S_PHIDP);
 	_sMomentsList.insert(PROD_S_ZDR);
 
+	_xMomentsList.insert(PROD_X_DBMHC);
+	_xMomentsList.insert(PROD_X_DBMVX);
 	_xMomentsList.insert(PROD_X_DBZHC);
 	_xMomentsList.insert(PROD_X_SNR);
 	_xMomentsList.insert(PROD_X_LDR);
 
 	int ppiVarIndex = 0;
+	setPpiInfo(PROD_S_DBMHC, "S_DBMHC", "H Dbm", "Sh: Dbm",     -70.0,   0.0,   ppiVarIndex++);
+	setPpiInfo(PROD_S_DBMVC, "S_DBMVC", "V Dbm", "Sv: Dbm",     -70.0,   0.0,   ppiVarIndex++);
 	setPpiInfo(PROD_S_DBZHC, "S_DBZHC", "H Dbz", "Sh: Dbz",     -70.0,   0.0,   ppiVarIndex++);
 	setPpiInfo(PROD_S_DBZVC, "S_DBZVC", "V Dbz", "Sv: Dbz",     -70.0,   0.0,   ppiVarIndex++);
 	setPpiInfo(PROD_S_WIDTH, "S_WIDTH", "Width", "S:  Width",     0.0,   5.0,   ppiVarIndex++);
@@ -366,6 +379,8 @@ CP2PPI::initPlots()
 	setPpiInfo(  PROD_S_ZDR, "S_ZDR",   "Zdr", "S:  Zdr",        -70.0,   0.0,   ppiVarIndex++);
 	// restart the X band ppi indices at 0
 	ppiVarIndex = 0;
+	setPpiInfo(PROD_X_DBMHC,"X_DBMHC",  "H Dbm", "Xh: Dbm",     -70.0,   0.0,   ppiVarIndex++);
+	setPpiInfo(PROD_X_DBMVX,"X_DBMVX",  "V DbM", "Xv: Dbm",     -70.0,   0.0,   ppiVarIndex++);
 	setPpiInfo(PROD_X_DBZHC,"X_DBZHC",  "H Dbz", "Xh: Dbz",     -70.0,   0.0,   ppiVarIndex++);
 	setPpiInfo(  PROD_X_SNR,"X_SNR",    "SNR", "Xh: SNR",       -40.0,   0.0,   ppiVarIndex++);
 	setPpiInfo(  PROD_X_LDR,"X_LDR",    "LDR", "Xhv:LDR",         0.0,   1.0,   ppiVarIndex++);
@@ -462,14 +477,20 @@ CP2PPI::timerEvent(QTimerEvent*)
 
 void CP2PPI::zoomInSlot()
 {
-	_ppiS->setZoom(2.0);
+	_ppiS->setZoom(_zoomFactor);
+	ZoomFactor->display(ZoomFactor->value()*_zoomFactor);
 }
 
 ///////////////////////////////////////////////////////////////////////
 
 void CP2PPI::zoomOutSlot()
 {
-	_ppiS->setZoom(0.5);
+	// don't allow the zoom out to go beyond full scale
+	if (ZoomFactor->value()/_zoomFactor < 1.0) 
+		return;
+	
+	_ppiS->setZoom(1.0/_zoomFactor);
+	ZoomFactor->display(ZoomFactor->value()/_zoomFactor);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -539,16 +560,6 @@ CP2PPI::displayXbeam(double az, double el)
 			_elLCD->display((int)el);
 		}
 	}
-}
-//////////////////////////////////////////////////////////////////////
-void
-CP2PPI::doSslot(bool checked)
-{
-}
-//////////////////////////////////////////////////////////////////////
-void
-CP2PPI::doXslot(bool checked)
-{
 }
 //////////////////////////////////////////////////////////////////////
 void
