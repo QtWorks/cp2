@@ -18,6 +18,7 @@
 #include <QStackedWidget>
 #include <QCheckBox>
 #include <QMessageBox>
+#include <QColorDialog>
 
 #include "ColorBarSettings.h"
 
@@ -704,4 +705,10 @@ CP2PPI::gridStateChanged(int state) {
 //////////////////////////////////////////////////////////////////////
 void
 CP2PPI::colorButtonReleasedSlot() {
+    QColor color = QColorDialog::getColor("white");
+
+    _ppiS->backgroundColor(color);
+    _ppiX->refresh();
+    _ppiX->backgroundColor(color);
+    _ppiX->refresh();
 }
