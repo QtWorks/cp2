@@ -859,8 +859,8 @@ CP2Scope::autoScale(std::vector<double>& data)
 		_performAutoScale = false;
 		return;
 	}
-	double min = 1.0e10;
-	double max = -1.0e10;
+	double min = data[0];
+	double max = data[0];
 	for (int i = 0; i < data.size(); i++) {
 		if (data[i] > max)
 			max = data[i]; 
