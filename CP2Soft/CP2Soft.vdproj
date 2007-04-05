@@ -15,30 +15,6 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_0D463226103F4EE393913464D63C2A2E"
-        "OwnerKey" = "8:_18A34EECFAA94A478494ECD7C09AE5DE"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_0D463226103F4EE393913464D63C2A2E"
-        "OwnerKey" = "8:_937990C06CDA4EE9963A46125FDABB7C"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_0D463226103F4EE393913464D63C2A2E"
-        "OwnerKey" = "8:_8BE31B3FAA7F467AA2036DCA27C59B97"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_0D463226103F4EE393913464D63C2A2E"
-        "OwnerKey" = "8:_4BB7886241A7487C852848CAD9923118"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_18A34EECFAA94A478494ECD7C09AE5DE"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -105,8 +81,20 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_51CAC6EA32BC43B4AEF447E4501AE344"
+        "OwnerKey" = "8:_E8543953BBB94E888EBB4742164C2962"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_5236DA134480B5A2A4CFB6C535B6FEDA"
         "OwnerKey" = "8:_8BE31B3FAA7F467AA2036DCA27C59B97"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_665252F614944C5692BD70218201226C"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -213,8 +201,26 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_F635A8CD72F84BC2A1F13DEF5E20CE26"
-        "OwnerKey" = "8:_0D463226103F4EE393913464D63C2A2E"
+        "MsmKey" = "8:_E8543953BBB94E888EBB4742164C2962"
+        "OwnerKey" = "8:_18A34EECFAA94A478494ECD7C09AE5DE"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_E8543953BBB94E888EBB4742164C2962"
+        "OwnerKey" = "8:_937990C06CDA4EE9963A46125FDABB7C"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_E8543953BBB94E888EBB4742164C2962"
+        "OwnerKey" = "8:_8BE31B3FAA7F467AA2036DCA27C59B97"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_E8543953BBB94E888EBB4742164C2962"
+        "OwnerKey" = "8:_4BB7886241A7487C852848CAD9923118"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -432,6 +438,26 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_665252F614944C5692BD70218201226C"
+            {
+            "SourcePath" = "8:..\\..\\glut-3.7.6\\lib\\glut\\Release\\glut32.dll"
+            "TargetName" = "8:glut32.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_04305C9CADE44428B7EE853F880CDD96"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_82EC8F72228FE56A017EA49C04A6A8E8"
@@ -692,7 +718,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:CP2Soft"
         "ProductCode" = "8:{8BE8DA03-C62B-41AE-9131-BBEACC377147}"
-        "PackageCode" = "8:{82100B34-7053-45FF-9BF8-EEAC28EFC4A3}"
+        "PackageCode" = "8:{E3B10FDE-E3DE-4083-891A-F828265FF8BD}"
         "UpgradeCode" = "8:{4B075FA3-178C-4A37-A747-F347AE82E93F}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
@@ -1319,11 +1345,11 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_0D463226103F4EE393913464D63C2A2E"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_51CAC6EA32BC43B4AEF447E4501AE344"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:Microsoft_VC80_CRT_x86.msm"
+            "SourcePath" = "8:policy_8_0_microsoft_vc80_crt_x86.msm"
                 "Properties"
                 {
                 }
@@ -1333,11 +1359,11 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_F635A8CD72F84BC2A1F13DEF5E20CE26"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_E8543953BBB94E888EBB4742164C2962"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:policy_8_0_microsoft_vc80_crt_x86.msm"
+            "SourcePath" = "8:Microsoft_VC80_CRT_x86.msm"
                 "Properties"
                 {
                 }
