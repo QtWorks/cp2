@@ -486,6 +486,7 @@ CP2PPI::timerEvent(QTimerEvent*)
 void CP2PPI::zoomInSlot()
 {
 	_ppiS->setZoom(_zoomFactor);
+	_ppiX->setZoom(_zoomFactor);
 	ZoomFactor->display(ZoomFactor->value()*_zoomFactor);
 }
 
@@ -498,6 +499,7 @@ void CP2PPI::zoomOutSlot()
 		return;
 	
 	_ppiS->setZoom(1.0/_zoomFactor);
+	_ppiX->setZoom(1.0/_zoomFactor);
 	ZoomFactor->display(ZoomFactor->value()/_zoomFactor);
 }
 
@@ -691,11 +693,13 @@ CP2PPI::setPpiInfo(PRODUCT_TYPES t,
 void
 CP2PPI::ringStateChanged(int state) {
 	_ppiS->rings(state);
+	_ppiX->rings(state);
 }
 //////////////////////////////////////////////////////////////////////
 void
 CP2PPI::gridStateChanged(int state) {
 	_ppiS->grids(state);
+	_ppiX->grids(state);
 }
 //////////////////////////////////////////////////////////////////////
 void
