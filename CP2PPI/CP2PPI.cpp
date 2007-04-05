@@ -117,8 +117,8 @@ _gateWidthKm(0.150)
 	connect(_zoomOutButton, SIGNAL(released()), this, SLOT(zoomOutSlot()));
 	ZoomFactor->display(1.0);
 	_zoomFactor = _config.getDouble("zoomFactor", 1.2);
-	connect(_ringsCheckBox, SIGNAL(stateChanged(int)), this, SLOT(ringsStateChanged(int)));
-	connect(_gridsCheckBox, SIGNAL(stateChanged(int)), this, SLOT(gridsStateChanged(int)));
+	connect(_ringsCheckBox, SIGNAL(stateChanged(int)), this, SLOT(ringStateChanged(int)));
+	connect(_gridsCheckBox, SIGNAL(stateChanged(int)), this, SLOT(gridStateChanged(int)));
 	connect(_colorButton, SIGNAL(released()), this, SLOT(colorButtonReleasedSlot()));
 
 	// start the statistics timer
