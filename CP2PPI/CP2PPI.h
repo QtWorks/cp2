@@ -62,6 +62,12 @@ public slots:
 	/// Activated when the ColorBarSettings dialog is finished
 	/// @param result The dialog result code
 	void colorBarSettingsFinishedSlot(int result);
+	/// Called when the Color button has been pushed to activate color choosing
+	void colorButtonReleasedSlot();
+	/// Called then the ring checkbox has changed state
+	void ringStateChanged(int state);
+	/// Called then the grid checkbox has changed state
+	void gridStateChanged(int state);
 
 protected:
 	/// The configuration for CP2PPI
@@ -181,6 +187,8 @@ protected:
 	std::map<std::string, ColorMap> _colorMaps;
 	/// The zoom multiplication factor applied on each zoom request
 	double _zoomFactor;
+	/// Gate width in km
+	double _gateWidthKm;
   };
 
 #endif

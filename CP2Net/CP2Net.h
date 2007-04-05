@@ -74,8 +74,9 @@ typedef struct CP2ProductHeader {
 	PRODUCT_TYPES prodType;	///< The product identifier
     int  gates;				///< The number of gates, set by the host.
 	long long beamNum;		///< The beam number.
-    double az;			///< The azimuth
-    double el;			///< The elevation
+    double az;				///< The azimuth
+    double el;				///< The elevation
+	double gateWidthKm;		///< The width of each gate, in km
 } CP2ProductHeader;
 
 /// A header and data are combined to make one product.

@@ -5,7 +5,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>864</width>
+    <width>865</width>
     <height>618</height>
    </rect>
   </property>
@@ -143,30 +143,6 @@
       <number>6</number>
      </property>
      <item>
-      <widget class="QPushButton" name="_pauseButton" >
-       <property name="sizePolicy" >
-        <sizepolicy>
-         <hsizetype>1</hsizetype>
-         <vsizetype>1</vsizetype>
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize" >
-        <size>
-         <width>100</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="text" >
-        <string>Pause</string>
-       </property>
-       <property name="checkable" >
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
       <layout class="QVBoxLayout" >
        <property name="margin" >
         <number>0</number>
@@ -174,6 +150,30 @@
        <property name="spacing" >
         <number>6</number>
        </property>
+       <item>
+        <widget class="QPushButton" name="_pauseButton" >
+         <property name="sizePolicy" >
+          <sizepolicy>
+           <hsizetype>1</hsizetype>
+           <vsizetype>1</vsizetype>
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize" >
+          <size>
+           <width>100</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text" >
+          <string>Pause</string>
+         </property>
+         <property name="checkable" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
        <item>
         <widget class="QPushButton" name="_zoomInButton" >
          <property name="sizePolicy" >
@@ -269,6 +269,37 @@
          </item>
         </layout>
        </item>
+       <item>
+        <layout class="QHBoxLayout" >
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="QCheckBox" name="_ringsCheckBox" >
+           <property name="text" >
+            <string>Rings</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="_gridsCheckBox" >
+           <property name="text" >
+            <string>Grids</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="_colorButton" >
+           <property name="text" >
+            <string>Color</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
       </layout>
      </item>
      <item>
@@ -305,7 +336,7 @@
        <property name="sizeHint" >
         <size>
          <width>232</width>
-         <height>101</height>
+         <height>21</height>
         </size>
        </property>
       </spacer>

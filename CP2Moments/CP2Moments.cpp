@@ -42,12 +42,12 @@ _config("NCAR", "CP2Moments")
 
 	// get the processing parameters
 	int pulsesPerBeam   = _config.getInt("Processing/PulsesPerBeam", 100);
-	double gateSpacing  = _config.getDouble("Processing/GateSpacingKm", 0.150);
+	_gateSpacing        = _config.getDouble("Processing/GateSpacingKm", 0.150);
 
 	// create the Sband moments processing thread
 	Params Sparams;
 	Sparams.moments_params.mode         = Params::DUAL_FAST_ALT;
-	Sparams.moments_params.gate_spacing = gateSpacing;
+	Sparams.moments_params.gate_spacing = _gateSpacing;
 	Sparams.moments_params.n_samples    = pulsesPerBeam;
 	Sparams.moments_params.algorithm    = Params::ALG_PP;
 	_pSmomentThread = new MomentThread(Sparams);
@@ -55,7 +55,7 @@ _config("NCAR", "CP2Moments")
 	// create the Sband moments processing thread
 	Params Xparams;
 	Xparams.moments_params.mode         = Params::DUAL_CP2_XBAND;
-	Xparams.moments_params.gate_spacing = gateSpacing;
+	Xparams.moments_params.gate_spacing = _gateSpacing;
 	Xparams.moments_params.n_samples    = pulsesPerBeam;
 	Xparams.moments_params.algorithm    = Params::ALG_PP;
 	_pXmomentThread = new MomentThread(Xparams);
@@ -380,10 +380,11 @@ CP2Moments::sBeamOut(Beam* pBeam)
 	_sProductData.resize(gates);
 
 	CP2ProductHeader header;
-	header.beamNum = pBeam->getSeqNum();
-	header.gates   = gates;
-	header.az   = pBeam->getAz();
-	header.el   = pBeam->getEl();
+	header.beamNum	   = pBeam->getSeqNum();
+	header.gates	   = gates;
+	header.az		   = pBeam->getAz();
+	header.el		   = pBeam->getEl();
+	header.gateWidthKm = _gateSpacing;
 
 	const Fields* fields = pBeam->getFields();
 
@@ -438,10 +439,11 @@ CP2Moments::xBeamOut(Beam* pBeam)
 	_xProductData.resize(gates);
 
 	CP2ProductHeader header;
-	header.beamNum = pBeam->getSeqNum();
-	header.gates   = gates;
-	header.az      = pBeam->getAz();
-	header.el      = pBeam->getEl();
+	header.beamNum     = pBeam->getSeqNum();
+	header.gates       = gates;
+	header.az          = pBeam->getAz();
+	header.el          = pBeam->getEl();
+	header.gateWidthKm = _gateSpacing;
 
 	const Fields* fields = pBeam->getFields();
 

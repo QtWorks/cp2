@@ -137,6 +137,8 @@ protected:
 	CP2Packet _xProductPacket;
 	/// The configuration for CP2Moments
 	CP2Config _config;
+	/// The gate spacing in km
+	double _gateSpacing;
 };
 
 #endif

@@ -38,7 +38,8 @@ _currentXbeamNum(0),
 _pause(false),
 _ppiSactive(true),
 _productPort(3200),
-_config("NCAR", "CP2PPI")
+_config("NCAR", "CP2PPI"),
+_gateWidthKm(0.150)
 {
 	setupUi(parent);
 
@@ -111,11 +112,14 @@ _config("NCAR", "CP2PPI")
 	// capture a user click on the color bar
 	connect(_colorBar, SIGNAL(released()), this, SLOT(colorBarReleasedSlot()));
 
-	// connect the zoom buttons
+	// connect the control buttons
 	connect(_zoomInButton, SIGNAL(released()), this, SLOT(zoomInSlot()));
 	connect(_zoomOutButton, SIGNAL(released()), this, SLOT(zoomOutSlot()));
 	ZoomFactor->display(1.0);
 	_zoomFactor = _config.getDouble("zoomFactor", 1.2);
+	connect(_ringsCheckBox, SIGNAL(stateChanged(int)), this, SLOT(ringsStateChanged(int)));
+	connect(_gridsCheckBox, SIGNAL(stateChanged(int)), this, SLOT(gridsStateChanged(int)));
+	connect(_colorButton, SIGNAL(released()), this, SLOT(colorButtonReleasedSlot()));
 
 	// start the statistics timer
 	startTimer(_statsUpdateInterval*1000);
@@ -148,8 +152,8 @@ CP2PPI::configureForGates()
 	// beams.
 	// The configure must be called after initPlots(), bcause
 	// that is when _nVarsSband and _nVarsXband are determined.
-	_ppiS->configure(_nVarsSband, _gates, 360);
-	_ppiX->configure(_nVarsXband, _gates, 360);
+	_ppiS->configure(_nVarsSband, _gates, 360, _gateWidthKm*2.0*_gates);
+	_ppiX->configure(_nVarsXband, _gates, 360, _gateWidthKm*2.0*_gates);
 
 	// allocate the beam data arrays
 	_beamSdata.resize(_nVarsSband);
@@ -197,9 +201,11 @@ CP2PPI::processProduct(CP2Product* pProduct)
 	// have collected all products fro either S band
 	// or X band, display the beam.
 	PRODUCT_TYPES prodType = pProduct->header.prodType;
-	long long beamNum = pProduct->header.beamNum;
-	int gates = pProduct->header.gates;
-	double az = pProduct->header.az;
+	long long beamNum      = pProduct->header.beamNum;
+	int gates              = pProduct->header.gates;
+	double az              = pProduct->header.az;
+	double gateWidthKm     = pProduct->header.gateWidthKm;
+
 	az = 450 - az;
 	if (az < 0) 
 		az += 360.0;
@@ -208,8 +214,10 @@ CP2PPI::processProduct(CP2Product* pProduct)
 			az -= 360.0;
 	double el = pProduct->header.el;
 
-	if (gates != _gates) {
+	if (gates       != _gates ||
+		gateWidthKm != _gateWidthKm) {
 		_gates = gates;
+		_gateWidthKm = gateWidthKm;
 		configureForGates();
 	}
 
@@ -679,4 +687,17 @@ CP2PPI::setPpiInfo(PRODUCT_TYPES t,
 	_config.sync();
 
 }
-
+//////////////////////////////////////////////////////////////////////
+void
+CP2PPI::ringStateChanged(int state) {
+	_ppiS->rings(state);
+}
+//////////////////////////////////////////////////////////////////////
+void
+CP2PPI::gridStateChanged(int state) {
+	_ppiS->grids(state);
+}
+//////////////////////////////////////////////////////////////////////
+void
+CP2PPI::colorButtonReleasedSlot() {
+}
