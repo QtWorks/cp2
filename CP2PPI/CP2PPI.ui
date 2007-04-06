@@ -282,6 +282,9 @@
            <property name="text" >
             <string>Rings</string>
            </property>
+           <property name="checked" >
+            <bool>true</bool>
+           </property>
           </widget>
          </item>
          <item>
@@ -544,14 +547,14 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>PPI</class>
-   <extends>QWidget</extends>
-   <header>PPI.h</header>
-  </customwidget>
-  <customwidget>
    <class>ColorBar</class>
    <extends>QWidget</extends>
    <header>ColorBar.h</header>
+  </customwidget>
+  <customwidget>
+   <class>PPI</class>
+   <extends>QWidget</extends>
+   <header>PPI.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

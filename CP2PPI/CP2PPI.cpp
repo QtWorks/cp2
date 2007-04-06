@@ -118,6 +118,8 @@ _gateWidthKm(0.150)
 	connect(_zoomOutButton, SIGNAL(released()), this, SLOT(zoomOutSlot()));
 	ZoomFactor->display(1.0);
 	_zoomFactor = _config.getDouble("zoomFactor", 1.2);
+	_ringsCheckBox->setCheckState(Qt::Checked);
+	_gridsCheckBox->setCheckState(Qt::Unchecked);
 	connect(_ringsCheckBox, SIGNAL(stateChanged(int)), this, SLOT(ringStateChanged(int)));
 	connect(_gridsCheckBox, SIGNAL(stateChanged(int)), this, SLOT(gridStateChanged(int)));
 	connect(_colorButton, SIGNAL(released()), this, SLOT(colorButtonReleasedSlot()));
@@ -154,7 +156,11 @@ CP2PPI::configureForGates()
 	// The configure must be called after initPlots(), bcause
 	// that is when _nVarsSband and _nVarsXband are determined.
 	_ppiS->configure(_nVarsSband, _gates, 360, _gateWidthKm*2.0*_gates);
+	_ppiS->grids(_gridsCheckBox->isChecked());
+	_ppiS->rings(_ringsCheckBox->isChecked());
 	_ppiX->configure(_nVarsXband, _gates, 360, _gateWidthKm*2.0*_gates);
+	_ppiX->grids(_gridsCheckBox->isChecked());
+	_ppiX->rings(_ringsCheckBox->isChecked());
 
 	// allocate the beam data arrays
 	_beamSdata.resize(_nVarsSband);
@@ -693,14 +699,14 @@ CP2PPI::setPpiInfo(PRODUCT_TYPES t,
 //////////////////////////////////////////////////////////////////////
 void
 CP2PPI::ringStateChanged(int state) {
-	_ppiS->rings(state);
-	_ppiX->rings(state);
+	_ppiS->rings(state = Qt::Checked? true : false);
+	_ppiX->rings(state = Qt::Checked? true : false);
 }
 //////////////////////////////////////////////////////////////////////
 void
 CP2PPI::gridStateChanged(int state) {
-	_ppiS->grids(state);
-	_ppiX->grids(state);
+	_ppiS->grids(state = Qt::Checked? true : false);
+	_ppiX->grids(state = Qt::Checked? true : false);
 }
 //////////////////////////////////////////////////////////////////////
 void
