@@ -139,9 +139,6 @@ public:
 	double zdr_correction;
 	double ldr_correction;
 
-	bool index_beams_in_azimuth;
-	double azimuth_resolution;
-
 	radar_params_t radar;
 
 	receiver_t hc_receiver;

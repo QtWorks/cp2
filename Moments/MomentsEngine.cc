@@ -166,13 +166,13 @@ bool MomentsEngine::_beamReady(double& beamAz)
 	double midAz1 = _pulseQueue[_midIndex1]->getAz();
 	double midAz2 = _pulseQueue[_midIndex2]->getAz();
 
-	if (_params.index_beams_in_azimuth) {
+	if (_params.moments_params.index_beams_in_azimuth) {
 
 		// compute target azimiuth by rounding the azimuth at the
 		// center of the data to the closest suitable az
 
-		_az = ((int) (midAz1 / _params.azimuth_resolution + 0.5)) *
-			_params.azimuth_resolution;
+		_az = ((int) (midAz1 / _params.moments_params.azimuth_resolution + 0.5)) *
+			_params.moments_params.azimuth_resolution;
 
 		if (_az >= 360.0) {
 			_az -= 360;
@@ -197,15 +197,15 @@ bool MomentsEngine::_beamReady(double& beamAz)
 
 		} else if (_az == 0.0) {
 
-			if (midAz1 > 360.0 - _params.azimuth_resolution &&
-				midAz2 < _params.azimuth_resolution) {
+			if (midAz1 > 360.0 - _params.moments_params.azimuth_resolution &&
+				midAz2 < _params.moments_params.azimuth_resolution) {
 
 					// az1 is below 0 and az2 above 0 - clockwise rotation
 					beamAz = _az;
 					return true;
 
-				} else if (midAz2 > 360.0 - _params.azimuth_resolution &&
-					midAz1 < _params.azimuth_resolution) {
+				} else if (midAz2 > 360.0 - _params.moments_params.azimuth_resolution &&
+					midAz1 < _params.moments_params.azimuth_resolution) {
 
 						// az1 is above 0 and az2 below 0 - counterclockwise rotation
 						beamAz = _az;
@@ -261,7 +261,7 @@ int MomentsEngine::_computeBeamMoments(Beam *beam)
 		if (deltaAz > 180) {
 			deltaAz = fabs(deltaAz - 360.0);
 		}
-		if (deltaAz > _params.azimuth_resolution) {
+		if (deltaAz > _params.moments_params.azimuth_resolution) {
 			azMissing = true;
 		}
 	}

@@ -59,6 +59,7 @@ _config("NCAR", "CP2Moments")
 	Sparams.moments_params.gate_spacing = _gateSpacing;
 	Sparams.moments_params.n_samples    = pulsesPerBeam;
 	Sparams.moments_params.algorithm    = Params::ALG_PP;
+	Sparams.moments_params.index_beams_in_azimuth = false;
 	_pSmomentThread = new MomentThread(Sparams);
 
 	// create the Sband moments processing thread
@@ -67,6 +68,7 @@ _config("NCAR", "CP2Moments")
 	Xparams.moments_params.gate_spacing = _gateSpacing;
 	Xparams.moments_params.n_samples    = pulsesPerBeam;
 	Xparams.moments_params.algorithm    = Params::ALG_PP;
+	Xparams.moments_params.index_beams_in_azimuth = false;
 	_pXmomentThread = new MomentThread(Xparams);
 
 	// start the moments processing threads. They will wait
