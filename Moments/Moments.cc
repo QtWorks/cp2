@@ -479,7 +479,11 @@ void Moments::_velWidthFromTd(const Complex_t *IQ,
   if (ln_r1r2 > 0) {
     width = r1r2_fac * sqrt(ln_r1r2);
   } else {
-    width = r1r2_fac * -1.0 * sqrt(fabs(ln_r1r2));
+	  /// @todo This formula for width is probably wrong, since it 
+	  /// does not do anything different than the ln_r1r2 case > 0
+	  /// A previous version was always computing a negative width,
+	  /// which was wrong also.
+    width = r1r2_fac * sqrt(fabs(ln_r1r2));
   }
   
   if (_debugPrint) {
