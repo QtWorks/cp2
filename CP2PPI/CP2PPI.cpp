@@ -588,9 +588,15 @@ CP2PPI::colorBarReleasedSlot()
 	// get the current settings
 	double min = _ppiInfo[plotType].getScaleMin();
 	double max = _ppiInfo[plotType].getScaleMax();
+	std::string currentName = _ppiInfo[plotType].getColorMapName();
 
 	// create the color bar settings dialog
-	_colorBarSettings = new ColorBarSettings(min, max, this);
+	std::vector<std::string> mapNames;
+	for (std::map<std::string, ColorMap>::iterator i = _colorMaps.begin();
+		i != _colorMaps.end(); i++) {
+		mapNames.push_back(i->first);
+	}
+	_colorBarSettings = new ColorBarSettings(min, max, currentName, mapNames, this);
 
 	// connect the finished slot so that the dialog status 
 	// can be captuyred when the dialog closes
@@ -618,19 +624,37 @@ CP2PPI::colorBarSettingsFinishedSlot(int result)
 			scaleMax = scaleMin;
 			scaleMin = temp;
 		}
+
+		// get the map name
+		std::string newMapName = _colorBarSettings->getMapName();
+
 		// find out what product is currently displayed
 		// (it might not be the one selected when the
 		// dialog was acitvated, but that's okay)
 		PRODUCT_TYPES plotType = currentProductType();
 		// and reconfigure the color bar
 		int index = _ppiInfo[plotType].getPpiIndex();
+		// save the new map name
+		_ppiInfo[plotType].setColorMapName(newMapName);
+
+		// configure the color bar with the new map and ranges.
 		if (_sMomentsList.find(_ppiSType)!=_sMomentsList.end())
 		{
-			// set range on the color map
+			// get rid of the existing map
+			delete _mapsSband[index];
+			// create a new map
+			ColorMap* newMap = new ColorMap(_colorMaps[newMapName]);
+			_mapsSband[index] = newMap;
+			// set range on the new color map
 			_mapsSband[index]->setRange(scaleMin, scaleMax);
 			// configure the color bar with it
 			_colorBar->configure(*_mapsSband[index]);
 		} else {
+			// get rid of the existing map
+			delete _mapsXband[index];
+			// create a new map
+			ColorMap* newMap = new ColorMap(_colorMaps[newMapName]);
+			_mapsXband[index] = newMap;
 			// set range on the color map
 			_mapsXband[index]->setRange(scaleMin, scaleMax);
 			// configure the color bar with it
@@ -699,14 +723,14 @@ CP2PPI::setPpiInfo(PRODUCT_TYPES t,
 //////////////////////////////////////////////////////////////////////
 void
 CP2PPI::ringStateChanged(int state) {
-	_ppiS->rings(state = Qt::Checked? true : false);
-	_ppiX->rings(state = Qt::Checked? true : false);
+	_ppiS->rings(state == Qt::Checked? true : false);
+	_ppiX->rings(state == Qt::Checked? true : false);
 }
 //////////////////////////////////////////////////////////////////////
 void
 CP2PPI::gridStateChanged(int state) {
-	_ppiS->grids(state = Qt::Checked? true : false);
-	_ppiX->grids(state = Qt::Checked? true : false);
+	_ppiS->grids(state == Qt::Checked? true : false);
+	_ppiX->grids(state == Qt::Checked? true : false);
 }
 //////////////////////////////////////////////////////////////////////
 void

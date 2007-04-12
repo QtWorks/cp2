@@ -1,7 +1,11 @@
 #include "ColorBarSettings.h"
 
 //////////////////////////////////////////////////////////////////////////////
-ColorBarSettings::ColorBarSettings(double min, double max, QWidget* parent):
+ColorBarSettings::ColorBarSettings(double min, 
+								   double max, 
+								   std::string currentMap,
+								   std::vector<std::string> mapNames, 
+								   QWidget* parent):
 QDialog(parent)
 {
 	setupUi(this);	
@@ -15,6 +19,13 @@ QDialog(parent)
 	// set the spin box values
 	_minSpin->setValue(min);
 	_maxSpin->setValue(max);
+
+	// Put the map names in the combo box
+	for (int i = 0; i < mapNames.size(); i++) {
+		_mapComboBox->insertItem(0, mapNames[i].c_str());
+		if (currentMap == mapNames[i])
+			_mapComboBox->setCurrentIndex(i);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -32,5 +43,12 @@ double
 ColorBarSettings::getMaximum()
 {
 	return _maxSpin->value();
+}
+//////////////////////////////////////////////////////////////////////////////
+std::string
+ColorBarSettings::getMapName()
+{
+	QString selectedName = _mapComboBox->currentText();
+	return selectedName.toStdString();
 }
 //////////////////////////////////////////////////////////////////////////////

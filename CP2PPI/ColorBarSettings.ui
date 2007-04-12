@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>191</width>
-    <height>128</height>
+    <width>168</width>
+    <height>142</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -38,7 +38,7 @@
       </sizepolicy>
      </property>
      <property name="text" >
-      <string>Color Bar Range</string>
+      <string>Color Map Configuration</string>
      </property>
      <property name="alignment" >
       <set>Qt::AlignCenter</set>
@@ -51,6 +51,9 @@
       <enum>Qt::Horizontal</enum>
      </property>
     </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="_mapComboBox" />
    </item>
    <item>
     <layout class="QHBoxLayout" >
