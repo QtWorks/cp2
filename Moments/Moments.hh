@@ -84,14 +84,6 @@ public:
                    double &vel,
 		   double &width) const;
   
-  // compute by ABP
-
-  void computeByAbp(const Complex_t *IQ,
-                    double prtSecs,
-                    double &power,
-                    double &vel,
-                    double &width) const;
-  
   // compute moments using fft spectra
 
   void computeByFft(const Complex_t *IQ,

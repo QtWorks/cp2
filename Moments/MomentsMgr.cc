@@ -135,10 +135,7 @@ void MomentsMgr::computeSingle(double beamTime,
                 } else if (_momentsParams.algorithm == Params::ALG_PP) {
                   _moments.computeByPp(iq, prt,
                                        power, vel, width);
-                } else if (_momentsParams.algorithm == Params::ALG_ABP) {
-                  _moments.computeByAbp(iq, prt,
-                                        power, vel, width);
-                }
+                } 
 
 		double dbm = _missingDbl;
 		if (power != _missingDbl) {
@@ -202,10 +199,7 @@ void MomentsMgr::computeDualFastAlt(double beamTime,
                 } else if (_momentsParams.algorithm == Params::ALG_PP) {
                   _momentsHalf.computeByPp(iqh, prt, power_h, vel_h, width_h);
                   _momentsHalf.computeByPp(iqv, prt, power_v, vel_v, width_v);
-                } else if (_momentsParams.algorithm == Params::ALG_ABP) {
-                  _momentsHalf.computeByAbp(iqh, prt, power_h, vel_h, width_h);
-                  _momentsHalf.computeByAbp(iqv, prt, power_v, vel_v, width_v);
-                }
+                } 
 
 		// compute snr
 
@@ -332,10 +326,7 @@ void MomentsMgr::computeDualCp2Xband(double beamTime,
                 } else if (_momentsParams.algorithm == Params::ALG_PP) {
                   _moments.computeByPp(iqhc, prt,
                                        power_hc, vel_hc, width_hc);
-                } else if (_momentsParams.algorithm == Params::ALG_ABP) {
-                  _moments.computeByAbp(iqhc, prt,
-                                        power_hc, vel_hc, width_hc);
-                }
+                } 
 
 		double dbz_hc = _missingDbl;
 		if (power_hc != _missingDbl) {
