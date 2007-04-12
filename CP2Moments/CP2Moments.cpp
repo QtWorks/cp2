@@ -20,6 +20,7 @@ _processSband(true),
 _processXband(true),
 _config("NCAR", "CP2Moments")
 {
+
 	// setup our form
 	setupUi(parent);
 
@@ -44,6 +45,14 @@ _config("NCAR", "CP2Moments")
 	int pulsesPerBeam   = _config.getInt("Processing/PulsesPerBeam", 100);
 	_gateSpacing        = _config.getDouble("Processing/GateSpacingKm", 0.150);
 
+//	SystemPhidpDeg;
+//	NoiseHdbm;
+//	NoiseVdbm;
+//	UseR0R1;
+//	CalculationMethod (PP, FFT);
+//	ApplyClutterFiltter (bool);
+
+	
 	// create the Sband moments processing thread
 	Params Sparams;
 	Sparams.moments_params.mode         = Params::DUAL_FAST_ALT;
