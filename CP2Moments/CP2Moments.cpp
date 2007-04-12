@@ -42,33 +42,39 @@ _config("NCAR", "CP2Moments")
 	_xBeamCount = 0;
 
 	// get the processing parameters
-	int pulsesPerBeam   = _config.getInt("Processing/PulsesPerBeam", 100);
-	_gateSpacing        = _config.getDouble("Processing/GateSpacingKm", 0.150);
+	int pulsesPerBeam        = _config.getInt("Processing/PulsesPerBeam", 100);
+	_gateSpacing             = _config.getDouble("Processing/GateSpacingKm", 0.150);
+	bool indexBeamInAz       = _config.getBool("Processing/IndexBeamInAz", true);
+	double azResolutionDeg   = _config.getDouble("Processing/AzResolutionDeg", 1.0);
+	double sHorizBeamWidthDeg = _config.getDouble("Processing/SHorizBeamWidthDeg", 0.91);
+	double sVertBeamWidthDeg  = _config.getDouble("Processing/SVertBeamWidthDeg", 0.91);
+	double xHorizBeamWidthDeg = _config.getDouble("Processing/XHorizBeamWidthDeg", 0.91);
+	double xVertBeamWidthDeg  = _config.getDouble("Processing/XVertBeamWidthDeg", 0.91);
 
-//	SystemPhidpDeg;
-//	NoiseHdbm;
-//	NoiseVdbm;
-//	UseR0R1;
-//	CalculationMethod (PP, FFT);
-//	ApplyClutterFiltter (bool);
-
-	
 	// create the Sband moments processing thread
 	Params Sparams;
-	Sparams.moments_params.mode         = Params::DUAL_FAST_ALT;
-	Sparams.moments_params.gate_spacing = _gateSpacing;
-	Sparams.moments_params.n_samples    = pulsesPerBeam;
-	Sparams.moments_params.algorithm    = Params::ALG_PP;
-	Sparams.moments_params.index_beams_in_azimuth = false;
+	Sparams.moments_params.mode                   = Params::DUAL_FAST_ALT;
+	Sparams.moments_params.gate_spacing           = _gateSpacing;
+	Sparams.moments_params.n_samples              = pulsesPerBeam;
+	Sparams.moments_params.algorithm              = Params::ALG_PP;
+	Sparams.moments_params.index_beams_in_azimuth = indexBeamInAz;
+	Sparams.moments_params.azimuth_resolution     = azResolutionDeg;
+	Sparams.radar.horiz_beam_width                = sHorizBeamWidthDeg;
+	Sparams.radar.vert_beam_width                 = sVertBeamWidthDeg;
+
 	_pSmomentThread = new MomentThread(Sparams);
 
 	// create the Sband moments processing thread
 	Params Xparams;
-	Xparams.moments_params.mode         = Params::DUAL_CP2_XBAND;
-	Xparams.moments_params.gate_spacing = _gateSpacing;
-	Xparams.moments_params.n_samples    = pulsesPerBeam;
-	Xparams.moments_params.algorithm    = Params::ALG_PP;
-	Xparams.moments_params.index_beams_in_azimuth = false;
+	Xparams.moments_params.mode                   = Params::DUAL_CP2_XBAND;
+	Xparams.moments_params.gate_spacing           = _gateSpacing;
+	Xparams.moments_params.n_samples              = pulsesPerBeam;
+	Xparams.moments_params.algorithm              = Params::ALG_PP;
+	Xparams.moments_params.index_beams_in_azimuth = indexBeamInAz;
+	Xparams.moments_params.azimuth_resolution     = azResolutionDeg;
+	Xparams.radar.horiz_beam_width                = xHorizBeamWidthDeg;
+	Xparams.radar.vert_beam_width                 = xVertBeamWidthDeg;
+
 	_pXmomentThread = new MomentThread(Xparams);
 
 	// start the moments processing threads. They will wait
