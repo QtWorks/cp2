@@ -46,7 +46,9 @@ public:
 		/// (SPOL with T and receivers in switching mode)
 		DP_SIM_HV_SWITCHED_HV = 5,
 		/// Dual pol, H transmission, fixed H and V receivers (CP2 X band)
-		DP_H_ONLY_FIXED_HV = 6
+		DP_H_ONLY_FIXED_HV = 6,
+		/// Staggered PRT (Eldora and DOWs)
+		SP_STAGGERED = 7
 	} radar_config_t;
 
 	typedef enum debug_t {

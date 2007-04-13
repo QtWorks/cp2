@@ -21,11 +21,13 @@ QDialog(parent)
 	_maxSpin->setValue(max);
 
 	// Put the map names in the combo box
+	int currentIndex = 0;
 	for (int i = 0; i < mapNames.size(); i++) {
 		_mapComboBox->insertItem(0, mapNames[i].c_str());
 		if (currentMap == mapNames[i])
-			_mapComboBox->setCurrentIndex(i);
+			currentIndex = i;
 	}
+	_mapComboBox->setCurrentIndex(mapNames.size()-currentIndex-1);
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -280,36 +280,31 @@ CP2PPI::processProduct(CP2Product* pProduct)
 void
 CP2PPI::initColorMaps()	
 {
-	// make sure that the default map is there. Use the
-	// colors that are found in the default ColorMap
-	ColorMap standardMap(0.0, 100.0);
-	std::vector<int> red = standardMap.red();
-	std::vector<int> green = standardMap.green();
-	std::vector<int> blue = standardMap.blue();
 
-	std::vector<std::vector<int> > defaultMap;
-	for (unsigned int i = 0; i < red.size(); i++) {
-		std::vector<int> rgb;
-		rgb.resize(3);
-		rgb[0] = red[i];
-		rgb[1] = green[i];
-		rgb[2] = blue[i];
-		defaultMap.push_back(rgb);
+// get the builtin maps. Note that we are expecting there to
+// be one named default.
+	std::vector<std::string> mapNames = ColorMap::builtinMaps();
+	for (int i = 0; i < mapNames.size(); i++) {
+		_colorMaps[mapNames[i]] = ColorMap(0.0, 1.0, mapNames[i]);
 	}
-	defaultMap = _config.getArray("ColorMaps/default", "RGB", defaultMap);
 
 	// get the names of all existing colormaps saved in the configuration.
 	std::vector<std::string> names = _config.childGroups("ColorMaps");
 
+	std::vector<std::vector<int> > emptyMap;
 	// save colormaps for each of these choices.
 	for (int i = 0; i < names.size(); i++) {
 		std::vector<std::vector<int> > colors;
 		std::string mapKey("ColorMaps/");
 		mapKey += names[i];
-		colors = _config.getArray(mapKey,"RGB", defaultMap);
+		colors = _config.getArray(mapKey, "RGB", emptyMap);
 		// create the map. Use a bogus range, which will be reset 
 		// when the map is used by a variable.
-		_colorMaps[names[i]] = ColorMap(0.0, 1.0, colors);
+		// also note that this can allow ua to overide any of
+		// the builtin maps.
+		if (colors.size() != 0) {
+			_colorMaps[names[i]] = ColorMap(0.0, 1.0, colors);
+		}
 	}
 }
 //////////////////////////////////////////////////////////////////////
@@ -667,10 +662,12 @@ CP2PPI::colorBarSettingsFinishedSlot(int result)
 		std::string key = _ppiInfo[plotType].getKey();
 		std::string minKey = key + "/min";
 		std::string maxKey = key + "/max";
+		std::string mapKey = key + "/colorMap";
 
-		// get the configuration values
+		// set the configuration values
 		_config.setDouble(minKey, scaleMin);
 		_config.setDouble(maxKey, scaleMax);
+		_config.setString(mapKey, newMapName);
 	}
 }
 //////////////////////////////////////////////////////////////////////
