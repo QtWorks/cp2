@@ -487,22 +487,26 @@ CP2PPI::timerEvent(QTimerEvent*)
 
 void CP2PPI::zoomInSlot()
 {
-	_ppiS->setZoom(_zoomFactor);
-	_ppiX->setZoom(_zoomFactor);
-	ZoomFactor->display(ZoomFactor->value()*_zoomFactor);
+	if (_ppiSactive) {
+		_ppiS->setZoom(_ppiS->getZoom()*_zoomFactor);
+		ZoomFactor->display(_ppiS->getZoom());
+	} else {
+		_ppiX->setZoom(_ppiX->getZoom()*_zoomFactor);
+		ZoomFactor->display(_ppiX->getZoom());
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////
 
 void CP2PPI::zoomOutSlot()
 {
-	// don't allow the zoom out to go beyond full scale
-	if (ZoomFactor->value()/_zoomFactor < 1.0) 
-		return;
-	
-	_ppiS->setZoom(1.0/_zoomFactor);
-	_ppiX->setZoom(1.0/_zoomFactor);
-	ZoomFactor->display(ZoomFactor->value()/_zoomFactor);
+	if (_ppiSactive) {
+		_ppiS->setZoom(_ppiS->getZoom()/_zoomFactor);
+		ZoomFactor->display(_ppiS->getZoom());
+	} else {
+		_ppiX->setZoom(_ppiX->getZoom()/_zoomFactor);
+		ZoomFactor->display(_ppiX->getZoom());
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////
