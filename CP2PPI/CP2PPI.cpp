@@ -31,16 +31,18 @@
 
 CP2PPI::CP2PPI(QDialog* parent):
 QDialog(parent),
-_gates(10),
+_sGates(0),                 // default value until real one is known
+_xGates(0),                 // default value until real one is known
+_sGateWidthKm(0.0),         // default value until real one is known
+_xGateWidthKm(0.0),         // default value until real one is known
 _pSocket(0),    
 _pSocketBuf(0),	
 _currentSbeamNum(0),
 _currentXbeamNum(0),
 _pause(false),
 _ppiSactive(true),
-_productPort(3200),
-_config("NCAR", "CP2PPI"),
-_gateWidthKm(0.150)
+_productPort(3200),         // default value until real one is known
+_config("NCAR", "CP2PPI")
 {
 	setupUi(parent);
 
@@ -48,64 +50,25 @@ _gateWidthKm(0.150)
 
 	_statsUpdateInterval = _config.getInt("statsUpdateSeconds", 5);
 
-	// initialize the color maps, reading them from the configuration.
-	initColorMaps();
-
 	// intialize the data reception socket.
 	// set up the ocket notifier and connect it
 	// to the data reception slot
 	initSocket();	
 
 	// initialize the book keeping for the plots.
+	// This will initialize _sProductList and _xProductList.
 	// This also sets up the radio buttons 
-	// in the plot type tab widget
+	// in the product type tab widget
 	initPlots();
 
-	// count the number ppi types that initPlots 
-	// gave us
-	_nVarsSband = _sMomentsList.size();
-	_nVarsXband = _xMomentsList.size();
+	// count the number product types that initPlots gave us
+	_nVarsSband = _sProductList.size();
+	_nVarsXband = _xProductList.size();
 
-	// create the Sband color maps
-	std::set<PRODUCT_TYPES>::iterator pSet;
-	_mapsSband.resize(_nVarsSband);
-	for (pSet=_sMomentsList.begin(); pSet!=_sMomentsList.end(); pSet++) 
-	{
-		// Set up the color map.
-		// First get the scales.
-		double scaleMin = _ppiInfo[*pSet].getScaleMin();
-		double scaleMax = _ppiInfo[*pSet].getScaleMax();
-		// now get the name
-		std::string mapName = _ppiInfo[*pSet].getColorMapName();
-		// create a copy of the map in our collection which has this name
-		ColorMap* pMap = new ColorMap(_colorMaps[mapName]);
-		// and set its range.
-		pMap->setRange(scaleMin, scaleMax);
-		// Finally save the pointer to the colormap in this variable's _ppiInfo entry.
-		int index = _ppiInfo[*pSet].getPpiIndex();
-		_mapsSband[index] = pMap;
-	}
+	// initialize the color maps, reading them from the configuration,
+	// and including the builtins provided by ColorMap.
+	initColorMaps();
 
-	// create the Xband color maps
-	_mapsXband.resize(_nVarsXband);
-	for (pSet=_xMomentsList.begin(); pSet!=_xMomentsList.end(); pSet++) 
-	{
-		// Set up the color map.
-		// First get the scales.
-		double scaleMin = _ppiInfo[*pSet].getScaleMin();
-		double scaleMax = _ppiInfo[*pSet].getScaleMax();
-		// now get the name
-		std::string mapName = _ppiInfo[*pSet].getColorMapName();
-		// create a copy of the map in our collection which has this name
-		ColorMap* pMap = new ColorMap(_colorMaps[mapName]);
-		// and set its range.
-		pMap->setRange(scaleMin, scaleMax);
-		// Finally save the pointer to the colormap in this variable's _ppiInfo entry.
-		int index = _ppiInfo[*pSet].getPpiIndex();
-		_mapsXband[index] = pMap;
-	}
-
-	configureForGates();
 	// set the intial plot type
 	_ppiSType = PROD_S_DBMHC;
 	ppiTypeSlot(PROD_S_DBZHC);
@@ -154,23 +117,27 @@ CP2PPI::configureForGates()
 	// parameter is specifiec, it will set the number of preallocated
 	// beams.
 	// The configure must be called after initPlots(), bcause
-	// that is when _nVarsSband and _nVarsXband are determined.
-	_ppiS->configure(_nVarsSband, _gates, 360, _gateWidthKm*2.0*_gates);
+	// that is when _nVarsSband and _nVarsXband are determined,
+	// so that we have a count of variables.
+	int sNbeams   = _config.getInt("Sband/numberOfBeams", 360);
+	_ppiS->configure(_nVarsSband, _sGates, sNbeams, _sGateWidthKm*2.0*_sGates);
 	_ppiS->grids(_gridsCheckBox->isChecked());
 	_ppiS->rings(_ringsCheckBox->isChecked());
-	_ppiX->configure(_nVarsXband, _gates, 360, _gateWidthKm*2.0*_gates);
+
+	int xNbeams   = _config.getInt("Xband/numberOfBeams", 360);
+	_ppiX->configure(_nVarsXband, _xGates, xNbeams, _xGateWidthKm*2.0*_xGates);
 	_ppiX->grids(_gridsCheckBox->isChecked());
 	_ppiX->rings(_ringsCheckBox->isChecked());
 
 	// allocate the beam data arrays
 	_beamSdata.resize(_nVarsSband);
 	for (int i = 0; i < _nVarsSband; i++) {
-		_beamSdata[i].resize(_gates);
+		_beamSdata[i].resize(_sGates);
 	}
 
 	_beamXdata.resize(_nVarsXband);
 	for (int i = 0; i < _nVarsXband; i++) {
-		_beamXdata[i].resize(_gates);
+		_beamXdata[i].resize(_xGates);
 	}
 }
 
@@ -209,8 +176,8 @@ CP2PPI::processProduct(CP2Product* pProduct)
 	// or X band, display the beam.
 	PRODUCT_TYPES prodType = pProduct->header.prodType;
 	long long beamNum      = pProduct->header.beamNum;
-	int gates              = pProduct->header.gates;
 	double az              = pProduct->header.az;
+	int gates              = pProduct->header.gates;
 	double gateWidthKm     = pProduct->header.gateWidthKm;
 
 	az = 450 - az;
@@ -221,16 +188,14 @@ CP2PPI::processProduct(CP2Product* pProduct)
 			az -= 360.0;
 	double el = pProduct->header.el;
 
-	if (gates       != _gates ||
-		gateWidthKm != _gateWidthKm) {
-		_gates = gates;
-		_gateWidthKm = gateWidthKm;
-		configureForGates();
-	}
-
-	if (_sMomentsList.find(prodType) != _sMomentsList.end()) {
-		// std::cout << "S product " << prodType << "   " << beamNum << "\n";
+	if (_sProductList.find(prodType) != _sProductList.end()) {
 		// product is one we want for S band
+		// check for a configuration change
+		if (gates       != _sGates || gateWidthKm != _sGateWidthKm) {
+			_sGates = gates;
+			_sGateWidthKm = gateWidthKm;
+			configureForGates();
+		}
 		if (beamNum != _currentSbeamNum) {
 			// beam number has changed; start fresh
 			_currentSbeamNum = beamNum;
@@ -238,10 +203,10 @@ CP2PPI::processProduct(CP2Product* pProduct)
 		}
 		_currentSproducts.insert(prodType);
 		int index = _ppiInfo[prodType].getPpiIndex();
-		for (int i = 0; i < gates; i++) {
+		for (int i = 0; i < _sGates; i++) {
 			_beamSdata[index][i] = pProduct->data[i];
 		}
-		if (_sMomentsList.size() == _currentSproducts.size()) {
+		if (_sProductList.size() == _currentSproducts.size()) {
 			// all products have been collected, display the beam
 			displaySbeam(az, el);
 			// reset the beam number tracking so that we 
@@ -249,9 +214,14 @@ CP2PPI::processProduct(CP2Product* pProduct)
 			_currentSbeamNum = 0;
 		}
 	} else {
-		if (_xMomentsList.find(prodType) != _xMomentsList.end()) {
-			// std::cout << "X product " << prodType << "   " << beamNum << "\n";
+		if (_xProductList.find(prodType) != _xProductList.end()) {
 			// product is one that we want for X band
+			// check for a configuration change
+			if (gates != _xGates || gateWidthKm != _xGateWidthKm) {
+				_xGates = gates;
+				_xGateWidthKm = gateWidthKm;
+				configureForGates();
+			}
 			if (beamNum != _currentXbeamNum) {
 				// beam number has changed; start fresh
 				_currentXbeamNum = beamNum;
@@ -259,10 +229,10 @@ CP2PPI::processProduct(CP2Product* pProduct)
 			}
 			_currentXproducts.insert(prodType);
 			int index = _ppiInfo[prodType].getPpiIndex();
-			for (int i = 0; i < gates; i++) {
+			for (int i = 0; i < _xGates; i++) {
 				_beamXdata[index][i] = pProduct->data[i];
 			}
-			if (_xMomentsList.size() == _currentXproducts.size()) {
+			if (_xProductList.size() == _currentXproducts.size()) {
 				// all products have been collected, display the beam
 				displayXbeam(az, el);
 				// reset the beam number tracking so that we 
@@ -281,8 +251,8 @@ void
 CP2PPI::initColorMaps()	
 {
 
-// get the builtin maps. Note that we are expecting there to
-// be one named default.
+	// get the builtin maps. Note that we are expecting there to
+	// be one named default.
 	std::vector<std::string> mapNames = ColorMap::builtinMaps();
 	for (int i = 0; i < mapNames.size(); i++) {
 		_colorMaps[mapNames[i]] = ColorMap(0.0, 1.0, mapNames[i]);
@@ -306,6 +276,48 @@ CP2PPI::initColorMaps()
 			_colorMaps[names[i]] = ColorMap(0.0, 1.0, colors);
 		}
 	}
+
+	// Now intialize the colormaps that go with each product.
+
+	// create the Sband color maps
+	std::set<PRODUCT_TYPES>::iterator pSet;
+	_mapsSband.resize(_nVarsSband);
+	for (pSet=_sProductList.begin(); pSet!=_sProductList.end(); pSet++) 
+	{
+		// Set up the color map.
+		// First get the scales.
+		double scaleMin = _ppiInfo[*pSet].getScaleMin();
+		double scaleMax = _ppiInfo[*pSet].getScaleMax();
+		// now get the name
+		std::string mapName = _ppiInfo[*pSet].getColorMapName();
+		// create a copy of the map in our collection which has this name
+		ColorMap* pMap = new ColorMap(_colorMaps[mapName]);
+		// and set its range.
+		pMap->setRange(scaleMin, scaleMax);
+		// Finally save the pointer to the colormap in this variable's _ppiInfo entry.
+		int index = _ppiInfo[*pSet].getPpiIndex();
+		_mapsSband[index] = pMap;
+	}
+
+	// create the Xband color maps
+	_mapsXband.resize(_nVarsXband);
+	for (pSet=_xProductList.begin(); pSet!=_xProductList.end(); pSet++) 
+	{
+		// Set up the color map.
+		// First get the scales.
+		double scaleMin = _ppiInfo[*pSet].getScaleMin();
+		double scaleMax = _ppiInfo[*pSet].getScaleMax();
+		// now get the name
+		std::string mapName = _ppiInfo[*pSet].getColorMapName();
+		// create a copy of the map in our collection which has this name
+		ColorMap* pMap = new ColorMap(_colorMaps[mapName]);
+		// and set its range.
+		pMap->setRange(scaleMin, scaleMax);
+		// Finally save the pointer to the colormap in this variable's _ppiInfo entry.
+		int index = _ppiInfo[*pSet].getPpiIndex();
+		_mapsXband[index] = pMap;
+	}
+
 }
 //////////////////////////////////////////////////////////////////////
 void
@@ -343,7 +355,7 @@ CP2PPI::ppiTypeSlot(int newPpiType)
 
 	_ppiSType  = (PRODUCT_TYPES)newPpiType;
 	int index = _ppiInfo[_ppiSType].getPpiIndex();
-	if (_sMomentsList.find(_ppiSType)!=_sMomentsList.end()){
+	if (_sProductList.find(_ppiSType)!=_sProductList.end()){
 		_ppiS->selectVar(index);
 		_colorBar->configure(*_mapsSband[index]);
 	} else {
@@ -359,22 +371,22 @@ CP2PPI::initPlots()
 	// set the initial plot type
 	_ppiSType = PROD_S_DBZHC;
 
-	_sMomentsList.insert(PROD_S_DBMHC);
-	_sMomentsList.insert(PROD_S_DBMVC);
-	_sMomentsList.insert(PROD_S_DBZHC);
-	_sMomentsList.insert(PROD_S_DBZVC);
-	_sMomentsList.insert(PROD_S_WIDTH);
-	_sMomentsList.insert(PROD_S_VEL);
-	_sMomentsList.insert(PROD_S_SNR);
-	_sMomentsList.insert(PROD_S_RHOHV);
-	_sMomentsList.insert(PROD_S_PHIDP);
-	_sMomentsList.insert(PROD_S_ZDR);
+	_sProductList.insert(PROD_S_DBMHC);
+	_sProductList.insert(PROD_S_DBMVC);
+	_sProductList.insert(PROD_S_DBZHC);
+	_sProductList.insert(PROD_S_DBZVC);
+	_sProductList.insert(PROD_S_WIDTH);
+	_sProductList.insert(PROD_S_VEL);
+	_sProductList.insert(PROD_S_SNR);
+	_sProductList.insert(PROD_S_RHOHV);
+	_sProductList.insert(PROD_S_PHIDP);
+	_sProductList.insert(PROD_S_ZDR);
 
-	_xMomentsList.insert(PROD_X_DBMHC);
-	_xMomentsList.insert(PROD_X_DBMVX);
-	_xMomentsList.insert(PROD_X_DBZHC);
-	_xMomentsList.insert(PROD_X_SNR);
-	_xMomentsList.insert(PROD_X_LDR);
+	_xProductList.insert(PROD_X_DBMHC);
+	_xProductList.insert(PROD_X_DBMVX);
+	_xProductList.insert(PROD_X_DBZHC);
+	_xProductList.insert(PROD_X_SNR);
+	_xProductList.insert(PROD_X_LDR);
 
 	int ppiVarIndex = 0;
 	setPpiInfo(PROD_S_DBMHC, "S_DBMHC", "H Dbm", "Sh: Dbm",     -70.0,   0.0,   ppiVarIndex++);
@@ -400,10 +412,10 @@ CP2PPI::initPlots()
 	// for each tab.
 	QButtonGroup* pGroup;
 
-	pGroup = addPlotTypeTab("S", _sMomentsList);
+	pGroup = addPlotTypeTab("S", _sProductList);
 	_tabButtonGroups.push_back(pGroup);
 
-	pGroup = addPlotTypeTab("X", _xMomentsList);
+	pGroup = addPlotTypeTab("X", _xProductList);
 	_tabButtonGroups.push_back(pGroup);
 
 	connect(_typeTab, SIGNAL(currentChanged(QWidget *)), 
@@ -509,42 +521,7 @@ void CP2PPI::zoomOutSlot()
 	}
 }
 
-///////////////////////////////////////////////////////////////////////
 
-void CP2PPI::panSlot(int panIndex)
-{
-	switch (panIndex) {
-	case 0:
-		_ppiS->setZoom(0.0);
-		break;
-	case 1:
-		_ppiS->pan(0.0, 0.10);
-		break;
-	case 2:
-		_ppiS->pan(-0.10, 0.10);
-		break;
-	case 3:
-		_ppiS->pan(-0.10, 0.0);
-		break;
-	case 4:
-		_ppiS->pan(-0.10, -0.10);
-		break;
-	case 5:
-		_ppiS->pan(00, -0.10);
-		break;
-	case 6:
-		_ppiS->pan(0.10, -0.10);
-		break;
-	case 7:
-		_ppiS->pan(0.10, 0.0);
-		break;
-	case 8:
-		_ppiS->pan(0.10, 0.10);
-		break;
-	default:
-		break;
-	}
-}
 ////////////////////////////////////////////////
 void
 CP2PPI::pauseSlot(bool flag)
@@ -593,7 +570,7 @@ CP2PPI::colorBarReleasedSlot()
 	std::vector<std::string> mapNames;
 	for (std::map<std::string, ColorMap>::iterator i = _colorMaps.begin();
 		i != _colorMaps.end(); i++) {
-		mapNames.push_back(i->first);
+			mapNames.push_back(i->first);
 	}
 	_colorBarSettings = new ColorBarSettings(min, max, currentName, mapNames, this);
 
@@ -637,7 +614,7 @@ CP2PPI::colorBarSettingsFinishedSlot(int result)
 		_ppiInfo[plotType].setColorMapName(newMapName);
 
 		// configure the color bar with the new map and ranges.
-		if (_sMomentsList.find(_ppiSType)!=_sMomentsList.end())
+		if (_sProductList.find(_ppiSType)!=_sProductList.end())
 		{
 			// get rid of the existing map
 			delete _mapsSband[index];
@@ -736,10 +713,10 @@ CP2PPI::gridStateChanged(int state) {
 //////////////////////////////////////////////////////////////////////
 void
 CP2PPI::colorButtonReleasedSlot() {
-    QColor color = QColorDialog::getColor("white");
+	QColor color = QColorDialog::getColor("white");
 
-    _ppiS->backgroundColor(color);
-    _ppiX->refresh();
-    _ppiX->backgroundColor(color);
-    _ppiX->refresh();
+	_ppiS->backgroundColor(color);
+	_ppiX->refresh();
+	_ppiX->backgroundColor(color);
+	_ppiX->refresh();
 }

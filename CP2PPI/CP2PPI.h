@@ -47,26 +47,27 @@ public:
 	~CP2PPI();
 
 public slots:
-	// Call when data is available on the data socket.
+	/// Called when data is available on the data socket.
 	void newDataSlot();
+	/// Called when the product type is changed.
 	virtual void ppiTypeSlot(int ppiType);
+	/// Called when the user changes between the tabs.
 	void tabChangeSlot(QWidget* w);
 	void pauseSlot(bool flag);	//	start/stop process, display
 	/// To zoom in one level
     void zoomInSlot();
 	/// To zoom out one level
     void zoomOutSlot();
-	void panSlot(int panIndex);
-	/// Activated when a mouse click is released for the color bar
+	/// Activated when a mouse click is released for the color bar.
 	void colorBarReleasedSlot();
-	/// Activated when the ColorBarSettings dialog is finished
+	/// Activated when the ColorBarSettings dialog is finished.
 	/// @param result The dialog result code
 	void colorBarSettingsFinishedSlot(int result);
-	/// Called when the Color button has been pushed to activate color choosing
+	/// Called when the Color button has been pushed to activate color choosing.
 	void colorButtonReleasedSlot();
-	/// Called then the ring checkbox has changed state
+	/// Called then the ring choice has changed state.
 	void ringStateChanged(int state);
-	/// Called then the grid checkbox has changed state
+	/// Called then the grid choice has changed state.
 	void gridStateChanged(int state);
 
 protected:
@@ -78,58 +79,21 @@ protected:
 	/// initialize all of the book keeping structures
 	/// for the various plots.
 	void initPlots();
-	/// Initialize the color maps
+	/// Initialize the color maps.
 	void initColorMaps();
 	/// Process the products as they come in. 
 	/// Sband and X band products with identical 
 	/// beam numbers are collected until a full
-	/// set of products are received. The full set
-	/// is then sent to the display.
+	/// set of products are received for a given display.
+	/// The full set of S or X products	is then sent to the display.
 	/// If a complete set is not collected for a given
 	/// beam number, it will not be displayed.
 	void processProduct(CP2Product* pProduct);
 	/// Configure the ppi displays and the beam data vectors for
-	/// for the number of gates.
+	/// for the number of gates, number of beams and number of variables.
+	/// Call this function when any of these change in order to reconfigure
+	/// the display.
 	void configureForGates();
-	/// The incoming product socket.
-	CP2UdpSocket*   _pSocket;
-	/// The buffer that the product data will be read into
-	/// from the socket.
-	char*   _pSocketBuf;
-	/// Incoming produt port number.
-	int	_productPort;
-	// how often to update the statistics (in seconds)
-	int _statsUpdateInterval;
-	/// the currently selected display type
-	PRODUCT_TYPES _ppiSType;
-	// The builtin timer will be used to calculate beam statistics.
-	void timerEvent(QTimerEvent*);
-	/// For each PRODUCT_TYPES, there will be an entry in this map.
-	std::map<PRODUCT_TYPES, PpiInfo> _ppiInfo;
-	/// This set contains PRODUCT_TYPESs for all desired S band moments plots
-	std::set<PRODUCT_TYPES> _sMomentsList;
-	/// This set contains the list of all received S band products 
-	/// that are on the desired list, and have the same time tag.
-	/// When the length reaches the same size as _sMomentsList, 
-	/// then we have all products for a given S band beam
-	std::set<PRODUCT_TYPES> _currentSproducts;
-	/// This set contains the list of all received X band products 
-	/// that are on the desired list, and have the same time tag.
-	/// When the length reaches the same size as _xMomentsList, 
-	/// then we have all products for a given X band beam
-	std::set<PRODUCT_TYPES> _currentXproducts;
-	/// The current beam number for S band products, used
-	/// for collating S band products as they are received.
-	long long _currentSbeamNum;
-	/// The current beam number for X band products, used
-	/// for collating X band products as they are received.
-	long long _currentXbeamNum;
-	/// This set contains PRODUCT_TYPESs for all desired X band moments plots
-	std::set<PRODUCT_TYPES> _xMomentsList;
-	/// save the button group for each tab,
-	/// so that we can find the selected button
-	/// and change the plot type when tabs are switched.
-	std::vector<QButtonGroup*> _tabButtonGroups;
 	/// Configure the PpiInfo entry for a product, 
 	/// getting values from the configuration.
 	void setPpiInfo(PRODUCT_TYPES t, ///< The product type
@@ -157,13 +121,61 @@ protected:
 	/// @returns The plot index for the plot selected on
 	/// the current tab page.
 	PRODUCT_TYPES currentProductType();
+
+	/// The incoming product socket.
+	CP2UdpSocket*   _pSocket;
+	/// The buffer that the product data will be read into
+	/// from the socket.
+	char*   _pSocketBuf;
+	/// Incoming produt port number.
+	int	_productPort;
+	// how often to update the statistics (in seconds)
+	int _statsUpdateInterval;
+	/// the currently selected display type
+	PRODUCT_TYPES _ppiSType;
+	// The builtin timer will be used to calculate beam statistics.
+	void timerEvent(QTimerEvent*);
+	/// For each PRODUCT_TYPES, there will be an entry in this map.
+	std::map<PRODUCT_TYPES, PpiInfo> _ppiInfo;
+	/// This set contains PRODUCT_TYPESs identifiers for all desired 
+	/// S band moments plots. It is used to filter S products from
+	/// the incoming data stream.
+	std::set<PRODUCT_TYPES> _sProductList;
+	/// This set contains PRODUCT_TYPESs identifiers for all desired 
+	/// X band moments plots. It is used to filter X products from
+	/// the incoming data stream.
+	std::set<PRODUCT_TYPES> _xProductList;
+	/// This set contains the list of all received S band products 
+	/// that are on the desired list, and have the same beam id.
+	/// When the length reaches the same size as _sProductList, 
+	/// then we have all products for a given S band beam.
+	std::set<PRODUCT_TYPES> _currentSproducts;
+	/// This set contains the list of all received X band products 
+	/// that are on the desired list, and have the same beam id.
+	/// When the length reaches the same size as _xProductList, 
+	/// then we have all products for a given X band beam.
+	std::set<PRODUCT_TYPES> _currentXproducts;
+	/// The current beam number for S band products, used
+	/// for collating S band products as they are received.
+	long long _currentSbeamNum;
+	/// The current beam number for X band products, used
+	/// for collating X band products as they are received.
+	long long _currentXbeamNum;
+	/// save the button group for each tab,
+	/// so that we can find the selected button
+	/// and change the plot type when tabs are switched.
+	std::vector<QButtonGroup*> _tabButtonGroups;
     /// true to pause the display. Data will still be coming in,
 	/// but not sent to the display.
 	bool _pause;
-	/// The number of gates
-	int _gates;
-	/// The beam width of each beam (degrees)
-	double _beamWidth;
+	/// The number of S band gates
+	int _sGates;
+	/// The number of X band gates
+	int _xGates;
+	/// S band gate width in km
+	double _sGateWidthKm;
+	/// X band gate width in km
+	double _xGateWidthKm;
 	/// Set true when the Sband ppi is active,
 	/// false when Xband is active.
 	bool _ppiSactive;
@@ -187,8 +199,6 @@ protected:
 	std::map<std::string, ColorMap> _colorMaps;
 	/// The zoom multiplication factor applied on each zoom request
 	double _zoomFactor;
-	/// Gate width in km
-	double _gateWidthKm;
   };
 
 #endif
