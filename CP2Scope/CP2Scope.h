@@ -29,15 +29,7 @@
 // PlotInfo knows the characteristics of a plot
 #include "PlotInfo.h"
 
-#define	ySCALEMIN		0.0
-#define	ySCALEMAX		1.0
 #define PIRAQ3D_SCALE	1.0/(unsigned int)pow(2,31.0)	
-
-enum DATASET {	
-	DATA_SET_PULSE,	
-	DATA_SET_GATE,	
-	DATA_SETS	
-}; 
 
 // non-product plot types:
 enum	PLOTTYPE {	
@@ -102,15 +94,12 @@ public slots:
 	/// Initiate an autoscale. A flag is set; during the next 
 	/// pulse reception an autoscale computation is made.
 	virtual void autoScaleSlot();
-	virtual void dataSetSlot(bool);
-	virtual void DataSetGateSpinBox_valueChanged( int ); 
-	virtual void xFullScaleBox_valueChanged( int );	
-	virtual void DataChannelSpinBox_valueChanged( int ); 
+	/// Save the scope display to a PNG file.
+	void saveImageSlot();
 
 protected:	
 	/// Send the data for the current plot type to the ScopePlot.
 	void displayData(); 
-	void resizeDataVectors(); 
 	/// Initialize the pulse and product sockets. The
 	/// notifiers will be created, and connected
 	/// to the data handling slots.
@@ -129,8 +118,6 @@ protected:
 	std::vector<char> _pProductSocketBuf;
 	///	board source of data CP2 PIRAQ 1-3 
 	int				  _dataChannel;					
-	///	gate in packet to display 	
-	int				  _dataSetGate;				
 	///	prior cumulative pulse count, used for throughput calcs
 	int				  _prevPulseCount[3];		
 	///	cumulative pulse count
@@ -189,10 +176,6 @@ protected:
 	PLOTTYPE        _pulsePlotType;
 	/// The current selected product type.
 	PRODUCT_TYPES   _productPlotType;
-
-
-	int				_dataSet;		//	data grouping for scope displays: along pulse, or gate
-	unsigned int	_dataSetSize;	//	size of data vector for display or calculations 
 
 	// The builtin timer will be used to calculate beam statistics.
 	void timerEvent(QTimerEvent*);

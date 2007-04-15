@@ -17,10 +17,11 @@
 #include <qwidget.h>
 #include <qradiobutton.h>
 #include <qbuttongroup.h>
-//#include <qvbox.h>
 #include <qframe.h>
 #include <qpushbutton.h>
 #include <qpalette.h>
+#include <QDateTime>
+#include <QFileDialog>
 
 #include <algorithm>
 
@@ -68,6 +69,7 @@ _config("NCAR", "CP2Scope")
 	connect(_gainKnob,  SIGNAL(valueChanged(double)), this, SLOT(gainChangeSlot(double)));
 	connect(_up,        SIGNAL(released()),           this, SLOT(upSlot()));
 	connect(_dn,        SIGNAL(released()),           this, SLOT(dnSlot()));
+	connect(_saveImage, SIGNAL(released()),           this, SLOT(saveImageSlot()));
 	
 	// intialize the data reception sockets.
 	initSockets();	
@@ -102,14 +104,10 @@ _config("NCAR", "CP2Scope")
 	_xFullScale = 1000;
 	I.resize(_xFullScale);			//	default timeseries array size full range at 1KHz
 	Q.resize(_xFullScale);
-	_dataSetSize = _xFullScale;	//	size of data vector for display or calculations 
-	_dataSet = DATA_SET_PULSE;
 
 	//	display decimation, set to get ~50/sec
 	_pulseDecimation	= 50;	//	default w/prt = 1000Hz, timeseries data 
 	_productsDecimation	= 5;	//	default w/prt = 1000Hz, hits = 10, products data
-
-	_dataSetGate = 50;		//!get spinner value
 
 	//	set up fft for power calculations: 
 	_fftBlockSize = 256;	//	temp constant for initial proving 
@@ -133,64 +131,6 @@ CP2Scope::~CP2Scope() {
 	if (_pProductSocket)
 		delete _pProductSocket;
 
-}
-//////////////////////////////////////////////////////////////////////
-void 
-CP2Scope::dataSetSlot(bool b)	{
-	b = b;  // so we don't get the unreferenced warning
-//	switch (buttonGroup2->selectedId()) {
-//		case 0:
-//			_dataSet = DATA_SET_PULSE;
-			//	disable gate spinner
-//			break;
-//		case 1:
-//			_dataSet = DATA_SET_GATE;
-			//	enable gate spinner
-//			break;
-//		default: {}
-//	}
-//	resizeDataVectors();	//	resize data vectors
-}
-
-
-//////////////////////////////////////////////////////////////////////
-//	set data array sizes based on plot type, UI x-scale max setting
-void CP2Scope::resizeDataVectors()	{	
-	//	resize data vectors to x-axis max, not gates: fft size if that is the plot type. 
-	if	(_pulsePlotType >= ScopePlot::PRODUCT)	{	//	current product to display
-		_ProductData.resize(_xFullScale); 
-		//	enable x-scale spinner
-	}
-	else	{	//	timeseries-type or product
-		I.resize(_xFullScale);	//	resize timeseries arrays, x-axis
-		Q.resize(_xFullScale);
-		_dataSetSize = _xFullScale; 
-	}
-}
-
-
-//////////////////////////////////////////////////////////////////////
-void 
-CP2Scope::DataChannelSpinBox_valueChanged( int dataChannel )	
-{
-	//	change the data channel
-	_dataChannel = dataChannel;	
-}
-
-//////////////////////////////////////////////////////////////////////
-void 
-CP2Scope::DataSetGateSpinBox_valueChanged( int SpinBoxGate )	{
-	//	change the gate for assembling data sets 
-	_dataSetGate    = SpinBoxGate;
-}
-//////////////////////////////////////////////////////////////////////
-void 
-CP2Scope::xFullScaleBox_valueChanged( int xFullScale )	{
-	//	change the gate for assembling data sets 
-	if	(_pulsePlotType == ScopePlot::SPECTRUM)	//	fft: disable spinner
-		return;
-	_xFullScale    = xFullScale;
-	resizeDataVectors();	//	resize data vectors
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -284,8 +224,31 @@ CP2Scope::newPulseSlot()
 		// read error. What should we do here?
 	}
 }
+//////////////////////////////////////////////////////////////////////
+void
+CP2Scope::saveImageSlot() {
+	QString f = _config.getString("ImageSaveDirectory", "c:/").c_str();
+	
+	QFileDialog d(this, tr("Save ScopePlot Image"),
+		f, tr("PNG files (*.png);;All files (*.*)"));
+	d.setFileMode(QFileDialog::AnyFile);
+	d.setViewMode(QFileDialog::Detail);
+	d.setAcceptMode(QFileDialog::AcceptSave);
+	d.setConfirmOverwrite(true);
+	d.setDefaultSuffix("png");
+	d.setDirectory(f);
 
-
+	f = "CP2Scope-";
+	f += QDateTime::currentDateTime().toString("yyyy-MM-dd-hh-mm-ss");
+	f += ".png";
+	d.selectFile(f);
+	if (d.exec()) {
+		QStringList saveNames = d.selectedFiles();
+		_scopePlot->saveImageToFile(saveNames[0].toStdString());
+		f = d.directory().absolutePath();
+		_config.setString("ImageSaveDirectory", f.toStdString());
+	}
+}
 //////////////////////////////////////////////////////////////////////
 void
 CP2Scope::processPulse(CP2Pulse* pPulse) 
