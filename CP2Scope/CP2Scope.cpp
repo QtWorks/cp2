@@ -229,7 +229,7 @@ void
 CP2Scope::saveImageSlot() {
 	QString f = _config.getString("ImageSaveDirectory", "c:/").c_str();
 	
-	QFileDialog d(this, tr("Save ScopePlot Image"),
+	QFileDialog d(this, tr("Save CP2Scope Image"),
 		f, tr("PNG files (*.png);;All files (*.*)"));
 	d.setFileMode(QFileDialog::AnyFile);
 	d.setViewMode(QFileDialog::Detail);
@@ -346,7 +346,7 @@ CP2Scope::displayData()
 	if (_pulsePlot) {
 		PlotInfo* pi = &_pulsePlotInfo[_pulsePlotType];
 
-		switch (pi->getDisplayType())
+		switch (pi->getDisplayType()) 
 		{
 		case ScopePlot::TIMESERIES:
 			if (_performAutoScale)
