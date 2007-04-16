@@ -53,7 +53,8 @@ public slots:
 	virtual void ppiTypeSlot(int ppiType);
 	/// Called when the user changes between the tabs.
 	void tabChangeSlot(QWidget* w);
-	void pauseSlot(bool flag);	//	start/stop process, display
+	/// pause the display  update
+	void pauseSlot(bool flag);	
 	/// To zoom in one level
     void zoomInSlot();
 	/// To zoom out one level
@@ -69,6 +70,8 @@ public slots:
 	void ringStateChanged(int state);
 	/// Called then the grid choice has changed state.
 	void gridStateChanged(int state);
+	/// Save the PPI image.
+	void saveImageSlot();
 
 protected:
 	/// The configuration for CP2PPI

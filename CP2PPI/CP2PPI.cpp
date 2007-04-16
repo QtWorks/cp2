@@ -19,6 +19,11 @@
 #include <QCheckBox>
 #include <QMessageBox>
 #include <QColorDialog>
+#include <QFileDialog>
+#include <QImage>
+#include <QPixmap>
+#include <QDateTime>
+#include <QPainter>
 
 #include "ColorBarSettings.h"
 
@@ -73,19 +78,19 @@ _config("NCAR", "CP2PPI")
 	_ppiSType = PROD_S_DBMHC;
 	ppiTypeSlot(PROD_S_DBZHC);
 
-	// capture a user click on the color bar
-	connect(_colorBar, SIGNAL(released()), this, SLOT(colorBarReleasedSlot()));
-
 	// connect the control buttons
-	connect(_zoomInButton, SIGNAL(released()), this, SLOT(zoomInSlot()));
-	connect(_zoomOutButton, SIGNAL(released()), this, SLOT(zoomOutSlot()));
 	ZoomFactor->display(1.0);
 	_zoomFactor = _config.getDouble("zoomFactor", 1.2);
 	_ringsCheckBox->setCheckState(Qt::Checked);
 	_gridsCheckBox->setCheckState(Qt::Unchecked);
+
+	connect(_zoomInButton,  SIGNAL(released()),        this, SLOT(zoomInSlot()));
+	connect(_zoomOutButton, SIGNAL(released()),        this, SLOT(zoomOutSlot()));
 	connect(_ringsCheckBox, SIGNAL(stateChanged(int)), this, SLOT(ringStateChanged(int)));
 	connect(_gridsCheckBox, SIGNAL(stateChanged(int)), this, SLOT(gridStateChanged(int)));
-	connect(_colorButton, SIGNAL(released()), this, SLOT(colorButtonReleasedSlot()));
+	connect(_colorBar,      SIGNAL(released()),        this, SLOT(colorBarReleasedSlot()));
+	connect(_colorButton,   SIGNAL(released()),        this, SLOT(colorButtonReleasedSlot()));
+	connect(_saveButton,    SIGNAL(released()),        this, SLOT(saveImageSlot()));
 
 	// start the statistics timer
 	startTimer(_statsUpdateInterval*1000);
@@ -522,11 +527,66 @@ void CP2PPI::zoomOutSlot()
 }
 
 
-////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
 void
 CP2PPI::pauseSlot(bool flag)
 {
 	_pause = flag;
+}
+
+///////////////////////////////////////////////////////////////////////
+void
+CP2PPI::saveImageSlot()
+{
+	// get the image form the currently displayed ppi
+	QImage* ppiImage;
+	if (_ppiSactive) {
+		ppiImage = _ppiS->getImage();
+	} else {
+		ppiImage = _ppiX->getImage();
+	}
+	// get the color bar image
+	QImage* colorBarImage = _colorBar->getImage();
+
+	// create a composite pixmap
+	int w  = ppiImage->width() + colorBarImage->width();
+	int h = ppiImage->height();
+	if (h < colorBarImage->height())
+		h = colorBarImage->height();
+
+	QPixmap pm(w, h);
+	QPainter painter(&pm);
+	painter.fillRect(0, 0, w, h, QColor("white"));
+	// copy in the ppi
+	painter.drawImage(0, 0, *ppiImage);
+	// add the color bar on the right
+	painter.drawImage(ppiImage->width(), 0, *colorBarImage);
+
+	QString f = _config.getString("ImageSaveDirectory", "c:/").c_str();
+	
+	QFileDialog d(this, tr("Save CP2PPI Image"),
+		f, tr("PNG files (*.png);;All files (*.*)"));
+	d.setFileMode(QFileDialog::AnyFile);
+	d.setViewMode(QFileDialog::Detail);
+	d.setAcceptMode(QFileDialog::AcceptSave);
+	d.setConfirmOverwrite(true);
+	d.setDefaultSuffix("png");
+	d.setDirectory(f);
+
+	f = "CP2PPI-";
+	f += QDateTime::currentDateTime().toString("yyyy-MM-dd-hh-mm-ss");
+	f += ".png";
+	d.selectFile(f);
+	if (d.exec()) {
+		QStringList saveNames = d.selectedFiles();
+		pm.save(saveNames[0], "PNG", 100);
+		f = d.directory().absolutePath();
+		_config.setString("ImageSaveDirectory", f.toStdString());
+	}
+
+	delete ppiImage;
+	delete colorBarImage;
+
 }
 //////////////////////////////////////////////////////////////////////
 void
