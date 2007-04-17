@@ -33,14 +33,17 @@ _pThread(0)
 	
 	// set up the palettes
 	_greenPalette = _chan0led->palette();
-	_greenPalette.setColor(QPalette::Active, QPalette::Background, QColor("green"));
+	_greenPalette.setColor(_chan0led->backgroundRole(), QColor("green"));
 	_redPalette = _greenPalette;
-	_redPalette.setColor(QPalette::Active, QPalette::Background, QColor("red"));
+	_redPalette.setColor(_chan0led->backgroundRole(), QColor("red"));
 
-	// initializze the stats display
+	// initialize the stats display
 	timerEvent(0);
 
 	// initialize eof leds to green
+	_chan0led->setAutoFillBackground(true);
+	_chan1led->setAutoFillBackground(true);
+	_chan2led->setAutoFillBackground(true);
 	_chan0led->setPalette(_greenPalette);
 	_chan1led->setPalette(_greenPalette);
 	_chan2led->setPalette(_greenPalette);
