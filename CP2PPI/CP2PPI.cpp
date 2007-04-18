@@ -50,7 +50,8 @@ _currentXbeamNum(0),
 _pause(false),
 _ppiSactive(true),
 _productPort(3200),         // default value until real one is known
-_config("NCAR", "CP2PPI")
+_config("NCAR", "CP2PPI"),
+_backColor("royalblue")
 {
 	setupUi(parent);
 
@@ -63,19 +64,59 @@ _config("NCAR", "CP2PPI")
 	// to the data reception slot
 	initSocket();	
 
+	// initialize the color maps, reading them from the configuration,
+	// and including the builtins provided by ColorMap.
+	initColorMaps();
+
 	// initialize the book keeping for the plots.
 	// This will initialize _sProductList and _xProductList.
 	// This also sets up the radio buttons 
-	// in the product type tab widget
+	// in the product type tab widget. 
 	initPlots();
-
 	// count the number product types that initPlots gave us
 	_nVarsSband = _sProductList.size();
 	_nVarsXband = _xProductList.size();
 
-	// initialize the color maps, reading them from the configuration,
-	// and including the builtins provided by ColorMap.
-	initColorMaps();
+	// Now intialize the colormaps that go with each product.
+
+	// create the Sband color maps
+	std::set<PRODUCT_TYPES>::iterator pSet;
+	_mapsSband.resize(_nVarsSband);
+	for (pSet=_sProductList.begin(); pSet!=_sProductList.end(); pSet++) 
+	{
+		// Set up the color map.
+		// First get the scales.
+		double scaleMin = _ppiInfo[*pSet].getScaleMin();
+		double scaleMax = _ppiInfo[*pSet].getScaleMax();
+		// now get the name
+		std::string mapName = _ppiInfo[*pSet].getColorMapName();
+		// create a copy of the map in our collection which has this name
+		ColorMap* pMap = new ColorMap(_colorMaps[mapName]);
+		// and set its range.
+		pMap->setRange(scaleMin, scaleMax);
+		// Finally save the pointer to the colormap in this variable's _ppiInfo entry.
+		int index = _ppiInfo[*pSet].getPpiIndex();
+		_mapsSband[index] = pMap;
+	}
+
+	// create the Xband color maps
+	_mapsXband.resize(_nVarsXband);
+	for (pSet=_xProductList.begin(); pSet!=_xProductList.end(); pSet++) 
+	{
+		// Set up the color map.
+		// First get the scales.
+		double scaleMin = _ppiInfo[*pSet].getScaleMin();
+		double scaleMax = _ppiInfo[*pSet].getScaleMax();
+		// now get the name
+		std::string mapName = _ppiInfo[*pSet].getColorMapName();
+		// create a copy of the map in our collection which has this name
+		ColorMap* pMap = new ColorMap(_colorMaps[mapName]);
+		// and set its range.
+		pMap->setRange(scaleMin, scaleMax);
+		// Finally save the pointer to the colormap in this variable's _ppiInfo entry.
+		int index = _ppiInfo[*pSet].getPpiIndex();
+		_mapsXband[index] = pMap;
+	}
 
 	// set the intial plot type
 	_ppiSType = PROD_S_DBMHC;
@@ -94,6 +135,12 @@ _config("NCAR", "CP2PPI")
 	connect(_colorBar,      SIGNAL(released()),        this, SLOT(colorBarReleasedSlot()));
 	connect(_colorButton,   SIGNAL(released()),        this, SLOT(colorButtonReleasedSlot()));
 	connect(_saveButton,    SIGNAL(released()),        this, SLOT(saveImageSlot()));
+
+	_ppiS->backgroundColor(_backColor);
+	_ppiX->refresh();
+	_ppiX->backgroundColor(_backColor);
+	_ppiX->refresh();
+
 
 	// start the statistics timer
 	startTimer(_statsUpdateInterval*1000);
@@ -283,47 +330,6 @@ CP2PPI::initColorMaps()
 		if (colors.size() != 0) {
 			_colorMaps[names[i]] = ColorMap(0.0, 1.0, colors);
 		}
-	}
-
-	// Now intialize the colormaps that go with each product.
-
-	// create the Sband color maps
-	std::set<PRODUCT_TYPES>::iterator pSet;
-	_mapsSband.resize(_nVarsSband);
-	for (pSet=_sProductList.begin(); pSet!=_sProductList.end(); pSet++) 
-	{
-		// Set up the color map.
-		// First get the scales.
-		double scaleMin = _ppiInfo[*pSet].getScaleMin();
-		double scaleMax = _ppiInfo[*pSet].getScaleMax();
-		// now get the name
-		std::string mapName = _ppiInfo[*pSet].getColorMapName();
-		// create a copy of the map in our collection which has this name
-		ColorMap* pMap = new ColorMap(_colorMaps[mapName]);
-		// and set its range.
-		pMap->setRange(scaleMin, scaleMax);
-		// Finally save the pointer to the colormap in this variable's _ppiInfo entry.
-		int index = _ppiInfo[*pSet].getPpiIndex();
-		_mapsSband[index] = pMap;
-	}
-
-	// create the Xband color maps
-	_mapsXband.resize(_nVarsXband);
-	for (pSet=_xProductList.begin(); pSet!=_xProductList.end(); pSet++) 
-	{
-		// Set up the color map.
-		// First get the scales.
-		double scaleMin = _ppiInfo[*pSet].getScaleMin();
-		double scaleMax = _ppiInfo[*pSet].getScaleMax();
-		// now get the name
-		std::string mapName = _ppiInfo[*pSet].getColorMapName();
-		// create a copy of the map in our collection which has this name
-		ColorMap* pMap = new ColorMap(_colorMaps[mapName]);
-		// and set its range.
-		pMap->setRange(scaleMin, scaleMax);
-		// Finally save the pointer to the colormap in this variable's _ppiInfo entry.
-		int index = _ppiInfo[*pSet].getPpiIndex();
-		_mapsXband[index] = pMap;
 	}
 
 }
@@ -567,7 +573,7 @@ CP2PPI::saveImageSlot()
 	int wcolorbar = colorBarImage->width();
 	int hcolorbar = colorBarImage->height();
 
-	QString penColor = _config.getString("Image/textColor", "blue").c_str();
+	QString textColor = _config.getString("Image/textColor", "blue").c_str();
 	// the total height will be max(ppi, colorbar) + label
 	int h = hppi;
 	if (h < hcolorbar)
@@ -581,7 +587,6 @@ CP2PPI::saveImageSlot()
 	QPixmap pm(w, h);
 	QPainter painter(&pm);
 	painter.setFont(font);
-	painter.setPen(QColor(penColor));
 	
 	// gradient fill 
 	QString colorOne = _config.getString("Image/captionColorOne", "wheat").c_str();
@@ -594,6 +599,7 @@ CP2PPI::saveImageSlot()
 	painter.fillRect(0, 0, w, h, gradBrush);
 
 	// copy in the ppi
+	painter.fillRect(0, hlabel, wppi, hppi, _backColor);
 	painter.drawImage(0, hlabel, *ppiImage);
 
 	// add the color bar on the right
@@ -601,6 +607,7 @@ CP2PPI::saveImageSlot()
 
 	// add text to caption
 	QRect textRect(0, 0, w-wcolorbar, hlabel);
+	painter.setPen(QColor(textColor));
 	painter.drawText(textRect, Qt::AlignHCenter | Qt::AlignVCenter, 
 		makeCaption(), &textRect);
 
@@ -628,7 +635,7 @@ CP2PPI::saveImageSlot()
 		pm.save(saveNames[0], "PNG", 100);
 		// and preserve the (possibly) new directory location
 		f = d.directory().absolutePath();
-		_config.setString("ImageSaveDirectory", f.toStdString());
+		_config.setString("Image/saveDirectory", f.toStdString());
 	}
 
 	// return the images
@@ -839,10 +846,10 @@ CP2PPI::gridStateChanged(int state) {
 //////////////////////////////////////////////////////////////////////
 void
 CP2PPI::colorButtonReleasedSlot() {
-	QColor color = QColorDialog::getColor("white");
+	_backColor = QColorDialog::getColor("black");
 
-	_ppiS->backgroundColor(color);
+	_ppiS->backgroundColor(_backColor);
 	_ppiX->refresh();
-	_ppiX->backgroundColor(color);
+	_ppiX->backgroundColor(_backColor);
 	_ppiX->refresh();
 }

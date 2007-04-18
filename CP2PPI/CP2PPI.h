@@ -4,6 +4,7 @@
 #include <QUdpSocket> 
 #include <QEvent>
 #include <QButtonGroup>
+#include <QColor>
 
 #include <deque>
 #include <set>
@@ -203,6 +204,8 @@ protected:
 	std::map<std::string, ColorMap> _colorMaps;
 	/// The zoom multiplication factor applied on each zoom request
 	double _zoomFactor;
+	/// The background color
+	QColor _backColor;
   };
 
 #endif
