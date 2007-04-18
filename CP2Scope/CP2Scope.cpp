@@ -93,10 +93,19 @@ _config("NCAR", "CP2Scope")
 	_specGraphRange = 120.0;
 	_specGraphCenter = -40.0;
 
-	// set leds to green
-//	_chan0led->setBackgroundColor(QColor("green"));
-//	_chan1led->setBackgroundColor(QColor("green"));
-//	_chan2led->setBackgroundColor(QColor("green"));
+	// set up the palettes
+	_greenPalette = _chan0led->palette();
+	_greenPalette.setColor(_chan0led->backgroundRole(), QColor("green"));
+	_redPalette = _greenPalette;
+	_redPalette.setColor(_chan0led->backgroundRole(), QColor("red"));
+
+	// initialize eof leds to green
+	_chan0led->setAutoFillBackground(true);
+	_chan1led->setAutoFillBackground(true);
+	_chan2led->setAutoFillBackground(true);
+	_chan0led->setPalette(_greenPalette);
+	_chan1led->setPalette(_greenPalette);
+	_chan2led->setPalette(_greenPalette);
 
 	// set the intial plot type
 	plotTypeSlot(S_TIMESERIES);
@@ -199,19 +208,19 @@ CP2Scope::newPulseSlot()
 							case 0:
 								if (!_eof[0]) {
 									_eof[0] = true;
-//									_chan0led->setBackgroundColor(QColor("red"));
+									_chan0led->setPalette(_redPalette);
 								}
 								break;
 							case 1:
 								if (!_eof[1]) {
 									_eof[1] = true;
-//									_chan1led->setBackgroundColor(QColor("red"));
+									_chan1led->setPalette(_redPalette);
 								}
 								break;
 							case 2:
 								if (!_eof[2]) {
 									_eof[2] = true;
-//									_chan2led->setBackgroundColor(QColor("red"));
+									_chan2led->setPalette(_redPalette);
 								}
 								break;
 							}

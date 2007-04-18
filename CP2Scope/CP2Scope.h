@@ -3,6 +3,7 @@
 
 #include <winsock2.h>		//	no redefinition errors if before Qt includes?
 #include <QDialog>
+#include <QPalette>
 #include <qevent.h>
 #include <deque>
 #include <set>
@@ -272,6 +273,10 @@ protected:
 	QButtonGroup* addPlotTypeTab(std::string tabName, std::set<PLOTTYPE> types);
 	/// The configuration for CP2Scope
 	CP2Config _config;
+	/// Palette for making the leds green
+	QPalette _greenPalette;
+	/// Platette for making the leds red
+	QPalette _redPalette;
 
 };
 
