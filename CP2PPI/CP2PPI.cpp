@@ -583,24 +583,21 @@ CP2PPI::saveImageSlot()
 	painter.setFont(font);
 	painter.setPen(QColor(penColor));
 	
-	// solid fill the pixmap
+	// gradient fill 
 	QString colorOne = _config.getString("Image/captionColorOne", "wheat").c_str();
 	QString colorTwo = _config.getString("Image/captionColorTwo", "plum").c_str();
-//	painter.fillRect(0, 0, w, h, QColor(colorOne));
+	QRadialGradient grad(QPointF(w/10, 0), w/40);
+	grad.setColorAt(0,   QColor(colorOne));
+	grad.setColorAt(1, QColor(colorTwo));
+	grad.setSpread(QGradient::ReflectSpread);
+	QBrush gradBrush(grad);
+	painter.fillRect(0, 0, w, h, gradBrush);
 
 	// copy in the ppi
 	painter.drawImage(0, hlabel, *ppiImage);
 
 	// add the color bar on the right
 	painter.drawImage(wppi, hlabel, *colorBarImage);
-
-	// gradient fill the caption
-	QRadialGradient grad(QPointF(w/10, 0), w/40);
-	grad.setColorAt(0,   QColor(colorOne));
-	grad.setColorAt(1, QColor(colorTwo));
-	grad.setSpread(QGradient::ReflectSpread);
-	QBrush gradBrush(grad);
-	painter.fillRect(0, 0, w, hlabel, gradBrush);
 
 	// add text to caption
 	QRect textRect(0, 0, w-wcolorbar, hlabel);
