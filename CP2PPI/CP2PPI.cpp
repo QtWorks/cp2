@@ -24,6 +24,9 @@
 #include <QPixmap>
 #include <QDateTime>
 #include <QPainter>
+#include <QRadialGradient>
+#include <QBrush>
+#include <QPen>
 
 #include "ColorBarSettings.h"
 
@@ -564,6 +567,7 @@ CP2PPI::saveImageSlot()
 	int wcolorbar = colorBarImage->width();
 	int hcolorbar = colorBarImage->height();
 
+	QString penColor = _config.getString("Image/textColor", "blue").c_str();
 	// the total height will be max(ppi, colorbar) + label
 	int h = hppi;
 	if (h < hcolorbar)
@@ -577,11 +581,12 @@ CP2PPI::saveImageSlot()
 	QPixmap pm(w, h);
 	QPainter painter(&pm);
 	painter.setFont(font);
-	painter.setPen(QColor(_config.getString("Image/textColor", "black").c_str()));
+	painter.setPen(QColor(penColor));
 	
 	// solid fill the pixmap
-	QString backcolor = _config.getString("Image/saveBackgroundColor", "slateblue").c_str();
-	painter.fillRect(0, 0, w, h, QColor(backcolor));
+	QString colorOne = _config.getString("Image/captionColorOne", "wheat").c_str();
+	QString colorTwo = _config.getString("Image/captionColorTwo", "plum").c_str();
+//	painter.fillRect(0, 0, w, h, QColor(colorOne));
 
 	// copy in the ppi
 	painter.drawImage(0, hlabel, *ppiImage);
@@ -589,7 +594,15 @@ CP2PPI::saveImageSlot()
 	// add the color bar on the right
 	painter.drawImage(wppi, hlabel, *colorBarImage);
 
-	// add the caption
+	// gradient fill the caption
+	QRadialGradient grad(QPointF(w/10, 0), w/40);
+	grad.setColorAt(0,   QColor(colorOne));
+	grad.setColorAt(1, QColor(colorTwo));
+	grad.setSpread(QGradient::ReflectSpread);
+	QBrush gradBrush(grad);
+	painter.fillRect(0, 0, w, hlabel, gradBrush);
+
+	// add text to caption
 	QRect textRect(0, 0, w-wcolorbar, hlabel);
 	painter.drawText(textRect, Qt::AlignHCenter | Qt::AlignVCenter, 
 		makeCaption(), &textRect);
