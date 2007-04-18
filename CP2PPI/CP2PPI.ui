@@ -28,111 +28,121 @@
     <number>6</number>
    </property>
    <item>
-    <widget class="QStackedWidget" name="_ppiStack" >
-     <property name="sizePolicy" >
-      <sizepolicy>
-       <hsizetype>3</hsizetype>
-       <vsizetype>3</vsizetype>
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
+    <layout class="QHBoxLayout" >
+     <property name="margin" >
+      <number>0</number>
      </property>
-     <property name="minimumSize" >
-      <size>
-       <width>600</width>
-       <height>600</height>
-      </size>
+     <property name="spacing" >
+      <number>6</number>
      </property>
-     <property name="currentIndex" >
-      <number>1</number>
-     </property>
-     <widget class="QWidget" name="page" >
-      <layout class="QVBoxLayout" >
-       <property name="margin" >
-        <number>9</number>
+     <item>
+      <widget class="QStackedWidget" name="_ppiStack" >
+       <property name="sizePolicy" >
+        <sizepolicy>
+         <hsizetype>3</hsizetype>
+         <vsizetype>3</vsizetype>
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
        </property>
-       <property name="spacing" >
-        <number>6</number>
+       <property name="minimumSize" >
+        <size>
+         <width>600</width>
+         <height>600</height>
+        </size>
        </property>
-       <item>
-        <widget class="PPI" name="_ppiS" >
-         <property name="sizePolicy" >
-          <sizepolicy>
-           <hsizetype>3</hsizetype>
-           <vsizetype>3</vsizetype>
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize" >
-          <size>
-           <width>600</width>
-           <height>600</height>
-          </size>
-         </property>
-         <property name="toolTip" >
-          <string>knob</string>
-         </property>
-         <property name="whatsThis" >
-          <string>A knob that you can turn.</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="page_2" >
-      <layout class="QVBoxLayout" >
-       <property name="margin" >
-        <number>9</number>
+       <property name="currentIndex" >
+        <number>1</number>
        </property>
-       <property name="spacing" >
-        <number>6</number>
+       <widget class="QWidget" name="page" >
+        <layout class="QVBoxLayout" >
+         <property name="margin" >
+          <number>9</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="PPI" name="_ppiS" >
+           <property name="sizePolicy" >
+            <sizepolicy>
+             <hsizetype>3</hsizetype>
+             <vsizetype>3</vsizetype>
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize" >
+            <size>
+             <width>600</width>
+             <height>600</height>
+            </size>
+           </property>
+           <property name="toolTip" >
+            <string>knob</string>
+           </property>
+           <property name="whatsThis" >
+            <string>A knob that you can turn.</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="page_2" >
+        <layout class="QVBoxLayout" >
+         <property name="margin" >
+          <number>9</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="PPI" name="_ppiX" >
+           <property name="sizePolicy" >
+            <sizepolicy>
+             <hsizetype>3</hsizetype>
+             <vsizetype>3</vsizetype>
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize" >
+            <size>
+             <width>600</width>
+             <height>600</height>
+            </size>
+           </property>
+           <property name="toolTip" >
+            <string>knob</string>
+           </property>
+           <property name="whatsThis" >
+            <string>A knob that you can turn.</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+     <item>
+      <widget class="ColorBar" name="_colorBar" >
+       <property name="sizePolicy" >
+        <sizepolicy>
+         <hsizetype>0</hsizetype>
+         <vsizetype>3</vsizetype>
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
        </property>
-       <item>
-        <widget class="PPI" name="_ppiX" >
-         <property name="sizePolicy" >
-          <sizepolicy>
-           <hsizetype>3</hsizetype>
-           <vsizetype>3</vsizetype>
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize" >
-          <size>
-           <width>600</width>
-           <height>600</height>
-          </size>
-         </property>
-         <property name="toolTip" >
-          <string>knob</string>
-         </property>
-         <property name="whatsThis" >
-          <string>A knob that you can turn.</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </widget>
-   </item>
-   <item>
-    <widget class="ColorBar" name="_colorBar" >
-     <property name="sizePolicy" >
-      <sizepolicy>
-       <hsizetype>0</hsizetype>
-       <vsizetype>3</vsizetype>
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize" >
-      <size>
-       <width>60</width>
-       <height>100</height>
-      </size>
-     </property>
-    </widget>
+       <property name="minimumSize" >
+        <size>
+         <width>60</width>
+         <height>100</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <layout class="QVBoxLayout" >

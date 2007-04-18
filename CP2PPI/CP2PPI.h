@@ -124,7 +124,8 @@ protected:
 	/// @returns The plot index for the plot selected on
 	/// the current tab page.
 	PRODUCT_TYPES currentProductType();
-
+	/// @returns A caption for the saved image
+	QString makeCaption();
 	/// The incoming product socket.
 	CP2UdpSocket*   _pSocket;
 	/// The buffer that the product data will be read into

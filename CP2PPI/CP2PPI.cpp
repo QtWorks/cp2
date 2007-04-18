@@ -548,22 +548,56 @@ CP2PPI::saveImageSlot()
 	// get the color bar image
 	QImage* colorBarImage = _colorBar->getImage();
 
-	// create a composite pixmap
-	int w  = ppiImage->width() + colorBarImage->width();
-	int h = ppiImage->height();
-	if (h < colorBarImage->height())
-		h = colorBarImage->height();
+	// we need a painter with a good font
+	QFont font(_config.getString("Image/font", "Helvetica").c_str(),
+		_config.getInt("Image/pointSize", 14));
+	QFontMetrics fm(font);
 
+	// create a composite pixmap with three elements:
+	// a label box across the top, containing annotation
+	// the ppi, lower left
+	// the colorbar, lower right
+	int textHeight = fm.height();
+	int hlabel = 2.5 * textHeight;;
+	int wppi  = ppiImage->width();
+	int hppi = ppiImage->height();
+	int wcolorbar = colorBarImage->width();
+	int hcolorbar = colorBarImage->height();
+
+	// the total height will be max(ppi, colorbar) + label
+	int h = hppi;
+	if (h < hcolorbar)
+		h = hcolorbar;
+	h += hlabel;
+
+	// the total width will be ppi + colorbar
+	int w = wppi + wcolorbar;
+
+	// create the pixmap and painter for it
 	QPixmap pm(w, h);
 	QPainter painter(&pm);
-	painter.fillRect(0, 0, w, h, QColor("white"));
-	// copy in the ppi
-	painter.drawImage(0, 0, *ppiImage);
-	// add the color bar on the right
-	painter.drawImage(ppiImage->width(), 0, *colorBarImage);
-
-	QString f = _config.getString("ImageSaveDirectory", "c:/").c_str();
+	painter.setFont(font);
+	painter.setPen(QColor(_config.getString("Image/textColor", "black").c_str()));
 	
+	// solid fill the pixmap
+	QString backcolor = _config.getString("Image/saveBackgroundColor", "slateblue").c_str();
+	painter.fillRect(0, 0, w, h, QColor(backcolor));
+
+	// copy in the ppi
+	painter.drawImage(0, hlabel, *ppiImage);
+
+	// add the color bar on the right
+	painter.drawImage(wppi, hlabel, *colorBarImage);
+
+	// add the caption
+	QRect textRect(0, 0, w-wcolorbar, hlabel);
+	painter.drawText(textRect, Qt::AlignHCenter | Qt::AlignVCenter, 
+		makeCaption(), &textRect);
+
+	// get the directory that it will be saved in.
+	QString f = _config.getString("Image/saveDirectory", "c:/").c_str();
+	
+	// configure the file save dialog
 	QFileDialog d(this, tr("Save CP2PPI Image"),
 		f, tr("PNG files (*.png);;All files (*.*)"));
 	d.setFileMode(QFileDialog::AnyFile);
@@ -572,21 +606,43 @@ CP2PPI::saveImageSlot()
 	d.setConfirmOverwrite(true);
 	d.setDefaultSuffix("png");
 	d.setDirectory(f);
-
 	f = "CP2PPI-";
 	f += QDateTime::currentDateTime().toString("yyyy-MM-dd-hh-mm-ss");
 	f += ".png";
 	d.selectFile(f);
+
+	// popup the file save dialog
 	if (d.exec()) {
+		// if success, save the image to the specified loaction.
 		QStringList saveNames = d.selectedFiles();
 		pm.save(saveNames[0], "PNG", 100);
+		// and preserve the (possibly) new directory location
 		f = d.directory().absolutePath();
 		_config.setString("ImageSaveDirectory", f.toStdString());
 	}
 
+	// return the images
 	delete ppiImage;
 	delete colorBarImage;
 
+}
+//////////////////////////////////////////////////////////////////////
+QString
+CP2PPI::makeCaption() 
+{
+	QString caption = _config.getString("Image/caption", "CP2PPI").c_str();
+	caption += "\n";
+	caption += _config.getString("Image/subCaption", "").c_str();
+	caption += "          ";
+	// get the currently selected product type
+	PRODUCT_TYPES plotType = currentProductType();
+	// add the product title
+	caption += _ppiInfo[plotType].getLongName().c_str();
+	caption += "          ";
+	caption += QDateTime::currentDateTime().toUTC().toString("dd-MMM-yyyy hh:mm:ss");
+	caption += " UTC";
+
+	return caption;
 }
 //////////////////////////////////////////////////////////////////////
 void
