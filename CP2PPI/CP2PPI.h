@@ -204,8 +204,13 @@ protected:
 	std::map<std::string, ColorMap> _colorMaps;
 	/// The zoom multiplication factor applied on each zoom request
 	double _zoomFactor;
+	/// Decimate the display of gates by this factor. Used to improve
+	/// graphics performance
+	/// Decimate the display of gates by this factor. Used to improve
+	/// graphics performance
 	/// The background color
 	QColor _backColor;
+	int _ppiGateDecimation;
   };
 
 #endif

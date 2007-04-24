@@ -57,6 +57,8 @@ _backColor("royalblue")
 
 	_config.setString("title", "CP2PPI Plan Position Index Display");
 
+	_ppiGateDecimation = _config.getInt("gateDecimate", 1);
+
 	_statsUpdateInterval = _config.getInt("statsUpdateSeconds", 5);
 
 	// intialize the data reception socket.
@@ -175,12 +177,12 @@ CP2PPI::configureForGates()
 	// that is when _nVarsSband and _nVarsXband are determined,
 	// so that we have a count of variables.
 	int sNbeams   = _config.getInt("Sband/numberOfBeams", 360);
-	_ppiS->configure(_nVarsSband, _sGates, sNbeams, _sGateWidthKm*2.0*_sGates);
+	_ppiS->configure(_nVarsSband, _sGates, sNbeams, _sGateWidthKm*2.0*_sGates, _ppiGateDecimation);
 	_ppiS->grids(_gridsCheckBox->isChecked());
 	_ppiS->rings(_ringsCheckBox->isChecked());
 
 	int xNbeams   = _config.getInt("Xband/numberOfBeams", 360);
-	_ppiX->configure(_nVarsXband, _xGates, xNbeams, _xGateWidthKm*2.0*_xGates);
+	_ppiX->configure(_nVarsXband, _xGates, xNbeams, _xGateWidthKm*2.0*_xGates, _ppiGateDecimation);
 	_ppiX->grids(_gridsCheckBox->isChecked());
 	_ppiX->rings(_ringsCheckBox->isChecked());
 
