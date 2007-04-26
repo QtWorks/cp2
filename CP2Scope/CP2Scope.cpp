@@ -422,7 +422,8 @@ CP2Scope::initSockets()
 			QMessageBox::Ok, QMessageBox::NoButton);
 	}
 
-	m_pTextIPaddress->setText(_pPulseSocket->toString().c_str());
+	m_pulseIP->setText(_pPulseSocket->toString().c_str());
+	m_productIP->setText(_pProductSocket->toString().c_str());
 
 	// connect the incoming data signal to the read slots
 	connect(_pPulseSocket, SIGNAL(readyRead()), this, SLOT(newPulseSlot()));
