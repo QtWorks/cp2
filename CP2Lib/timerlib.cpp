@@ -117,14 +117,14 @@ int cp2timer_config(TIMER *timer, PINFOHEADER *info, int pciTimerMode, float rad
 
 	timer->timingmode = pciTimerMode;
 	printf("timingmode = %d\n",pciTimerMode);
-if (timer->timingmode == 1)
+	if (timer->timingmode == 1)
 	{
-	timer->sync.byte.lo = 1;		// synclo;  
-	timer->sync.byte.hi = 0;		// synchi; 
+		timer->sync.byte.lo = 1;		// synclo;  
+		timer->sync.byte.hi = 0;		// synchi; 
 	}
-else
+	else
 	{
-	timer->sync.hilo = 1;		// sync;  
+		timer->sync.hilo = 1;		// sync;  
 	}
 	timer->clockfreq = SYSTEM_CLOCK;
 	timer->reffreq = 10.0E6;

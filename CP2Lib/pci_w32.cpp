@@ -1,7 +1,4 @@
-//#include <Afx.h>
-
 #include <windows.h>
-//#include "tvichw32.h"
 #include <stdio.h>
 #include "pci_w32.h"
 
@@ -10,13 +7,13 @@ HANDLE PCI_HANDLE;
 // Initializes the PCI bus
 int init_pci(void)
 {
-	
+
 	// Set PCI handle to NULL to begin with
 	PCI_HANDLE = NULL;
-	
+
 	// initialize (open) the driver 
 	PCI_HANDLE = OpenTVicHW32( PCI_HANDLE, "TVICHW32","TVicDevice0");   
-	
+
 	// Make sure there was no failure. 
 	if(!GetActiveHW(PCI_HANDLE))
 	{
@@ -32,41 +29,41 @@ PCI_CARD *find_pci_card(int vendorid,int deviceid,int n)
 	PCI_COMMON_CONFIG Info;
 	PCI_CARD *card[4];
 	int buses,bus,dev,func,i,j;
-		
+
 	i=0;
-	
+
 	// Assume six PCI busses
 	buses = 5;
 
 	for (bus = 0; bus<=buses; bus++) { // sort out all the buses    
 		for (dev = 0; dev<32; dev++)   { // sort out all the devices  
 			for (func= 0; func<8; func++) { // sort out all the functions  
-				
+
 				// Get the device at this spot
 				if ( GetPciDeviceInfo(PCI_HANDLE,bus,dev,func,&Info) &&             
-		            (Info.VendorID == vendorid) && (Info.DeviceID == deviceid) ) {   
-					
-					card[i] = new PCI_CARD;
-					card[i]->deviceid = deviceid;
-					card[i]->vendorid = vendorid;
-					card[i]->bus = bus;
-					card[i]->fnum = func;
-					
-					if(Info.u.type1.BaseAddresses[1] & 1)
-						card[i]->phys = Info.u.type1.BaseAddresses[1]-1;
-					else
-						card[i]->phys = Info.u.type1.BaseAddresses[1];
-					
-					if(Info.u.type1.BaseAddresses[0] & 1)
-						card[i]->phys2 = Info.u.type1.BaseAddresses[0]-1;
-					else
-						card[i]->phys2 = Info.u.type1.BaseAddresses[0];
+					(Info.VendorID == vendorid) && (Info.DeviceID == deviceid) ) {   
 
-					
-					card[i]->base = NULL;
-					card[i]->mapped_length = 0;
-					memcpy(&card[i]->config,&Info,sizeof(PCI_COMMON_CONFIG));
-					i++;
+						card[i] = new PCI_CARD;
+						card[i]->deviceid = deviceid;
+						card[i]->vendorid = vendorid;
+						card[i]->bus = bus;
+						card[i]->fnum = func;
+
+						if(Info.u.type1.BaseAddresses[1] & 1)
+							card[i]->phys = Info.u.type1.BaseAddresses[1]-1;
+						else
+							card[i]->phys = Info.u.type1.BaseAddresses[1];
+
+						if(Info.u.type1.BaseAddresses[0] & 1)
+							card[i]->phys2 = Info.u.type1.BaseAddresses[0]-1;
+						else
+							card[i]->phys2 = Info.u.type1.BaseAddresses[0];
+
+
+						card[i]->base = NULL;
+						card[i]->mapped_length = 0;
+						memcpy(&card[i]->config,&Info,sizeof(PCI_COMMON_CONFIG));
+						i++;
 				}  
 			}
 		}
@@ -76,7 +73,7 @@ PCI_CARD *find_pci_card(int vendorid,int deviceid,int n)
 	if(i<=n) 
 	{
 		printf("Only found %d cards, and you wanted card %d\n",i,n);
-		
+
 		// Free the cards, return NULL
 		for(n=0;n<i;n++)
 		{
@@ -163,4 +160,3 @@ unsigned long pci_read_config32(PCI_CARD *card,UINT offset)
 	ULONG *ptr = (ULONG *)&card->config + offset/4;
 	return(*ptr);
 }
-    
