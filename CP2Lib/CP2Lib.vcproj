@@ -89,6 +89,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Creating the svnInfo.h file"
+				CommandLine="makeSvnInfo.bat"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -151,6 +153,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\CP2Version.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\pci_w32.cpp"
 				>
 			</File>
@@ -165,7 +171,15 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\CP2Version.h"
+				>
+			</File>
+			<File
 				RelativePath=".\pci_w32.h"
+				>
+			</File>
+			<File
+				RelativePath=".\svnInfo.h"
 				>
 			</File>
 			<File

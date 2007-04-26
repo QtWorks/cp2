@@ -1,6 +1,7 @@
 #include "CP2Exec.h"
 #include <qlabel.h>
 #include "CP2Config.h"
+#include "CP2Version.h"
 #include <iostream>
 
 
@@ -15,11 +16,18 @@ _pThread(0)
 {
 	setupUi(parent);
 
+	// get the network configuration
+	CP2Config config("NCAR", "CP2Exec");
+
+	// get our title from the coniguration
+	std::string title = config.getString("Title","CP2Exec");
+	title += " ";
+	title += CP2Version::revision();
+	parent->setWindowTitle(title.c_str());
+
 	// save our start time
 	_startTime = QDateTime::currentDateTime();
 
-	// get the network configuration
-	CP2Config config("NCAR", "CP2Exec");
 	int outPort = config.getInt("Network/PulsePort", 3100);
 	_networkPort->setNum(outPort);
 	std::string pulseInterface = config.getString("Network/PulseNetwork", "192.168.1");

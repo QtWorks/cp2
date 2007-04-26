@@ -29,7 +29,7 @@
 #include <QPen>
 
 #include "ColorBarSettings.h"
-
+#include "CP2Version.h"
 #include <iostream>
 #include <algorithm>
 
@@ -54,6 +54,12 @@ _config("NCAR", "CP2PPI"),
 _backColor("royalblue")
 {
 	setupUi(parent);
+
+	// get our title from the coniguration
+	std::string title = _config.getString("Title","CP2PPI");
+	title += " ";
+	title += CP2Version::revision();
+	parent->setWindowTitle(title.c_str());
 
 	_config.setString("title", "CP2PPI Plan Position Index Display");
 

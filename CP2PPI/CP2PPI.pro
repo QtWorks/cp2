@@ -15,11 +15,13 @@ CONFIG(release, debug|release) {
   LIBS += ../../Qttoolbox/ColorBar/release/ColorBar.lib
   LIBS += ../CP2Net/release/CP2Net.lib
   LIBS += ../CP2Config/release/CP2Config.lib
+  LIBS += ../CP2Lib/release/CP2Lib.lib
   LIBS += c:/Projects/Qwt/lib/qwt5.lib
 } else {
   LIBS += ../../Qttoolbox/PPI/debug/PPId.lib
   LIBS += ../../Qttoolbox/ColorBar/debug/ColorBard.lib
   LIBS += ../CP2Net/debug/CP2Netd.lib
+  LIBS += ../CP2Lib/debug/CP2Libd.lib
   LIBS += ../CP2Config/debug/CP2Configd.lib
   LIBS += c:/Projects/Qwt/lib/qwt5d.lib
 }
@@ -39,6 +41,7 @@ FORMS	+= ColorBarSettings.ui
 
 INCLUDEPATH += ../CP2Net
 INCLUDEPATH += ../CP2Config
+INCLUDEPATH += ../CP2Lib
 INCLUDEPATH += ../../
 INCLUDEPATH += ../../QtToolbox/PPI
 INCLUDEPATH += ../../QtToolbox/ColorBar

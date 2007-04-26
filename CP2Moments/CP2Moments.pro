@@ -11,10 +11,12 @@ QT     += network
 CONFIG(release, debug|release) {
   LIBS += ../Moments/Release/Moments.lib
   LIBS += ../CP2Net/Release/CP2Net.lib
+  LIBS += ../CP2Lib/release/CP2Lib.lib
   LIBS += ../CP2Config/Release/CP2Config.lib
 } else {
   LIBS += ../Moments/Debug/Momentsd.lib
   LIBS += ../CP2Net/Debug/CP2Netd.lib
+  LIBS += ../CP2Lib/debug/CP2Libd.lib
   LIBS += ../CP2Config/Debug/CP2Configd.lib
 }
 LIBS += ../../fftw3.1/libfftw3-3.lib
@@ -35,6 +37,7 @@ INCLUDEPATH += ../../
 INCLUDEPATH += ../../fftw3.1
 INCLUDEPATH += ../CP2Net
 INCLUDEPATH += ../CP2Config
+INCLUDEPATH += ../CP2Lib
 INCLUDEPATH += ../Moments
 
 

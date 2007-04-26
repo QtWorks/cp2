@@ -6,6 +6,7 @@
 
 #include "CP2Moments.h"
 #include "CP2Net.h"
+#include "CP2Version.h"
 
 #include <Windows.h>  // just to get Sleep()
 #include <iostream>
@@ -24,11 +25,11 @@ _config("NCAR", "CP2Moments")
 	// setup our form
 	setupUi(parent);
 
-	// get the title of the app
-	std::string title = _config.getString("Title", "CP2 Moments Compute Engine");
-
-	// for some reason this doesn't set the dialog title bar
-	this->setWindowTitle(title.c_str());
+	// get our title from the coniguration
+	std::string title = _config.getString("Title","CP2Moments");
+	title += " ";
+	title += CP2Version::revision();
+	parent->setWindowTitle(title.c_str());
 
 	// initialize the statictics and error monitoring.
 	for (int i = 0; i < 3; i++) {

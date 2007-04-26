@@ -13,12 +13,14 @@ CONFIG(release, debug|release) {
   LIBS += ../../Qttoolbox/Knob/release/Knob.lib
   LIBS += c:/Projects/Qwt/lib/qwt5.lib
   LIBS += ../CP2Net/release/CP2Net.lib
+  LIBS += ../CP2Lib/release/CP2Lib.lib
   LIBS += ../CP2Config/release/CP2Config.lib
 } else {
   LIBS += ../../Qttoolbox/ScopePlot/debug/ScopePlotd.lib
   LIBS += ../../Qttoolbox/Knob/debug/Knobd.lib
   LIBS += c:/Projects/Qwt/lib/qwt5d.lib
   LIBS += ../CP2Net/debug/CP2Netd.lib
+  LIBS += ../CP2Lib/debug/CP2Libd.lib
   LIBS += ../CP2Config/debug/CP2Configd.lib
 }
 LIBS += ../../fftw3.1/libfftw3-3.lib
@@ -35,6 +37,7 @@ FORMS	= CP2Scope.ui
 
 INCLUDEPATH += ../../
 INCLUDEPATH += ../CP2Net
+INCLUDEPATH += ../CP2Lib
 INCLUDEPATH += ../CP2Config
 INCLUDEPATH += ../../QtToolbox/Knob
 INCLUDEPATH += ../../QtToolbox/ScopePlot

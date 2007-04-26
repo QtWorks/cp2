@@ -31,6 +31,8 @@
 
 #include <qwt_wheel.h>
 
+#include "CP2Version.h"
+
 //////////////////////////////////////////////////////////////////////
 CP2Scope::CP2Scope(QDialog* parent):
 QDialog(parent),
@@ -50,7 +52,10 @@ _config("NCAR", "CP2Scope")
 	setupUi(parent);
 
 	// get our title from the coniguration
-	std::string title = _config.getString("Title","CP2 Ascope Display");
+	std::string title = _config.getString("Title","CP2Scope");
+	title += " ";
+	title += CP2Version::revision();
+	parent->setWindowTitle(title.c_str());
 
 	// initialize running statistics
 	for (int i = 0; i < 3; i++) {
