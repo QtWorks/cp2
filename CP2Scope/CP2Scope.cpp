@@ -338,14 +338,14 @@ CP2Scope::processProduct(CP2Product* pProduct)
 	if (_pulsePlot) 
 		return;
 
-	_productDisplayCount++;
-	if	(_productDisplayCount < _productDecimation)	{
-		return;
-	}
-	_productDisplayCount = 0;
 	PRODUCT_TYPES prodType = pProduct->header.prodType;
 
 	if (prodType == _productPlotType) {
+		_productDisplayCount++;
+		if	(_productDisplayCount < _productDecimation)	{
+			return;
+		}
+		_productDisplayCount = 0;
 		// this is the product that we are currntly displaying
 		// extract the data and display it.
 		_ProductData.resize(pProduct->header.gates);
