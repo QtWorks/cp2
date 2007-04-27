@@ -52,7 +52,7 @@ _config("NCAR", "CP2Scope")
 	setupUi(parent);
 
 	// get our title from the coniguration
-	std::string title = _config.getString("Title","CP2Scope");
+	std::string title = _config.getString("title","CP2Scope");
 	title += " ";
 	title += CP2Version::revision();
 	parent->setWindowTitle(title.c_str());
@@ -75,7 +75,7 @@ _config("NCAR", "CP2Scope")
 	connect(_up,        SIGNAL(released()),           this, SLOT(upSlot()));
 	connect(_dn,        SIGNAL(released()),           this, SLOT(dnSlot()));
 	connect(_saveImage, SIGNAL(released()),           this, SLOT(saveImageSlot()));
-	
+
 	// intialize the data reception sockets.
 	initSockets();	
 
@@ -120,8 +120,8 @@ _config("NCAR", "CP2Scope")
 	Q.resize(_xFullScale);
 
 	//	display decimation, set to get ~50/sec
-	_pulseDecimation	= 50;	//	default w/prt = 1000Hz, timeseries data 
-	_productsDecimation	= 5;	//	default w/prt = 1000Hz, hits = 10, products data
+	_pulseDecimation	= _config.getInt("pulseDecimation", 50); 
+	_productDecimation	= _config.getInt("productDecimation", 5);
 
 	//	set up fft for power calculations: 
 	_fftBlockSize = 256;	//	temp constant for initial proving 
@@ -241,8 +241,8 @@ CP2Scope::newPulseSlot()
 //////////////////////////////////////////////////////////////////////
 void
 CP2Scope::saveImageSlot() {
-	QString f = _config.getString("ImageSaveDirectory", "c:/").c_str();
-	
+	QString f = _config.getString("imageSaveDirectory", "c:/").c_str();
+
 	QFileDialog d(this, tr("Save CP2Scope Image"),
 		f, tr("PNG files (*.png);;All files (*.*)"));
 	d.setFileMode(QFileDialog::AnyFile);
@@ -260,7 +260,7 @@ CP2Scope::saveImageSlot() {
 		QStringList saveNames = d.selectedFiles();
 		_scopePlot->saveImageToFile(saveNames[0].toStdString());
 		f = d.directory().absolutePath();
-		_config.setString("ImageSaveDirectory", f.toStdString());
+		_config.setString("imageSaveDirectory", f.toStdString());
 	}
 }
 //////////////////////////////////////////////////////////////////////
@@ -338,6 +338,11 @@ CP2Scope::processProduct(CP2Product* pProduct)
 	if (_pulsePlot) 
 		return;
 
+	_productDisplayCount++;
+	if	(_productDisplayCount < _productDecimation)	{
+		return;
+	}
+	_productDisplayCount = 0;
 	PRODUCT_TYPES prodType = pProduct->header.prodType;
 
 	if (prodType == _productPlotType) {
@@ -400,12 +405,12 @@ void
 CP2Scope::initSockets()	
 {
 	// assign the incoming data ports
-	_pulsePort	 = _config.getInt("Network/PulsePort",   3100);
-	_productPort = _config.getInt("Network/ProductPort", 3200);
+	_pulsePort	 = _config.getInt("Network/pulsePort",   3100);
+	_productPort = _config.getInt("Network/productPort", 3200);
 
 	// get the interface addresses
-	std::string pulseNetwork   = _config.getString("Network/PulseNetwork", "192.168.1");
-	std::string productNetwork = _config.getString("Network/ProductNetwork", "192.168.1");
+	std::string pulseNetwork   = _config.getString("Network/pulseNetwork", "192.168.1");
+	std::string productNetwork = _config.getString("Network/productNetwork", "192.168.1");
 
 	int result;
 
@@ -525,9 +530,9 @@ CP2Scope::tabChangeSlot(QWidget* w)
 ////////////////////////////////////////////////////////////////////
 void
 CP2Scope::plotTypeChange(PlotInfo* pi, 
-					   PLOTTYPE newPlotType, 
-					   PRODUCT_TYPES newProductType, 
-					   bool pulsePlot)
+						 PLOTTYPE newPlotType, 
+						 PRODUCT_TYPES newProductType, 
+						 bool pulsePlot)
 {
 
 	// save the gain and offset of the current plot type
@@ -554,33 +559,33 @@ CP2Scope::plotTypeChange(PlotInfo* pi,
 	} else {
 		_productPlotType = newProductType;
 	}
-	
+
 	_pulsePlot = pulsePlot;
 
 	// select the piraq discriminator based
 	// on the plot type.
 	if (_pulsePlot) {
 		// change data channel if necessary
-	switch(_pulsePlotType) 
-	{
-	case S_TIMESERIES:	// S time series
-	case S_IQ:			// S IQ
-	case S_SPECTRUM:		// S spectrum 
-		_dataChannel = 0;
-		break;
-	case XH_TIMESERIES:	// Xh time series
-	case XH_IQ:			// Xh IQ
-	case XH_SPECTRUM:	// Xh spectrum 
-		_dataChannel = 1;
-		break;
-	case XV_TIMESERIES:	// Xv time series
-	case XV_IQ:			// Xv IQ
-	case XV_SPECTRUM:	// Xv spectrum 
-		_dataChannel = 2;
-		break;
-	default:
-		break;
-	}
+		switch(_pulsePlotType) 
+		{
+		case S_TIMESERIES:	// S time series
+		case S_IQ:			// S IQ
+		case S_SPECTRUM:		// S spectrum 
+			_dataChannel = 0;
+			break;
+		case XH_TIMESERIES:	// Xh time series
+		case XH_IQ:			// Xh IQ
+		case XH_SPECTRUM:	// Xh spectrum 
+			_dataChannel = 1;
+			break;
+		case XV_TIMESERIES:	// Xv time series
+		case XV_IQ:			// Xv IQ
+		case XV_SPECTRUM:	// Xv spectrum 
+			_dataChannel = 2;
+			break;
+		default:
+			break;
+		}
 	}
 
 }

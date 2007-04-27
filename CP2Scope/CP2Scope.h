@@ -132,7 +132,7 @@ protected:
 	///	decimation factor for along range (DATA_SET_PULSE) display: currently set 50
 	unsigned int	  _pulseDecimation;
 	///	decimation factor for products display: currently set 50
-	unsigned int	  _productsDecimation;	
+	unsigned int	  _productDecimation;	
  
 	double          _knobGain;
 	double          _knobOffset;
