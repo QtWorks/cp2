@@ -121,7 +121,9 @@ _config("NCAR", "CP2Scope")
 
 	//	display decimation, set to get ~50/sec
 	_pulseDecimation	= _config.getInt("pulseDecimation", 50); 
+	m_pulseDec->setNum((int)_pulseDecimation);
 	_productDecimation	= _config.getInt("productDecimation", 5);
+	m_productDec->setNum((int)_productDecimation);
 
 	//	set up fft for power calculations: 
 	_fftBlockSize = 256;	//	temp constant for initial proving 
@@ -488,6 +490,10 @@ CP2Scope::powerSpectrum()
 ////////////////////////////////////////////////////////////////////
 void
 CP2Scope::plotTypeSlot(int plotType) {
+	// reset the product display counts
+	_tsDisplayCount = 0;
+	_productDisplayCount = 0;
+
 	// find out the index of the current page
 	int pageNum = _typeTab->currentIndex();
 
