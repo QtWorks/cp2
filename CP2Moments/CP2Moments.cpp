@@ -125,6 +125,11 @@ _config("NCAR", "CP2Moments")
 
 	_pXmomentThread = new MomentThread(Xparams);
 
+	// At the moment, set the gate spacing to the Sband gate spacing.
+	// This really needs to be separated into X and S spacing, and accounted
+	// for in CP2PPI.
+	_gateSpacing = Sparams.moments_params.gate_spacing;
+		
 	// start the moments processing threads. They will wait
 	// patiently until their processPulse() functions are
 	// called with pulses to be processed.
