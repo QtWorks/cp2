@@ -48,7 +48,7 @@ Beam::Beam(const Params &params,
   // load up pulse vector
 
   int offset = 0;
-  if (_momentsMgr->getMode() == Params::DUAL_FAST_ALT) {
+  if (_momentsMgr->getMode() == Params::DUAL_CP2_SBAND) {
     // for alternating dual pol data, we check the HV flag to
     // determine whether pulse 0 is horizontally or vertically polarized.
     // If vertical, go back by one to start with horizontal
@@ -161,9 +161,9 @@ void Beam::computeMoments()
     
     computeMomentsSinglePol();
 
-  } else if (_momentsMgr->getMode() == Params::DUAL_FAST_ALT) {
+  } else if (_momentsMgr->getMode() == Params::DUAL_CP2_SBAND) {
     
-    computeMomentsDualFastAlt();
+    computeMomentsDualCp2Sband();
 
   } else if (_momentsMgr->getMode() == Params::DUAL_CP2_XBAND) {
     
@@ -215,11 +215,11 @@ void Beam::computeMomentsSinglePol()
 }
 
 /////////////////////////////////////////////////
-// compute moments - dual pol fast alternating
+// compute moments - CP2 sband
 //
 // Returns 0 on success, -1 on failure
 void 
-Beam::computeMomentsDualFastAlt()
+Beam::computeMomentsDualCp2Sband()
 {
 
   // get pulse IQ copol data
@@ -243,7 +243,7 @@ Beam::computeMomentsDualFastAlt()
   _iqvc = (Complex_t **)
     Umalloc::ucalloc2(_nGatesPulse, nHalf, sizeof(Complex_t));
 
-for (int igate = 0, posn = 0; igate < _nGatesPulse; igate++, posn += 2) {
+  for (int igate = 0, posn = 0; igate < _nGatesPulse; igate++, posn += 2) {
     Complex_t *iqhc = _iqhc[igate];
     Complex_t *iqvc = _iqvc[igate];
     for (int isamp = 0; isamp < _nSamples; iqhc++, iqvc++) {
@@ -256,7 +256,7 @@ for (int igate = 0, posn = 0; igate < _nGatesPulse; igate++, posn += 2) {
     } // isamp
   } // igate
 
-  _momentsMgr->computeDualFastAlt(_time, _el, _az, _prt,
+  _momentsMgr->computeDualCp2Sband(_time, _el, _az, _prt,
                                   _nGatesPulse, _iqhc, _iqvc, _fields);
   
   delete[] IQC;

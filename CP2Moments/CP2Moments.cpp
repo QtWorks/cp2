@@ -45,7 +45,8 @@ _config("NCAR", "CP2Moments")
 	// get the processing parameters
 	// create the Sband moments processing thread
 	Params Sparams;
-	Sparams.moments_params.mode                   = Params::DUAL_FAST_ALT;
+	Sparams.system_phidp                 = _config.getDouble("ProcessingSband/system_phidp_deg",        0.0);
+	Sparams.moments_params.mode                   = Params::DUAL_CP2_SBAND;
 	Sparams.moments_params.gate_spacing           = _config.getDouble("ProcessingSband/gateSpacingKm", 0.150);
 	Sparams.moments_params.n_samples              = _config.getInt("ProcessingSband/pulsesPerBeam", 100);
 	Sparams.moments_params.algorithm              = Params::ALG_PP;
@@ -58,34 +59,27 @@ _config("NCAR", "CP2Moments")
 	Sparams.hc_receiver.noise_v_dBm      = _config.getDouble("ProcessingSband/hc_rcvr_noise_v_dbm",    -77.0);
 	Sparams.hc_receiver.gain             = _config.getDouble("ProcessingSband/hc_rcvr_gain_db",         37.0);
 	Sparams.hc_receiver.radar_constant   = _config.getDouble("ProcessingSband/hc_rcvr_radar_constant", -68.4);
-	Sparams.hc_receiver.dbz0             = _config.getDouble("ProcessingSband/hc_rcvr_dbz0",           -48.0);
-	Sparams.hc_receiver.system_phidp_deg = _config.getDouble("ProcessingSband/hc_rcvr_phidp_deg",        0.0);
 
 	Sparams.hx_receiver.noise_h_dBm      = _config.getDouble("ProcessingSband/hx_rcvr_noise_h_dbm",    -77.0);
 	Sparams.hx_receiver.noise_v_dBm      = _config.getDouble("ProcessingSband/hx_rcvr_noise_v_dbm",    -77.0);
 	Sparams.hx_receiver.gain             = _config.getDouble("ProcessingSband/hx_rcvr_gain_db",         37.0);
 	Sparams.hx_receiver.radar_constant   = _config.getDouble("ProcessingSband/hx_rcvr_radar_constant", -68.4);
-	Sparams.hx_receiver.dbz0             = _config.getDouble("ProcessingSband/hx_rcvr_dbz0",           -48.0);
-	Sparams.hx_receiver.system_phidp_deg = _config.getDouble("ProcessingSband/hx_rcvr_phidp_deg",        0.0);
 
 	Sparams.vc_receiver.noise_h_dBm      = _config.getDouble("ProcessingSband/vc_rcvr_noise_h_dbm",    -77.0);
 	Sparams.vc_receiver.noise_v_dBm      = _config.getDouble("ProcessingSband/vc_rcvr_noise_v_dbm",    -77.0);
 	Sparams.vc_receiver.gain             = _config.getDouble("ProcessingSband/vc_rcvr_gain_db",         37.0);
 	Sparams.vc_receiver.radar_constant   = _config.getDouble("ProcessingSband/vc_rcvr_radar_constant", -68.4);
-	Sparams.vc_receiver.dbz0             = _config.getDouble("ProcessingSband/vc_rcvr_dbz0",           -48.0);
-	Sparams.vc_receiver.system_phidp_deg = _config.getDouble("ProcessingSband/vc_rcvr_phidp_deg",        0.0);
 
 	Sparams.vx_receiver.noise_h_dBm      = _config.getDouble("ProcessingSband/vx_rcvr_noise_h_dbm",    -77.0);
 	Sparams.vx_receiver.noise_v_dBm      = _config.getDouble("ProcessingSband/vx_rcvr_noise_v_dbm",    -77.0);
 	Sparams.vx_receiver.gain             = _config.getDouble("ProcessingSband/vx_rcvr_gain_db",         37.0);
 	Sparams.vx_receiver.radar_constant   = _config.getDouble("ProcessingSband/vx_rcvr_radar_constant", -68.4);
-	Sparams.vx_receiver.dbz0             = _config.getDouble("ProcessingSband/vx_rcvr_dbz0",           -48.0);
-	Sparams.vx_receiver.system_phidp_deg = _config.getDouble("ProcessingSband/vx_rcvr_phidp_deg",        0.0);
 
 	_pSmomentThread = new MomentThread(Sparams);
 
 	// create the Sband moments processing thread
 	Params Xparams;
+	Xparams.system_phidp                          = _config.getDouble("ProcessingXband/system_phidp_deg", 0.0);
 	Xparams.moments_params.mode                   = Params::DUAL_CP2_XBAND;
 	Xparams.moments_params.gate_spacing           = _config.getDouble("ProcessingXband/gateSpacingKm", 0.150);
 	Xparams.moments_params.n_samples              = _config.getInt("ProcessingXband/pulsesPerBeam", 100);
@@ -99,29 +93,21 @@ _config("NCAR", "CP2Moments")
 	Xparams.hc_receiver.noise_v_dBm      = _config.getDouble("ProcessingXband/hc_rcvr_noise_v_dbm",    -77.0);
 	Xparams.hc_receiver.gain             = _config.getDouble("ProcessingXband/hc_rcvr_gain_db",         37.0);
 	Xparams.hc_receiver.radar_constant   = _config.getDouble("ProcessingXband/hc_rcvr_radar_constant", -68.4);
-	Xparams.hc_receiver.dbz0             = _config.getDouble("ProcessingXband/hc_rcvr_dbz0",           -48.0);
-	Xparams.hc_receiver.system_phidp_deg = _config.getDouble("ProcessingXband/hc_rcvr_phidp_deg",        0.0);
 
 	Xparams.hx_receiver.noise_h_dBm      = _config.getDouble("ProcessingXband/hx_rcvr_noise_h_dbm",    -77.0);
 	Xparams.hx_receiver.noise_v_dBm      = _config.getDouble("ProcessingXband/hx_rcvr_noise_v_dbm",    -77.0);
 	Xparams.hx_receiver.gain             = _config.getDouble("ProcessingXband/hx_rcvr_gain_db",         37.0);
 	Xparams.hx_receiver.radar_constant   = _config.getDouble("ProcessingXband/hx_rcvr_radar_constant", -68.4);
-	Xparams.hx_receiver.dbz0             = _config.getDouble("ProcessingXband/hx_rcvr_dbz0",           -48.0);
-	Xparams.hx_receiver.system_phidp_deg = _config.getDouble("ProcessingXband/hx_rcvr_phidp_deg",        0.0);
 
 	Xparams.vc_receiver.noise_h_dBm      = _config.getDouble("ProcessingXband/vc_rcvr_noise_h_dbm",    -77.0);
 	Xparams.vc_receiver.noise_v_dBm      = _config.getDouble("ProcessingXband/vc_rcvr_noise_v_dbm",    -77.0);
 	Xparams.vc_receiver.gain             = _config.getDouble("ProcessingXband/vc_rcvr_gain_db",         37.0);
 	Xparams.vc_receiver.radar_constant   = _config.getDouble("ProcessingXband/vc_rcvr_radar_constant", -68.4);
-	Xparams.vc_receiver.dbz0             = _config.getDouble("ProcessingXband/vc_rcvr_dbz0",           -48.0);
-	Xparams.vc_receiver.system_phidp_deg = _config.getDouble("ProcessingXband/vc_rcvr_phidp_deg",        0.0);
 
 	Xparams.vx_receiver.noise_h_dBm      = _config.getDouble("ProcessingXband/vx_rcvr_noise_h_dbm",    -77.0);
 	Xparams.vx_receiver.noise_v_dBm      = _config.getDouble("ProcessingXband/vx_rcvr_noise_v_dbm",    -77.0);
 	Xparams.vx_receiver.gain             = _config.getDouble("ProcessingXband/vx_rcvr_gain_db",         37.0);
 	Xparams.vx_receiver.radar_constant   = _config.getDouble("ProcessingXband/vx_rcvr_radar_constant", -68.4);
-	Xparams.vx_receiver.dbz0             = _config.getDouble("ProcessingXband/vx_rcvr_dbz0",           -48.0);
-	Xparams.vx_receiver.system_phidp_deg = _config.getDouble("ProcessingXband/vx_rcvr_phidp_deg",        0.0);
 
 	_pXmomentThread = new MomentThread(Xparams);
 
@@ -466,12 +452,8 @@ CP2Moments::sBeamOut(Beam* pBeam)
 	for (int i = 0; i < gates; i++) { _sProductData[i] = fields[i].dbmvc;  }
 	sendProduct(header, _sProductData, _sProductPacket);
 
-	header.prodType = PROD_S_DBZHC;	///< S-band dBz horizontal co-planar
-	for (int i = 0; i < gates; i++) { _sProductData[i] = fields[i].dbzhc;  }
-	sendProduct(header, _sProductData, _sProductPacket);
-
-	header.prodType = PROD_S_DBZVC;	///< S-band dBz vertical co-planar
-	for (int i = 0; i < gates; i++) { _sProductData[i] = fields[i].dbzvc;  }
+	header.prodType = PROD_S_DBZ;	///< S-band dBz
+	for (int i = 0; i < gates; i++) { _sProductData[i] = fields[i].dbz;  }
 	sendProduct(header, _sProductData, _sProductPacket);
 
 	header.prodType = PROD_S_RHOHV;	///< S-band rhohv
@@ -525,8 +507,8 @@ CP2Moments::xBeamOut(Beam* pBeam)
 	for (int i = 0; i < gates; i++) { _xProductData[i] = fields[i].dbmvx;}
 	sendProduct(header, _xProductData, _xProductPacket);
 
-	header.prodType =  PROD_X_DBZHC;	///< X-band dBz horizontal co-planar
-	for (int i = 0; i < gates; i++) { _xProductData[i] = fields[i].dbzhc;  } 
+	header.prodType =  PROD_X_DBZ;	   ///< X-band dBz
+	for (int i = 0; i < gates; i++) { _xProductData[i] = fields[i].dbz;  } 
 	sendProduct(header, _xProductData, _xProductPacket);
 
 	header.prodType = PROD_X_SNR;		///< X-band SNR

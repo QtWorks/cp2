@@ -20,7 +20,6 @@
 #include <cmath>
 
 const double Fields::missingDouble = -9999;
-const int Fields::missingInt = -9999;
 
 // constructor
 
@@ -38,8 +37,6 @@ void Fields::initialize()
 
 {
   
-  flags = missingInt;
-
   snr = missingDouble;
   dbm = missingDouble;
   dbz = missingDouble;
@@ -63,7 +60,7 @@ void Fields::initialize()
 
   rhohv = missingDouble;
   phidp = missingDouble;
-//  kdp = missingDouble;
+  kdp = missingDouble;
 
   snrhc = missingDouble;
   snrhx = missingDouble;
@@ -75,10 +72,38 @@ void Fields::initialize()
   dbmvc = missingDouble;
   dbmvx = missingDouble;
 
-  dbzhc = missingDouble;
-  dbzhx = missingDouble;
-  dbzvc = missingDouble;
-  dbzvx = missingDouble;
+}
+
+// Print
+
+void Fields::print(ostream &out) const
+
+{
+  
+  out << "snr: " << snr << endl;
+  out << "dbm: " << dbm << endl;
+  out << "dbz: " << dbz << endl;
+  out << "vel: " << vel << endl;
+  out << "width: " << width << endl;
+  out << "clut: " << clut << endl;
+  out << "dbzf: " << dbzf << endl;
+  out << "velf: " << velf << endl;
+  out << "widthf: " << widthf << endl;
+  out << "zdr: " << zdr << endl;
+  out << "zdrm: " << zdrm << endl;
+  out << "ldrh: " << ldrh << endl;
+  out << "ldrv: " << ldrv << endl;
+  out << "rhohv: " << rhohv << endl;
+  out << "phidp: " << phidp << endl;
+  out << "kdp: " << kdp << endl;
+  out << "snrhc: " << snrhc << endl;
+  out << "snrhx: " << snrhx << endl;
+  out << "snrvc: " << snrvc << endl;
+  out << "snrvx: " << snrvx << endl;
+  out << "dbmhc: " << dbmhc << endl;
+  out << "dbmhx: " << dbmhx << endl;
+  out << "dbmvc: " << dbmvc << endl;
+  out << "dbmvx: " << dbmvx << endl;
 
 }
 

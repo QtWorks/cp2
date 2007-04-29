@@ -52,8 +52,7 @@ protected:
 enum PRODUCT_TYPES {
 	PROD_S_DBMHC,	///< S-band dBm horizontal co-planar
 	PROD_S_DBMVC,	///< S-band dBm vertical co-planar
-	PROD_S_DBZHC,	///< S-band dBz horizontal co-planar
-	PROD_S_DBZVC,	///< S-band dBz vertical co-planar
+	PROD_S_DBZ,	    ///< S-band dBz 
 	PROD_S_SNR,		///< S-band SNR
 	PROD_S_VEL,		///< S-band velocity
 	PROD_S_WIDTH,	///< S-band spectral width
@@ -62,7 +61,7 @@ enum PRODUCT_TYPES {
 	PROD_S_ZDR,		///< S-band zdr
 	PROD_X_DBMHC,	///< X-band dBm horizontal co-planar
 	PROD_X_DBMVX,	///< X-band dBm vertical cross-planar
-	PROD_X_DBZHC,	///< X-band dBz horizontal co-planar
+	PROD_X_DBZ ,	///< X-band dBz
 	PROD_X_SNR,		///< X-band SNR
 	PROD_X_VEL,		///< X-band velocity
 	PROD_X_WIDTH,	///< X-band spectral width

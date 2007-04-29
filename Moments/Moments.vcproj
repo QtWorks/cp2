@@ -158,6 +158,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ClutFilter.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\Complex.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\Dummy.cpp"
 				>
 			</File>
@@ -186,6 +194,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\PhidpKdp.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\Pulse.cc"
 				>
 			</File>
@@ -201,6 +213,10 @@
 			>
 			<File
 				RelativePath=".\Beam.hh"
+				>
+			</File>
+			<File
+				RelativePath=".\ClutFilter.hh"
 				>
 			</File>
 			<File
@@ -232,7 +248,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\PhidpKdp.hh"
+				>
+			</File>
+			<File
 				RelativePath=".\Pulse.hh"
+				>
+			</File>
+			<File
+				RelativePath=".\TaArray.hh"
 				>
 			</File>
 			<File

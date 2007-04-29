@@ -19,6 +19,9 @@
 #ifndef Fields_HH
 #define Fields_HH
 
+#include <iostream>
+using namespace std;
+
 ////////////////////////
 // This class
 
@@ -34,10 +37,8 @@ public:
 
   // public data
 
-  int flags;  // censoring flag
-
   double snr;
-  double dbm; // uncalibrated power
+  double dbm;
   double dbz;
   double vel;
   double width;
@@ -59,25 +60,21 @@ public:
 
   double rhohv;
   double phidp;
-  //double kdp; // disabled until a better algorithm can be implemented
+  double kdp;
 
   double snrhc;
   double snrhx;
   double snrvc;
   double snrvx;
 
-  double dbmhc; // uncalibrated power
+  double dbmhc;
   double dbmhx;
   double dbmvc;
   double dbmvx;
 
-  double dbzhc;
-  double dbzhx;
-  double dbzvc;
-  double dbzvx;
-
   static const double missingDouble;
-  static const int missingInt;
+
+  void print(ostream &out) const;
 
 protected:
 private:

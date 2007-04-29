@@ -615,8 +615,7 @@ CP2Scope::initPlots()
 
 	_sMomentsPlots.insert(PROD_S_DBMHC);
 	_sMomentsPlots.insert(PROD_S_DBMVC);
-	_sMomentsPlots.insert(PROD_S_DBZHC);
-	_sMomentsPlots.insert(PROD_S_DBZVC);
+	_sMomentsPlots.insert(PROD_S_DBZ);
 	_sMomentsPlots.insert(PROD_S_WIDTH);
 	_sMomentsPlots.insert(PROD_S_VEL);
 	_sMomentsPlots.insert(PROD_S_SNR);
@@ -626,10 +625,8 @@ CP2Scope::initPlots()
 
 	_xMomentsPlots.insert(PROD_X_DBMHC);
 	_xMomentsPlots.insert(PROD_X_DBMVX);
-	_xMomentsPlots.insert(PROD_X_DBZHC);
+	_xMomentsPlots.insert(PROD_X_DBZ);
 	_xMomentsPlots.insert(PROD_X_SNR);
-	//	_xMomentsPlots.insert(PROD_X_WIDTH);
-	//	_xMomentsPlots.insert(PROD_X_VEL);
 	_xMomentsPlots.insert(PROD_X_LDR);
 
 	_pulsePlotInfo[S_TIMESERIES]  = PlotInfo( S_TIMESERIES, TIMESERIES, "I and Q", "S:  I and Q", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
@@ -644,22 +641,21 @@ CP2Scope::initPlots()
 
 	_prodPlotInfo[PROD_S_DBMHC]       = PlotInfo(      PROD_S_DBMHC,    PRODUCT, "H Dbm", "Sh: Dbm", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
 	_prodPlotInfo[PROD_S_DBMVC]       = PlotInfo(      PROD_S_DBMVC,    PRODUCT, "V Dbm", "Sv: Dbm", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_prodPlotInfo[PROD_S_DBZHC]       = PlotInfo(      PROD_S_DBZHC,    PRODUCT, "H Dbz", "Sh: Dbz", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_prodPlotInfo[PROD_S_DBZVC]       = PlotInfo(      PROD_S_DBZVC,    PRODUCT, "V Dbz", "Sv: Dbz", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_prodPlotInfo[PROD_S_DBZ]         = PlotInfo(      PROD_S_DBZ,      PRODUCT, "Dbz",   "S : Dbz", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
 	_prodPlotInfo[PROD_S_WIDTH]       = PlotInfo(      PROD_S_WIDTH,    PRODUCT, "Width", "S:  Width", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_prodPlotInfo[PROD_S_VEL]         = PlotInfo(        PROD_S_VEL,    PRODUCT, "Velocity", "S:  Velocity", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_prodPlotInfo[PROD_S_SNR]         = PlotInfo(        PROD_S_SNR,    PRODUCT, "SNR", "S:  SNR", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_prodPlotInfo[PROD_S_VEL]         = PlotInfo(      PROD_S_VEL,      PRODUCT, "Velocity", "S:  Velocity", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_prodPlotInfo[PROD_S_SNR]         = PlotInfo(      PROD_S_SNR,      PRODUCT, "SNR", "S:  SNR", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
 	_prodPlotInfo[PROD_S_RHOHV]       = PlotInfo(      PROD_S_RHOHV,    PRODUCT, "Rhohv", "S:  Rhohv", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
 	_prodPlotInfo[PROD_S_PHIDP]       = PlotInfo(      PROD_S_PHIDP,    PRODUCT, "Phidp", "S:  Phidp", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
 	_prodPlotInfo[PROD_S_ZDR]         = PlotInfo(      PROD_S_ZDR,      PRODUCT, "Zdr", "S:  Zdr", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
 
 	_prodPlotInfo[PROD_X_DBMHC]       = PlotInfo(      PROD_X_DBMHC,    PRODUCT, "H Dbm", "Xh: Dbm", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
 	_prodPlotInfo[PROD_X_DBMVX]       = PlotInfo(      PROD_X_DBMVX,    PRODUCT, "V Cross Dbm", "Xv: Dbm", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_prodPlotInfo[PROD_X_DBZHC]       = PlotInfo(      PROD_X_DBZHC,    PRODUCT, "H Dbz", "Xh: Dbz", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_prodPlotInfo[PROD_X_SNR]         = PlotInfo(        PROD_X_SNR,    PRODUCT, "SNR", "Xh: SNR", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_prodPlotInfo[PROD_X_DBZ]         = PlotInfo(      PROD_X_DBZ,      PRODUCT, "Dbz",  "X: Dbz", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_prodPlotInfo[PROD_X_SNR]         = PlotInfo(      PROD_X_SNR,      PRODUCT, "SNR", "Xh: SNR", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
 	_prodPlotInfo[PROD_X_WIDTH]       = PlotInfo(      PROD_X_WIDTH,    PRODUCT, "Width", "Xh: Width", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_prodPlotInfo[PROD_X_VEL]         = PlotInfo(        PROD_X_VEL,    PRODUCT, "Velocity", "Xh: Velocity", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
-	_prodPlotInfo[PROD_X_LDR]         = PlotInfo(        PROD_X_LDR,    PRODUCT, "LDR", "Xhv:LDR", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_prodPlotInfo[PROD_X_VEL]         = PlotInfo(      PROD_X_VEL,      PRODUCT, "Velocity", "Xh: Velocity", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
+	_prodPlotInfo[PROD_X_LDR]         = PlotInfo(      PROD_X_LDR,      PRODUCT, "LDR", "Xhv:LDR", -5.0, 5.0, 0.0, -5.0, 5.0, 0.0);
 
 	// remove the one tab that was put there by designer
 	_typeTab->removeTab(0);

@@ -44,7 +44,7 @@ Moments::Moments(int n_samples)
   _nSamples = n_samples;
   _wavelengthMeters = 0.1068;
   setNoiseValueDbm(-114.0);
-  _hanning = NULL;
+  _vonhann = NULL;
   _blackman = NULL;
   _fft = NULL;
   _debugPrint = false;
@@ -55,9 +55,9 @@ Moments::Moments(int n_samples)
   
   // initialize windows
 
-  _hanning = new double[_nSamples];
+  _vonhann = new double[_nSamples];
   _blackman = new double[_nSamples];
-  _initHanning(_hanning);
+  _initVonhann(_vonhann);
   _initBlackman(_blackman);
 
   return;
@@ -70,8 +70,8 @@ Moments::~Moments()
 
 {
 
-  if (_hanning) {
-    delete[] _hanning;
+  if (_vonhann) {
+    delete[] _vonhann;
   }
   if (_blackman) {
     delete[] _blackman;
@@ -99,17 +99,27 @@ void Moments::setNoiseValueDbm(double dbm) {
 }
 
 ///////////////////////////////////
-// apply hanning window
+// apply rectangular window
 
-void Moments::applyHanningWindow(const Complex_t *in,
-				 Complex_t *out) const
+void Moments::applyRectWindow(const Complex_t *in,
+                              Complex_t *out) const
   
 {
-  _applyWindow(_hanning, in, out);
+  memcpy(out, in, _nSamples * sizeof(Complex_t));
 }
   
 ///////////////////////////////////
-// apply modified hanning window
+// apply vonhann window
+
+void Moments::applyVonhannWindow(const Complex_t *in,
+				 Complex_t *out) const
+  
+{
+  _applyWindow(_vonhann, in, out);
+}
+  
+///////////////////////////////////
+// apply modified vonhann window
 
 void Moments::applyBlackmanWindow(const Complex_t *in,
 				  Complex_t *out) const
@@ -210,8 +220,8 @@ void Moments::computeByFft(const Complex_t *IQ,
   // apply window
   
   Complex_t *windowedIq = new Complex_t[_nSamples];
-  if (windowType == WINDOW_HANNING) {
-    applyHanningWindow(IQ, windowedIq);
+  if (windowType == WINDOW_VONHANN) {
+    applyVonhannWindow(IQ, windowedIq);
   } else if (windowType == WINDOW_BLACKMAN) {
     applyBlackmanWindow(IQ, windowedIq);
   } else {
@@ -256,11 +266,11 @@ void Moments::computeByFft(const Complex_t *IQ,
 ///////////////////////////////////
 // initialize windowing functions
 
-void Moments::_initHanning(double *window)
+void Moments::_initVonhann(double *window)
 
 {
   
-  // compute hanning window
+  // compute vonhann window
   
   for (int ii = 0; ii < _nSamples; ii++) {
     double ang = 2.0 * M_PI * ((ii + 0.5) / (double) _nSamples - 0.5);

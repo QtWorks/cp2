@@ -51,7 +51,7 @@ public:
   
   void computeMoments();
   void computeMomentsSinglePol();
-  void computeMomentsDualFastAlt();
+  void computeMomentsDualCp2Sband();
   void computeMomentsDualCp2Xband();
 
   // set methods

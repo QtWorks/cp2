@@ -33,6 +33,8 @@
 #include "Pulse.hh"
 #include "Moments.hh"
 #include "Fields.hh"
+#include "Fft.hh"
+#include "ClutFilter.hh"
 using namespace std;
 
 ////////////////////////
@@ -63,14 +65,14 @@ public:
 		Complex_t **IQC,
 		Fields *fields);
 
-	void computeDualFastAlt(double beamTime,
-		double el,
-		double az,
-		double prt,
-		int nGates,
-		Complex_t **IQHC,
-		Complex_t **IQVC,
-		Fields *fields);
+        void computeDualCp2Sband(double beamTime,
+                                 double el,
+                                 double az,
+                                 double prt,
+                                 int nGates,
+                                 Complex_t **IQHC,
+                                 Complex_t **IQVC,
+                                 Fields *fields);
 
 	void computeDualCp2Xband(double beamTime,
 		double el,
@@ -105,16 +107,25 @@ private:
 	// fft window
 
 	Moments::window_t _fftWindow;
-
+ 
 	// number of pulse samples
 
 	int _nSamples;
 	int _nSamplesHalf;
 
+        // FFT support
+
+        Fft *_fft;
+        Fft *_fftHalf;
+
 	// Moments objects
 
 	Moments _moments;
 	Moments _momentsHalf; // for alternating mode dual pol
+
+        // clutter filter
+
+        ClutFilter _clutFilter;
 
 	// range correction
 
@@ -134,6 +145,10 @@ private:
 	double _dbz0Hx;
 	double _dbz0Vc;
 	double _dbz0Vx;
+
+        // PHIDP corrections
+
+       static const double _phidpPhaseLimit;
 
 	// functions
 
@@ -195,6 +210,15 @@ private:
 		double nyquist) const;
 
 	static int _doubleCompare(const void *i, const void *j);
+
+        void _computeKdp(int nGates, Fields *fields);
+  
+        void _applyClutterFilter(int nSamples,
+                                 Fft &fft,
+                                 Moments &moments,
+                                 double nyquist,
+                                 const Complex_t *iq,
+                                 Complex_t *iqFiltered);
 
 };
 

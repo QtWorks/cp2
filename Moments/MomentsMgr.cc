@@ -22,6 +22,7 @@
 //
 ///////////////////////////////////////////////////////////////
 
+
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <iostream>
@@ -29,12 +30,24 @@
 #include <cmath>
 #include "MomentsMgr.hh"
 #include "Fft.hh"
+#include "PhidpKdp.hh"
+#include "TaArray.hh"
+
+#ifndef NAN
+static double NAN = sqrt(-1.0);
+#endif
+
 using namespace std;
 
 const double MomentsMgr::_missingDbl = -9999.0;
+const double MomentsMgr::_phidpPhaseLimit = -70;
 
 #ifndef RAD_TO_DEG
 #define RAD_TO_DEG 57.29577951308092
+#endif
+
+#ifndef DEG_TO_RAD
+#define DEG_TO_RAD 0.01745329251994372
 #endif
 
 ////////////////////////////////////////////////////
@@ -57,25 +70,31 @@ _momentsHalf(_nSamplesHalf)
 	_startRange = _momentsParams.start_range;
 	_gateSpacing = _momentsParams.gate_spacing;
 	_rangeCorr = NULL;
+        _fft = NULL;
+        _fftHalf = NULL;
 
 	_noiseFixedHc = pow(10.0, _params.hc_receiver.noise_dBm / 10.0);
 	_noiseFixedHx = pow(10.0, _params.hx_receiver.noise_dBm / 10.0);
 	_noiseFixedVc = pow(10.0, _params.vc_receiver.noise_dBm / 10.0);
 	_noiseFixedVx = pow(10.0, _params.vx_receiver.noise_dBm / 10.0);
 
-	_dbz0Hc = _params.hc_receiver.dbz0;
-	_dbz0Hx = _params.hx_receiver.dbz0;
-	_dbz0Vc = _params.vc_receiver.dbz0;
-	_dbz0Vx = _params.vx_receiver.dbz0;
+	_dbz0Hc = _params.hc_receiver.noise_dBm -
+          _params.hc_receiver.gain - _params.hc_receiver.radar_constant;
+	_dbz0Hx = _params.hx_receiver.noise_dBm -
+          _params.hx_receiver.gain - _params.hx_receiver.radar_constant;
+	_dbz0Vc = _params.vc_receiver.noise_dBm -
+          _params.vc_receiver.gain - _params.vc_receiver.radar_constant;
+	_dbz0Vx = _params.vx_receiver.noise_dBm -
+          _params.vx_receiver.gain - _params.vx_receiver.radar_constant;
 
 	// set window type
 
 	if (_momentsParams.window == Params::WINDOW_NONE) {
-		_fftWindow = Moments::WINDOW_NONE;
-	} else if (_momentsParams.window == Params::WINDOW_HANNING) {
-		_fftWindow = Moments::WINDOW_HANNING;
+          _fftWindow = Moments::WINDOW_NONE;
+ 	} else if (_momentsParams.window == Params::WINDOW_VONHANN) {
+          _fftWindow = Moments::WINDOW_VONHANN;
 	} else if (_momentsParams.window == Params::WINDOW_BLACKMAN) {
-		_fftWindow = Moments::WINDOW_BLACKMAN;
+          _fftWindow = Moments::WINDOW_BLACKMAN;
 	}
 
 	// initialize moments objects
@@ -86,6 +105,11 @@ _momentsHalf(_nSamplesHalf)
         _moments.setNoiseValueDbm(_params.hc_receiver.noise_dBm);
         _momentsHalf.setNoiseValueDbm(_params.hc_receiver.noise_dBm);
   
+        // set up FFT
+  
+        _fft = new Fft(_nSamples);
+        _fftHalf = new Fft(_nSamplesHalf);
+ 
 }
 
 //////////////////////////////////////////////////////////////////
@@ -99,6 +123,13 @@ MomentsMgr::~MomentsMgr()
 		delete[] _rangeCorr;
 	}
 
+        if (_fft) {
+          delete _fft;
+        }
+        if (_fftHalf) {
+          delete _fftHalf;
+        }
+
 }
 
 /////////////////////////////////////////////////////////////
@@ -109,184 +140,308 @@ MomentsMgr::~MomentsMgr()
 // IQC[nGates][nPulses]
 
 void MomentsMgr::computeSingle(double beamTime,
-							   double el,
-							   double az,
-							   double prt,
-							   int nGates,
-							   Complex_t **IQC,
-							   Fields *fields)
+                               double el,
+                               double az,
+                               double prt,
+                               int nGates,
+                               Complex_t **IQHC,
+                               Fields *fields)
 
 {
 
-	_checkRangeCorrection(nGates);
+  _checkRangeCorrection(nGates);
+  
+  double wavelengthMeters = _params.radar.wavelength_cm / 100.0;
+  double nyquist = ((wavelengthMeters / prt) / 4.0);
+  
+  double range = _startRange;
+  for (int igate = 0; igate < nGates; igate++, range += _gateSpacing) {
+    
+    // locate the IQ samples for this gate
+    
+    Complex_t *iqHc = IQHC[igate];
 
-	double range = _startRange;
-	for (int igate = 0; igate < nGates; igate++, range += _gateSpacing) {
+    // apply clutter filter if needed
+    // otherwise copy through
+    
+    TaArray<Complex_t> iqhc_;
+    Complex_t *iqhc = iqhc_.alloc(_nSamples);
+    
+    if (_momentsParams.apply_clutter_filter) {
+      
+      _applyClutterFilter(_nSamples, *_fft, _moments,
+                          nyquist, iqHc, iqhc);
+      
+    } else {
 
-		Complex_t *iq = IQC[igate];
+      memcpy(iqhc, iqHc, _nSamples * sizeof(Complex_t));
 
-		double power = _missingDbl;
-		double vel = _missingDbl;
-		double width = _missingDbl;
+    }
+  
+    // compute lag 0 covariances
+    // use N-1 so all covariances have the same number of points
+    
+    double lag0_hc_hc = Complex::meanPower(iqhc, _nSamples);
 
-                if (_momentsParams.algorithm == Params::ALG_FFT) {
-                  _moments.computeByFft(iq, _fftWindow, prt,
-                                        power, vel, width);
-                } else if (_momentsParams.algorithm == Params::ALG_PP) {
-                  _moments.computeByPp(iq, prt,
-                                       power, vel, width);
-                } 
+    // compute noise-subtracted lag0
+    
+    double lag0_hc_hc_ns = lag0_hc_hc - _noiseFixedHc;
+    if (lag0_hc_hc_ns < 0) { lag0_hc_hc_ns = 1.0e-12; }
+    
+    // compute dbm
 
-		double dbm = _missingDbl;
-		if (power != _missingDbl) {
-			dbm = 10.0 * log10(power);
-			fields[igate].dbm = dbm;
-			if (power <= _noiseFixedHc) {
-				power = _noiseFixedHc + 1.0e-20;
-			}
-			double snr =
-				10.0 * log10((power - _noiseFixedHc) / _noiseFixedHc);
-			fields[igate].snr = snr;
-			fields[igate].dbz = snr + _params.hc_receiver.dbz0 + _rangeCorr[igate];
-		}
+    fields[igate].dbmhc =
+      10.0 * log10(lag0_hc_hc_ns) - _params.hc_receiver.gain;
+    fields[igate].dbm = fields[igate].dbmhc;
+    
+    // compute snr
+    
+    double snr_hc = lag0_hc_hc_ns / _noiseFixedHc;
 
-		fields[igate].vel = vel;
-		fields[igate].width = width;
+    double snrDb = 10.0 * log10(snr_hc);
+    fields[igate].snr = snrDb;
+    fields[igate].snrhc = snrDb;
+    
+    // compute dbz and dbm
+    
+    double dbz_hc = 10.0 * log10(snr_hc) + _dbz0Hc + _rangeCorr[igate];
+    fields[igate].dbz = dbz_hc;
 
-	} // igate
+    // velocity
+
+    Complex_t lag1_hc_hc =
+      Complex::meanConjugateProduct(iqhc, iqhc + 1, _nSamples - 1);
+    
+    double argVel = Complex::argRad(lag1_hc_hc);
+    double vel = (argVel / M_PI) * nyquist;
+    fields[igate].vel = vel * -1.0;
+
+    // ncp
+    
+    double magLag1Hc = Complex::mag(lag1_hc_hc);
+    double ncp = magLag1Hc / lag0_hc_hc;
+    if (ncp < 1.0e-6) {
+      ncp = 1.0e-6;
+    } else if (ncp > 1) {
+      ncp = 1;
+    }
+    
+    // width
+
+    double variance = _missingDbl;
+    if (snrDb > 10) {
+      variance = -2.0 * log(ncp);
+    } else {
+      Complex_t lag1_hc_prime =
+        Complex::meanConjugateProduct(iqhc, iqhc + 1, _nSamples - 2);
+      Complex_t lag2_hc_prime =
+        Complex::meanConjugateProduct(iqhc, iqhc + 2, _nSamples - 2);
+      variance = (2.0 / 3.0) *
+        (Complex::mag(lag1_hc_prime) / Complex::mag(lag2_hc_prime));
+    }
+    double width = 0.0;
+    if (variance >= 0) {
+      width = (nyquist / M_PI) * sqrt(variance);
+    }
+    fields[igate].width = width;
+
+  } // igate
 
 }
 
 /////////////////////////////////////////////////////
-// compute moments in fast alternating dual pol mode
+// compute moments for CP2 SBAND
 //
 // IQHC and IQVC data is assumed to be copolar
 //
 // IQHC[nGates][nPulses]
 // IQVC[nGates][nPulses]
 
-void MomentsMgr::computeDualFastAlt(double beamTime,
-									double el,
-									double az,
-									double prt,
-									int nGates,
-									Complex_t **IQHC,
-									Complex_t **IQVC,
-									Fields *fields)
-
+void MomentsMgr::computeDualCp2Sband(double beamTime,
+                                     double el,
+                                     double az,
+                                     double prt,
+                                     int nGates,
+                                     Complex_t **IQHC,
+                                     Complex_t **IQVC,
+                                     Fields *fields)
+  
 {
-	_checkRangeCorrection(nGates);
 
-	double wavelengthMeters = _params.radar.wavelength_cm / 100.0;
-	double nyquist = ((wavelengthMeters / prt) / 4.0);
+  _checkRangeCorrection(nGates);
 
-	double range = _startRange;
-	for (int igate = 0; igate < nGates; igate++, range += _gateSpacing) {
+  double wavelengthMeters = _params.radar.wavelength_cm / 100.0;
+  double nyquist = ((wavelengthMeters / prt) / 4.0);
 
-		Complex_t *iqh = IQHC[igate];
-		Complex_t *iqv = IQVC[igate];
+  // compute phidp offset, to prevent premature wrapping of the phase
+  // vectors from which phidp and velocity are computed.
+  
+  Complex_t phidpOffset;
+  if (_params.correct_for_system_phidp) {
+    double offset = _params.system_phidp - _phidpPhaseLimit;
+    phidpOffset.re = cos(offset * DEG_TO_RAD * -1.0);
+    phidpOffset.im = sin(offset * DEG_TO_RAD * -1.0);
+  } else {
+    phidpOffset.re = 1.0;
+    phidpOffset.im = 0.0;
+  }
+  
+  double range = _startRange;
+  for (int igate = 0; igate < nGates; igate++, range += _gateSpacing) {
 
-		// compute power, vel and width for each channel
+    // locate the IQ samples for this gate
 
-		double power_h = _missingDbl, vel_h = _missingDbl, width_h = _missingDbl;
-		double power_v = _missingDbl, vel_v = _missingDbl, width_v = _missingDbl;
+    Complex_t *iqHc = IQHC[igate];
+    Complex_t *iqVc = IQVC[igate];
 
-                if (_momentsParams.algorithm == Params::ALG_FFT) {
-                  _momentsHalf.computeByFft(iqh, _fftWindow, prt,
-                                            power_h, vel_h, width_h);
-                  _momentsHalf.computeByFft(iqv, _fftWindow, prt,
-                                            power_v, vel_v, width_v);
-                } else if (_momentsParams.algorithm == Params::ALG_PP) {
-                  _momentsHalf.computeByPp(iqh, prt, power_h, vel_h, width_h);
-                  _momentsHalf.computeByPp(iqv, prt, power_v, vel_v, width_v);
-                } 
+    // apply clutter filter if needed
+    // otherwise copy through
+    
+    TaArray<Complex_t> iqhc_, iqvc_;
+    Complex_t *iqhc = iqhc_.alloc(_nSamplesHalf);
+    Complex_t *iqvc = iqvc_.alloc(_nSamplesHalf);
 
-		// compute snr
+    if (_momentsParams.apply_clutter_filter) {
+      
+      _applyClutterFilter(_nSamplesHalf, *_fftHalf, _momentsHalf,
+                          nyquist, iqHc, iqhc);
+      _applyClutterFilter(_nSamplesHalf, *_fftHalf, _momentsHalf,
+                          nyquist, iqVc, iqvc);
 
-		double snr_h = _missingDbl;
-		double dbm_h = 10.0 * log10(power_h);
-		if (power_h <= _noiseFixedHc) {
-			power_h = _noiseFixedHc + 1.0e-20;
-		}
+    } else {
 
-		fields[igate].dbmhc = dbm_h;
+      memcpy(iqhc, iqHc, _nSamplesHalf * sizeof(Complex_t));
+      memcpy(iqvc, iqVc, _nSamplesHalf * sizeof(Complex_t));
 
-		snr_h = 10.0 * log10((power_h - _noiseFixedHc) / _noiseFixedHc);
+    }
+  
+    // compute lag 0 covariances
+    // use N-1 so all covariances have the same number of points
+    
+    double lag0_hc_hc = Complex::meanPower(iqhc, _nSamplesHalf - 1);
+    double lag0_vc_vc = Complex::meanPower(iqvc, _nSamplesHalf - 1);
 
-		double snr_v = _missingDbl;
-		double dbm_v = 10.0 * log10(power_v);
-		if (power_v <= _noiseFixedVc) {
-			power_v = _noiseFixedVc + 1.0e-20;
-		}
+    // compute noise-subtracted lag0
+    
+    double lag0_hc_hc_ns = lag0_hc_hc - _noiseFixedHc;
+    double lag0_vc_vc_ns = lag0_vc_vc - _noiseFixedVc;
 
-		fields[igate].dbmvc = dbm_v;
+    if (lag0_hc_hc_ns < 0) { lag0_hc_hc_ns = 1.0e-12; }
+    if (lag0_vc_vc_ns < 0) { lag0_vc_vc_ns = 1.0e-12; }
 
-		snr_v = 10.0 * log10((power_v - _noiseFixedVc) / _noiseFixedVc);
+    // compute dbm
 
-		// average power and SNR
+    fields[igate].dbmhc =
+      10.0 * log10(lag0_hc_hc_ns) - _params.hc_receiver.gain;
+    fields[igate].dbmvc =
+      10.0 * log10(lag0_vc_vc_ns) - _params.vc_receiver.gain;
+    fields[igate].dbm = (fields[igate].dbmhc + fields[igate].dbmvc) / 2.0;
+    
+    // compute snr
 
-		double dbmMean = (dbm_h + dbm_v) / 2.0;
-		double snrMean = (snr_h + snr_v) / 2.0;
-		fields[igate].dbm = dbmMean;
-		fields[igate].snr = snrMean;
+    double snr_hc = lag0_hc_hc_ns / _noiseFixedHc;
+    double snr_vc = lag0_vc_vc_ns / _noiseFixedVc;
 
-		double dbz_h = snr_h + _dbz0Hc + _rangeCorr[igate];
-		double dbz_v = snr_v + _dbz0Vc + _rangeCorr[igate];
-		fields[igate].dbz = (dbz_h + dbz_v) / 2.0;
-		fields[igate].dbzhc = dbz_h;
-		fields[igate].dbzvc = dbz_v;
+    fields[igate].snrhc = 10.0 * log10(snr_hc);
+    fields[igate].snrvc = 10.0 * log10(snr_vc);
 
-		// width from half-spectra
+    double snrMean = (snr_hc + snr_vc) / 2.0;
+    double snrDb = 10.0 * log10(snrMean);
+    fields[igate].snr = snrDb;
+    
+    // compute dbz and dbm
 
-		fields[igate].width = (width_h + width_v) / 2.0;
+    double dbz_hc = 10.0 * log10(snr_hc) + _dbz0Hc + _rangeCorr[igate];
+    double dbz_vc = 10.0 * log10(snr_vc) + _dbz0Vc + _rangeCorr[igate];
+    fields[igate].dbz = (dbz_hc + dbz_vc) / 2.0;
 
-		// zdr
+    // zdr
+    
+    double zdrm = 10.0 * log10(snr_hc / snr_vc);
+    double zdrc = zdrm + _params.zdr_correction;
+    fields[igate].zdr = zdrc;
+    fields[igate].zdrm = zdrm;
 
-		fields[igate].zdr = dbz_h - dbz_v + _params.zdr_correction;
-		fields[igate].zdrm = snr_h - snr_v;
+    ////////////////////////////
+    // phidp, velocity and rhohv
+    //
+    // See A. Zahrai and D. Zrnic
+    // "The 10 cm wavelength polarimetric weather radar
+    // at NOAA'a National Severe Storms Lab. "
+    // JTech, Vol 10, No 5, October 1993.
 
-		// phidp and velocity
+    // compute correlation V to H
+    
+    Complex_t Ra =
+      Complex::meanConjugateProduct(iqvc, iqhc, _nSamplesHalf - 1);
 
-		Complex_t Rhhvv1 = _meanConjugateProduct(iqv, iqh + 1,
-			_nSamplesHalf - 1);
-		Complex_t Rvvhh1 = _meanConjugateProduct(iqh + 1, iqv + 1,
-			_nSamplesHalf - 1);
+    // compute correlation H to V
+    
+    Complex_t Rb =
+      Complex::meanConjugateProduct(iqhc + 1, iqvc, _nSamplesHalf - 1);
+    
+    // Correct for system PhiDp offset, so that phidp will not wrap prematurely
 
-		double argRhhvv1 = _computeArg(Rhhvv1);
-		double argRvvhh1 = _computeArg(Rvvhh1);
+    Complex_t RaPrime = Complex::complexProduct(Ra, phidpOffset);
+    Complex_t RbPrime = Complex::conjugateProduct(Rb, phidpOffset);
+    
+    // compute angular difference between them, which is phidp
+    
+    Complex_t RaRbconj = Complex::conjugateProduct(RaPrime, RbPrime);
+    double phidpRad = Complex::argRad(RaRbconj) / 2.0;
+    fields[igate].phidp = phidpRad * RAD_TO_DEG;
 
-		double phiDpRad = (argRhhvv1 - argRvvhh1) / 2.0;
-		fields[igate].phidp = phiDpRad * RAD_TO_DEG;
+    // velocity phase is mean of phidp phases
 
-		double argVelhhvv = phiDpRad - argRhhvv1;
-		double argVelvvhh = - phiDpRad - argRvvhh1;
-		double meanArgVel = (argVelhhvv + argVelvvhh) / 2.0;
-		double meanVel = (meanArgVel / M_PI) * nyquist;
-		fields[igate].vel = meanVel* -1.0;
+    Complex_t velVect = Complex::complexMean(RaPrime, RbPrime);
+    double argVel = Complex::argRad(velVect);
+    double meanVel = (argVel / M_PI) * nyquist;
+    fields[igate].vel = meanVel * -1.0;
 
-		// rhohv
+    //////////
+    // rhohv
+ 
+    // lag-2 correlations for HH and VV
+    
+    Complex_t lag2_hc_hc =
+      Complex::meanConjugateProduct(iqhc, iqhc + 1, _nSamplesHalf - 1);
+    Complex_t lag2_vc_vc =
+      Complex::meanConjugateProduct(iqvc, iqvc + 1, _nSamplesHalf - 1);
 
-		double Phh = _meanPower(iqh + 1, _nSamplesHalf - 1);
-		double Pvv = _meanPower(iqv + 1, _nSamplesHalf - 1);
-		double rhohhvv1 = _computeMag(Rhhvv1) / sqrt(Phh * Pvv);
+    // compute lag-2 rho
 
-		Complex_t Rhhhh2 = _meanConjugateProduct(iqh, iqh + 1, _nSamplesHalf - 1);
-		Complex_t Rvvvv2 = _meanConjugateProduct(iqv, iqv + 1, _nSamplesHalf - 1);
-		double rhohh2 = _computeMag(Rhhhh2) / Phh;
+    Complex_t sumR2 = Complex::complexSum(lag2_hc_hc, lag2_vc_vc);
+    double magSumR2 = Complex::mag(sumR2);
+    double rho2 = magSumR2 / (lag0_hc_hc_ns + lag0_vc_vc_ns);
+    if (rho2 > 1.0) {
+      rho2 = 1.0;
+    } else if (rho2 < 0) {
+      rho2 = 0;
+    }
 
-		double rhohhvv0 = rhohhvv1 / pow(rhohh2, 0.25);
-		if (rhohhvv0 > 1.0) {
-			rhohhvv0 = 1.0;
-		}
-		fields[igate].rhohv = rhohhvv0;
+    // compute lag-1 rhohv
 
-	} // igate
+    double magRa = Complex::mag(Ra);
+    double magRb = Complex::mag(Rb);
+    double rhohv1 = (magRa + magRb) / (2.0 * sqrt(lag0_hc_hc * lag0_vc_vc));
+    
+    // lag-0 rhohv is rhohv1 corrected by rho2
+    
+    double rhohv0 = rhohv1 / pow(rho2, 0.25);
+    fields[igate].rhohv = rhohv0;
 
-	// compute kdp
+    // spectrum width
+    
+    double argWidth = sqrt(-0.5 * log(rho2));
+    double width = (argWidth / M_PI) * nyquist;
+    fields[igate].width = width;
 
-	// Kdp disabled until a better algorithm is implemented
-	//	_computeKdp(nGates, fields);
+  } // igate
 
+  // compute kdp
+  
+  _computeKdp(nGates, fields);
+  
 }
 
 /////////////////////////////////////////////////
@@ -298,76 +453,133 @@ void MomentsMgr::computeDualFastAlt(double beamTime,
 // IQVX[nGates][nPulses]
 
 void MomentsMgr::computeDualCp2Xband(double beamTime,
-									 double el,
-									 double az,
-									 double prt,
-									 int nGates,
-									 Complex_t **IQHC,
-									 Complex_t **IQVX,
-									 Fields *fields)
+                                     double el,
+                                     double az,
+                                     double prt,
+                                     int nGates,
+                                     Complex_t **IQHC,
+                                     Complex_t **IQVX,
+                                     Fields *fields)
 
 {
-	_checkRangeCorrection(nGates);
 
-	double range = _startRange;
-	for (int igate = 0; igate < nGates; igate++, range += _gateSpacing) {
+  _checkRangeCorrection(nGates);
 
-		// Moments from HC
+  double wavelengthMeters = _params.radar.wavelength_cm / 100.0;
+  double nyquist = ((wavelengthMeters / prt) / 4.0);
 
-		Complex_t *iqhc = IQHC[igate];
+  double range = _startRange;
+  for (int igate = 0; igate < nGates; igate++, range += _gateSpacing) {
+    
+    // locate the IQ samples for this gate
 
-		double power_hc = _missingDbl;
-		double vel_hc = _missingDbl;
-		double width_hc = _missingDbl;
+    Complex_t *iqHc = IQHC[igate];
+    Complex_t *iqVx = IQVX[igate];
 
-                if (_momentsParams.algorithm == Params::ALG_FFT) {
-                  _moments.computeByFft(iqhc, _fftWindow, prt,
-                                        power_hc, vel_hc, width_hc);
-                } else if (_momentsParams.algorithm == Params::ALG_PP) {
-                  _moments.computeByPp(iqhc, prt,
-                                       power_hc, vel_hc, width_hc);
-                } 
+    // apply clutter filter if needed
+    // otherwise copy through
+    
+    TaArray<Complex_t> iqhc_, iqvx_;
+    Complex_t *iqhc = iqhc_.alloc(_nSamples);
+    Complex_t *iqvx = iqvx_.alloc(_nSamples);
 
-		double dbz_hc = _missingDbl;
-		if (power_hc != _missingDbl) {
-			double dbm_hc = 10.0 * log10(power_hc);
-			fields[igate].dbm = dbm_hc;
-			fields[igate].dbmhc = dbm_hc;
-			if (power_hc <= _noiseFixedHc) {
-				power_hc = _noiseFixedHc + 1.0e-20;
-			}
-			double snr_hc =
-				10.0 * log10((power_hc - _noiseFixedHc) / _noiseFixedHc);
-			fields[igate].snr = snr_hc;
-			dbz_hc =
-				snr_hc + _params.hc_receiver.dbz0 + _rangeCorr[igate];
-			fields[igate].dbz = dbz_hc;
-			fields[igate].dbzhc = dbz_hc;
-		}
+    if (_momentsParams.apply_clutter_filter) {
+      
+      _applyClutterFilter(_nSamples, *_fft, _moments,
+                          nyquist, iqHc, iqhc);
+      _applyClutterFilter(_nSamples, *_fft, _moments,
+                          nyquist, iqVx, iqvx);
+      
+    } else {
 
-		fields[igate].vel = vel_hc;
-		fields[igate].width = width_hc;
+      memcpy(iqhc, iqHc, _nSamples * sizeof(Complex_t));
+      memcpy(iqvx, iqVx, _nSamples * sizeof(Complex_t));
 
-		// LDR from HC - VX
+    }
+  
+    // compute lag 0 covariances
+    // use N-1 so all covariances have the same number of points
+    
+    double lag0_hc_hc = Complex::meanPower(iqhc, _nSamples);
+    double lag0_vx_vx = Complex::meanPower(iqvx, _nSamples);
 
-		Complex_t *iqvx = IQVX[igate];
-		double power_vx = _moments.computePower(iqvx);
+    // compute noise-subtracted lag0
+    
+    double lag0_hc_hc_ns = lag0_hc_hc - _noiseFixedHc;
+    double lag0_vx_vx_ns = lag0_vx_vx - _noiseFixedVx;
 
-		if (power_vx != _missingDbl) {
-			if (power_vx <= _noiseFixedVx) {
-				power_vx = _noiseFixedVx + 1.0e-20;
-			}
-			double dbm_vx = 10.0 * log10(power_vx);
-			fields[igate].dbmvx = dbm_vx;
-			double snr_vx =
-				10.0 * log10((power_vx - _noiseFixedVx) / _noiseFixedVx);
-			double dbz_vx =
-				snr_vx + _params.vx_receiver.dbz0 + _rangeCorr[igate];
-			fields[igate].dbzvx = dbz_vx;
-			double ldr = dbz_vx - dbz_hc + _params.ldr_correction;
-			fields[igate].ldrh = ldr;
-		}
-	} // igate
+    if (lag0_hc_hc_ns < 0) { lag0_hc_hc_ns = 1.0e-12; }
+    if (lag0_vx_vx_ns < 0) { lag0_vx_vx_ns = 1.0e-12; }
+    
+    // compute dbm
+
+    fields[igate].dbmhc =
+      10.0 * log10(lag0_hc_hc_ns) - _params.hc_receiver.gain;
+    fields[igate].dbm = fields[igate].dbmhc;
+    
+    fields[igate].dbmvx =
+      10.0 * log10(lag0_vx_vx_ns) - _params.vx_receiver.gain;
+
+    // compute snr
+    
+    double snr_hc = lag0_hc_hc_ns / _noiseFixedHc;
+    double snr_vx = lag0_vx_vx_ns / _noiseFixedVx;
+
+    double snrDb = 10.0 * log10(snr_hc);
+    fields[igate].snr = snrDb;
+    fields[igate].snrhc = snrDb;
+    fields[igate].snrvx = 10.0 * log10(snr_vx);
+    
+    // compute dbz and dbm
+    
+    double dbz_hc = 10.0 * log10(snr_hc) + _dbz0Hc + _rangeCorr[igate];
+    fields[igate].dbz = dbz_hc;
+
+    // velocity
+
+    Complex_t lag1_hc_hc =
+      Complex::meanConjugateProduct(iqhc, iqhc + 1, _nSamples - 1);
+
+    double argVel = Complex::argRad(lag1_hc_hc);
+    double vel = (argVel / M_PI) * nyquist;
+    fields[igate].vel = vel * -1.0;
+
+    // ncp
+
+    double magLag1Hc = Complex::mag(lag1_hc_hc);
+    double ncp = magLag1Hc / lag0_hc_hc;
+    if (ncp < 1.0e-6) {
+      ncp = 1.0e-6;
+    } else if (ncp > 1) {
+      ncp = 1;
+    }
+    
+    // width
+
+    double variance = _missingDbl;
+    if (snrDb > 10) {
+      variance = -2.0 * log(ncp);
+    } else {
+      Complex_t lag1_hc_prime =
+        Complex::meanConjugateProduct(iqhc, iqhc + 1, _nSamples - 2);
+      Complex_t lag2_hc_prime =
+        Complex::meanConjugateProduct(iqhc, iqhc + 2, _nSamples - 2);
+      variance = (2.0 / 3.0) *
+        (Complex::mag(lag1_hc_prime) / Complex::mag(lag2_hc_prime));
+    }
+    double width = 0.0;
+    if (variance >= 0) {
+      width = (nyquist / M_PI) * sqrt(variance);
+    }
+    fields[igate].width = width;
+
+    // ldr
+
+    double ldr = 10.0 * log10(snr_vx / snr_hc);
+    fields[igate].ldrh = ldr;
+    fields[igate].ldrv = ldr;
+
+  } // igate
 
 }
 
@@ -650,173 +862,201 @@ double MomentsMgr::_meanPower(const Complex_t *c1, int len) const
 /////////////////////////////////////////////
 // compute kdp from phidp
 
-//void MomentsMgr::_computeKdp(int nGates,
-//							 Fields *fields) const
-//
-//{
+void MomentsMgr::_computeKdp(int nGates,
+                             Fields *fields)
+  
+{
 
-//	int nGatesForSlope = 15;
-//	int nGatesHalf = nGatesForSlope / 2;
-//
-//	if (nGatesForSlope > nGates) {
-//		return;
-//	}
-//
-//	for (int ii = nGatesHalf; ii < nGates - nGatesHalf; ii++) {
-//
-//		if (fields[ii].phidp != _missingDbl) {
-//			double slope =
-//				_computePhidpSlope(ii, nGatesForSlope, nGatesHalf, fields);
-//			if (slope != _missingDbl) {
-//				fields[ii].kdp = slope / 2.0; // deg/km
-//			}
-//		}
-//
-//	}
-//
-//}
+  // KDP processing from CHILL
 
-//////////////////////////////////////////////////
-// compute PhiDp slope
-//
-// returns _missingDbl if not enough data
+  if (nGates < KDP_PROC_START_OFFSET * 2) {
+    return;
+  }
 
-//double MomentsMgr::_computePhidpSlope(int index,
-//									  int nGatesForSlope,
-//									  int nGatesHalf,
-//									  const Fields *fields) const
+  // copy from Fields into array
+
+  TaArray<double> snr_, dbz_, phidp_, rhohv_;
+  double *snr = snr_.alloc(nGates);
+  double *dbz = dbz_.alloc(nGates);
+  double *phidp = phidp_.alloc(nGates);
+  double *rhohv = rhohv_.alloc(nGates);
+  for (int ii = 0; ii < nGates; ii++) {
+    snr[ii] = fields[ii].snr;
+    dbz[ii] = fields[ii].dbz;
+    phidp[ii] = fields[ii].phidp;
+    rhohv[ii] = fields[ii].rhohv;
+  }
+
+  // set up arrays for phidp, rhohv
+  
+  TaArray<double> rangeKm_;
+  double *rangeKm = rangeKm_.alloc(nGates);
+  double range = _startRange;
+  for (int ii = 0; ii < nGates; ii++, range += _gateSpacing) {
+    rangeKm[ii] = range;
+  }
+
+  // compute SD of phidp
+
+  TaArray<double> phidpSd_;
+  double *phidpSd = phidpSd_.alloc(nGates);
+  pac_get_phidp_sd(nGates, phidp, 1, phidpSd, 1, 10);
+
+  // unpack phidp
+
+  int proc_start_gate = KDP_PROC_START_OFFSET;
+  TaArray<double> phidpU_;
+  double *phidpU = phidpU_.alloc(nGates);
+  double sysPhase = NAN;
+  pac_unfold_phidp(nGates,
+                   phidp, 1,
+                   rhohv, 1,
+                   phidpSd, 1,
+                   snr, 1,
+                   rangeKm, 1,
+                   PAC_UNFOLD_AUTO, proc_start_gate,
+                   sysPhase, 90.0,
+                   phidpU, 1);
+
+  TaArray<char> dataMask_;
+  char *dataMask = dataMask_.alloc(nGates);
+
+  pac_get_datamask(nGates,
+                   dbz, 1,
+                   phidpU, 1,
+                   rhohv, 1,
+                   snr, 1,
+                   rangeKm, 1,
+                   25,
+                   dataMask, 1);
+  
+  // smooth_phidp returns 0 if there is valid data
+
+  TaArray<double> phidpF_, phidpI_;
+  double *phidpF = phidpF_.alloc(nGates);
+  double *phidpI = phidpI_.alloc(nGates);
+
+  if (0 == pac_smooth_phidp(nGates,
+                            phidpU, 1,
+                            rangeKm, 1,
+                            dataMask, 1,
+                            phidpI, 1,
+                            phidpF, 1)) {
+
+    TaArray<double> kdp_;
+    double *kdp = kdp_.alloc(nGates);
+
+    pac_calc_kdp(nGates,
+                 phidpF, 1,
+                 dbz, 1,
+                 rangeKm, 1,
+                 kdp, 1);
+    
+    // put KDP into fields objects
+
+    for (int ii = 0; ii < nGates; ii++) {
+      fields[ii].kdp = kdp[ii];
+    }
+
+  }
+
+}
+
+/////////////////////////////////////////////////////
+// apply clutter filter
 //
-//{
+// IQHC and IQVC data is assumed to be copolar
 //
-//	double *xx = new double[nGatesForSlope];
-//	double *yy = new double[nGatesForSlope];
-//	double *wt = new double[nGatesForSlope];
-//	int count = 0;
-//
-//	double pdpThisGate = fields[index].phidp;
-//	double range = 0.0;
-//
-//	for (int ii = index - nGatesHalf; ii <= index + nGatesHalf;
-//		ii++, range += _gateSpacing) {
-//			double snrDb = _missingDbl;
-//			double snr = fields[ii].snr;
-//			double pdp = fields[ii].phidp;
-//			if (snr != _missingDbl) {
-//				snrDb = pow(10.0, snr);
-//			}
-//			if (pdp != _missingDbl && snrDb != _missingDbl && snrDb > 5) {
-//				double diff = pdp - pdpThisGate;
-//				if (diff > 180.0) {
-//					pdp -= 360.0;
-//				} else if (diff < -180) {
-//					pdp += 360.0;
-//				}
-//				xx[count] = range;
-//				yy[count] = pdp;
-//				wt[count] = pow(10.0, snr);
-//				count++;
-//			}
-//		}
-//
-//		if (count < nGatesHalf) {
-//			delete[] xx;
-//			delete[] yy;
-//			delete[] wt;
-//			return _missingDbl;
-//		}
-//
-//		// apply median filter to phidp
-//
-//		double *yyMed = new double[count];
-//		yyMed[0] = yy[0];
-//		yyMed[count - 1] = yy[count - 1];
-//		for (int ii = 1; ii < count - 1; ii++) {
-//			double yy0 = yy[ii - 1];
-//			double yy1 = yy[ii];
-//			double yy2 = yy[ii + 1];
-//			if (yy0 > yy1) {
-//				if (yy1 > yy2) {
-//					yyMed[ii] = yy1;
-//				} else {
-//					if (yy0 > yy2) {
-//						yyMed[ii] = yy2;
-//					} else {
-//						yyMed[ii] = yy0;
-//					}
-//				}
-//			} else {
-//				if (yy0 > yy2) {
-//					yyMed[ii] = yy0;
-//				} else {
-//					if (yy1 > yy2) {
-//						yyMed[ii] = yy2;
-//					} else {
-//						yyMed[ii] = yy1;
-//					}
-//				}
-//			}
-//		}
-//		delete[] yyMed;
-//
-//		// sum up terms
-//
-//		double sumx = 0.0;
-//		double sumy = 0.0;
-//		double sumx2 = 0.0;
-//		double sumy2 = 0.0;
-//		double sumxy = 0.0;
-//		double sumwt = 0.0;
-//
-//		for (int ii = 0; ii < count; ii++) {
-//			double xxx = xx[ii];
-//			double yyy = yy[ii];
-//			double weight= wt[ii];
-//			sumx += xxx * weight;
-//			sumx2 += xxx * xxx * weight;
-//			sumy += yyy * weight;
-//			sumy2 += yyy * yyy * weight;
-//			sumxy += xxx * yyy * weight;
-//			sumwt += weight;
-//		}
-//
-//		// compute y-on-x slope
-//
-//		double num = sumwt * sumxy - sumx * sumy;
-//		double denom = sumwt * sumx2 - sumx * sumx;
-//		double slope_y_on_x;
-//
-//		if (denom != 0.0) {
-//			slope_y_on_x = num / denom;
-//		} else {
-//			slope_y_on_x = 0.0;
-//		}
-//
-//		// get x-on-y slope
-//
-//		denom = sumwt * sumy2 - sumy * sumy;
-//		double slope_x_on_y;
-//
-//		if (denom != 0.0) {
-//			slope_x_on_y = num / denom;
-//		} else {
-//			slope_x_on_y = 0.0;
-//		}
-//
-//		// average slopes
-//
-//		double slope = 0.0;
-//		if (slope_y_on_x != 0.0 && slope_x_on_y != 0.0) {
-//			slope = (slope_y_on_x + 1.0 / slope_x_on_y) / 2.0;
-//		} else if (slope_y_on_x != 0.0) {
-//			slope = slope_y_on_x;
-//		} else if (slope_x_on_y != 0.0) {
-//			slope = 1.0 / slope_x_on_y;
-//		}
-//
-//		delete[] xx;
-//		delete[] yy;
-//		delete[] wt;
-//
-//		return slope;
-//
-//}
+// IQHC[nGates][nPulses]
+// IQVC[nGates][nPulses]
+
+void MomentsMgr::_applyClutterFilter(int nSamples,
+                                     Fft &fft,
+                                     Moments &moments,
+                                     double nyquist,
+                                     const Complex_t *iq,
+                                     Complex_t *iqFiltered)
+  
+{
+  
+  // apply the window
+  
+  if (_fftWindow == Moments::WINDOW_VONHANN) {
+    moments.applyVonhannWindow(iq, iqFiltered);
+  } else if (_fftWindow == Moments::WINDOW_BLACKMAN) {
+    moments.applyBlackmanWindow(iq, iqFiltered);
+  } else {
+    moments.applyRectWindow(iq, iqFiltered);
+  }
+
+  // take the forward fft
+
+  TaArray<Complex_t> spec_;
+  Complex_t *spec = spec_.alloc(nSamples);
+  fft.fwd(iqFiltered, spec);
+
+  // compute the magnitude spectrum
+
+  TaArray<double> specMag_;
+  double *specMag = specMag_.alloc(nSamples);
+  Moments::loadMag(nSamples, spec, specMag);
+
+  // compute filtered magnitude
+  
+  TaArray<double> filtMag_;
+  double *filtMag = filtMag_.alloc(nSamples);
+
+
+  double maxClutterVel = 1.0;
+  double initNotchWidth = 1.5;
+  bool clutterFound = false;
+  int notchStart = 0;
+  int notchEnd = 0;
+  double powerRemoved = 0.0;
+  double filteredVel = 0.0;
+  double filteredWidth = 0.0;
+
+  _clutFilter.run(specMag, nSamples,
+                  maxClutterVel, initNotchWidth, nyquist,
+                  filtMag, clutterFound, notchStart, notchEnd,
+                  powerRemoved, filteredVel, filteredWidth);
+
+  // compute clutter power correction, to reduce the effect of
+  // the raised noise floor
+  
+  double pwr = _meanPower(iq, nSamples);
+  double powerRemovedCorrection = 1.0;
+  double dbForDbRatio = 0.1;
+  double dbForDbThreshold = 50.0;
+
+  if (powerRemoved > 0) {
+    double powerTotalDb = 10.0 * log10(pwr + powerRemoved);
+    double powerLeftDb = 10.0 * log10(pwr);
+    double diffDb = powerTotalDb - powerLeftDb;
+    double powerRemovedDbCorrection = diffDb * dbForDbRatio;
+    if (diffDb > dbForDbThreshold) {
+      powerRemovedDbCorrection += (diffDb - dbForDbThreshold);
+    }
+    powerRemovedCorrection = pow(10.0, powerRemovedDbCorrection / 10.0);
+  }
+
+  // correct the filtered magnitudes
+
+  for (int ii = 0; ii < nSamples; ii++) {
+    filtMag[ii] /= powerRemovedCorrection;
+  }
+
+  // adjust the spectrum by the filter ratio
+
+  for (int ii = 0; ii < nSamples; ii++) {
+    double ratio = filtMag[ii] / specMag[ii];
+    spec[ii].re *= ratio;
+    spec[ii].im *= ratio;
+  }
+
+  // invert the fft
+
+  fft.inv(spec, iqFiltered);
+ 
+}
+

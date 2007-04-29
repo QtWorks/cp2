@@ -36,7 +36,7 @@ public:
 
   typedef enum {
     WINDOW_NONE,
-    WINDOW_HANNING,
+    WINDOW_VONHANN,
     WINDOW_BLACKMAN
   } window_t;
 
@@ -60,11 +60,15 @@ public:
 
   void setNoiseValueDbm(double dbm);
 
-  // apply hanning window to a time series
+  // apply rectangular window
   
-  void applyHanningWindow(const Complex_t *in, Complex_t *out) const;
+  void applyRectWindow(const Complex_t *in, Complex_t *out) const;
+
+  // apply vonhann window to a time series
   
-  // apply modified hanning window to a time series
+  void applyVonhannWindow(const Complex_t *in, Complex_t *out) const;
+  
+  // apply modified vonhann window to a time series
 
   void applyBlackmanWindow(const Complex_t *in, Complex_t *out) const;
 
@@ -125,7 +129,7 @@ private:
   
   // windows
 
-  double *_hanning;
+  double *_vonhann;
   double *_blackman;
 
   // FFT support
@@ -138,7 +142,7 @@ private:
 
   // functions
 
-  void _initHanning(double *window);
+  void _initVonhann(double *window);
   void _initBlackman(double *window);
 
   void _applyWindow(const double *window,

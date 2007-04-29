@@ -53,6 +53,7 @@ public:
 		float* crossdata,
 		int gates, 
 		double prt, 
+        double time,
 		double el, 
 		double az, 
 		long long pulseNum,

@@ -127,8 +127,8 @@ _backColor("royalblue")
 	}
 
 	// set the intial plot type
-	_ppiSType = PROD_S_DBMHC;
-	ppiTypeSlot(PROD_S_DBZHC);
+	_ppiSType = PROD_S_DBZ;
+	ppiTypeSlot(PROD_S_DBZ);
 
 	// connect the control buttons
 	ZoomFactor->display(1.0);
@@ -391,12 +391,11 @@ CP2PPI::initPlots()
 {
 
 	// set the initial plot type
-	_ppiSType = PROD_S_DBZHC;
+	_ppiSType = PROD_S_DBZ;
 
 	_sProductList.insert(PROD_S_DBMHC);
 	_sProductList.insert(PROD_S_DBMVC);
-	_sProductList.insert(PROD_S_DBZHC);
-	_sProductList.insert(PROD_S_DBZVC);
+	_sProductList.insert(PROD_S_DBZ);
 	_sProductList.insert(PROD_S_WIDTH);
 	_sProductList.insert(PROD_S_VEL);
 	_sProductList.insert(PROD_S_SNR);
@@ -406,28 +405,27 @@ CP2PPI::initPlots()
 
 	_xProductList.insert(PROD_X_DBMHC);
 	_xProductList.insert(PROD_X_DBMVX);
-	_xProductList.insert(PROD_X_DBZHC);
+	_xProductList.insert(PROD_X_DBZ);
 	_xProductList.insert(PROD_X_SNR);
 	_xProductList.insert(PROD_X_LDR);
 
 	int ppiVarIndex = 0;
-	setPpiInfo(PROD_S_DBMHC, "S_DBMHC", "H Dbm", "Sh: Dbm",     -70.0,   0.0,   ppiVarIndex++);
-	setPpiInfo(PROD_S_DBMVC, "S_DBMVC", "V Dbm", "Sv: Dbm",     -70.0,   0.0,   ppiVarIndex++);
-	setPpiInfo(PROD_S_DBZHC, "S_DBZHC", "H Dbz", "Sh: Dbz",     -70.0,   0.0,   ppiVarIndex++);
-	setPpiInfo(PROD_S_DBZVC, "S_DBZVC", "V Dbz", "Sv: Dbz",     -70.0,   0.0,   ppiVarIndex++);
-	setPpiInfo(PROD_S_WIDTH, "S_WIDTH", "Width", "S:  Width",     0.0,   5.0,   ppiVarIndex++);
-	setPpiInfo(  PROD_S_VEL, "S_VEL",   "Velocity", "S:  Velocity",-20.0,  20.0,   ppiVarIndex++);
-	setPpiInfo(  PROD_S_SNR, "S_SNR",   "SNR", "S:  SNR",        -40.0,  10.0,   ppiVarIndex++);
-	setPpiInfo(PROD_S_RHOHV, "S_RHOHV", "Rhohv", "S:  Rhohv",     0.0,   1.0,   ppiVarIndex++);
-	setPpiInfo(PROD_S_PHIDP, "S_PHIDP", "Phidp", "S:  Phidp",    -180.0, 180.0,   ppiVarIndex++);
-	setPpiInfo(  PROD_S_ZDR, "S_ZDR",   "Zdr", "S:  Zdr",        -70.0,   0.0,   ppiVarIndex++);
+	setPpiInfo(PROD_S_DBMHC, "S_DBMHC", "H Dbm",    "Sh: Dbm",     -70.0,   0.0,   ppiVarIndex++);
+	setPpiInfo(PROD_S_DBMVC, "S_DBMVC", "V Dbm",    "Sv: Dbm",     -70.0,   0.0,   ppiVarIndex++);
+	setPpiInfo(PROD_S_DBZ,   "S_DBZ",   "Dbz",      "S: Dbz",      -70.0,   0.0,   ppiVarIndex++);
+	setPpiInfo(PROD_S_WIDTH, "S_WIDTH", "Width",    "S:  Width",     0.0,   5.0,   ppiVarIndex++);
+	setPpiInfo(PROD_S_VEL,   "S_VEL",   "Velocity", "S:  Velocity",-20.0,  20.0,   ppiVarIndex++);
+	setPpiInfo(PROD_S_SNR,   "S_SNR",   "SNR",      "S:  SNR",     -40.0,  10.0,   ppiVarIndex++);
+	setPpiInfo(PROD_S_RHOHV, "S_RHOHV", "Rhohv",    "S:  Rhohv",     0.0,   1.0,   ppiVarIndex++);
+	setPpiInfo(PROD_S_PHIDP, "S_PHIDP", "Phidp",    "S:  Phidp",  -180.0, 180.0,   ppiVarIndex++);
+	setPpiInfo(PROD_S_ZDR,   "S_ZDR",   "Zdr",      "S:  Zdr",     -70.0,   0.0,   ppiVarIndex++);
 	// restart the X band ppi indices at 0
 	ppiVarIndex = 0;
-	setPpiInfo(PROD_X_DBMHC,"X_DBMHC",  "H Dbm", "Xh: Dbm",     -70.0,   0.0,   ppiVarIndex++);
-	setPpiInfo(PROD_X_DBMVX,"X_DBMVX",  "V DbM", "Xv: Dbm",     -70.0,   0.0,   ppiVarIndex++);
-	setPpiInfo(PROD_X_DBZHC,"X_DBZHC",  "H Dbz", "Xh: Dbz",     -70.0,   0.0,   ppiVarIndex++);
-	setPpiInfo(  PROD_X_SNR,"X_SNR",    "SNR", "Xh: SNR",       -40.0,   0.0,   ppiVarIndex++);
-	setPpiInfo(  PROD_X_LDR,"X_LDR",    "LDR", "Xhv:LDR",         0.0,   1.0,   ppiVarIndex++);
+	setPpiInfo(PROD_X_DBMHC,"X_DBMHC",  "H Dbm", "Xh: Dbm",       -70.0,   0.0,   ppiVarIndex++);
+	setPpiInfo(PROD_X_DBMVX,"X_DBMVX",  "V DbM", "Xv: Dbm",       -70.0,   0.0,   ppiVarIndex++);
+	setPpiInfo(PROD_X_DBZ,  "X_DBZ",    "Dbz",   "X: Dbz",        -70.0,   0.0,   ppiVarIndex++);
+	setPpiInfo(  PROD_X_SNR,"X_SNR",    "SNR",   "Xh: SNR",       -40.0,   0.0,   ppiVarIndex++);
+	setPpiInfo(  PROD_X_LDR,"X_LDR",    "LDR",   "Xhv:LDR",         0.0,   1.0,   ppiVarIndex++);
 
 	_typeTab->removeTab(0);
 	// add tabs, and save the button group for

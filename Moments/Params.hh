@@ -26,7 +26,7 @@ public:
 
 	// enum typedefs
 
-	typedef enum radar_config_t {
+	typedef enum xmit_rcv_mode_t {
 		/// Single polarization (NEXRAD)
 		SP = 0, 
 		/// Dual pol, alternating transmission, copolar receiver only
@@ -48,8 +48,10 @@ public:
 		/// Dual pol, H transmission, fixed H and V receivers (CP2 X band)
 		DP_H_ONLY_FIXED_HV = 6,
 		/// Staggered PRT (Eldora and DOWs)
-		SP_STAGGERED = 7
-	} radar_config_t;
+		SP_STAGGERED_2_3 = 7,
+		SP_STAGGERED_3_4 = 8,
+		SP_STAGGERED_4_5 = 9
+	} xmit_rcv_mode_t;
 
 	typedef enum debug_t {
 		DEBUG_OFF = 0,
@@ -64,26 +66,21 @@ public:
 	} algorithm_t;
 
 	typedef enum fft_window_t {
-		WINDOW_HANNING = 0,
+		WINDOW_VONHANN = 0,
 		WINDOW_BLACKMAN = 1,
 		WINDOW_NONE = 2
 	} fft_window_t;
 
 	typedef enum moments_mode_t {
 		SINGLE_POL = 0,
-		DUAL_FAST_ALT = 1,
+		DUAL_CP2_SBAND = 1,
 		DUAL_CP2_XBAND = 2
 	} moments_mode_t;
-
-	typedef enum moments_corr_t {
-		R0R1 = 0,
-		R1R2 = 1
-	} moments_corr_t;
 
 	// struct typedefs
 
 	typedef struct radar_params_t {
-		radar_config_t radar_config;
+		xmit_rcv_mode_t xmit_rcv_mode;
 		double horiz_beam_width;
 		double vert_beam_width;
 		double pulse_width;
@@ -97,8 +94,6 @@ public:
 		double noise_v_dBm;
 		double gain;
 		double radar_constant;
-		double dbz0;
-		double system_phidp_deg;
 	} receiver_t;
 
 	typedef struct moments_params_t {
@@ -108,7 +103,6 @@ public:
 		double          gate_spacing;
 		algorithm_t     algorithm;
 		fft_window_t    window;
-		moments_corr_t  moments_corr_type;
 		bool            apply_clutter_filter;
 		double          azimuth_resolution;
 		bool            index_beams_in_azimuth;
@@ -149,6 +143,11 @@ public:
 	receiver_t vx_receiver;
 
 	moments_params_t moments_params;  
+
+  // Correction for system phidp
+
+  bool correct_for_system_phidp;
+  double system_phidp;
 
 protected:
 	void setDefault();

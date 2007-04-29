@@ -126,7 +126,7 @@ bool MomentsEngine::_beamReady(double& beamAz)
 	// enough data in the queue?
 
 	int minPulses = _nSamples;
-	if (_momentsMgr->getMode() == Params::DUAL_FAST_ALT) {
+	if (_momentsMgr->getMode() == Params::DUAL_CP2_SBAND) {
 		// need one extra pulse because we sometimes need to search
 		// backwards for horizontal pulse
 		minPulses++;
@@ -322,6 +322,7 @@ MomentsEngine::processPulse(
 							 float* crossdata,
 							 int gates, 
 							 double prt, 
+                             double time,
 							 double el, 
 							 double az, 
 							 long long pulseNum,
@@ -340,7 +341,7 @@ MomentsEngine::processPulse(
 	// elements to the left.
 
 	Pulse *pulse = new Pulse(_params, 
-		pulseNum, gates, pulseNum,
+		pulseNum, gates, time,
 		prt, el, az, isHoriz, data, crossdata);
 
 	// add pulse to queue, managing memory appropriately
