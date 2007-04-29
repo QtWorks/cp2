@@ -45,15 +45,25 @@ _config("NCAR", "CP2Moments")
 	// get the processing parameters
 	// create the Sband moments processing thread
 	Params Sparams;
+
 	Sparams.system_phidp                 = _config.getDouble("ProcessingSband/system_phidp_deg",        0.0);
+	Sparams.correct_for_system_phidp     = _config.getBool("ProcessingSband/correct_phidp",             false);
+
 	Sparams.moments_params.mode                   = Params::DUAL_CP2_SBAND;
-	Sparams.moments_params.gate_spacing           = _config.getDouble("ProcessingSband/gateSpacingKm", 0.150);
-	Sparams.moments_params.n_samples              = _config.getInt("ProcessingSband/pulsesPerBeam", 100);
+	Sparams.moments_params.gate_spacing           = _config.getDouble("ProcessingSband/gateSpacingKm",     0.150);
+	Sparams.moments_params.n_samples              = _config.getInt("ProcessingSband/pulsesPerBeam",          100);
 	Sparams.moments_params.algorithm              = Params::ALG_PP;
-	Sparams.moments_params.index_beams_in_azimuth = _config.getBool("ProcessingSband/indexBeamInAz", true);
-	Sparams.moments_params.azimuth_resolution     = _config.getDouble("ProcessingSband/azResolutionDeg", 1.0);
-	Sparams.radar.horiz_beam_width                = _config.getDouble("ProcessingSband/horizBeamWidthDeg", 0.91);
-	Sparams.radar.vert_beam_width                 = _config.getDouble("ProcessingSband/vertBeamWidthDeg", 0.91);
+	Sparams.moments_params.index_beams_in_azimuth = _config.getBool("ProcessingSband/indexBeamInAz",        true);
+	Sparams.moments_params.azimuth_resolution     = _config.getDouble("ProcessingSband/azResolutionDeg",     1.0);
+	Sparams.moments_params.apply_clutter_filter   = _config.getBool("ProcessingSband/clutterFilterEnable", false);
+	if (Sparams.moments_params.apply_clutter_filter)
+		Sparams.moments_params.window = Params::WINDOW_VONHANN;
+	else
+		Sparams.moments_params.window = Params::WINDOW_NONE;
+
+	Sparams.radar.horiz_beam_width                = _config.getDouble("ProcessingSband/horizBeamWidthDeg",  0.91);
+	Sparams.radar.vert_beam_width                 = _config.getDouble("ProcessingSband/vertBeamWidthDeg",   0.91);
+	Sparams.radar.xmit_rcv_mode                   = Params::DP_ALT_HV_CO_ONLY;
 
 	Sparams.hc_receiver.noise_h_dBm      = _config.getDouble("ProcessingSband/hc_rcvr_noise_h_dbm",    -77.0);
 	Sparams.hc_receiver.noise_v_dBm      = _config.getDouble("ProcessingSband/hc_rcvr_noise_v_dbm",    -77.0);
@@ -79,15 +89,25 @@ _config("NCAR", "CP2Moments")
 
 	// create the Sband moments processing thread
 	Params Xparams;
+
 	Xparams.system_phidp                          = _config.getDouble("ProcessingXband/system_phidp_deg", 0.0);
+	Xparams.correct_for_system_phidp              = _config.getBool("ProcessingXband/correct_phidp",      false);
+
 	Xparams.moments_params.mode                   = Params::DUAL_CP2_XBAND;
 	Xparams.moments_params.gate_spacing           = _config.getDouble("ProcessingXband/gateSpacingKm", 0.150);
 	Xparams.moments_params.n_samples              = _config.getInt("ProcessingXband/pulsesPerBeam", 100);
 	Xparams.moments_params.algorithm              = Params::ALG_PP;
 	Xparams.moments_params.index_beams_in_azimuth = _config.getBool("ProcessingXband/indexBeamInAz", true);
 	Xparams.moments_params.azimuth_resolution     = _config.getDouble("ProcessingXband/azResolutionDeg", 1.0);
+	Xparams.moments_params.apply_clutter_filter   = _config.getBool("ProcessingXband/clutterFilterEnable", false);
+	if (Xparams.moments_params.apply_clutter_filter)
+		Xparams.moments_params.window = Params::WINDOW_VONHANN;
+	else
+		Xparams.moments_params.window = Params::WINDOW_NONE;
+
 	Xparams.radar.horiz_beam_width                = _config.getDouble("ProcessingXband/horizBeamWidthDeg", 0.91);
 	Xparams.radar.vert_beam_width                 = _config.getDouble("ProcessingXband/vertBeamWidthDeg", 0.91);
+	Xparams.radar.xmit_rcv_mode                   = Params::DP_H_ONLY_FIXED_HV;
 
 	Xparams.hc_receiver.noise_h_dBm      = _config.getDouble("ProcessingXband/hc_rcvr_noise_h_dbm",    -77.0);
 	Xparams.hc_receiver.noise_v_dBm      = _config.getDouble("ProcessingXband/hc_rcvr_noise_v_dbm",    -77.0);
