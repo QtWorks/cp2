@@ -688,7 +688,7 @@ int pac_smooth_phidp(int gates,
 		for (gate = 0; gate < gates; gate++) {
 			double accum = 0.0;
 			for (ctr = 0; ctr < filter->length; ctr++) {
-				int phi_idx = CLAMP(gate - filter->length/2 + ctr, 0, gates);
+				int phi_idx = CLAMP(gate - filter->length/2 + ctr, 0, gates-1);
 				accum += PHIDPinterp[phi_idx * PHIDPinterp_stride] * filter->coeffs[ctr];
 			}
 			*PHIDPf_ptr = accum * filter->gain;
