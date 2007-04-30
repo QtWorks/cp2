@@ -73,18 +73,18 @@ Params::setDefault()
 
 	// moments manager params
 
-        moments_params.mode                   = DUAL_CP2_SBAND;
+    moments_params.mode                   = DUAL_CP2_SBAND;
 	moments_params.n_samples              = 64;
-	moments_params.start_range            = 0.0;
 	moments_params.gate_spacing           = 0.150;
+	moments_params.start_range            = moments_params.gate_spacing/2.0;
 	moments_params.algorithm              = ALG_PP;
-        moments_params.window                 = WINDOW_NONE;
+    moments_params.window                 = WINDOW_NONE;
 	moments_params.apply_clutter_filter   = false;
 	moments_params.index_beams_in_azimuth = true;
 	moments_params.azimuth_resolution     = 1.0; // for indexed beams
 
-        correct_for_system_phidp = true;
-        system_phidp = 45;
+    correct_for_system_phidp = true;
+    system_phidp = 45;
 
 }
 
