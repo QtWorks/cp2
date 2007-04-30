@@ -70,8 +70,8 @@ _momentsHalf(_nSamplesHalf)
 	_startRange = _momentsParams.start_range;
 	_gateSpacing = _momentsParams.gate_spacing;
 	_rangeCorr = NULL;
-        _fft = NULL;
-        _fftHalf = NULL;
+    _fft = NULL;
+    _fftHalf = NULL;
 
 	_noiseFixedHc = pow(10.0, _params.hc_receiver.noise_dBm / 10.0);
 	_noiseFixedHx = pow(10.0, _params.hx_receiver.noise_dBm / 10.0);
@@ -107,8 +107,11 @@ _momentsHalf(_nSamplesHalf)
   
         // set up FFT
   
-        _fft = new Fft(_nSamples);
-        _fftHalf = new Fft(_nSamplesHalf);
+        _fft = 0;
+		_fftHalf = 0;
+		
+		//_fft = new Fft(_nSamples);
+        //_fftHalf = new Fft(_nSamplesHalf);
  
 }
 
@@ -186,12 +189,12 @@ void MomentsMgr::computeSingle(double beamTime,
     // compute noise-subtracted lag0
     
     double lag0_hc_hc_ns = lag0_hc_hc - _noiseFixedHc;
-    if (lag0_hc_hc_ns < 0) { lag0_hc_hc_ns = 1.0e-12; }
+    if (lag0_hc_hc_ns < 0) { lag0_hc_hc_ns = lag0_hc_hc; }
     
     // compute dbm
 
     fields[igate].dbmhc =
-      10.0 * log10(lag0_hc_hc_ns) - _params.hc_receiver.gain;
+      10.0 * log10(lag0_hc_hc) - _params.hc_receiver.gain;
     fields[igate].dbm = fields[igate].dbmhc;
     
     // compute snr
@@ -326,15 +329,15 @@ void MomentsMgr::computeDualCp2Sband(double beamTime,
     double lag0_hc_hc_ns = lag0_hc_hc - _noiseFixedHc;
     double lag0_vc_vc_ns = lag0_vc_vc - _noiseFixedVc;
 
-    if (lag0_hc_hc_ns < 0) { lag0_hc_hc_ns = 1.0e-12; }
-    if (lag0_vc_vc_ns < 0) { lag0_vc_vc_ns = 1.0e-12; }
+    if (lag0_hc_hc_ns < 0) { lag0_hc_hc_ns = lag0_hc_hc; }
+    if (lag0_vc_vc_ns < 0) { lag0_vc_vc_ns = lag0_vc_vc; }
 
     // compute dbm
 
     fields[igate].dbmhc =
-      10.0 * log10(lag0_hc_hc_ns) - _params.hc_receiver.gain;
+      10.0 * log10(lag0_hc_hc) - _params.hc_receiver.gain;
     fields[igate].dbmvc =
-      10.0 * log10(lag0_vc_vc_ns) - _params.vc_receiver.gain;
+      10.0 * log10(lag0_vc_vc) - _params.vc_receiver.gain;
     fields[igate].dbm = (fields[igate].dbmhc + fields[igate].dbmvc) / 2.0;
     
     // compute snr
@@ -508,17 +511,17 @@ void MomentsMgr::computeDualCp2Xband(double beamTime,
     double lag0_hc_hc_ns = lag0_hc_hc - _noiseFixedHc;
     double lag0_vx_vx_ns = lag0_vx_vx - _noiseFixedVx;
 
-    if (lag0_hc_hc_ns < 0) { lag0_hc_hc_ns = 1.0e-12; }
-    if (lag0_vx_vx_ns < 0) { lag0_vx_vx_ns = 1.0e-12; }
+    if (lag0_hc_hc_ns < 0) { lag0_hc_hc_ns = lag0_hc_hc; }
+    if (lag0_vx_vx_ns < 0) { lag0_vx_vx_ns = lag0_vx_vx; }
     
     // compute dbm
 
     fields[igate].dbmhc =
-      10.0 * log10(lag0_hc_hc_ns) - _params.hc_receiver.gain;
+      10.0 * log10(lag0_hc_hc) - _params.hc_receiver.gain;
     fields[igate].dbm = fields[igate].dbmhc;
     
     fields[igate].dbmvx =
-      10.0 * log10(lag0_vx_vx_ns) - _params.vx_receiver.gain;
+      10.0 * log10(lag0_vx_vx) - _params.vx_receiver.gain;
 
     // compute snr
     
