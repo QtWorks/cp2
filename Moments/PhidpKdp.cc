@@ -171,8 +171,8 @@ void pac_get_phidp_sd(int gates,
 	double *PHIDP_sd_ptr = PHIDP_sd;
 	
 	for(gate = 0; gate < sd_n / 2; gate++) {
-		*(PHIDP_sd_ptr) = gsl_stats_double_sd(PHIDP, PHIDP_stride, sd_n);
-		PHIDP_ptr += PHIDP_stride;
+		*(PHIDP_sd_ptr) = gsl_stats_double_sd(PHIDP, PHIDP_stride, sd_n);//
+//		PHIDP_ptr += PHIDP_stride;
 		PHIDP_sd_ptr += PHIDP_sd_stride;
 	}
 	for(; gate < (gates - sd_n / 2); gate++) {
@@ -183,7 +183,7 @@ void pac_get_phidp_sd(int gates,
 	double *PHIDP_last_ptr = PHIDP_ptr;
 	for (; gate < gates; gate++) {
 		*(PHIDP_sd_ptr) = gsl_stats_double_sd(PHIDP_last_ptr, PHIDP_stride, sd_n);
-		PHIDP_ptr += PHIDP_stride;
+//		PHIDP_ptr += PHIDP_stride;
 		PHIDP_sd_ptr += PHIDP_sd_stride;
 	}
 }
