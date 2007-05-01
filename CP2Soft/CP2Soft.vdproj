@@ -15,14 +15,38 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_18A34EECFAA94A478494ECD7C09AE5DE"
+        "MsmKey" = "8:_06B4B5865807423A98991D486DAC8E6D"
+        "OwnerKey" = "8:_18A34EECFAA94A478494ECD7C09AE5DE"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_06B4B5865807423A98991D486DAC8E6D"
+        "OwnerKey" = "8:_937990C06CDA4EE9963A46125FDABB7C"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_06B4B5865807423A98991D486DAC8E6D"
+        "OwnerKey" = "8:_8BE31B3FAA7F467AA2036DCA27C59B97"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_06B4B5865807423A98991D486DAC8E6D"
+        "OwnerKey" = "8:_4BB7886241A7487C852848CAD9923118"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_1028A881E45C4782B7FEA3FA2857B5EA"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_1E8119B671184E3D9CB5AF9F78EBE8B3"
-        "OwnerKey" = "8:_9F0E59C770DB4F71AB8A8F37956A70FD"
+        "MsmKey" = "8:_18A34EECFAA94A478494ECD7C09AE5DE"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -35,6 +59,12 @@
         {
         "MsmKey" = "8:_2FF166BB57A5E3291316C0378CDBCC78"
         "OwnerKey" = "8:_937990C06CDA4EE9963A46125FDABB7C"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_3113B1E369D349EEB3B077C597971166"
+        "OwnerKey" = "8:_06B4B5865807423A98991D486DAC8E6D"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -111,36 +141,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_9F0E59C770DB4F71AB8A8F37956A70FD"
-        "OwnerKey" = "8:_18A34EECFAA94A478494ECD7C09AE5DE"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_9F0E59C770DB4F71AB8A8F37956A70FD"
-        "OwnerKey" = "8:_937990C06CDA4EE9963A46125FDABB7C"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_9F0E59C770DB4F71AB8A8F37956A70FD"
-        "OwnerKey" = "8:_8BE31B3FAA7F467AA2036DCA27C59B97"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_9F0E59C770DB4F71AB8A8F37956A70FD"
-        "OwnerKey" = "8:_4BB7886241A7487C852848CAD9923118"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_A076F5BB5BE5FE31A4D9C7391204C061"
-        "OwnerKey" = "8:_18A34EECFAA94A478494ECD7C09AE5DE"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_BB1A812B91ED462FA8F51C93EDD96A6C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -149,12 +149,6 @@
         {
         "MsmKey" = "8:_C9D2E6C02AEA41729CF2C682A8130E2F"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_CBBA7FABC80B677AB329BEF58D2C9C2A"
-        "OwnerKey" = "8:_937990C06CDA4EE9963A46125FDABB7C"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -294,6 +288,26 @@
         }
         "File"
         {
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1028A881E45C4782B7FEA3FA2857B5EA"
+            {
+            "SourcePath" = "8:..\\..\\fftw3.1\\libfftw3-3.dll"
+            "TargetName" = "8:libfftw3-3.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_04305C9CADE44428B7EE853F880CDD96"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_273B421B3B284DB29BC80A1D80249D36"
             {
             "SourcePath" = "8:..\\CP2Scope\\icon1.ico"
@@ -454,26 +468,6 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A076F5BB5BE5FE31A4D9C7391204C061"
-            {
-            "SourcePath" = "8:libfftw3-3.dll"
-            "TargetName" = "8:libfftw3-3.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_04305C9CADE44428B7EE853F880CDD96"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BB1A812B91ED462FA8F51C93EDD96A6C"
             {
             "SourcePath" = "8:..\\Artifacts\\SupportDistros\\TVicSoft\\tvichw50.zip"
@@ -512,26 +506,6 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CBBA7FABC80B677AB329BEF58D2C9C2A"
-            {
-            "SourcePath" = "8:libfftw3-3.dll"
-            "TargetName" = "8:libfftw3-3.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_04305C9CADE44428B7EE853F880CDD96"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DA549532C2797FB843F74D88E4A4347C"
@@ -1319,11 +1293,11 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_1E8119B671184E3D9CB5AF9F78EBE8B3"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_06B4B5865807423A98991D486DAC8E6D"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:policy_8_0_microsoft_vc80_crt_x86.msm"
+            "SourcePath" = "8:Microsoft_VC80_CRT_x86.msm"
                 "Properties"
                 {
                 }
@@ -1333,11 +1307,11 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_9F0E59C770DB4F71AB8A8F37956A70FD"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_3113B1E369D349EEB3B077C597971166"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:Microsoft_VC80_CRT_x86.msm"
+            "SourcePath" = "8:policy_8_0_microsoft_vc80_crt_x86.msm"
                 "Properties"
                 {
                 }
@@ -1380,7 +1354,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_4BB7886241A7487C852848CAD9923118"
             {
-            "SourcePath" = "8:..\\CP2exec\\release\\cp2exec.exe"
+            "SourcePath" = "8:..\\CP2exec\\release\\CP2exec.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_04305C9CADE44428B7EE853F880CDD96"
