@@ -24,11 +24,17 @@ LIBS += ws2_32.lib
 
 HEADERS += CP2Moments.h
 HEADERS += MomentThread.h
+HEADERS += Stk.h
+HEADERS += Filter.h
+HEADERS += BiQuad.h
 HEADERS += ../include/dd_types.h
 
 SOURCES += main.cpp
 SOURCES += CP2Moments.cpp
 SOURCES += MomentThread.cpp
+SOURCES += Stk.cpp
+SOURCES += Filter.cpp
+SOURCES += BiQuad.cpp
 
 FORMS	= CP2Moments.ui
 
