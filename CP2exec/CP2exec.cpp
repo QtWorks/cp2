@@ -2,6 +2,7 @@
 #include <qlabel.h>
 #include "CP2Config.h"
 #include "CP2Version.h"
+#include "timerlib.h"
 #include <iostream>
 
 
@@ -28,8 +29,24 @@ _pThread(0)
 	// save our start time
 	_startTime = QDateTime::currentDateTime();
 
+	// set some information on the user interface
+	int gates = config.getInt("Piraq/Gates", 950);
+	_gatesText->setNum(gates);
+
+	bool doSimAngles = config.getBool("SimulatedAngles/Enabled", false);
+	_simAnglesText->setText(doSimAngles ? "On":"Off");
+
+	double prt = config.getInt("Piraq/PrtCounts", 6000) * (8.0/(float)SYSTEM_CLOCK);
+	QString prf = QString("%1").arg(((1.0)/prt),0,'f',1);
+	_prfHzText->setText(prf);
+
+	double xmit_pulsewidth = config.getInt("Piraq/XmitWidthCounts", 6) * (8.0/(float)SYSTEM_CLOCK);
+	QString xmit = QString("%1").arg(xmit_pulsewidth*1.0e6,0,'f',1);
+	_pwText->setText(xmit);
+	
 	int outPort = config.getInt("Network/PulsePort", 3100);
 	_networkPort->setNum(outPort);
+
 	std::string pulseInterface = config.getString("Network/PulseNetwork", "192.168.1");
 	_networkIP->setText(pulseInterface.c_str());
 

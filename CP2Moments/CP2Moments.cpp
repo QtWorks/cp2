@@ -116,7 +116,7 @@ _config("NCAR", "CP2Moments")
 	Xparams.hc_receiver.radar_constant   = _config.getDouble("ProcessingXband/hc_rcvr_radar_constant", -68.4);
 
 	Xparams.hx_receiver.noise_dBm        = _config.getDouble("ProcessingXband/hx_rcvr_noise_dbm",      -77.0);
-  	Xparams.hx_receiver.gain             = _config.getDouble("ProcessingXband/hx_rcvr_gain_db",         37.0);
+	Xparams.hx_receiver.gain             = _config.getDouble("ProcessingXband/hx_rcvr_gain_db",         37.0);
 	Xparams.hx_receiver.radar_constant   = _config.getDouble("ProcessingXband/hx_rcvr_radar_constant", -68.4);
 
 	Xparams.vc_receiver.noise_dBm        = _config.getDouble("ProcessingXband/vc_rcvr_noise_dbm",      -77.0);
@@ -137,9 +137,11 @@ _config("NCAR", "CP2Moments")
 	// display a few of the processing parameters on the UI.
 	_sPulsesPerBeam->setNum(Sparams.moments_params.n_samples);
 	_sClutterFilter->setText(Sparams.moments_params.apply_clutter_filter ? "On":"Off");
+	_sAzIndexed->setText(Sparams.moments_params.index_beams_in_azimuth ? "On":"Off");
 	_xPulsesPerBeam->setNum(Xparams.moments_params.n_samples);
 	_xClutterFilter->setText(Xparams.moments_params.apply_clutter_filter ? "On":"Off");
-		
+	_xAzIndexed->setText(Xparams.moments_params.index_beams_in_azimuth ? "On":"Off");
+
 	// start the moments processing threads. They will wait
 	// patiently until their processPulse() functions are
 	// called with pulses to be processed.
@@ -174,10 +176,10 @@ CP2Moments::startStopSlot(bool v)
 	// set the button text to the opposite of the
 	// current state.
 	if (!_run) {
-//		_startStopButton->setText("Start");
+		//		_startStopButton->setText("Start");
 		_statusText->setText("Stopped");
 	} else {
-//		_startStopButton->setText("Stop");
+		//		_startStopButton->setText("Stop");
 		_statusText->setText("Running");
 	}
 }
@@ -211,7 +213,7 @@ CP2Moments::timerEvent(QTimerEvent*)
 void
 CP2Moments::initializeSockets()	
 {
-		// assign the incoming and outgoing port numbers.
+	// assign the incoming and outgoing port numbers.
 	_pulsePort	    = _config.getInt("Network/PulsePort", 3100);
 	_productsPort   = _config.getInt("Network/ProductPort", 3200);
 
@@ -429,8 +431,8 @@ CP2Moments::sendProduct(CP2ProductHeader& header,
 		int bytesSent = 0;
 		while (bytesSent != packet.packetSize()) {
 			bytesSent = _pProductSocket->writeDatagram(
-			(const char*)packet.packetData(),
-			packet.packetSize());
+				(const char*)packet.packetData(),
+				packet.packetSize());
 			if(bytesSent != packet.packetSize())
 				Sleep(1);
 		}
@@ -441,9 +443,9 @@ CP2Moments::sendProduct(CP2ProductHeader& header,
 	if (forceSend) {
 		int bytesSent = 0;
 		while (bytesSent != packet.packetSize()) {
-		bytesSent = _pProductSocket->writeDatagram(
-			(const char*)packet.packetData(),
-			packet.packetSize());
+			bytesSent = _pProductSocket->writeDatagram(
+				(const char*)packet.packetData(),
+				packet.packetSize());
 			if(bytesSent != packet.packetSize())
 				Sleep(1);
 		}
