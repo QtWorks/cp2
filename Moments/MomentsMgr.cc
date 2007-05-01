@@ -110,8 +110,8 @@ _momentsHalf(_nSamplesHalf)
         _fft = 0;
 		_fftHalf = 0;
 		
-		//_fft = new Fft(_nSamples);
-        //_fftHalf = new Fft(_nSamplesHalf);
+		_fft = new Fft(_nSamples);
+        _fftHalf = new Fft(_nSamplesHalf);
  
 }
 

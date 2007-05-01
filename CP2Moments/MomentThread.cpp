@@ -1,6 +1,10 @@
 #include "MomentThread.h"
 #include <iostream>
 
+/// A singleton mutex to protect the creation of the MomentsEngine, which
+/// calls non-reentrant code in FFTW. 
+static QMutex _momentsEngineMutex;
+
 
 ///////////////////////////////////////////////////////////////////////////////////
 MomentThread::MomentThread(Params params):
@@ -18,7 +22,13 @@ void
 MomentThread::run()
 {
 	// create the moment compute engine for S band
+	// MomentsEngine() calls FFTW plan creation code, 
+	// which is non-reentrant. It should really be doing the 
+	// locking tht we are doing here, but since it is 
+	// not our code...
+	_momentsEngineMutex.lock();
 	_momentsEngine = new MomentsEngine(_params);
+	_momentsEngineMutex.unlock();
 
 	while (1) {
 		_pulseQueueMutex.lock();

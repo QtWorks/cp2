@@ -22,6 +22,9 @@ _processXband(true),
 _config("NCAR", "CP2Moments")
 {
 
+	fftw_init_threads();
+	fftw_plan_with_nthreads(2);
+
 	// setup our form
 	setupUi(parent);
 
@@ -104,9 +107,9 @@ _config("NCAR", "CP2Moments")
 		Xparams.moments_params.window = Params::WINDOW_NONE;
 
 
-	Xparams.radar.horiz_beam_width                = _config.getDouble("ProcessingXband/horizBeamWidthDeg", 0.91);
-	Xparams.radar.vert_beam_width                 = _config.getDouble("ProcessingXband/vertBeamWidthDeg", 0.91);
-	Xparams.radar.xmit_rcv_mode                   = Params::DP_H_ONLY_FIXED_HV;
+	Xparams.radar.horiz_beam_width       = _config.getDouble("ProcessingXband/horizBeamWidthDeg", 0.91);
+	Xparams.radar.vert_beam_width        = _config.getDouble("ProcessingXband/vertBeamWidthDeg", 0.91);
+	Xparams.radar.xmit_rcv_mode          = Params::DP_H_ONLY_FIXED_HV;
 
 	Xparams.hc_receiver.noise_dBm        = _config.getDouble("ProcessingXband/hc_rcvr_noise_dbm",      -77.0);
 	Xparams.hc_receiver.gain             = _config.getDouble("ProcessingXband/hc_rcvr_gain_db",         37.0);
@@ -130,6 +133,12 @@ _config("NCAR", "CP2Moments")
 	// This really needs to be separated into X and S spacing, and accounted
 	// for in CP2PPI.
 	_gateSpacing = Sparams.moments_params.gate_spacing;
+
+	// display a few of the processing parameters on the UI.
+	_sPulsesPerBeam->setNum(Sparams.moments_params.n_samples);
+	_sClutterFilter->setText(Sparams.moments_params.apply_clutter_filter ? "On":"Off");
+	_xPulsesPerBeam->setNum(Xparams.moments_params.n_samples);
+	_xClutterFilter->setText(Xparams.moments_params.apply_clutter_filter ? "On":"Off");
 		
 	// start the moments processing threads. They will wait
 	// patiently until their processPulse() functions are
@@ -165,10 +174,10 @@ CP2Moments::startStopSlot(bool v)
 	// set the button text to the opposite of the
 	// current state.
 	if (!_run) {
-		_startStopButton->setText("Start");
+//		_startStopButton->setText("Start");
 		_statusText->setText("Stopped");
 	} else {
-		_startStopButton->setText("Stop");
+//		_startStopButton->setText("Stop");
 		_statusText->setText("Running");
 	}
 }
