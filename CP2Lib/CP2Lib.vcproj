@@ -24,6 +24,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Creating svnInfo.h..."
+				CommandLine="makeSvnInfo.bat"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -89,7 +91,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				Description="Creating the svnInfo.h file"
+				Description="Creating svnInfo.h..."
 				CommandLine="makeSvnInfo.bat"
 			/>
 			<Tool
