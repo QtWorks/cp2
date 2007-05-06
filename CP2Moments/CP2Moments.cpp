@@ -3,6 +3,8 @@
 #include <QPushButton>
 #include <QDialog>
 #include <QMessageBox>
+#include <QIcon>
+#include <QPixmap>
 
 #include "CP2Moments.h"
 #include "CP2Net.h"
@@ -10,6 +12,60 @@
 
 #include <Windows.h>  // just to get Sleep()
 #include <iostream>
+
+/* XPM */
+
+static char *icon[] = {
+/* width height ncolors chars_per_pixel */
+"32 32 12 1",
+/* colors */
+"` c #CBFFFF",
+"a c #AB0000",
+"c c #326565",
+"e c red",
+"g c green",
+"h c #770000",
+"i c #99CCCC",
+"j c #00AB00",
+"l c #007700",
+"m c #005500",
+"q c #DC0000",
+"v c black",
+/* pixels */
+"```````````````````````````````i",
+"`iiiiiiiiiiiiiiiiiiiiiiiiiiiiiic",
+"`iiiiiiiiiiiiiiiiiiiiiiiiiiiiiic",
+"`iiiiiiiiiiiiiiiiiiiviiiiiiiiiic",
+"`iiiiiiiiiiiiiiiiiivlviiiiiiiiic",
+"`iiiiiiiiiiiiiiiiivllmviiiiiiiic",
+"`iiiiiiiiiiiiiiiiiivlmmviiiiiiic",
+"`iiiiiiiiiiiiiiiiiiivmmmviiiiiic",
+"`iiivgvvvgvvvvvvvvvvvvmmmviiiiic",
+"`iiiiggggggggjjjjllllmmmmvviiiic",
+"`iiiiivgvvvggjjjjllllmmmmvvviiic",
+"`iiiiiiggggggjjjjllllmmmmvviiiic",
+"`iiiiiiivgvvvjvvvvvvvvmmmviiiiic",
+"`iiiiiiiiiiiiiiiiiiivmmmviiiiiic",
+"`iiiiiiiiiiviiiiiiivlmmviiiiiiic",
+"`iiiiiiiiivqviiiiivllmviiiiiiiic",
+"`iiiiiiiivqqqviiiiivlviiiiiiiiic",
+"`iiiiiiivqqqviiiiiiiviiiiiiiiiic",
+"`iiiiiiveqqviiiiiiiiiiiiiiiiiiic",
+"`iiiiiveeqvvvvvvvvvvvvhvvvvviiic",
+"`iiiiveeeqqqqaaaahhhhhhhhhviiiic",
+"`iiiveeeeqqqqaaaahhhhvvvhviiiiic",
+"`iiiiveeeqqqqaaaahhhhhhhhiiiiiic",
+"`iiiiiveeqvvvvvvvvhvvvhviiiiiiic",
+"`iiiiiiveqqviiiiiiiiiiiiiiiiiiic",
+"`iiiiiiivqqqviiiiiiiiiiiiiiiiiic",
+"`iiiiiiiivqqqviiiiiiiiiiiiiiiiic",
+"`iiiiiiiiivqviiiiiiiiiiiiiiiiiic",
+"`iiiiiiiiiiviiiiiiiiiiiiiiiiiiic",
+"`iiiiiiiiiiiiiiiiiiiiiiiiiiiiiic",
+"`iiiiiiiiiiiiiiiiiiiiiiiiiiiiiic",
+"iccccccccccccccccccccccccccccccc"
+};
+
 
 CP2Moments::CP2Moments(QDialog* parent):
 QDialog(parent),
@@ -27,6 +83,8 @@ _config("NCAR", "CP2Moments")
 
 	// setup our form
 	setupUi(parent);
+
+	this->setWindowIcon(QIcon(QPixmap(icon)));
 
 	// get our title from the coniguration
 	std::string title = _config.getString("Title","CP2Moments");

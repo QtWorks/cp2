@@ -30,6 +30,7 @@ LIBS += ws2_32.lib
 
 HEADERS += CP2Exec.h
 HEADERS += CP2ExecThread.h
+HEADERS += CP2ExecIcon.h
 HEADERS += CP2PIRAQ.h
 HEADERS += SimAngles.h
 HEADERS += ../include/dd_types.h
@@ -43,6 +44,8 @@ SOURCES += SimAngles.cpp
 SOURCES += ../CP2Piraq/piraqComm.c
 
 FORMS	= CP2Exec.ui
+
+RC_FILE += CP2Exec.rc
 
 INCLUDEPATH	+= ../
 INCLUDEPATH += ../../

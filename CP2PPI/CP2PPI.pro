@@ -30,6 +30,7 @@ LIBS += ws2_32.lib
 HEADERS += CP2PPI.h
 HEADERS += ColorBarSettings.h
 HEADERS += PpiInfo.h
+HEADERS += CP2PPIicon.h
 
 SOURCES += CP2PPI.cpp
 SOURCES += ColorBarSettings.cpp
@@ -38,6 +39,8 @@ SOURCES += main.cpp
 
 FORMS	+= CP2PPI.ui
 FORMS	+= ColorBarSettings.ui
+
+RC_FILE += CP2PPI.rc
 
 INCLUDEPATH += ../CP2Net
 INCLUDEPATH += ../CP2Config

@@ -24,6 +24,7 @@ LIBS += ws2_32.lib
 
 HEADERS += CP2Moments.h
 HEADERS += MomentThread.h
+HEADERS += CP2MomentsIcon.h
 HEADERS += Stk.h
 HEADERS += Filter.h
 HEADERS += BiQuad.h
@@ -37,6 +38,8 @@ SOURCES += Filter.cpp
 SOURCES += BiQuad.cpp
 
 FORMS	= CP2Moments.ui
+
+RC_FILE += CP2Moments.rc
 
 INCLUDEPATH	+= ../
 INCLUDEPATH += ../../

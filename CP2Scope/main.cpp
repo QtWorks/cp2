@@ -1,4 +1,5 @@
 #include "CP2Scope.h"
+#include "CP2ScopeIcon.h"
 
 #include <qapplication.h>
 #include <QDialog>
@@ -8,12 +9,13 @@
 #include <qcheckbox.h>
 #include <qcheckbox.h>
 
-
 int
 main(int argc, char** argv)
 {
 
 	QApplication app(argc, argv);
+	app.setWindowIcon(QPixmap(cp2ScopeIcon));
+
 	QDialog* dialog = new QDialog(0, Qt::WindowMinMaxButtonsHint);
 
 	// create our test dialog. It will contain a ScopePlot and 

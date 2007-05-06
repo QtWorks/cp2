@@ -32,8 +32,11 @@ SOURCES += main.cpp
 
 HEADERS += CP2Scope.h
 HEADERS += PlotInfo.h
+HEADERS += CP2ScopeIcon.h
 
 FORMS	= CP2Scope.ui
+
+RC_FILE += CP2Scope.rc
 
 INCLUDEPATH += ../../
 INCLUDEPATH += ../CP2Net

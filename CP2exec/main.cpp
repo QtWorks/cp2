@@ -4,6 +4,7 @@
 
 #include "CP2Exec.h"
 #include "CP2ExecThread.h"
+#include "CP2ExecIcon.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -16,6 +17,8 @@ main(int argc, char* argv[], char* envp[])
 {
 	// create the Qt application
 	QApplication app( argc, argv );
+	app.setWindowIcon(QPixmap(CP2ExecIcon));
+
 	QDialog* dialog = new QDialog(0, Qt::WindowMinimizeButtonHint);
 
 	// create our main window. It wants to know about the piraq executin

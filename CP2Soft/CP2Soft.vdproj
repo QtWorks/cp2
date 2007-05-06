@@ -15,37 +15,13 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_06B4B5865807423A98991D486DAC8E6D"
-        "OwnerKey" = "8:_18A34EECFAA94A478494ECD7C09AE5DE"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_06B4B5865807423A98991D486DAC8E6D"
-        "OwnerKey" = "8:_937990C06CDA4EE9963A46125FDABB7C"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_06B4B5865807423A98991D486DAC8E6D"
-        "OwnerKey" = "8:_8BE31B3FAA7F467AA2036DCA27C59B97"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_06B4B5865807423A98991D486DAC8E6D"
-        "OwnerKey" = "8:_4BB7886241A7487C852848CAD9923118"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_1028A881E45C4782B7FEA3FA2857B5EA"
+        "MsmKey" = "8:_03F4BD0DE4DA432D86355D2ABDC0C055"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_18A34EECFAA94A478494ECD7C09AE5DE"
+        "MsmKey" = "8:_1028A881E45C4782B7FEA3FA2857B5EA"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -58,13 +34,7 @@
         "Entry"
         {
         "MsmKey" = "8:_2FF166BB57A5E3291316C0378CDBCC78"
-        "OwnerKey" = "8:_937990C06CDA4EE9963A46125FDABB7C"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_3113B1E369D349EEB3B077C597971166"
-        "OwnerKey" = "8:_06B4B5865807423A98991D486DAC8E6D"
+        "OwnerKey" = "8:_9C28E9FAA11247C797B344D84DB72A0E"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -75,44 +45,80 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_3A4E856D961105F6A640CC785C792A02"
-        "OwnerKey" = "8:_18A34EECFAA94A478494ECD7C09AE5DE"
+        "MsmKey" = "8:_38DD0F85642948A0AB74ADF41C09CF7A"
+        "OwnerKey" = "8:_C0BD60A93470421985CC97CFD7F1FF3A"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_38DD0F85642948A0AB74ADF41C09CF7A"
+        "OwnerKey" = "8:_455F0663BCA6485FAAC931C53B6F29EC"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_38DD0F85642948A0AB74ADF41C09CF7A"
+        "OwnerKey" = "8:_9C28E9FAA11247C797B344D84DB72A0E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_38DD0F85642948A0AB74ADF41C09CF7A"
+        "OwnerKey" = "8:_8E64FE3F08FD4A3F8F6B501779AD0082"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_3A4E856D961105F6A640CC785C792A02"
-        "OwnerKey" = "8:_937990C06CDA4EE9963A46125FDABB7C"
+        "OwnerKey" = "8:_C0BD60A93470421985CC97CFD7F1FF3A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_3A4E856D961105F6A640CC785C792A02"
-        "OwnerKey" = "8:_8BE31B3FAA7F467AA2036DCA27C59B97"
+        "OwnerKey" = "8:_455F0663BCA6485FAAC931C53B6F29EC"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_3A4E856D961105F6A640CC785C792A02"
-        "OwnerKey" = "8:_4BB7886241A7487C852848CAD9923118"
+        "OwnerKey" = "8:_9C28E9FAA11247C797B344D84DB72A0E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_3A4E856D961105F6A640CC785C792A02"
+        "OwnerKey" = "8:_8E64FE3F08FD4A3F8F6B501779AD0082"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_3EB6AD4A2FE80B8CC7E40C38D03171EA"
-        "OwnerKey" = "8:_4BB7886241A7487C852848CAD9923118"
+        "OwnerKey" = "8:_C0BD60A93470421985CC97CFD7F1FF3A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_4BB7886241A7487C852848CAD9923118"
+        "MsmKey" = "8:_455F0663BCA6485FAAC931C53B6F29EC"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_5236DA134480B5A2A4CFB6C535B6FEDA"
-        "OwnerKey" = "8:_8BE31B3FAA7F467AA2036DCA27C59B97"
+        "OwnerKey" = "8:_455F0663BCA6485FAAC931C53B6F29EC"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_564A928BEB924254A1B491C55E3CC5F2"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_5BA9DA1FA8B141568D8E29708DFA13D0"
+        "OwnerKey" = "8:_38DD0F85642948A0AB74ADF41C09CF7A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -124,18 +130,30 @@
         "Entry"
         {
         "MsmKey" = "8:_82EC8F72228FE56A017EA49C04A6A8E8"
-        "OwnerKey" = "8:_8BE31B3FAA7F467AA2036DCA27C59B97"
+        "OwnerKey" = "8:_455F0663BCA6485FAAC931C53B6F29EC"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_8BE31B3FAA7F467AA2036DCA27C59B97"
+        "MsmKey" = "8:_8E64FE3F08FD4A3F8F6B501779AD0082"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_937990C06CDA4EE9963A46125FDABB7C"
+        "MsmKey" = "8:_9C28E9FAA11247C797B344D84DB72A0E"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A076F5BB5BE5FE31A4D9C7391204C061"
+        "OwnerKey" = "8:_8E64FE3F08FD4A3F8F6B501779AD0082"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_B305A80587C5460686DDF1B4736D18E2"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -147,68 +165,86 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_C0BD60A93470421985CC97CFD7F1FF3A"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_C9D2E6C02AEA41729CF2C682A8130E2F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
+        "MsmKey" = "8:_CBBA7FABC80B677AB329BEF58D2C9C2A"
+        "OwnerKey" = "8:_9C28E9FAA11247C797B344D84DB72A0E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_D23DD89EFBF045E1903840633E9FDFB9"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_DA549532C2797FB843F74D88E4A4347C"
-        "OwnerKey" = "8:_937990C06CDA4EE9963A46125FDABB7C"
+        "OwnerKey" = "8:_9C28E9FAA11247C797B344D84DB72A0E"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_DAA54A30D1CCEB07587806757AABB869"
-        "OwnerKey" = "8:_18A34EECFAA94A478494ECD7C09AE5DE"
+        "OwnerKey" = "8:_C0BD60A93470421985CC97CFD7F1FF3A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_DAA54A30D1CCEB07587806757AABB869"
-        "OwnerKey" = "8:_937990C06CDA4EE9963A46125FDABB7C"
+        "OwnerKey" = "8:_455F0663BCA6485FAAC931C53B6F29EC"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_DAA54A30D1CCEB07587806757AABB869"
-        "OwnerKey" = "8:_8BE31B3FAA7F467AA2036DCA27C59B97"
+        "OwnerKey" = "8:_9C28E9FAA11247C797B344D84DB72A0E"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_DAA54A30D1CCEB07587806757AABB869"
-        "OwnerKey" = "8:_4BB7886241A7487C852848CAD9923118"
+        "OwnerKey" = "8:_8E64FE3F08FD4A3F8F6B501779AD0082"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_E0BC80C76589DFCB44F581C0C1186B81"
-        "OwnerKey" = "8:_18A34EECFAA94A478494ECD7C09AE5DE"
+        "OwnerKey" = "8:_C0BD60A93470421985CC97CFD7F1FF3A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_E0BC80C76589DFCB44F581C0C1186B81"
-        "OwnerKey" = "8:_937990C06CDA4EE9963A46125FDABB7C"
+        "OwnerKey" = "8:_455F0663BCA6485FAAC931C53B6F29EC"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_E0BC80C76589DFCB44F581C0C1186B81"
-        "OwnerKey" = "8:_8BE31B3FAA7F467AA2036DCA27C59B97"
+        "OwnerKey" = "8:_9C28E9FAA11247C797B344D84DB72A0E"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_E0BC80C76589DFCB44F581C0C1186B81"
-        "OwnerKey" = "8:_4BB7886241A7487C852848CAD9923118"
+        "OwnerKey" = "8:_8E64FE3F08FD4A3F8F6B501779AD0082"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_E46A45E5CA3E312918CF4E9C470B3683"
-        "OwnerKey" = "8:_8BE31B3FAA7F467AA2036DCA27C59B97"
+        "OwnerKey" = "8:_455F0663BCA6485FAAC931C53B6F29EC"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -288,6 +324,26 @@
         }
         "File"
         {
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_03F4BD0DE4DA432D86355D2ABDC0C055"
+            {
+            "SourcePath" = "8:..\\CP2Scope\\CP2ScopePlot.ico"
+            "TargetName" = "8:CP2ScopePlot.ico"
+            "Tag" = "8:"
+            "Folder" = "8:_04305C9CADE44428B7EE853F880CDD96"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1028A881E45C4782B7FEA3FA2857B5EA"
             {
             "SourcePath" = "8:..\\..\\fftw3.1\\libfftw3-3.dll"
@@ -428,6 +484,26 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_564A928BEB924254A1B491C55E3CC5F2"
+            {
+            "SourcePath" = "8:..\\CP2Moments\\CP2Moments.ico"
+            "TargetName" = "8:CP2Moments.ico"
+            "Tag" = "8:"
+            "Folder" = "8:_04305C9CADE44428B7EE853F880CDD96"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_665252F614944C5692BD70218201226C"
             {
             "SourcePath" = "8:..\\..\\glut-3.7.6\\lib\\glut\\Release\\glut32.dll"
@@ -468,6 +544,46 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A076F5BB5BE5FE31A4D9C7391204C061"
+            {
+            "SourcePath" = "8:libfftw3-3.dll"
+            "TargetName" = "8:libfftw3-3.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_04305C9CADE44428B7EE853F880CDD96"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B305A80587C5460686DDF1B4736D18E2"
+            {
+            "SourcePath" = "8:..\\CP2exec\\CP2Exec.ico"
+            "TargetName" = "8:CP2Exec.ico"
+            "Tag" = "8:"
+            "Folder" = "8:_04305C9CADE44428B7EE853F880CDD96"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BB1A812B91ED462FA8F51C93EDD96A6C"
             {
             "SourcePath" = "8:..\\Artifacts\\SupportDistros\\TVicSoft\\tvichw50.zip"
@@ -492,6 +608,46 @@
             {
             "SourcePath" = "8:..\\CP2Piraq\\CP2Piraq.out"
             "TargetName" = "8:CP2Piraq.out"
+            "Tag" = "8:"
+            "Folder" = "8:_04305C9CADE44428B7EE853F880CDD96"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CBBA7FABC80B677AB329BEF58D2C9C2A"
+            {
+            "SourcePath" = "8:libfftw3-3.dll"
+            "TargetName" = "8:libfftw3-3.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_04305C9CADE44428B7EE853F880CDD96"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D23DD89EFBF045E1903840633E9FDFB9"
+            {
+            "SourcePath" = "8:..\\CP2PPI\\CP2PPIicon.ico"
+            "TargetName" = "8:CP2PPIicon.ico"
             "Tag" = "8:"
             "Folder" = "8:_04305C9CADE44428B7EE853F880CDD96"
             "Condition" = "8:"
@@ -666,7 +822,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:CP2Soft"
         "ProductCode" = "8:{8BE8DA03-C62B-41AE-9131-BBEACC377147}"
-        "PackageCode" = "8:{E3B10FDE-E3DE-4083-891A-F828265FF8BD}"
+        "PackageCode" = "8:{46A7C275-FCF8-4C76-A7DA-F785ABC5A77C}"
         "UpgradeCode" = "8:{4B075FA3-178C-4A37-A747-F347AE82E93F}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
@@ -785,49 +941,7 @@
         }
         "Shortcut"
         {
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_458AB7E071E84FA7A032119BB07AD2C6"
-            {
-            "Name" = "8:CP2Moments"
-            "Arguments" = "8:"
-            "Description" = "8:"
-            "ShowCmd" = "3:1"
-            "IconIndex" = "3:0"
-            "Transitive" = "11:FALSE"
-            "Target" = "8:_18A34EECFAA94A478494ECD7C09AE5DE"
-            "Folder" = "8:_9EC067D8676B4BE69683730D6B2562DB"
-            "WorkingFolder" = "8:_04305C9CADE44428B7EE853F880CDD96"
-            "Icon" = "8:"
-            "Feature" = "8:"
-            }
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_5C0AA36695974C7F8B346E2D20F6CE71"
-            {
-            "Name" = "8:CP2Exec"
-            "Arguments" = "8:"
-            "Description" = "8:"
-            "ShowCmd" = "3:1"
-            "IconIndex" = "3:0"
-            "Transitive" = "11:FALSE"
-            "Target" = "8:_4BB7886241A7487C852848CAD9923118"
-            "Folder" = "8:_9EC067D8676B4BE69683730D6B2562DB"
-            "WorkingFolder" = "8:_04305C9CADE44428B7EE853F880CDD96"
-            "Icon" = "8:"
-            "Feature" = "8:"
-            }
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_78C6D093797845A39ADB5C5F62FA12F9"
-            {
-            "Name" = "8:CP2Exec"
-            "Arguments" = "8:"
-            "Description" = "8:"
-            "ShowCmd" = "3:1"
-            "IconIndex" = "3:0"
-            "Transitive" = "11:FALSE"
-            "Target" = "8:_4BB7886241A7487C852848CAD9923118"
-            "Folder" = "8:_FCC47DD5B92A446DB483C95BC31A5A9D"
-            "WorkingFolder" = "8:_04305C9CADE44428B7EE853F880CDD96"
-            "Icon" = "8:"
-            "Feature" = "8:"
-            }
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_7F2DB6E2443E475A861ECC198F419EAE"
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_1E86201B0E394DCC857B9C2549593B8F"
             {
             "Name" = "8:CP2PPI"
             "Arguments" = "8:"
@@ -835,55 +949,13 @@
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_8BE31B3FAA7F467AA2036DCA27C59B97"
-            "Folder" = "8:_9EC067D8676B4BE69683730D6B2562DB"
-            "WorkingFolder" = "8:_04305C9CADE44428B7EE853F880CDD96"
-            "Icon" = "8:"
-            "Feature" = "8:"
-            }
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_9B89E87C889444908E34691F2B9EAAE6"
-            {
-            "Name" = "8:CP2Scope"
-            "Arguments" = "8:"
-            "Description" = "8:"
-            "ShowCmd" = "3:1"
-            "IconIndex" = "3:0"
-            "Transitive" = "11:FALSE"
-            "Target" = "8:_937990C06CDA4EE9963A46125FDABB7C"
+            "Target" = "8:_455F0663BCA6485FAAC931C53B6F29EC"
             "Folder" = "8:_FCC47DD5B92A446DB483C95BC31A5A9D"
             "WorkingFolder" = "8:_04305C9CADE44428B7EE853F880CDD96"
-            "Icon" = "8:"
+            "Icon" = "8:_D23DD89EFBF045E1903840633E9FDFB9"
             "Feature" = "8:"
             }
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_9E3F7EF9C2484A69989767ADBBF6F395"
-            {
-            "Name" = "8:CP2Scope"
-            "Arguments" = "8:"
-            "Description" = "8:"
-            "ShowCmd" = "3:1"
-            "IconIndex" = "3:0"
-            "Transitive" = "11:FALSE"
-            "Target" = "8:_937990C06CDA4EE9963A46125FDABB7C"
-            "Folder" = "8:_9EC067D8676B4BE69683730D6B2562DB"
-            "WorkingFolder" = "8:_04305C9CADE44428B7EE853F880CDD96"
-            "Icon" = "8:"
-            "Feature" = "8:"
-            }
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_DCA074B0FC784794830E280DF6C5C7E7"
-            {
-            "Name" = "8:CP2PPI"
-            "Arguments" = "8:"
-            "Description" = "8:"
-            "ShowCmd" = "3:1"
-            "IconIndex" = "3:0"
-            "Transitive" = "11:FALSE"
-            "Target" = "8:_8BE31B3FAA7F467AA2036DCA27C59B97"
-            "Folder" = "8:_FCC47DD5B92A446DB483C95BC31A5A9D"
-            "WorkingFolder" = "8:_04305C9CADE44428B7EE853F880CDD96"
-            "Icon" = "8:"
-            "Feature" = "8:"
-            }
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_EBB21B2767C442639D077A489A6728B9"
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_41BAE36069044669BE2B4957ECA8FFCC"
             {
             "Name" = "8:CP2Moments"
             "Arguments" = "8:"
@@ -891,10 +963,94 @@
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_18A34EECFAA94A478494ECD7C09AE5DE"
+            "Target" = "8:_8E64FE3F08FD4A3F8F6B501779AD0082"
             "Folder" = "8:_FCC47DD5B92A446DB483C95BC31A5A9D"
             "WorkingFolder" = "8:_04305C9CADE44428B7EE853F880CDD96"
-            "Icon" = "8:"
+            "Icon" = "8:_564A928BEB924254A1B491C55E3CC5F2"
+            "Feature" = "8:"
+            }
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_8D138295CC624EDDA1A7E5268F0A3DB7"
+            {
+            "Name" = "8:CP2Exec"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_C0BD60A93470421985CC97CFD7F1FF3A"
+            "Folder" = "8:_9EC067D8676B4BE69683730D6B2562DB"
+            "WorkingFolder" = "8:_04305C9CADE44428B7EE853F880CDD96"
+            "Icon" = "8:_B305A80587C5460686DDF1B4736D18E2"
+            "Feature" = "8:"
+            }
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_9CC5AB0480F64224A4631D150C01FB71"
+            {
+            "Name" = "8:CP2Exec"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_C0BD60A93470421985CC97CFD7F1FF3A"
+            "Folder" = "8:_FCC47DD5B92A446DB483C95BC31A5A9D"
+            "WorkingFolder" = "8:_04305C9CADE44428B7EE853F880CDD96"
+            "Icon" = "8:_B305A80587C5460686DDF1B4736D18E2"
+            "Feature" = "8:"
+            }
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_A26A41DCD19D4F1193BC50BACC3D1DFE"
+            {
+            "Name" = "8:CP2Scope"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_9C28E9FAA11247C797B344D84DB72A0E"
+            "Folder" = "8:_9EC067D8676B4BE69683730D6B2562DB"
+            "WorkingFolder" = "8:_04305C9CADE44428B7EE853F880CDD96"
+            "Icon" = "8:_03F4BD0DE4DA432D86355D2ABDC0C055"
+            "Feature" = "8:"
+            }
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_E3EBA6B4C93F4136B307BD27A1F666CE"
+            {
+            "Name" = "8:CP2Moments"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_8E64FE3F08FD4A3F8F6B501779AD0082"
+            "Folder" = "8:_9EC067D8676B4BE69683730D6B2562DB"
+            "WorkingFolder" = "8:_04305C9CADE44428B7EE853F880CDD96"
+            "Icon" = "8:_564A928BEB924254A1B491C55E3CC5F2"
+            "Feature" = "8:"
+            }
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_F3CF2943E6004836969415A684455CCF"
+            {
+            "Name" = "8:CP2PPI"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_455F0663BCA6485FAAC931C53B6F29EC"
+            "Folder" = "8:_9EC067D8676B4BE69683730D6B2562DB"
+            "WorkingFolder" = "8:_04305C9CADE44428B7EE853F880CDD96"
+            "Icon" = "8:_D23DD89EFBF045E1903840633E9FDFB9"
+            "Feature" = "8:"
+            }
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_FC3419FEEFCE44168BA2CE5D9D8C874F"
+            {
+            "Name" = "8:CP2Scope"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_9C28E9FAA11247C797B344D84DB72A0E"
+            "Folder" = "8:_FCC47DD5B92A446DB483C95BC31A5A9D"
+            "WorkingFolder" = "8:_04305C9CADE44428B7EE853F880CDD96"
+            "Icon" = "8:_03F4BD0DE4DA432D86355D2ABDC0C055"
             "Feature" = "8:"
             }
         }
@@ -1293,7 +1449,7 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_06B4B5865807423A98991D486DAC8E6D"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_38DD0F85642948A0AB74ADF41C09CF7A"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -1307,7 +1463,7 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_3113B1E369D349EEB3B077C597971166"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_5BA9DA1FA8B141568D8E29708DFA13D0"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -1324,63 +1480,7 @@
         }
         "ProjectOutput"
         {
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_18A34EECFAA94A478494ECD7C09AE5DE"
-            {
-            "SourcePath" = "8:..\\CP2Moments\\release\\CP2Moments.exe"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_04305C9CADE44428B7EE853F880CDD96"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            "ProjectOutputGroupRegister" = "3:1"
-            "OutputConfiguration" = "8:"
-            "OutputGroupCanonicalName" = "8:Built"
-            "OutputProjectGuid" = "8:{E3675BA9-AA1A-30BB-A060-7EE1EA30E266}"
-            "ShowKeyOutput" = "11:TRUE"
-                "ExcludeFilters"
-                {
-                }
-            }
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_4BB7886241A7487C852848CAD9923118"
-            {
-            "SourcePath" = "8:..\\CP2exec\\release\\CP2exec.exe"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_04305C9CADE44428B7EE853F880CDD96"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            "ProjectOutputGroupRegister" = "3:1"
-            "OutputConfiguration" = "8:"
-            "OutputGroupCanonicalName" = "8:Built"
-            "OutputProjectGuid" = "8:{D9A987AA-22C6-33E0-B866-BCDFB39493AD}"
-            "ShowKeyOutput" = "11:TRUE"
-                "ExcludeFilters"
-                {
-                }
-            }
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_8BE31B3FAA7F467AA2036DCA27C59B97"
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_455F0663BCA6485FAAC931C53B6F29EC"
             {
             "SourcePath" = "8:..\\CP2PPI\\release\\CP2PPI.exe"
             "TargetName" = "8:"
@@ -1402,13 +1502,41 @@
             "ProjectOutputGroupRegister" = "3:1"
             "OutputConfiguration" = "8:"
             "OutputGroupCanonicalName" = "8:Built"
-            "OutputProjectGuid" = "8:{6B82B376-157D-3689-99F1-FA9CCBFF1263}"
+            "OutputProjectGuid" = "8:{37DB4754-A328-3FD4-A7F1-E351B875934F}"
             "ShowKeyOutput" = "11:TRUE"
                 "ExcludeFilters"
                 {
                 }
             }
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_937990C06CDA4EE9963A46125FDABB7C"
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_8E64FE3F08FD4A3F8F6B501779AD0082"
+            {
+            "SourcePath" = "8:..\\CP2Moments\\release\\CP2Moments.exe"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_04305C9CADE44428B7EE853F880CDD96"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:"
+            "OutputGroupCanonicalName" = "8:Built"
+            "OutputProjectGuid" = "8:{AE57D39B-72AA-30ED-A3DE-CFDBEC7AD2EA}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_9C28E9FAA11247C797B344D84DB72A0E"
             {
             "SourcePath" = "8:..\\CP2Scope\\release\\CP2Scope.exe"
             "TargetName" = "8:"
@@ -1430,7 +1558,35 @@
             "ProjectOutputGroupRegister" = "3:1"
             "OutputConfiguration" = "8:"
             "OutputGroupCanonicalName" = "8:Built"
-            "OutputProjectGuid" = "8:{D560E05B-7D16-3FE1-82FD-CFB2E1533020}"
+            "OutputProjectGuid" = "8:{3FF54E8F-36E4-369C-A080-52DE609B0879}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_C0BD60A93470421985CC97CFD7F1FF3A"
+            {
+            "SourcePath" = "8:..\\CP2exec\\release\\CP2exec.exe"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_04305C9CADE44428B7EE853F880CDD96"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:"
+            "OutputGroupCanonicalName" = "8:Built"
+            "OutputProjectGuid" = "8:{AE721CBF-E297-31B3-B0AB-0AB3EEA8B8F5}"
             "ShowKeyOutput" = "11:TRUE"
                 "ExcludeFilters"
                 {
