@@ -1,3 +1,7 @@
+/// \mainpage
+/// CP2SPPI provides a traditional real-time PPI display of CP2
+/// beam data. Both of thes products are read from the network.
+/// CP2PPI is configured via CP2PPI.ini.
 #ifndef CP2PPIH
 #define CP2PPIH
 #include <winsock2.h>		//	no redefinition errors if before Qt includes?

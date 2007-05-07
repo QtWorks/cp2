@@ -1,3 +1,8 @@
+/// \mainpage
+/// CP2Moments reads pulse data from the network, computes radar products, and
+/// broadcasts these to the network. A single product for all gates is called 
+/// a 'beam'. Configuration is managed by CP2Moments.ini.
+///
 #ifndef CP2MomentsH_
 #define CP2MomentsH_
 

@@ -1,3 +1,10 @@
+/// \mainpage
+/// CP2Exec is the primary CP2 radar data acquisition program.
+/// It manages operation of the Piraq III digital receivers,
+/// collecting pulse data from each card, pakaging these into a
+/// CP2 defined network structure, and broadcasting them to the 
+/// network. Configuration is managed by CP2Exec.ini.
+
 #ifndef CP2EXECH_
 #define CP2EXECH_
 
