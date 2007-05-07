@@ -3,8 +3,6 @@
 
 // The specification of the host <-> Piraq data communication:
 #include "piraqComm.h"
-// The PCI timer card interface:
-#include "timerlib.h"
 // Components of the Piraq driver:
 #include "piraq.h"
 #include "plx.h"
@@ -24,7 +22,8 @@ CP2PIRAQ::CP2PIRAQ(
 				   int boardnum,
 				   RCVRTYPE rcvrType,
 				   bool doSimAngles,
-				   SimAngles simAngles):
+				   SimAngles simAngles,
+				   int system_clock):
 PIRAQ(),
 _pPulseSocket(pPulseSocket),
 _cp2execConfig(configOrg, configApp),
@@ -45,7 +44,8 @@ _sweep(0),
 _volume(0),
 _doSimAngles(doSimAngles),
 _simAngles(simAngles),
-_debug(false)
+_debug(false),
+_system_clock(system_clock)
 {
 	init(dspObjFname);
 }
@@ -89,9 +89,9 @@ CP2PIRAQ::init(char* dspObjFname)
 	_hits		     = 0;
 
 	// convert the prt and pulse widths
-	_rcvr_pulsewidth *= (8.0/(float)SYSTEM_CLOCK);
-	_xmit_pulsewidth *= (8.0/(float)SYSTEM_CLOCK);
-	_prt			 *= (8.0/(float)SYSTEM_CLOCK); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
+	_rcvr_pulsewidth *= (8.0/(float)_system_clock);
+	_xmit_pulsewidth *= (8.0/(float)_system_clock);
+	_prt			 *= (8.0/(float)_system_clock); // SYSTEM_CLOCK=48e6 gives 6MHz timebase 
 
 	_bytespergate    = 2*sizeof(float); 
 
@@ -107,7 +107,7 @@ CP2PIRAQ::init(char* dspObjFname)
 
 	// configure the GreyChip filters
 	this->GetFilter()->ClearFilter();
-	this->GetFilter()->Gaussian(SYSTEM_CLOCK, 1000000000*(_rcvr_pulsewidth), 0);
+	this->GetFilter()->Gaussian(_system_clock, 1000000000*(_rcvr_pulsewidth), 0);
 	this->GetFilter()->StartFilter();
 
 	/* put the DSP into a known state where HPI reads/writes will work */
@@ -622,13 +622,13 @@ CP2PIRAQ::timerset()
 
 	/* gate length control */
 	/* depending on the gate length, the FIR is either in /1 , /2 or /4 mode */
-	if(rcvr_pulsewidth < SYSTEM_CLOCK/2.0e6) // < 1uSec: divisor timebase counts/uSec
+	if(rcvr_pulsewidth < _system_clock/2.0e6) // < 1uSec: divisor timebase counts/uSec
 	{
 		glen = ((rcvr_pulsewidth & 0x1F)-1) << 9; 
 		spare23 = 0x000;
 	}
 	//!!!   else if(pulsewidth < 64) 
-	else if(rcvr_pulsewidth < 2*(SYSTEM_CLOCK/2.0e6)) // < 2uSec 
+	else if(rcvr_pulsewidth < 2*(_system_clock/2.0e6)) // < 2uSec 
 	{
 		glen = ((rcvr_pulsewidth & 0x3E)-2) << 8;
 		spare23 = 0x400;
@@ -654,7 +654,7 @@ CP2PIRAQ::timerset()
 
 	GetControl()->SetValue_StatusRegister1(spare23);
 
-	pll(10e6, SYSTEM_CLOCK, 50e3);
+	pll(10e6, _system_clock, 50e3);
 	Sleep(STOPDELAY);   //	??I,Q unequal amplitude on first powerup: 6-22-06 mp
 	return(1);
 }

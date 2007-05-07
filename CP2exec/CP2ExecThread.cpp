@@ -132,21 +132,23 @@ CP2ExecThread::run()
 	char* dspObjFileName = new char[_dspObjFile.size()+1];
 	strcpy(dspObjFileName, _dspObjFile.c_str());
 
+	// get the system clock
+	int system_clock = _config.getInt("PciTimer/SystemClock", 48000000);
+
 	// create the piraqs
 	_piraq0 = new CP2PIRAQ(_pPulseSocket, "NCAR", "CP2Exec", dspObjFileName, 
-		_pulsesPerPciXfer, PMACphysAddr, 0, SHV, _doSimAngles, simAngles);
+		_pulsesPerPciXfer, PMACphysAddr, 0, SHV, _doSimAngles, simAngles, system_clock);
 
 	_piraq1 = new CP2PIRAQ(_pPulseSocket, "NCAR", "CP2Exec", dspObjFileName, 
-		_pulsesPerPciXfer, PMACphysAddr, 1, XH, _doSimAngles, simAngles);
+		_pulsesPerPciXfer, PMACphysAddr, 1, XH, _doSimAngles, simAngles, system_clock);
 
 	_piraq2 = new CP2PIRAQ(_pPulseSocket, "NCAR", "CP2Exec", dspObjFileName, 
-		_pulsesPerPciXfer, PMACphysAddr, 2, XV, _doSimAngles, simAngles);
+		_pulsesPerPciXfer, PMACphysAddr, 2, XV, _doSimAngles, simAngles, system_clock);
 
 	delete [] dspObjFileName;
 
-	/// @todo SYSTEM_CLOCK should be moved to the configuration.
-	prt = _config.getInt("Piraq/PrtCounts", 6000) * (8.0/(float)SYSTEM_CLOCK);
-	xmit_pulsewidth = _config.getInt("Piraq/XmitWidthCounts", 6) * (8.0/(float)SYSTEM_CLOCK);
+	prt = _config.getInt("Piraq/PrtCounts", 6000) * (8.0/(float)system_clock);
+	xmit_pulsewidth = _config.getInt("Piraq/XmitWidthCounts", 6) * (8.0/(float)system_clock);
 
 	///////////////////////////////////////////////////////////////////////////
 	//

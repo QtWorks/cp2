@@ -2,7 +2,6 @@
 #include <qlabel.h>
 #include "CP2Config.h"
 #include "CP2Version.h"
-#include "timerlib.h"
 #include <iostream>
 
 
@@ -36,11 +35,12 @@ _pThread(0)
 	bool doSimAngles = config.getBool("SimulatedAngles/Enabled", false);
 	_simAnglesText->setText(doSimAngles ? "On":"Off");
 
-	double prt = config.getInt("Piraq/PrtCounts", 6000) * (8.0/(float)SYSTEM_CLOCK);
+	int system_clock = config.getInt("PciTimer/SystemClock", 48000000);
+	double prt = config.getInt("Piraq/PrtCounts", 6000) * (8.0/(float)system_clock);
 	QString prf = QString("%1").arg(((1.0)/prt),0,'f',1);
 	_prfHzText->setText(prf);
 
-	double xmit_pulsewidth = config.getInt("Piraq/XmitWidthCounts", 6) * (8.0/(float)SYSTEM_CLOCK);
+	double xmit_pulsewidth = config.getInt("Piraq/XmitWidthCounts", 6) * (8.0/(float)system_clock);
 	QString xmit = QString("%1").arg(xmit_pulsewidth*1.0e6,0,'f',1);
 	_pwText->setText(xmit);
 	

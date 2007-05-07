@@ -79,7 +79,8 @@ public:
 		int boardnum,				   ///< The piraq board number; used to stagger the PCI transfers.
 		RCVRTYPE rcvrType,			   ///< Identifies the card as Sban, Xh or Xv.
 		bool doSimAngles,			   ///< If true, simulate angles rather than read from the PMAC
-		SimAngles simAngles			   ///< The angle simulation engine.
+		SimAngles simAngles,		   ///< The angle simulation engine.
+		int system_clock		       ///< The system clock frequency, which timing parameter counts are based on.
 		);
 
 	~CP2PIRAQ();
@@ -258,6 +259,8 @@ protected:
 	bool _debug;
 	/// debugging output file
 	std::ofstream _debugFile;
+	/// The system clock in Hz. 
+	int _system_clock;
 
 
 };
