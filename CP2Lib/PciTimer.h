@@ -128,13 +128,14 @@ protected:
 /// To use PciTimer:
 /// <ul>
 /// <li>Create a PciTimerConfig
-/// <li>Add sequences via PciTimerConfig::addSequence() and PciTimerConfig::addPrt().
+/// <li>Add sequences via PciTimerConfig::addSequence() and/or PciTimerConfig::addPrt().
 /// <li>Configure the BPULSE signals via PciTimerConfig::setBpulse(), 
 /// <li>Create a PciTimer, passing the PciTimerConfig to the constructor.
 /// <li>Call PciTimer::start() to start the timer.
 /// <li>Call PciTimer::stop() to stop the timer.
 /// <li>The timer will be stopped and reset if the PciTimer destructor is called.
 /// </ul>
+/// @todo Since the API is so sparse, PciTimerConfig can be merged into PciTimer.
 class PciTimer {
 public:
 	/// Reset, confgure and intialize the timer card during construction.
