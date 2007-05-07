@@ -18,6 +18,7 @@
 #include "CP2PIRAQ.h"
 
 // from CP2Lib
+#include "PciTimer.h"
 #include "timerlib.h"
 #include "pci_w32.h"
 
@@ -73,6 +74,11 @@ void
 CP2ExecThread::run()
 {
 	_status = PIRAQINIT;
+
+	PciTimerConfig timerConfig;
+
+	timerConfig._bpulse[0].delay = 10;
+	timerConfig._bpulse[0].width = 20;
 
 	float prt;
 	float xmit_pulsewidth;

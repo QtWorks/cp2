@@ -101,7 +101,8 @@ int cp2timer_config(TIMER *timer, PINFOHEADER *info, int pciTimerMode, float rad
 			/* program the 5 bytes for this sequence */
 			timer->seq[i+j*len].period.byte.lo = prt.byte.lo;
 			timer->seq[i+j*len].period.byte.hi = prt.byte.hi;
-			timer->seq[i+j*len].pulseenable = (i?0x2F:0x3F);
+			//			timer->seq[i+j*len].pulseenable = (i?0x2F:0x3F);
+			timer->seq[i+j*len].pulseenable = 0x3f;
 			//         timer->seq[i+j*len].polarization = (i?0:0x80) | info->polarization_array[i % timer->seqlen];  /* add in a frame sync */
 			timer->seq[i+j*len].polarization = 0;
 			//         timer->seq[i+j*len].phasedata = (info->ctrlflags & CTRL_SECONDTRIP) ? PhaseSeq[i+j*len] : 0x00;
