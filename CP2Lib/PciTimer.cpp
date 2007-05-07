@@ -228,7 +228,7 @@ PciTimer::set()
 		_base[(0xC0 + i * 4 + 3) ] = _config._bpulse[i].width.byte.hi;
 	}
 
-	/* compute the data to go into the register */
+	// Program the phase lock loop
 	n = (int)(0.5 + _clockfreq / _phasefreq);
 	a = n & 7;
 	n /= 8;

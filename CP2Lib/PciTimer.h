@@ -111,10 +111,25 @@ protected:
 /// reset and intialized during construction. The card may be started and 
 /// stopped after that.
 ///
-/// To use:
+/// The PCI timer card has an onboard phase locked loop, which provides the 
+/// basic clock for the pulse delay and pulse width counts.
+///
+/// The timer generates a basic PRT timing pulse train, which is output from
+/// the card on the SYNC/TRIG_OUT line. The width of the PRT pulse is not
+/// configurable.
+///
+/// The PRT pulse train can consist of aribtrary time deltas between pulses. Each
+/// succesive delta is known as a sequence. Up to 38 sequences may be defined.
+///
+/// Additionally, 6 BPULSE signals can be triggered on each pulse of the PRT
+/// train. A BPULSE has a delay and a width. Individual sequences can be 
+/// configured to trigger zero or more of the BPULSE signals.
+///
+/// To use PciTimer:
 /// <ul>
 /// <li>Create a PciTimerConfig
-/// <li>Configure timer behavior via PciTimerConfig::setBpulse(), PciTimerConfig::addSequence() and PciTimerConfig::addPrt()
+/// <li>Add sequences via PciTimerConfig::addSequence() and PciTimerConfig::addPrt().
+/// <li>Configure the BPULSE signals via PciTimerConfig::setBpulse(), 
 /// <li>Create a PciTimer, passing the PciTimerConfig to the constructor.
 /// <li>Call PciTimer::start() to start the timer.
 /// <li>Call PciTimer::stop() to stop the timer.
