@@ -10,13 +10,11 @@ CONFIG += embed_manifest_exe
 QT     += network
 
 CONFIG(release, debug|release) {
-  LIBS += ../Moments/release/Moments.lib
   LIBS += ../CP2Net/release/CP2Net.lib
   LIBS += ../CP2Lib/release/CP2Lib.lib
   LIBS += ../CP2Config/release/CP2Config.lib
   LIBS += ../PiraqDriver/release/PiraqIII_RevD_Driver.lib
 } else {
-  LIBS += ../Moments/debug/Moments.lib
   LIBS += ../CP2Net/debug/CP2Netd.lib
   LIBS += ../CP2Lib/debug/CP2Libd.lib
   LIBS += ../CP2Config/debug/CP2Configd.lib

@@ -75,10 +75,14 @@ CP2ExecThread::run()
 {
 	_status = PIRAQINIT;
 
-	PciTimerConfig timerConfig;
-
-	timerConfig._bpulse[0].delay = 10;
-	timerConfig._bpulse[0].width = 20;
+	PciTimerConfig timerConfig(_config.getInt("PciTimer/SystemClock", 48000000),
+		_config.getInt("PciTimer/timerMode", 1));
+	timerConfig.setBpulse(0, 100, 100);
+	timerConfig.setBpulse(1, 200, 50);
+	timerConfig.setBpulse(2, 400, 500);
+	timerConfig.addSequence(2000, 0x3f, 0, 0);
+	timerConfig.addSequence(3000, 0x3f, 0, 0);
+	PciTimer pciTimer(timerConfig);
 
 	float prt;
 	float xmit_pulsewidth;

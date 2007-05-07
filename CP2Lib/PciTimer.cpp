@@ -1,36 +1,24 @@
 #include "PciTimer.h"
 #include "pci_w32.h"
+#include <time.h>
 
-
-static	int	FIRSTIMER=1;
 #define	OFFSET	10
 
 /////////////////////////////////////////////////////
-PciTimerConfig::PciTimerConfig(int timingMode, 
-							   float radarPrt, 
-							   float xmitPulseWidth):
-_timingMode(timingMode),
-_radarPrt(radarPrt),
-_xmitPulseWidth(xmitPulseWidth)
+PciTimerConfig::PciTimerConfig(int systemClock,
+							   int timingMode):
+_systemClock(systemClock),
+_timingMode(timingMode)
 {
 	// initialize
-	reset();
+	for (int i = 0; i < 6; i++) {
+		setBpulse(i, 0, 0);
+	}
 }
 
 /////////////////////////////////////////////////////
 PciTimerConfig::~PciTimerConfig()
 {
-}
-
-/////////////////////////////////////////////////////
-void
-PciTimerConfig::reset() {
-
-	for (int i = 0; i < 6; i++) {
-		setBpulse(i, 0, 0);
-	}
-
-	_sequences.clear();
 }
 
 /////////////////////////////////////////////////////
@@ -46,172 +34,160 @@ void
 PciTimerConfig::addSequence(int length, 
 							unsigned char pulseMask,
 							int polarization,
-							int phase) {
+							int phase) 
+{
+	struct Sequence s;
+	s.length.hilo = length;
+	s.bpulseMask = pulseMask;
+	s.polarization = polarization;
+	s.phase = phase;
+	_sequences.push_back(s);
+}
+/////////////////////////////////////////////////////
+void
+PciTimerConfig::addPrt(float radar_prt, 
+					   unsigned char pulseMask,
+					   int polarization,
+					   int phase) 
+{
+	struct Sequence s;
+	s.length.hilo = (unsigned short)(radar_prt  * COUNTFREQ + 0.5);
+	s.bpulseMask = pulseMask;
+	s.polarization = polarization;
+	s.phase = phase;
+	_sequences.push_back(s);
 }
 
+
 /////////////////////////////////////////////////////
-int 
-PciTimer::timer_init(int boardnumber)
+/////////////////////////////////////////////////////
+PciTimer::PciTimer(PciTimerConfig config):
+_config(config),
+_error(false)
 {
 	PCI_CARD	*pcicard;
 	int		reg_base;
-	int		i,j,error;
 
+	// initialize the TvicHW32 system
 	init_pci(); 
 
-	/* do the most basic PCI test */
-	pcicard = find_pci_card(PCITIMER_VENDOR_ID,PCITIMER_DEVICE_ID,boardnumber);
-	if(!pcicard)
-		return(-1);
-
+	// find the PCI timer card.
+	int boardnumber = 0;
+	pcicard = find_pci_card(PCITIMER_VENDOR_ID,
+		PCITIMER_DEVICE_ID,
+		boardnumber);
+	if (!pcicard) {
+		_error = true;
+		return;
+	}
+	// Get the phys2 address.
 	reg_base = pcicard->phys2;
 
 	// Map the card's memory
-	base = (char *)pci_card_membase(pcicard,256);
+	_base = (char *)pci_card_membase(pcicard,256);
 
 	/* initialize the PCI registers for proper board operation */
+	out32(reg_base + 0x60, 0xA2A2A2A2);  /* pass through register */
 	//   out32(reg_base + 0x38, 0x00010000);  /* enable addint interrupts */
 	//   out32(reg_base + 0x3C, 0xFFFFE004);  /* reset control register */
 	//   out32(reg_base + 0x60, 0x81818181);  /* pass through register */
 
-	out32(reg_base + 0x60, 0xA2A2A2A2);  /* pass through register */
-
+	// print the registers from the PCI card.
 	printf("PCI Configuration registers as seen from timer_read\n");
-	for(j=0; j<8; j++)
-	{
+	for(int j = 0; j < 8; j++) {
 		printf("%02X ",4*4*j);
-		for(i=0; i<4; i++)
-		{
-			error = pci_read_config32(pcicard,4*(i+4*j));  /* read 32 bit value at requested register */
-			printf("%08lX ",error);
+		for(int i = 0; i < 4; i++) {
+			unsigned int val = pci_read_config32(pcicard,4*(i+4*j));  /* read 32 bit value at requested register */
+			printf("%08lX ", val);
 		}
 		printf("\n");
 	}
-
 	printf("\nI/O Base: %8X\n",reg_base);
-	for(j=0; j<8; j++)
-	{
+	for(int j = 0; j < 8; j++) {
 		printf("%02X ",4*4*j);
-		for(i=0; i<4; i++)
+		for(int i = 0; i < 4; i++)
 			printf("%08lX ",in32(reg_base + 4*(i+4*j)));
 		printf("\n");
 	}
-	return(1);
-}
-/////////////////////////////////////////////////////
-/* fill the timer structure based on the infoheader */
-/* Return 0 on failure, 1 on success */
-int 
-PciTimer::timer_config(int pciTimerMode, float radar_prt, float xmit_pulsewidth)
-{
 
-	if(FIRSTIMER)
-	{
-		if(!timer_init(0))
-		{printf("could not find timer card\n"); exit(0);}
-		FIRSTIMER = 0;
-	}
-
-	/* now set the pulsewidths a delays for the 6 timers */
-	/* set timers to stagger delay the six frequencies */
-	/* using the specified pulsewidth */
-	HILO width.hilo = COUNTFREQ * _config.xmitPulseWidth + 0.5;
-	for(i=0; i<MAXTESTPULSE; i++)
-	{
-		HILO delay.hilo = OFFSET + i * width.hilo;
+	// For now, override the BPULSE signals in _config, 
+	// and set to be a staggered 
+	/// series of pulses at a fixed pulse width.
+	/// @todo Remove this so that  BPULSE configuration
+	/// comes from _config.
+	TIMERHILO width;
+	width.hilo = (unsigned short)(COUNTFREQ * 1.0e-6 + 0.5);
+	for(int i = 0; i< 6; i++) {
+		TIMERHILO delay;
+		delay.hilo = OFFSET + i * width.hilo;
 		_config._bpulse[i].delay.byte.lo = delay.byte.lo;
 		_config._bpulse[i].delay.byte.hi = delay.byte.hi;
 		_config._bpulse[i].width.byte.lo = width.byte.lo;
 		_config._bpulse[i].width.byte.hi = width.byte.hi;
 	}
 
-	HILO prt.hilo = radar_prt  * COUNTFREQ + 0.5;		/* compute prt */
-
-	if(prt.hilo < 1 || prt.hilo > 65535) {
-		printf("TIMER_CONFIG: invalid PRT1 %d\n",prt.hilo); 
-		return(0);
-	}
-
-	_timingmode = pciTimerMode;
-	printf("timingmode = %d\n",pciTimerMode);
-	if (_timingmode == 1)
-	{
+	// Set the _sync flag, based on the timing mode.
+	/// @todo  What is the sync flag?
+	printf("timingmode = %d\n", _config._timingMode);
+	if (_config._timingMode == 1) {
 		_sync.byte.lo = 1;		// synclo;  
 		_sync.byte.hi = 0;		// synchi; 
-	}
-	else
-	{
+	} else {
 		_sync.hilo = 1;		// sync;  
 	}
-	_clockfreq = SYSTEM_CLOCK;
+
+	// save the clock frequency, refference frequency and phase frequency.
+	_clockfreq = (float)_config._systemClock;
 	_reffreq = 10.0E6;
 	_phasefreq = 50.0E3;
 
-	return(1);	/* success */
+	// set the timer registers
+	set();
+}
+
+/////////////////////////////////////////////////////
+PciTimer::~PciTimer() {
+	// reset the timer
+	reset();
 }
 
 /////////////////////////////////////////////////////
 void 
-PciTimer::timer_reset()
+PciTimer::reset()
 {
-	if(FIRSTIMER)
-	{
-		if(!cp2timer_init(timer,0))
-		{printf("could not find timer card\n"); exit(0);}
-		FIRSTIMER = 0;
-	}
-
 	// set request ID to STOP
-	base[0xFE] = TIMER_RESET; /* @@@ was base[0xFE * 4] */
+	_base[0xFE] = TIMER_RESET; /* @@@ was base[0xFE * 4] */
 	// set request flag
-	base[0xFF] = TIMER_RQST;	/* @@@ *4 signal the timer that a request is pending */
-	timer_test(timer);
+	_base[0xFF] = TIMER_RQST;	/* @@@ *4 signal the timer that a request is pending */
+	test();
 	printf("Passed timer_reset\n");
 }
 
 /////////////////////////////////////////////////////
 void 
-PciTimer::timer_stop()
+PciTimer::stop()
 {
-	if(FIRSTIMER)
-	{
-		if(!cp2timer_init(timer,0))
-		{printf("could not find timer card\n"); exit(0);}
-		FIRSTIMER = 0;
-	}
-
 	// set request ID to STOP
 	_base[0xFE] = TIMER_STOP; /* @@@ was base[0xFF * 4] */
 	// set request flag
 	_base[0xFF] = TIMER_RQST;	/* @@@ *4 signal the timer that a request is pending */
-	cp2timer_test(timer);
+	test();
 	printf("Passed timer_stop\n");
 }
 
 /////////////////////////////////////////////////////
 /* open the timer board (once) and configure it with the timer structure */
 void 
-PciTimer::timer_set()
+PciTimer::set()
 {
-	int          value,hitcount,i,x,j,reg_base,boardnumber,error,base_add;
-	char         c,buf[80];
-	short        *iq;
-	double       num,den;
-	int 			*iptr;
 	int			a,r,n;
-	HIMEDLO		ref,freq;
-
-	if(FIRSTIMER)
-	{
-		if(!cp2timer_init(timer,0))
-		{printf("could not find timer card\n"); exit(0);}
-		FIRSTIMER = 0;
-	}
+	TIMERHIMEDLO		ref,freq;
 
 	//   timer_stop(timer);
 
 	/* clear the sequence mem */
-	for(i=0; i<0xC0; i++)	_base[i] = 0; /* @@@ *4 */
+	for( int i = 0; i < 0xC0; i++)
+		_base[i] = 0; /* @@@ *4 */
 
 	/* set the dual port ram */
 
@@ -234,29 +210,29 @@ PciTimer::timer_set()
 
 	// @@@  This has been changed for the optimized timer code
 	//		there is a different sequence memory setup.
-	for(i=0; i<_seqlen; i++)
+	for(unsigned int i = 0; i < _config._sequences.size(); i++)
 	{
-		_base[(0x00 + i)] = _seq[i].period.byte.lo;
-		_base[(0x10 + i)] = _seq[i].period.byte.hi;
-		_base[(0x20 + i)] = _seq[i].pulseenable ^ 0x3F;
-		_base[(0x30 + i)] = _seq[i].polarization; 
-		_base[(0x40 + i)] = _seq[i].phasedata;
+		_base[(0x00 + i)] = _config._sequences[i].length.byte.lo;
+		_base[(0x10 + i)] = _config._sequences[i].length.byte.hi;
+		_base[(0x20 + i)] = _config._sequences[i].bpulseMask ^ 0x3F;
+		_base[(0x30 + i)] = _config._sequences[i].polarization; 
+		_base[(0x40 + i)] = _config._sequences[i].phase;
 	}
 
 	/* now set the pulsewidths a delays for the 6 timers */
-	for(i=0; i<MAXTESTPULSE; i++)
+	for(int i = 0; i < 6; i++)
 	{ /* @@@ took out ) * 4] on all of these */
-		_base[(0xC0 + i * 4 + 0) ] = _tp[i].delay.byte.lo;
-		_base[(0xC0 + i * 4 + 1) ] = _tp[i].delay.byte.hi;
-		_base[(0xC0 + i * 4 + 2) ] = _tp[i].width.byte.lo;
-		_base[(0xC0 + i * 4 + 3) ] = _tp[i].width.byte.hi;
+		_base[(0xC0 + i * 4 + 0) ] = _config._bpulse[i].delay.byte.lo;
+		_base[(0xC0 + i * 4 + 1) ] = _config._bpulse[i].delay.byte.hi;
+		_base[(0xC0 + i * 4 + 2) ] = _config._bpulse[i].width.byte.lo;
+		_base[(0xC0 + i * 4 + 3) ] = _config._bpulse[i].width.byte.hi;
 	}
 
 	/* compute the data to go into the register */
-	n = 0.5 + _clockfreq / _phasefreq;
+	n = (int)(0.5 + _clockfreq / _phasefreq);
 	a = n & 7;
 	n /= 8;
-	r = 0.5 + _reffreq / _phasefreq;
+	r = (int) (0.5 + _reffreq / _phasefreq);
 	ref.himedlo = r << 2 | 0x100000;     					/* r data with reset bit */
 	freq.himedlo = n << 7 | a << 2 | 0x100001;     		/* r data with reset bit */
 
@@ -275,27 +251,19 @@ PciTimer::timer_set()
 	_base[(0xD8 +  9) ] = _sync.byte.hi;		// synchi;
 	_base[(0xD8 + 10) ] = _seqdelay.byte.lo;	// sequence delay lo
 	_base[(0xD8 + 11) ] = _seqdelay.byte.hi;	// sequence delay hi
-	_base[(0xD8 + 12) ] = _seqlen;		// sequence length
+	_base[(0xD8 + 12) ] = (char)(_config._sequences.size());		// sequence length
 
 	_base[(0xD8 + 13) ] = 0;					// current sequence count
-	_base[(0xD8 + 14) ] = _timingmode;	// timing mode
+	_base[(0xD8 + 14) ] = _config._timingMode;	// timing mode
 
 	//   timer_reset(timer);
 }
 /////////////////////////////////////////////////////
 /* poll the command response byte and handle timeouts */
 int	
-PciTimer::timer_test()
+PciTimer::test()
 {
-	volatile	int	temp;
 	time_t	first;
-
-	if(FIRSTIMER)
-	{
-		if(!cp2timer_init(timer,0))
-		{printf("could not find timer card\n"); exit(0);}
-		FIRSTIMER = 0;
-	}
 
 	/* wait until the timer comes ready */
 	first = time(NULL) + 3;   /* wait 3 seconds */
@@ -315,17 +283,8 @@ PciTimer::timer_test()
 
 /////////////////////////////////////////////////////
 void 
-PciTimer::timer_start()
+PciTimer::start()
 {
-	int	sec;
-
-	if(FIRSTIMER)
-	{
-		if(!cp2timer_init(timer,0))
-		{printf("could not find timer card\n"); exit(0);}
-		FIRSTIMER = 0;
-	}
-
 	/* start the timer assuming the first pulse occured at unix time zero */
 	//   if(_timingmode == TIMER_SYNC)
 	//      {
@@ -337,7 +296,13 @@ PciTimer::timer_start()
 	_base[0xFE] = TIMER_START;	/* @@@ *4 signal the timer that a request is pending */
 	// set request flag
 	_base[0xFF] = TIMER_RQST;	/* @@@ *4 signal the timer that a request is pending */
-	timer_test();
+	test();
 	printf("Passed timer_start\n");
 }
 
+/////////////////////////////////////////////////////
+bool
+PciTimer::error()
+{
+	return _error;
+}
