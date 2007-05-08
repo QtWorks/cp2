@@ -166,10 +166,6 @@
 				RelativePath=".\PciTimer.cpp"
 				>
 			</File>
-			<File
-				RelativePath=".\timerlib.cpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -190,10 +186,6 @@
 			</File>
 			<File
 				RelativePath=".\svnInfo.h"
-				>
-			</File>
-			<File
-				RelativePath=".\timerlib.h"
 				>
 			</File>
 		</Filter>
