@@ -1,4 +1,4 @@
-/// \mainpage
+/// @page CP2Scope
 /// CP2Scope provides a traditional real-time Ascope display of CP2 pulse
 /// and beam data. Both of thes products are read from the network.
 /// CP2Scope is configured via CP2Scope.ini.

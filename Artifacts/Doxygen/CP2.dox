@@ -113,7 +113,9 @@ FILE_PATTERNS          = *.c \
                          *.dox \
                          *.py
 RECURSIVE              = YES
-EXCLUDE                = C:/Projects/CP2/Artifacts
+EXCLUDE                = C:/Projects/CP2/Artifacts \
+                         C:/Projects/CP2Lib/Attic \
+                         moc_*.cpp
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       = 
 EXCLUDE_SYMBOLS        = 

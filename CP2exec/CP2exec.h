@@ -1,4 +1,4 @@
-/// \mainpage
+/// @page CP2Exec
 /// CP2Exec is the primary CP2 radar data acquisition program.
 /// It manages operation of the Piraq III digital receivers,
 /// collecting pulse data from each card, pakaging these into a
