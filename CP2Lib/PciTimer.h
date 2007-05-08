@@ -33,77 +33,6 @@ union TIMERHILO {
 	} byte;
 } TIMERHILO;
 
-//typedef	struct TESTPULSE {
-//	HILO		delay;
-//	HILO		width;
-//} TESTPULSE;
-
-//typedef	struct TIMER {
-//	SEQUENCE    seq[MAXSEQUENCE];
-//	TESTPULSE   tp[8];
-//	HILO        seqdelay,sync;
-//	int         timingmode,seqlen;
-//	float       clockfreq,reffreq,phasefreq;
-//	char*       base;
-//}	TIMER;
-//typedef	struct SEQUENCE {
-//	HILO		period;
-//	int		pulseenable;
-//	int		polarization;
-//	int		phasedata;
-//	int		index;
-//} SEQUENCE;
-
-/// A configuration class for the PciTimer. An instance is created and
-/// filled, and then passed in the constructor to a PciTimer.
-class PciTimerConfig {
-	friend class PciTimer;
-public:
-	/// Constructor
-	PciTimerConfig(double systemClock, ///< The system clock, in Hz.
-		int timingMode              ///< The timimg mode. 0 - generate the PRF onboard, 1 - the PRF comes from an external trigger
-		);
-	/// Destructor
-	virtual ~PciTimerConfig();
-	/// Add a new sequence step to the end of the sequence list.
-	void addSequence(int length, ///< The length of this sequence, in counts
-		unsigned char pulseMask, ///< A mask which defines which BPULSE signals are enabled during this sequence step.
-		int polarization,        ///< Polarization value for this sequence step. Not clear what it does.
-		int phase                ///< Phase value for this sequence step. Not sure what it does.
-		);
-	/// Add a new sequence step to the end of the sequence list.
-	void addPrt(float prt,       ///< The length of this sequence, seconds.
-		unsigned char pulseMask, ///< A mask which defines which BPULSE signals are enabled during this sequence step.
-		int polarization,        ///< Polarization value for this sequence step. Not clear what it does.
-		int phase                ///< Phase value for this sequence step. Not sure what it does.
-		);
-	/// Define a BPULSE, which is a pulse of a fixed delay and length.
-	void setBpulse(int index, unsigned short width, unsigned short delay);
-
-protected:
-	/// There are six BPULSE signals, which can be triggered at the beginning of
-	/// each sequence. However, a sequeence can selectively choose which BPULSES to
-	/// trigger. Each BPULSE can have a width and a delay.
-	struct Bpulse {
-		TIMERHILO width;   ///< The BPULSE width in counts.
-		TIMERHILO delay;   ///< The BPULSE delay in counts.
-	} _bpulse[6];
-	/// Specify the parameters for a sequence. 
-	struct Sequence {
-		TIMERHILO length;       ///< The length of this sequence in counts.
-		unsigned char bpulseMask;  ///< Enable a BPULSE by setting bits 0-5.
-		int polarization; ///< Not sure what this is for.
-		int phase;        ///< Not sure what this is for.
-	};
-	/// Collect all sequences. These sequences will be executed
-	/// in the order that they are defined.
-	std::vector<Sequence> _sequences;
-	/// The system clock rate, in Hz. It is used in various timng calculations.
-	double _systemClock;
-	/// The timing mode: 0 - internal prf generation, 1 - external prf generation.
-	int _timingMode;
-};
-
 
 /////////////////////////////////////////////////////////////////////////
 
@@ -139,9 +68,26 @@ protected:
 class PciTimer {
 public:
 	/// Reset, confgure and intialize the timer card during construction.
-	PciTimer(PciTimerConfig config);
+	PciTimer(double systemClock, ///< The system clock, in Hz.
+		int timingMode           ///< The timimg mode. 0 - generate the PRF onboard, 1 - the PRF comes from an external trigger
+		);
 	/// Destructor.
 	~PciTimer();
+	/// Add a new sequence step to the end of the sequence list.
+	void addSequence(int length, ///< The length of this sequence, in counts
+		unsigned char pulseMask, ///< A mask which defines which BPULSE signals are enabled during this sequence step.
+		int polarization,        ///< Polarization value for this sequence step. Not clear what it does.
+		int phase                ///< Phase value for this sequence step. Not sure what it does.
+		);
+	/// Add a new sequence step to the end of the sequence list.
+	void addPrt(float prt,       ///< The length of this sequence, seconds.
+		unsigned char pulseMask, ///< A mask which defines which BPULSE signals are enabled during this sequence step.
+		int polarization,        ///< Polarization value for this sequence step. Not clear what it does.
+		int phase                ///< Phase value for this sequence step. Not sure what it does.
+		);
+	/// Define a BPULSE, which is a pulse of a fixed delay and length.
+	void setBpulse(int index, unsigned short width, unsigned short delay);
+
 	/// Stop the timer,and reset it.
 	void reset();
 	/// Start the timer
@@ -157,12 +103,29 @@ protected:
 	void configure();
 	/// Handshake with the timer.
 	int	 test();
-
-protected:
+	/// There are six BPULSE signals, which can be triggered at the beginning of
+	/// each sequence. However, a sequeence can selectively choose which BPULSES to
+	/// trigger. Each BPULSE can have a width and a delay.
+	struct Bpulse {
+		TIMERHILO width;   ///< The BPULSE width in counts.
+		TIMERHILO delay;   ///< The BPULSE delay in counts.
+	} _bpulse[6];
+	/// Specify the parameters for a sequence. 
+	struct Sequence {
+		TIMERHILO length;       ///< The length of this sequence in counts.
+		unsigned char bpulseMask;  ///< Enable a BPULSE by setting bits 0-5.
+		int polarization; ///< Not sure what this is for.
+		int phase;        ///< Not sure what this is for.
+	};
+	/// Collect all sequences. These sequences will be executed
+	/// in the order that they are defined.
+	std::vector<Sequence> _sequences;
+	/// The system clock rate, in Hz. It is used in various timng calculations.
+	double _systemClock;
+	/// The timing mode: 0 - internal prf generation, 1 - external prf generation.
+	int _timingMode;
 	/// The PCI address of the timer base register
 	char* _base;
-	/// The configuration for this timer card.
-	PciTimerConfig _config;
 	/// The clock frequency, in Hz.
 	float _clockfreq;
 	/// The reference clock frequency, in Hz.

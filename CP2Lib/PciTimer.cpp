@@ -2,70 +2,18 @@
 #include "pci_w32.h"
 #include <time.h>
 
-
 /////////////////////////////////////////////////////
-PciTimerConfig::PciTimerConfig(double systemClock,
-							   int timingMode):
+PciTimer::PciTimer(double systemClock,
+				   int timingMode):
+_error(false),
 _systemClock(systemClock),
 _timingMode(timingMode)
 {
-	// initialize
+	// initialize bpulses
 	for (int i = 0; i < 6; i++) {
 		setBpulse(i, 0, 0);
 	}
-}
 
-/////////////////////////////////////////////////////
-PciTimerConfig::~PciTimerConfig()
-{
-}
-
-/////////////////////////////////////////////////////
-void 
-PciTimerConfig::setBpulse(int index, unsigned short width, unsigned short delay) 
-{
-	_bpulse[index].width.hilo = width;
-
-	if (delay < 10)
-		_bpulse[index].delay.hilo = 10;
-	else
-		_bpulse[index].delay.hilo = delay;
-}
-
-/////////////////////////////////////////////////////
-void
-PciTimerConfig::addSequence(int length, 
-							unsigned char pulseMask,
-							int polarization,
-							int phase) 
-{
-	struct Sequence s;
-	s.length.hilo = length;
-	s.bpulseMask = pulseMask;
-	s.polarization = polarization;
-	s.phase = phase;
-	_sequences.push_back(s);
-}
-/////////////////////////////////////////////////////
-void
-PciTimerConfig::addPrt(float radar_prt, 
-					   unsigned char pulseMask,
-					   int polarization,
-					   int phase) 
-{
-	struct Sequence s;
-	s.length.hilo = (unsigned short)(radar_prt  * COUNTFREQ + 0.5);
-	s.bpulseMask = pulseMask;
-	s.polarization = polarization;
-	s.phase = phase;
-	_sequences.push_back(s);
-}
-
-/////////////////////////////////////////////////////
-PciTimer::PciTimer(PciTimerConfig config):
-_config(config),
-_error(false)
-{
 	PCI_CARD	*pcicard;
 	int		reg_base;
 
@@ -114,8 +62,8 @@ _error(false)
 
 	// Set the _sync flag, based on the timing mode.
 	/// @todo  What is the sync flag?
-	printf("timingmode = %d\n", _config._timingMode);
-	if (_config._timingMode == 1) {
+	printf("timingmode = %d\n", _timingMode);
+	if (_timingMode == 1) {
 		_sync.byte.lo = 1;		// synclo;  
 		_sync.byte.hi = 0;		// synchi; 
 	} else {
@@ -126,7 +74,7 @@ _error(false)
 	_seqdelay.hilo = 10;
 
 	// save the clock frequency, refference frequency and phase frequency.
-	_clockfreq = (float)_config._systemClock;
+	_clockfreq = (float)_systemClock;
 	_reffreq = 10.0E6;
 	_phasefreq = 50.0E3;
 
@@ -140,6 +88,46 @@ PciTimer::~PciTimer() {
 	stop();
 }
 
+/////////////////////////////////////////////////////
+void 
+PciTimer::setBpulse(int index, unsigned short width, unsigned short delay) 
+{
+	_bpulse[index].width.hilo = width;
+
+	if (delay < 10)
+		_bpulse[index].delay.hilo = 10;
+	else
+		_bpulse[index].delay.hilo = delay;
+}
+
+/////////////////////////////////////////////////////
+void
+PciTimer::addSequence(int length, 
+							unsigned char pulseMask,
+							int polarization,
+							int phase) 
+{
+	struct Sequence s;
+	s.length.hilo = length;
+	s.bpulseMask = pulseMask;
+	s.polarization = polarization;
+	s.phase = phase;
+	_sequences.push_back(s);
+}
+/////////////////////////////////////////////////////
+void
+PciTimer::addPrt(float radar_prt, 
+					   unsigned char pulseMask,
+					   int polarization,
+					   int phase) 
+{
+	struct Sequence s;
+	s.length.hilo = (unsigned short)(radar_prt  * COUNTFREQ + 0.5);
+	s.bpulseMask = pulseMask;
+	s.polarization = polarization;
+	s.phase = phase;
+	_sequences.push_back(s);
+}
 /////////////////////////////////////////////////////
 void 
 PciTimer::reset()
@@ -182,22 +170,22 @@ PciTimer::configure()
 	/* fill in the dual port ram on the timer */
 
 	// Load the sequence specifications.
-	for(unsigned int i = 0; i < _config._sequences.size(); i++)
+	for(unsigned int i = 0; i < _sequences.size(); i++)
 	{
-		_base[(0x00 + i)] = _config._sequences[i].length.byte.lo;
-		_base[(0x10 + i)] = _config._sequences[i].length.byte.hi;
-		_base[(0x20 + i)] = _config._sequences[i].bpulseMask ^ 0x3F;
-		_base[(0x30 + i)] = _config._sequences[i].polarization; 
-		_base[(0x40 + i)] = _config._sequences[i].phase;
+		_base[(0x00 + i)] = _sequences[i].length.byte.lo;
+		_base[(0x10 + i)] = _sequences[i].length.byte.hi;
+		_base[(0x20 + i)] = _sequences[i].bpulseMask ^ 0x3F;
+		_base[(0x30 + i)] = _sequences[i].polarization; 
+		_base[(0x40 + i)] = _sequences[i].phase;
 	}
 
 	// load the bpulse specifications.
 	for(int i = 0; i < 6; i++)
 	{ 
-		_base[(0xC0 + i * 4 + 0) ] = _config._bpulse[i].delay.byte.lo;
-		_base[(0xC0 + i * 4 + 1) ] = _config._bpulse[i].delay.byte.hi;
-		_base[(0xC0 + i * 4 + 2) ] = _config._bpulse[i].width.byte.lo;
-		_base[(0xC0 + i * 4 + 3) ] = _config._bpulse[i].width.byte.hi;
+		_base[(0xC0 + i * 4 + 0) ] = _bpulse[i].delay.byte.lo;
+		_base[(0xC0 + i * 4 + 1) ] = _bpulse[i].delay.byte.hi;
+		_base[(0xC0 + i * 4 + 2) ] = _bpulse[i].width.byte.lo;
+		_base[(0xC0 + i * 4 + 3) ] = _bpulse[i].width.byte.hi;
 	}
 
 	// Set the phase lock loop specs.
@@ -221,10 +209,10 @@ PciTimer::configure()
 	_base[(0xD8 +  9) ] = _sync.byte.hi;		// synchi;
 	_base[(0xD8 + 10) ] = _seqdelay.byte.lo;	// sequence delay lo
 	_base[(0xD8 + 11) ] = _seqdelay.byte.hi;	// sequence delay hi
-	_base[(0xD8 + 12) ] = (char)(_config._sequences.size());		// sequence length
+	_base[(0xD8 + 12) ] = (char)(_sequences.size());		// sequence length
 
 	_base[(0xD8 + 13) ] = 0;					// current sequence count
-	_base[(0xD8 + 14) ] = _config._timingMode;	// timing mode
+	_base[(0xD8 + 14) ] = _timingMode;	// timing mode
 
 	// tell the timer to reconfigure.
 	reset();

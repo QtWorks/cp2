@@ -87,16 +87,13 @@ CP2ExecThread::run()
 	// the constructor. This makes sure that the Piraq
 	// triggers are not being generated when the Piraq
 	// dsp code is started below.
-	PciTimerConfig timerConfig(systemClock, pciTimerMode);
-
+	PciTimer pciTimer(systemClock, pciTimerMode);
 	for (int i = 0; i < 6; i++) {
-		timerConfig.setBpulse(i, i*20+6, 10);
+		pciTimer.setBpulse(i, i*20+6, 10);
 	}
-	timerConfig.addSequence(600, 0x3f, 0, 0);
-	timerConfig.addSequence(900, 0x3f, 0, 0);
-	timerConfig.addSequence(1200, 0x3f, 0, 0);
-
-	PciTimer pciTimer(timerConfig);
+	pciTimer.addSequence(600, 0x3f, 0, 0);
+	pciTimer.addSequence(900, 0x3f, 0, 0);
+	pciTimer.addSequence(1200, 0x3f, 0, 0);
 
 	// verfy that the dsp object file is accesible
 	std::string _dspObjFile = _config.getString("Piraq/DspObjectFile", "c:/Program Files/NCAR/CP2Soft/cp2piraq.out");
