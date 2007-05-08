@@ -51,23 +51,6 @@ CP2ExecThread::~CP2ExecThread()
 	delete _pPulseSocket;
 }
 
-/////////////////////////////////////////////////////////////////////////////
-unsigned int
-CP2ExecThread::findPMACdpram() 
-{
-	PCI_CARD*	pcicard;
-	unsigned int reg_base;
-
-	pcicard = find_pci_card(0x1172,1,0);
-
-	if(!pcicard)
-		return(0);
-
-	reg_base = pcicard->phys2;
-
-	return reg_base;
-}
-
 /////////////////////////////////////////////////////////////////////
 void
 CP2ExecThread::run()
@@ -87,9 +70,9 @@ CP2ExecThread::run()
 	// the constructor. This makes sure that the Piraq
 	// triggers are not being generated when the Piraq
 	// dsp code is started below.
-	PciTimer pciTimer(systemClock, pciTimerMode);
+	PciTimer pciTimer(systemClock, 10000000.0, 50000.0, pciTimerMode);
 	for (int i = 0; i < 6; i++) {
-		pciTimer.setBpulse(i, i*20+6, 10);
+		pciTimer.setBpulse(i, i*20+6, 20);
 	}
 	pciTimer.addSequence(600, 0x3f, 0, 0);
 	pciTimer.addSequence(900, 0x3f, 0, 0);
@@ -413,5 +396,22 @@ CP2ExecThread::getPiraqErrors()
 	return initErrors;
 }
 /////////////////////////////////////////////////////////////////////
+unsigned int
+CP2ExecThread::findPMACdpram() 
+{
+	PCI_CARD*	pcicard;
+	unsigned int reg_base;
+
+	pcicard = find_pci_card(0x1172,1,0);
+
+	if(!pcicard)
+		return(0);
+
+	reg_base = pcicard->phys2;
+
+	return reg_base;
+}
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+

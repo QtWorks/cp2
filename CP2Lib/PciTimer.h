@@ -80,17 +80,19 @@ class PciTimer {
 public:
 	/// Reset, confgure and intialize the timer card during construction.
 	PciTimer(double systemClock, ///< The system clock, in Hz.
+		double refFrequency,     ///< The system reference frequency (typically 10MHz),
+		double phaseFrequency,   ///< PLL phase frequency (typically 50kHz)
 		int timingMode           ///< The timimg mode. 0 - generate the PRF onboard, 1 - the PRF comes from an external trigger
 		);
 	/// Destructor.
 	~PciTimer();
-	/// Add a new sequence step to the end of the sequence list.
+	/// Add a new count specified sequence to the end of the sequence list.
 	void addSequence(int length, ///< The length of this sequence, in counts
 		unsigned char pulseMask, ///< A mask which defines which BPULSE signals are enabled during this sequence step.
 		int polarization,        ///< Polarization value for this sequence step. Not clear what it does.
 		int phase                ///< Phase value for this sequence step. Not sure what it does.
 		);
-	/// Add a new sequence step to the end of the sequence list.
+	/// Add a new PRT specified sequence to the end of the sequence list.
 	void addPrt(float prt,       ///< The length of this sequence, seconds.
 		unsigned char pulseMask, ///< A mask which defines which BPULSE signals are enabled during this sequence step.
 		int polarization,        ///< Polarization value for this sequence step. Not clear what it does.
@@ -98,9 +100,6 @@ public:
 		);
 	/// Define a BPULSE, which is a pulse of a fixed delay and length.
 	void setBpulse(int index, unsigned short width, unsigned short delay);
-
-	/// Stop the timer,and reset it.
-	void reset();
 	/// Start the timer
 	void start();
 	/// Stop the timer
@@ -112,8 +111,9 @@ protected:
 	/// Place the timer configuration in the timer dual ported
 	/// ram and tell the timer to use it.
 	void configure();
-	/// Handshake with the timer.
-	int	 test();
+	/// Send a command to the timer card, and then handshake with it.
+	/// @param cmd The command code.
+	int	 commandTimer(unsigned char cmd);
 	/// There are six BPULSE signals, which can be triggered at the beginning of
 	/// each sequence. However, a sequeence can selectively choose which BPULSES to
 	/// trigger. Each BPULSE can have a width and a delay.
@@ -137,8 +137,6 @@ protected:
 	int _timingMode;
 	/// The PCI address of the timer base register
 	char* _base;
-	/// The clock frequency, in Hz.
-	float _clockfreq;
 	/// The reference clock frequency, in Hz.
 	float _reffreq;
 	/// The phase frequency. in Hz.

@@ -4,9 +4,13 @@
 
 /////////////////////////////////////////////////////
 PciTimer::PciTimer(double systemClock,
+				   double refFrequency,
+				   double phaseFrequency,
 				   int timingMode):
 _error(false),
 _systemClock(systemClock),
+_reffreq(refFrequency),
+_phasefreq(phaseFrequency),
 _timingMode(timingMode)
 {
 	// initialize bpulses
@@ -14,17 +18,17 @@ _timingMode(timingMode)
 		setBpulse(i, 0, 0);
 	}
 
-	PCI_CARD	*pcicard;
 	int		reg_base;
 
 	// initialize the TvicHW32 system
 	init_pci(); 
 
-	// find the PCI timer card.
+	// find the PCI timer card, based on it's PCI identification.
 	int boardnumber = 0;
-	pcicard = find_pci_card(PCITIMER_VENDOR_ID,
+	PCI_CARD	*pcicard = find_pci_card(PCITIMER_VENDOR_ID,
 		PCITIMER_DEVICE_ID,
 		boardnumber);
+
 	if (!pcicard) {
 		_error = true;
 		return;
@@ -37,27 +41,25 @@ _timingMode(timingMode)
 
 	/* initialize the PCI registers for proper board operation */
 	out32(reg_base + 0x60, 0xA2A2A2A2);  /* pass through register */
-	//   out32(reg_base + 0x38, 0x00010000);  /* enable addint interrupts */
-	//   out32(reg_base + 0x3C, 0xFFFFE004);  /* reset control register */
-	//   out32(reg_base + 0x60, 0x81818181);  /* pass through register */
 
 	// print the registers from the PCI card.
-	printf("PCI Configuration registers as seen from timer_read\n");
-	for(int j = 0; j < 8; j++) {
-		printf("%02X ",4*4*j);
-		for(int i = 0; i < 4; i++) {
-			unsigned int val = pci_read_config32(pcicard,4*(i+4*j));  /* read 32 bit value at requested register */
-			printf("%08lX ", val);
-		}
-		printf("\n");
-	}
-	printf("\nI/O Base: %8X\n",reg_base);
-	for(int j = 0; j < 8; j++) {
-		printf("%02X ",4*4*j);
-		for(int i = 0; i < 4; i++)
-			printf("%08lX ",in32(reg_base + 4*(i+4*j)));
-		printf("\n");
-	}
+
+	//printf("PCI Configuration registers as seen from timer_read\n");
+	//	for(int j = 0; j < 8; j++) {
+	//		printf("%02X ",4*4*j);
+	//		for(int i = 0; i < 4; i++) {
+	//			unsigned int val = pci_read_config32(pcicard,4*(i+4*j));  /* read 32 bit value at requested register */
+	//			printf("%08lX ", val);
+	//		}
+	//		printf("\n");
+	//	}
+	//	printf("\nI/O Base: %8X\n",reg_base);
+	//	for(int j = 0; j < 8; j++) {
+	//		printf("%02X ",4*4*j);
+	//		for(int i = 0; i < 4; i++)
+	//			printf("%08lX ",in32(reg_base + 4*(i+4*j)));
+	//		printf("\n");
+	//	}
 
 
 	// Set the _sync flag, based on the timing mode.
@@ -70,21 +72,16 @@ _timingMode(timingMode)
 		_sync.hilo = 1;		// sync;  
 	}
 
-	/// @todo _seqdelay needs to be set to something appropriate
+	/// @todo _seqdelay needs to be set to something appropriate. What is it?
 	_seqdelay.hilo = 10;
 
-	// save the clock frequency, refference frequency and phase frequency.
-	_clockfreq = (float)_systemClock;
-	_reffreq = 10.0E6;
-	_phasefreq = 50.0E3;
-
-	// reset the card, to be ready for the start()
+	// stop the card, to be ready for the start()
 	stop();
 }
 
 /////////////////////////////////////////////////////
 PciTimer::~PciTimer() {
-	// reset the timer
+	// stop the timer
 	stop();
 }
 
@@ -103,10 +100,14 @@ PciTimer::setBpulse(int index, unsigned short width, unsigned short delay)
 /////////////////////////////////////////////////////
 void
 PciTimer::addSequence(int length, 
-							unsigned char pulseMask,
-							int polarization,
-							int phase) 
+					  unsigned char pulseMask,
+					  int polarization,
+					  int phase) 
 {
+	// Silently ignore request to add too many sequences.
+	if (_sequences.size() == MAXSEQUENCE)
+		return;
+
 	struct Sequence s;
 	s.length.hilo = length;
 	s.bpulseMask = pulseMask;
@@ -117,10 +118,14 @@ PciTimer::addSequence(int length,
 /////////////////////////////////////////////////////
 void
 PciTimer::addPrt(float radar_prt, 
-					   unsigned char pulseMask,
-					   int polarization,
-					   int phase) 
+				 unsigned char pulseMask,
+				 int polarization,
+				 int phase) 
 {
+	// Silently ignore request to add too many sequences.
+	if (_sequences.size() == MAXSEQUENCE)
+		return;
+
 	struct Sequence s;
 	s.length.hilo = (unsigned short)(radar_prt  * COUNTFREQ + 0.5);
 	s.bpulseMask = pulseMask;
@@ -128,28 +133,12 @@ PciTimer::addPrt(float radar_prt,
 	s.phase = phase;
 	_sequences.push_back(s);
 }
-/////////////////////////////////////////////////////
-void 
-PciTimer::reset()
-{
-	// set request ID to STOP
-	_base[0xFE] = TIMER_RESET; /* @@@ was base[0xFE * 4] */
-	// set request flag
-	_base[0xFF] = TIMER_RQST;	/* @@@ *4 signal the timer that a request is pending */
-	test();
-	printf("Passed timer_reset\n");
-}
 
 /////////////////////////////////////////////////////
 void 
 PciTimer::stop()
 {
-	// set request ID to STOP
-	_base[0xFE] = TIMER_STOP; /* @@@ was base[0xFF * 4] */
-	// set request flag
-	_base[0xFF] = TIMER_RQST;	/* @@@ *4 signal the timer that a request is pending */
-	test();
-	printf("Passed timer_stop\n");
+	commandTimer(TIMER_STOP);
 }
 
 /////////////////////////////////////////////////////
@@ -159,7 +148,7 @@ PciTimer::configure()
 {
 	// stop the timer.
 	stop();
-	
+
 	int			a,r,n;
 	TIMERHIMEDLO		ref,freq;
 
@@ -189,7 +178,7 @@ PciTimer::configure()
 	}
 
 	// Set the phase lock loop specs.
-	n = (int)(0.5 + _clockfreq / _phasefreq);
+	n = (int)(0.5 + _systemClock / _phasefreq);
 	a = n & 7;
 	n /= 8;
 	r = (int) (0.5 + _reffreq / _phasefreq);
@@ -215,13 +204,17 @@ PciTimer::configure()
 	_base[(0xD8 + 14) ] = _timingMode;	// timing mode
 
 	// tell the timer to reconfigure.
-	reset();
+	commandTimer(TIMER_RESET);
 }
 /////////////////////////////////////////////////////
 /* poll the command response byte and handle timeouts */
 int	
-PciTimer::test()
+PciTimer::commandTimer(unsigned char cmd)
 {
+	// set request command
+	_base[0xFE] = cmd; 
+	// set request flag
+	_base[0xFF] = TIMER_RQST;	
 	time_t	first;
 
 	/* wait until the timer comes ready */
@@ -246,12 +239,7 @@ PciTimer::start()
 	// configure the timer card
 	configure();
 
-	// set request ID to START
-	_base[0xFE] = TIMER_START;	/* @@@ *4 signal the timer that a request is pending */
-	// set request flag
-	_base[0xFF] = TIMER_RQST;	/* @@@ *4 signal the timer that a request is pending */
-	test();
-	printf("Passed timer_start\n");
+	commandTimer(TIMER_START);
 }
 
 /////////////////////////////////////////////////////
