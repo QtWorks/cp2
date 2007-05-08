@@ -260,7 +260,7 @@ protected:
 	/// Angle generator for simulated angles
 	SimAngles _simAngles;
 	/// Configuration
-	CP2Config _cp2execConfig;
+	CP2Config _config;
 	/// enable/disable debugging
 	bool _debug;
 	/// debugging output file

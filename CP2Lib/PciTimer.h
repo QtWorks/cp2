@@ -6,32 +6,26 @@
 #define	PCITIMER_DEVICE_ID 	0x8504
 #define	PCITIMER_VENDOR_ID	0x10E8   
 #define	COUNTFREQ	6000000
+
+/// PciTimer reset command, which actually calls for a reconfiguration.
+/// Place the command code in location 0x3E of the dual ported ram.
 #define	TIMER_RESET	0
+/// PciTimer stop command.
+/// Place the command code in location 0x3E of the dual ported ram.
 #define	TIMER_STOP	1
+/// PciTimer start command.
+/// Place the command code in location 0x3E of the dual ported ram.
 #define	TIMER_START	2
 
+/// PciTimer service request. Placing this in location
+/// 0x3F in the timer dual ported ram will cause it to
+/// execute the command found in location 0x3E.
 #define	TIMER_RQST	1
 
+/// A maximum of 38 sequences can be specified. This is because
+/// the first 0xC0 bytes in the dual ported ram are used for
+/// sequence definitions, and each definitions uses 5 bytes.
 #define	MAXSEQUENCE  38
-
-typedef 
-union TIMERHIMEDLO
-{	
-	unsigned int		himedlo;
-	struct 
-	{
-		unsigned char		lo,med,hi,na;
-	} byte;
-} TIMERHIMEDLO;
-
-typedef 
-union TIMERHILO {	
-	unsigned short	hilo;
-	struct
-	{
-		unsigned char	lo,hi;
-	} byte;
-} TIMERHILO;
 
 
 /////////////////////////////////////////////////////////////////////////
@@ -66,6 +60,23 @@ union TIMERHILO {
 /// </ul>
 /// @todo Since the API is so sparse, PciTimerConfig can be merged into PciTimer.
 class PciTimer {
+	/// Used to arrange byte access to 3 byte integers
+	typedef union TIMERHIMEDLO
+	{	
+		unsigned int himedlo;
+		struct {
+			unsigned char lo, med, hi, na;
+		} byte;
+	} TIMERHIMEDLO;
+
+	/// Used to arrange byte access to 2 byte integers.
+	typedef union TIMERHILO {	
+		unsigned short hilo;
+		struct {
+			unsigned char lo, hi;
+		} byte;
+	} TIMERHILO;
+
 public:
 	/// Reset, confgure and intialize the timer card during construction.
 	PciTimer(double systemClock, ///< The system clock, in Hz.

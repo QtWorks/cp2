@@ -152,24 +152,8 @@ CP2ExecThread::run()
 	_piraq2 = new CP2PIRAQ(_pPulseSocket, "NCAR", "CP2Exec", dspObjFileName, 
 		_pulsesPerPciXfer, PMACphysAddr, 2, XV, _doSimAngles, simAngles, system_clock);
 
-	// Collect the error messages from the piraq initialization attempts.
 	/// @todo Actually do something with the CP2ExecThread piraq initialization errors
-	std::string initErrors;
-	if (_piraq0->error()) {
-		initErrors += "piraq0: ";
-		initErrors += _piraq0->GetErrorString();
-		initErrors += "\n";
-	}
-	if (_piraq1->error()) {
-		initErrors += "piraq1: ";
-		initErrors += _piraq1->GetErrorString();
-		initErrors += "\n";
-	}
-	if (_piraq2->error()) {
-		initErrors += "piraq2: ";
-		initErrors += _piraq2->GetErrorString();
-		initErrors += "\n";
-	}
+	std::string errorMsg = getPiraqErrors();
 
 	delete [] dspObjFileName;
 
@@ -231,7 +215,7 @@ CP2ExecThread::run()
 
 	// remove for lab testing: keep transmitter pulses 
 	// active w/o go.exe running. 12-9-04
-//	cp2timer_stop(&ext_timer); 
+	//	cp2timer_stop(&ext_timer); 
 
 	if (_piraq0)
 		delete _piraq0; 
@@ -398,4 +382,36 @@ CP2ExecThread::getSimAngles()
 	return simAngles;
 
 }
+/////////////////////////////////////////////////////////////////////
+std::string
+CP2ExecThread::getPiraqErrors()
+{
+	// Collect the error messages from the piraq initialization attempts.
+	std::string initErrors;
+	if (_piraq0) {
+		if (_piraq0->error()) {
+			initErrors += "piraq0: ";
+			initErrors += _piraq0->GetErrorString();
+			initErrors += "\n";
+		}
+	}
+	if (_piraq1) {
+		if (_piraq1->error()) {
+			initErrors += "piraq1: ";
+			initErrors += _piraq1->GetErrorString();
+			initErrors += "\n";
+		}
+	}
+	if (_piraq2) {
+		if (_piraq2->error()) {
+			initErrors += "piraq2: ";
+			initErrors += _piraq2->GetErrorString();
+			initErrors += "\n";
+		}
+	}
+
+	return initErrors;
+}
+/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////

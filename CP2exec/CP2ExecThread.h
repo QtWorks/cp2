@@ -58,6 +58,10 @@ protected:
 	/// Get the simulated angles information from the configuration.
 	/// Will also set the _doSimAngles flag.
 	SimAngles getSimAngles();
+	/// Collect error messages for all three piraqs.
+	/// @returns Collect error mesages from the piraqs. If
+	/// none, will be an empty string.
+	std::string getPiraqErrors();
 	/// The configuration for CP2Exec
 	CP2Config _config;
 	/// The piraq dsp's will read the antenna pointing information
