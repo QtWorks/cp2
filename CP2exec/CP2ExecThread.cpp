@@ -19,7 +19,6 @@
 
 // from CP2Lib
 #include "PciTimer.h"
-#include "timerlib.h"
 #include "pci_w32.h"
 
 // from CP2Piraq
@@ -75,25 +74,29 @@ CP2ExecThread::run()
 {
 	_status = PIRAQINIT;
 
-	PciTimerConfig timerConfig(_config.getInt("PciTimer/SystemClock", 48000000),
-		_config.getInt("PciTimer/timerMode", 1));
-	timerConfig.setBpulse(0, 100, 100);
-	timerConfig.setBpulse(1, 200, 50);
-	timerConfig.setBpulse(2, 400, 500);
-	timerConfig.addSequence(2000, 0x3f, 0, 0);
-	timerConfig.addSequence(3000, 0x3f, 0, 0);
-	PciTimer pciTimer(timerConfig);
-
-	float prt;
-	float xmit_pulsewidth;
 	int gates = _config.getInt("Piraq/Gates", 950);
 	char c;
 	int piraqs = 0;   
 	long long pulsenum;
 	unsigned int PMACphysAddr;
 
-	/// @todo Conslidate PCI Timer control into a class.
-	TIMER ext_timer; // structure defining external timer parameters 
+	int pciTimerMode = _config.getInt("PciTimer/TimerMode", 1);
+	double systemClock = _config.getDouble("PciTimer/SystemClock", 48000000.0);
+
+	// Create the PciTimer. The timer will be stopped by
+	// the constructor. This makes sure that the Piraq
+	// triggers are not being generated when the Piraq
+	// dsp code is started below.
+	PciTimerConfig timerConfig(systemClock, pciTimerMode);
+
+	for (int i = 0; i < 6; i++) {
+		timerConfig.setBpulse(i, i*20+6, 10);
+	}
+	timerConfig.addSequence(600, 0x3f, 0, 0);
+	timerConfig.addSequence(900, 0x3f, 0, 0);
+	timerConfig.addSequence(1200, 0x3f, 0, 0);
+
+	PciTimer pciTimer(timerConfig);
 
 	// verfy that the dsp object file is accesible
 	std::string _dspObjFile = _config.getString("Piraq/DspObjectFile", "c:/Program Files/NCAR/CP2Soft/cp2piraq.out");
@@ -106,9 +109,6 @@ CP2ExecThread::run()
 	} 
 	fclose(dspEXEC); // existence test passed; use command-line filename
 	std::cout << _dspObjFile << " will be loaded into piraqs\n"; 
-
-	// stop timer card
-	cp2timer_stop(&ext_timer);  
 
 	/// NOTE- packetsPerPciXfer is computed here from the size of the PPACKET packet, such that
 	/// it will be smaller than 64K. This must hold true for the PCI bus transfers. 
@@ -155,10 +155,27 @@ CP2ExecThread::run()
 	_piraq2 = new CP2PIRAQ(_pPulseSocket, "NCAR", "CP2Exec", dspObjFileName, 
 		_pulsesPerPciXfer, PMACphysAddr, 2, XV, _doSimAngles, simAngles, system_clock);
 
+	// Collect the error messages from the piraq initialization attempts.
+	/// @todo Actually do something with the CP2ExecThread piraq initialization errors
+	std::string initErrors;
+	if (_piraq0->error()) {
+		initErrors += "piraq0: ";
+		initErrors += _piraq0->GetErrorString();
+		initErrors += "\n";
+	}
+	if (_piraq1->error()) {
+		initErrors += "piraq1: ";
+		initErrors += _piraq1->GetErrorString();
+		initErrors += "\n";
+	}
+	if (_piraq2->error()) {
+		initErrors += "piraq2: ";
+		initErrors += _piraq2->GetErrorString();
+		initErrors += "\n";
+	}
+
 	delete [] dspObjFileName;
 
-	prt = _config.getInt("Piraq/PrtCounts", 6000) * (8.0/(float)system_clock);
-	xmit_pulsewidth = _config.getInt("Piraq/XmitWidthCounts", 6) * (8.0/(float)system_clock);
 
 	///////////////////////////////////////////////////////////////////////////
 	//
@@ -167,6 +184,7 @@ CP2ExecThread::run()
 	//     start with the same beam and pulse number.
 
 	unsigned int pri; 
+	float prt = _config.getInt("Piraq/PrtCounts", 6000) * (8.0/(float)system_clock);
 	pri = (unsigned int)((((float)COUNTFREQ)/(float)(1/prt)) + 0.5); 
 	time_t now = time(&now);
 	pulsenum = ((((long long)(now+2)) * (long long)COUNTFREQ) / pri) + 1; 
@@ -196,15 +214,10 @@ CP2ExecThread::run()
 
 	///////////////////////////////////////////////////////////////////////////
 	//
-	// start timer board immediately
+	// start the timer. This will send triggers to the piraqs, so that
+	// they will start sampling.
 
-	PINFOHEADER info;
-	info = _piraq2->info();
-	int pciTimerMode = _config.getInt("PciTimer/TimerMode", 1);
-	cp2timer_config(&ext_timer, &info, pciTimerMode, prt, xmit_pulsewidth);
-	cp2timer_set(&ext_timer);		// put the timer structure into the timer DPRAM 
-	cp2timer_reset(&ext_timer);	// tell the timer to initialize with the values from DPRAM 
-	cp2timer_start(&ext_timer);	// start timer 
+	pciTimer.start();
 
 	_status = RUNNING;
 
@@ -217,9 +230,11 @@ CP2ExecThread::run()
 			break;
 	}
 
+	pciTimer.stop();
+
 	// remove for lab testing: keep transmitter pulses 
 	// active w/o go.exe running. 12-9-04
-	cp2timer_stop(&ext_timer); 
+//	cp2timer_stop(&ext_timer); 
 
 	if (_piraq0)
 		delete _piraq0; 

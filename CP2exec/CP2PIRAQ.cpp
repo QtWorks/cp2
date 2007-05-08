@@ -98,10 +98,8 @@ CP2PIRAQ::init(char* dspObjFname)
 	int r_c;   // generic return code
 
 	r_c = this->Init(PIRAQ_VENDOR_ID,PIRAQ_DEVICE_ID); 
-	if (r_c == -1) {  
-		char errmsg[256]; 
-		this->GetErrorString(errmsg); 
-		printf("error: %s\n", errmsg); 
+	if (r_c == -1) {   
+		printf("error: %s\n", this->GetErrorString().c_str()); 
 		return -1; 
 	}
 
@@ -175,6 +173,12 @@ CP2PIRAQ::init(char* dspObjFname)
 
 	return 0;
 }
+/////////////////////////////////////////////////////////////////////////////
+bool
+CP2PIRAQ::error() {
+	return (this->GetErrorString().size() > 0);
+}
+
 /////////////////////////////////////////////////////////////////////////////
 int
 CP2PIRAQ::poll() 

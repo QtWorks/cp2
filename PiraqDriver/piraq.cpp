@@ -43,9 +43,7 @@
 #include "Control.h"
 #include "Hpib.h"
 #include "FirFilters.h"
-
-
-/////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
 // METHOD NAME: PIRAQ::PIRAQ()
 //
 // DESCRIPTION: Constructor 
@@ -63,12 +61,8 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 PIRAQ::PIRAQ()
 {
+	m_cErrorString[0] = 0;
 }
-
-
-
-
-
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // METHOD NAME: PIRAQ::~PIRAQ()
@@ -100,10 +94,6 @@ PIRAQ::~PIRAQ()
 	m_pFirFilter					= NULL;
 }
 
-
-
-
-
 /////////////////////////////////////////////////////////////////////////////////////////
 // METHOD NAME: PIRAQ::SetErrorString(char* pErrorString)
 //
@@ -125,13 +115,6 @@ void PIRAQ::SetErrorString(char* pErrorString)
 {
 	strcpy(m_cErrorString, pErrorString);
 }
-
-
-
-
-
-
-
 /////////////////////////////////////////////////////////////////////////////////////////
 // METHOD NAME: PIRAQ::GetErrorString(char* pErrorString)
 //
@@ -149,17 +132,11 @@ void PIRAQ::SetErrorString(char* pErrorString)
 // LAST MODIFIED BY:
 //
 /////////////////////////////////////////////////////////////////////////////////////////
-void PIRAQ::GetErrorString(char* pErrorString)
+std::string
+PIRAQ::GetErrorString()
 {
-	strcpy(pErrorString, m_cErrorString);
+	return std::string(m_cErrorString);
 }
-
-
-
-
-
-
-
 /////////////////////////////////////////////////////////////////////////////////////////
 // METHOD NAME: PIRAQ::Init( unsigned short shVendorID ,  unsigned short shDeviceID )
 //
@@ -362,10 +339,6 @@ int PIRAQ::Init( unsigned short shVendorID ,  unsigned short shDeviceID )
 	return 0;
 }
 
-
-
-
-
 /////////////////////////////////////////////////////////////////////////////////////////
 // METHOD NAME: PIRAQ:: GetCommonBufferMemoryPointer()
 //
@@ -397,11 +370,7 @@ void PIRAQ::GetCommonBufferMemoryPointer(unsigned long **pCommonMemoryAddress, u
 
 }
 
-
-
-
 // Used for Testing ***************************
-
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // METHOD NAME: PIRAQ::ToggleLED()
@@ -423,11 +392,6 @@ void PIRAQ::ToggleLED()
 {	
 	((CONTROL*)m_pControl)->ToggleLED();
 }
-
-
-
-
-
 /////////////////////////////////////////////////////////////////////////////////////////
 // METHOD NAME: PIRAQ::ReadEPROM(unsigned int * pEPROM)
 //
@@ -455,10 +419,6 @@ void PIRAQ::ReadEPROM(unsigned int * pEPROM)
 		pEPROM[i] = m_pPLX_BaseAddress[i];
 	}
 }
-
-
-
-
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // METHOD NAME: PIRAQ::PCMemoryTest(unsigned int StartValue)
@@ -552,11 +512,6 @@ void PIRAQ::ReturnTimerValues(unsigned int* piCountsPerDelay,	unsigned int* piCo
 	((CONTROL*)m_pControl)->ReturnTimerValues(piCountsPerDelay,	piCountsForAllGates, piCountsPerGatePulse,piStatus0,piStatus1);
 }
 
-
-
-
-
-
 /////////////////////////////////////////////////////////////////////////////////////////
 // METHOD NAME: PIRAQ::ReturnFilterValues(unsigned short	*pFIR, unsigned int* piCount)
 //
@@ -581,12 +536,6 @@ void PIRAQ::ReturnFilterValues(unsigned short	*pFIR, unsigned int* piCount)
 }
 
 
-
-
-
-
-
-
 /////////////////////////////////////////////////////////////////////////////////////////
 // METHOD NAME: PIRAQ::ResetPiraq()
 //
@@ -607,10 +556,6 @@ void PIRAQ::ResetPiraq()
 {	
 	((CONTROL*)m_pControl)->ResetPiraqBoard();
 }
-
-
-
-
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // METHOD NAME: PIRAQ::LoadDspCode(char* pFilePathAndName)
@@ -645,11 +590,6 @@ int PIRAQ::LoadDspCode(char* pFilePathAndName)
 	return (0);
 }
 
-
-
-
-
-
 /////////////////////////////////////////////////////////////////////////////////////////
 // METHOD NAME: PIRAQ::StartDsp()
 //
@@ -671,10 +611,6 @@ void PIRAQ::StartDsp()
 	((HPIB*)m_pHpib)->StartDsp();
 
 }
-
-
-
-
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // METHOD NAME: PIRAQ::LoadParameters(float fFrequencyHz, long lTransmitPulseWidthNs,
@@ -832,18 +768,6 @@ void PIRAQ::LoadParameters(float fFrequencyHz, long lTransmitPulseWidthNs,
 	((CONTROL*)m_pControl)->StartTimers();
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
 /////////////////////////////////////////////////////////////////////////////////////////
 // METHOD NAME: PIRAQ::LoadFIRParameters(float sp_fFrequencyHz, long sp_lTransmitPulseWidthNs,
 //													 long sp_lNumCodeBits)
@@ -875,15 +799,6 @@ void PIRAQ::LoadFIRParameters(float sp_fFrequencyHz, long sp_lTransmitPulseWidth
 	//?que es?	pParameters[FLIP]											= lFlip;
 
 }
-
-
-
-
-
-
-
-
-
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // METHOD NAME: PIRAQ::StopDsp()
@@ -1006,8 +921,6 @@ void  PIRAQ::SetPMACAntennaDPRAMAddress(unsigned int * PMACAntennaDPRAMAddress)
 
 }
 
-
-
 /////////////////////////////////////////////////////////////////////////////////////////
 // METHOD NAME: PIRAQ::GetPMACAntennaDPRAMAddress(unsigned int * PMACAntennaDPRAMAddress) 
 //
@@ -1035,7 +948,6 @@ unsigned int * PIRAQ::GetPMACAntennaDPRAMAddress()
 	return(PIRAQ_PMACDPRAM); 
 
 }
-
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // METHOD NAME: PIRAQ::SetCP2PIRAQTestAction(unsigned short PIRAQTestAction) 
@@ -1077,9 +989,3 @@ void  PIRAQ::SetCP2PIRAQTestAction(unsigned short PIRAQTestAction)
 	*pPLX_PIRAQ_MAILBOX5 = (unsigned long)PIRAQTestAction;
 
 }
-
-
-
-
-
-

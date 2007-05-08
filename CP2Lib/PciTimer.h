@@ -60,7 +60,7 @@ class PciTimerConfig {
 	friend class PciTimer;
 public:
 	/// Constructor
-	PciTimerConfig(int systemClock, ///< The system clock, in Hz.
+	PciTimerConfig(double systemClock, ///< The system clock, in Hz.
 		int timingMode              ///< The timimg mode. 0 - generate the PRF onboard, 1 - the PRF comes from an external trigger
 		);
 	/// Destructor
@@ -99,7 +99,7 @@ protected:
 	/// in the order that they are defined.
 	std::vector<Sequence> _sequences;
 	/// The system clock rate, in Hz. It is used in various timng calculations.
-	int _systemClock;
+	double _systemClock;
 	/// The timing mode: 0 - internal prf generation, 1 - external prf generation.
 	int _timingMode;
 };
@@ -152,9 +152,10 @@ public:
 	bool error();
 
 protected:
-	/// Set the timer configuration registers.
-	void set();
-	/// Test the timer. Not sure what this accomplishes.
+	/// Place the timer configuration in the timer dual ported
+	/// ram and tell the timer to use it.
+	void configure();
+	/// Handshake with the timer.
 	int	 test();
 
 protected:

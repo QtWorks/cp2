@@ -2,10 +2,9 @@
 #include "pci_w32.h"
 #include <time.h>
 
-#define	OFFSET	10
 
 /////////////////////////////////////////////////////
-PciTimerConfig::PciTimerConfig(int systemClock,
+PciTimerConfig::PciTimerConfig(double systemClock,
 							   int timingMode):
 _systemClock(systemClock),
 _timingMode(timingMode)
@@ -26,7 +25,11 @@ void
 PciTimerConfig::setBpulse(int index, unsigned short width, unsigned short delay) 
 {
 	_bpulse[index].width.hilo = width;
-	_bpulse[index].delay.hilo = delay;
+
+	if (delay < 10)
+		_bpulse[index].delay.hilo = 10;
+	else
+		_bpulse[index].delay.hilo = delay;
 }
 
 /////////////////////////////////////////////////////
@@ -58,8 +61,6 @@ PciTimerConfig::addPrt(float radar_prt,
 	_sequences.push_back(s);
 }
 
-
-/////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
 PciTimer::PciTimer(PciTimerConfig config):
 _config(config),
@@ -110,21 +111,6 @@ _error(false)
 		printf("\n");
 	}
 
-	// For now, override the BPULSE signals in _config, 
-	// and set to be a staggered 
-	/// series of pulses at a fixed pulse width.
-	/// @todo Remove this so that  BPULSE configuration
-	/// comes from _config.
-	TIMERHILO width;
-	width.hilo = (unsigned short)(COUNTFREQ * 1.0e-6 + 0.5);
-	for(int i = 0; i< 6; i++) {
-		TIMERHILO delay;
-		delay.hilo = OFFSET + i * width.hilo;
-		_config._bpulse[i].delay.byte.lo = delay.byte.lo;
-		_config._bpulse[i].delay.byte.hi = delay.byte.hi;
-		_config._bpulse[i].width.byte.lo = width.byte.lo;
-		_config._bpulse[i].width.byte.hi = width.byte.hi;
-	}
 
 	// Set the _sync flag, based on the timing mode.
 	/// @todo  What is the sync flag?
@@ -136,19 +122,22 @@ _error(false)
 		_sync.hilo = 1;		// sync;  
 	}
 
+	/// @todo _seqdelay needs to be set to something appropriate
+	_seqdelay.hilo = 10;
+
 	// save the clock frequency, refference frequency and phase frequency.
 	_clockfreq = (float)_config._systemClock;
 	_reffreq = 10.0E6;
 	_phasefreq = 50.0E3;
 
-	// set the timer registers
-	set();
+	// reset the card, to be ready for the start()
+	stop();
 }
 
 /////////////////////////////////////////////////////
 PciTimer::~PciTimer() {
 	// reset the timer
-	reset();
+	stop();
 }
 
 /////////////////////////////////////////////////////
@@ -178,38 +167,21 @@ PciTimer::stop()
 /////////////////////////////////////////////////////
 /* open the timer board (once) and configure it with the timer structure */
 void 
-PciTimer::set()
+PciTimer::configure()
 {
+	// stop the timer.
+	stop();
+	
 	int			a,r,n;
 	TIMERHIMEDLO		ref,freq;
 
-	//   timer_stop(timer);
-
-	/* clear the sequence mem */
+	/* clear the dual port ram on the timer */
 	for( int i = 0; i < 0xC0; i++)
-		_base[i] = 0; /* @@@ *4 */
+		_base[i] = 0; 
 
-	/* set the dual port ram */
+	/* fill in the dual port ram on the timer */
 
-	/* The sequence starts at memory offset zero */
-	/* BYTE1:  low byte of period */
-	/* BYTE2:  high byte of period */
-	/* BYTE3:  Pulse enables */
-	/* BYTE4:  Polarization control (bits 8 - 15 on connector) */
-	/* BYTE5:  Phase Data (bits 0 - 7 on connector) */
-	//   for(i=0; i<_seqlen; i++)
-	//   { /* @@@ took out ) * 4] on all of these */
-	/* program the 5 bytes for this sequence */
-	//      _base[(i * 5 + 0) ] = _seq[i].period.byte.lo;
-	//      _base[(i * 5 + 1) ] = _seq[i].period.byte.hi;
-	//      _base[(i * 5 + 2) ] = _seq[i].pulseenable ^ 0x3F;
-	//      _base[(i * 5 + 3) ] = _seq[i].polarization; // ^ 7; This was for NEC
-	//      _base[(i * 5 + 4) ] = _seq[i].phasedata;
-	//   }
-
-
-	// @@@  This has been changed for the optimized timer code
-	//		there is a different sequence memory setup.
+	// Load the sequence specifications.
 	for(unsigned int i = 0; i < _config._sequences.size(); i++)
 	{
 		_base[(0x00 + i)] = _config._sequences[i].length.byte.lo;
@@ -219,16 +191,16 @@ PciTimer::set()
 		_base[(0x40 + i)] = _config._sequences[i].phase;
 	}
 
-	/* now set the pulsewidths a delays for the 6 timers */
+	// load the bpulse specifications.
 	for(int i = 0; i < 6; i++)
-	{ /* @@@ took out ) * 4] on all of these */
+	{ 
 		_base[(0xC0 + i * 4 + 0) ] = _config._bpulse[i].delay.byte.lo;
 		_base[(0xC0 + i * 4 + 1) ] = _config._bpulse[i].delay.byte.hi;
 		_base[(0xC0 + i * 4 + 2) ] = _config._bpulse[i].width.byte.lo;
 		_base[(0xC0 + i * 4 + 3) ] = _config._bpulse[i].width.byte.hi;
 	}
 
-	// Program the phase lock loop
+	// Set the phase lock loop specs.
 	n = (int)(0.5 + _clockfreq / _phasefreq);
 	a = n & 7;
 	n /= 8;
@@ -236,8 +208,6 @@ PciTimer::set()
 	ref.himedlo = r << 2 | 0x100000;     					/* r data with reset bit */
 	freq.himedlo = n << 7 | a << 2 | 0x100001;     		/* r data with reset bit */
 
-	/* @@@ took out ) * 4] on all of these */
-	/* now set up the special registers */
 	_base[(0xD8 + 0) ] = freq.byte.lo;				//freqlo;
 	_base[(0xD8 + 1) ] = freq.byte.med;				//freqmed;
 	_base[(0xD8 + 2) ] = freq.byte.hi;				//freqhi;
@@ -256,7 +226,8 @@ PciTimer::set()
 	_base[(0xD8 + 13) ] = 0;					// current sequence count
 	_base[(0xD8 + 14) ] = _config._timingMode;	// timing mode
 
-	//   timer_reset(timer);
+	// tell the timer to reconfigure.
+	reset();
 }
 /////////////////////////////////////////////////////
 /* poll the command response byte and handle timeouts */
@@ -266,9 +237,8 @@ PciTimer::test()
 	time_t	first;
 
 	/* wait until the timer comes ready */
-	first = time(NULL) + 3;   /* wait 3 seconds */
-	// @@@  Taking away the *4 - An Address calculation is unnecessary
-	while((_base[0xFF] & 1))   /* @@@ was base[0xFF * 4] */
+	first = time(NULL) + 3;   /* wait up to 3 seconds */
+	while((_base[0xFF] & 1)) 
 	{
 		Sleep(1);
 		if(time(NULL) > first)
@@ -285,12 +255,8 @@ PciTimer::test()
 void 
 PciTimer::start()
 {
-	/* start the timer assuming the first pulse occured at unix time zero */
-	//   if(_timingmode == TIMER_SYNC)
-	//      {
-	//      sec = half_second_wait();		/* wait until half sec, return time of next second */
-	//	  _pulsenumber
-	//      }
+	// configure the timer card
+	configure();
 
 	// set request ID to START
 	_base[0xFE] = TIMER_START;	/* @@@ *4 signal the timer that a request is pending */

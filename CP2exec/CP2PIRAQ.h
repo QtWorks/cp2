@@ -53,7 +53,7 @@
 
 ///
 ///\brief
-///representation of a Piraq card as it is utilized for CP2.
+///Representation of a Piraq card as it is utilized for CP2.
 ///
 ///Write detailed description for CP2PIRAQ here.
 ///
@@ -69,6 +69,7 @@ class CP2PIRAQ: public PIRAQ {
 
 public:
 
+	/// Constructor
 	CP2PIRAQ( 
 		CP2UdpSocket* pPulseSocket, ///< The socket that pulse data will be broadcast on
 		std::string configOrg,		///< The organization name, used to identify the configuration
@@ -83,6 +84,7 @@ public:
 		int system_clock		       ///< The system clock frequency, which timing parameter counts are based on.
 		);
 
+	/// Destructor
 	~CP2PIRAQ();
 
 	/// Signal the Piraq to start taking data and transmitting
@@ -125,6 +127,10 @@ public:
 	/// @return The current eof indicator flag. 
 	/// The flag is cleared when this function is called.
 	bool eof();
+	/// @return True if an error has been detected during Piraq initialization.
+	/// Usually this is detected by checking to see if the Piraq error message is
+	/// non-null, since that class doesn't seem to have an error flag as such.
+	bool error();
 
 protected:
 	/// Initialize the piraq card, loading the DSP with a program.

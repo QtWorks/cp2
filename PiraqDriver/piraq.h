@@ -8,6 +8,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 #include "stdafx.h"
+#include <string>
 
 // Offset to the address of the CommonBuferMemory.
 // This memory is used to pass data from the DSP to the Windows application
@@ -98,7 +99,7 @@ class export PIRAQ
 		~PIRAQ();
 		
 		void	SetErrorString(char* pErrorString);
-		void	GetErrorString(char* pErrorString);
+		std::string	GetErrorString();
 		int		Init( unsigned short shVendorID,  unsigned short shDeviceID );
 		void	GetCommonBufferMemoryPointer(unsigned long **pCommonMemoryAddress, unsigned long *plLength);
 		void	GetSemaphorePointer(unsigned long **pSemaphore);
