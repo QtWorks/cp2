@@ -19,7 +19,7 @@
 //
 ///////////////////////////////////////////////////////////////
 //
-// Beam object holds time series and moment data.
+/// Beam object holds time series and moment data.
 //
 ////////////////////////////////////////////////////////////////
 
@@ -31,7 +31,7 @@
 using namespace std;
 
 ////////////////////////////////////////////////////
-// Constructor
+/// Constructor
 
 Beam::Beam(const Params &params,
            const deque<Pulse *> pulse_queue,
@@ -149,9 +149,9 @@ Beam::~Beam()
 }
 
 /////////////////////////////////////////////////
-// compute moments
-//
-// Returns 0 on success, -1 on failure
+/// compute moments
+///
+/// Returns 0 on success, -1 on failure
 
 void Beam::computeMoments()
   
@@ -174,7 +174,7 @@ void Beam::computeMoments()
 }
 
 /////////////////////////////////////////////////
-// compute moments - single pol
+/// compute moments - single pol
     
 void Beam::computeMomentsSinglePol()
   
@@ -215,9 +215,9 @@ void Beam::computeMomentsSinglePol()
 }
 
 /////////////////////////////////////////////////
-// compute moments - CP2 sband
-//
-// Returns 0 on success, -1 on failure
+/// compute moments - CP2 sband
+///
+/// Returns 0 on success, -1 on failure
 void 
 Beam::computeMomentsDualCp2Sband()
 {
@@ -264,9 +264,9 @@ Beam::computeMomentsDualCp2Sband()
 }
 
 /////////////////////////////////////////////////
-// compute moments - CP2 Xband data
-//
-// Returns 0 on success, -1 on failure
+/// compute moments - CP2 Xband data
+///
+/// Returns 0 on success, -1 on failure
     
 void Beam::computeMomentsDualCp2Xband()
   

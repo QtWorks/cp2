@@ -24,8 +24,7 @@
 using namespace std;
 
 ////////////////////////
-// This class
-
+/// This class
 class Beam {
   
 public:
@@ -41,13 +40,13 @@ public:
   
   ~Beam();
 
-  // Create interest maps.
-  // These are static on the class, and should be created before any
-  // beams are constructed.
+  /// Create interest maps.
+  /// These are static on the class, and should be created before any
+  /// beams are constructed.
  
   static int createInterestMaps(const Params &params);
   
-  // compute moments
+  /// compute moments
   
   void computeMoments();
   void computeMomentsSinglePol();
@@ -110,11 +109,11 @@ private:
   int _nGatesPulse;
   int _nGatesOut;
 
-  // manager for computing moments
+  /// manager for computing moments
 
   MomentsMgr *_momentsMgr;
 
-  // moments fields at each gate
+  /// moments fields at each gate
 
   Fields *_fields;
 

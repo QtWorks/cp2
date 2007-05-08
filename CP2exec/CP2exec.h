@@ -4,6 +4,26 @@
 /// collecting pulse data from each card, pakaging these into a
 /// CP2 defined network structure, and broadcasting them to the 
 /// network. Configuration is managed by CP2Exec.ini.
+///
+///- [General]
+/// - Title=CP2Exec
+///
+///- [Network]
+/// - PulseNetwork=192.168.1
+/// - PulsePort=3100
+///
+///- [PciTimer]
+/// - SystemClock=48000000
+/// - timerMode=1
+///
+///- [Piraq]
+/// - DspObjectFile=c:/Program Files/NCAR/CP2Soft/cp2piraq.out
+/// - Gates=950
+/// - PrtCounts=6000
+/// - XmitWidthCounts=6
+///
+///- [SimulatedAngles]
+/// - Enabled=false
 
 #ifndef CP2EXECH_
 #define CP2EXECH_

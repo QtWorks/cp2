@@ -4,7 +4,7 @@
 
 HANDLE PCI_HANDLE;
 
-// Initializes the PCI bus
+/// Initializes the PCI bus
 int init_pci(void)
 {
 
@@ -23,7 +23,7 @@ int init_pci(void)
 	return(0);
 }
 
-// Finds a PCI card and returns it's information in a PCI_CARD struct
+/// Finds a PCI card and returns it's information in a PCI_CARD struct
 PCI_CARD *find_pci_card(int vendorid,int deviceid,int n)
 {
 	PCI_COMMON_CONFIG Info;
@@ -97,25 +97,25 @@ void pci_card_info(PCI_CARD *card)
 	printf("VendorID: %4X, DeviceID: %4X, Physical Bases: %8X,%8X\n",card->vendorid,card->deviceid,card->phys,card->phys2);
 }
 
-// Releases the PCI bus
+/// Releases the PCI bus
 void close_pci(void)
 {
 	PCI_HANDLE = CloseTVicHW32(PCI_HANDLE);
 }
 
-// Outputs a byte to the selected port
+/// Outputs a byte to the selected port
 void out8(unsigned int port,unsigned char byte)
 {
 	SetPortByte(PCI_HANDLE,port,byte);
 }
 
-// Outputs a 32 bit value to the selected port
+/// Outputs a 32 bit value to the selected port
 void out32(unsigned int port,unsigned long dword)
 {
 	SetPortLong(PCI_HANDLE,port,dword);
 }
 
-// Inputs a byte from the given port
+/// Inputs a byte from the given port
 unsigned char in8(unsigned int port)
 {
 	return(GetPortByte(PCI_HANDLE,port));
@@ -126,13 +126,13 @@ unsigned long in32(unsigned int port)
 	return(GetPortLong(PCI_HANDLE,port));
 }
 
-// Gets the PCI cards io register base address
+/// Gets the PCI cards io register base address
 unsigned char pci_card_ioregbase(PCI_CARD *card)
 {
 	return(card->ioregbase);
 }
 
-// Maps the memory for a pci card, from the base address up to "length" in size
+/// Maps the memory for a pci card, from the base address up to "length" in size
 BYTE *pci_card_membase(PCI_CARD *card,int length)
 {
 	card->base = (BYTE *)MapPhysToLinear(PCI_HANDLE,card->phys,length);
@@ -141,7 +141,7 @@ BYTE *pci_card_membase(PCI_CARD *card,int length)
 }
 
 
-// frees a pci card's resources
+/// frees a pci card's resources
 void delete_pci_card(PCI_CARD *card)
 {
 	if(card == NULL)
@@ -154,7 +154,7 @@ void delete_pci_card(PCI_CARD *card)
 	card = NULL;
 }
 
-// Reads a 32 bit value at the specified offset from the devices hardware info
+/// Reads a 32 bit value at the specified offset from the devices hardware info
 unsigned long pci_read_config32(PCI_CARD *card,UINT offset)
 {
 	ULONG *ptr = (ULONG *)&card->config + offset/4;
