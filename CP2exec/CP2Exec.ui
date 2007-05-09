@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>756</width>
-    <height>499</height>
+    <width>754</width>
+    <height>484</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -118,7 +118,7 @@
         <item>
          <widget class="QLabel" name="label_2" >
           <property name="text" >
-           <string>Gates</string>
+           <string>Gates:</string>
           </property>
           <property name="alignment" >
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -145,7 +145,7 @@
         <item>
          <widget class="QLabel" name="label_4" >
           <property name="text" >
-           <string>      PRF (Hz)</string>
+           <string>      PRF (Hz):</string>
           </property>
           <property name="alignment" >
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -172,7 +172,7 @@
         <item>
          <widget class="QLabel" name="label_6" >
           <property name="text" >
-           <string>         Pulse Width (uS)</string>
+           <string>         Pulse Width (uS):</string>
           </property>
           <property name="alignment" >
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -199,7 +199,7 @@
         <item>
          <widget class="QLabel" name="label_8" >
           <property name="text" >
-           <string>         Simulated Antenna Angles</string>
+           <string>         Simulated Antenna Angles:</string>
           </property>
           <property name="alignment" >
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -216,17 +216,31 @@
        </layout>
       </item>
       <item>
-       <spacer>
-        <property name="orientation" >
-         <enum>Qt::Horizontal</enum>
+       <layout class="QHBoxLayout" >
+        <property name="margin" >
+         <number>0</number>
         </property>
-        <property name="sizeHint" >
-         <size>
-          <width>171</width>
-          <height>20</height>
-         </size>
+        <property name="spacing" >
+         <number>6</number>
         </property>
-       </spacer>
+        <item>
+         <widget class="QLabel" name="label_9" >
+          <property name="text" >
+           <string>           PRF Source:</string>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="_prfSourceText" >
+          <property name="text" >
+           <string>Unknown</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>

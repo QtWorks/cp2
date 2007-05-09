@@ -63,7 +63,7 @@ CP2ExecThread::run()
 	long long pulsenum;
 	unsigned int PMACphysAddr;
 
-	int pciTimerMode   = _config.getInt("PciTimer/TimerMode", 1);
+	int pciTimerMode   = _config.getInt("PciTimer/PrfSource", 1);
 	double systemClock = _config.getDouble("PciTimer/SystemClock", 48000000.0);
 	int prtCounts      = _config.getInt("Piraq/PrtCounts", 6000);
 
@@ -92,7 +92,8 @@ CP2ExecThread::run()
 	}
 
 	// create two sequences. Bpulse0 will fire on both of them. Bpulse1
-	// will fire only on the first one.
+	// will fire only on the first one. Set each sequence length to 
+	// match the prt length.
 	pciTimer.addSeqCounts(prtCounts, 0x03, 0, 0);
 	pciTimer.addSeqCounts(prtCounts, 0x01, 0, 0);
 
