@@ -176,7 +176,10 @@ CP2PIRAQ::init(char* dspObjFname)
 /////////////////////////////////////////////////////////////////////////////
 bool
 CP2PIRAQ::error() {
-	return (this->GetErrorString().size() > 0);
+	std::string errMsg = this->GetErrorString();
+	if (errMsg.size() > 0)
+		return (true);
+	return false;
 }
 
 /////////////////////////////////////////////////////////////////////////////

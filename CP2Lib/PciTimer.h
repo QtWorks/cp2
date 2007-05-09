@@ -1,11 +1,15 @@
 #ifndef PCITIMERINC_
 #define PCITIMERINC_
 
+#include "pci_w32.h"
 #include <vector>
 
-#define	PCITIMER_DEVICE_ID 	0x8504
+/// The PCI Timer card device id.
 #define	PCITIMER_VENDOR_ID	0x10E8   
-#define	COUNTFREQ	6000000
+/// The PCI Timer card PCI vendor id.
+#define	PCITIMER_DEVICE_ID 	0x8504
+
+//#define	COUNTFREQ	6000000
 
 /// PciTimer reset command, which actually calls for a reconfiguration.
 /// Place the command code in location 0x3E of the dual ported ram.
@@ -79,26 +83,29 @@ class PciTimer {
 
 public:
 	/// Reset, confgure and intialize the timer card during construction.
-	PciTimer(double systemClock, ///< The system clock, in Hz.
-		double refFrequency,     ///< The system reference frequency (typically 10MHz),
-		double phaseFrequency,   ///< PLL phase frequency (typically 50kHz)
+	PciTimer(float systemClock, ///< The system clock, in Hz.
+		float refFrequency,     ///< The system reference frequency (typically 10MHz),
+		float phaseFrequency,   ///< PLL phase frequency (typically 50kHz)
 		int timingMode           ///< The timimg mode. 0 - generate the PRF onboard, 1 - the PRF comes from an external trigger
 		);
 	/// Destructor.
 	~PciTimer();
 	/// Add a new count specified sequence to the end of the sequence list.
-	void addSequence(int length, ///< The length of this sequence, in counts
+	void addSeqCounts(int length, ///< The length of this sequence, in counts
 		unsigned char pulseMask, ///< A mask which defines which BPULSE signals are enabled during this sequence step.
 		int polarization,        ///< Polarization value for this sequence step. Not clear what it does.
 		int phase                ///< Phase value for this sequence step. Not sure what it does.
 		);
 	/// Add a new PRT specified sequence to the end of the sequence list.
-	void addPrt(float prt,       ///< The length of this sequence, seconds.
+	void addSeqTime(float prt,   ///< The length of this sequence, seconds.
 		unsigned char pulseMask, ///< A mask which defines which BPULSE signals are enabled during this sequence step.
 		int polarization,        ///< Polarization value for this sequence step. Not clear what it does.
 		int phase                ///< Phase value for this sequence step. Not sure what it does.
 		);
 	/// Define a BPULSE, which is a pulse of a fixed delay and length.
+	/// If width is zero, the delay will be set to zero. If
+	/// width is greater than zero, and the delay is zero, the delay will be
+	/// set to one.
 	void setBpulse(int index, unsigned short width, unsigned short delay);
 	/// Start the timer
 	void start();
@@ -106,11 +113,15 @@ public:
 	void stop();
 	/// return the current error flag.
 	bool error();
+	/// Dump a diagnostic snapshot from the timer PCI space and
+	/// dual ported ram.
+	void dump();
 
 protected:
 	/// Place the timer configuration in the timer dual ported
 	/// ram and tell the timer to use it.
 	void configure();
+
 	/// Send a command to the timer card, and then handshake with it.
 	/// @param cmd The command code.
 	int	 commandTimer(unsigned char cmd);
@@ -132,7 +143,7 @@ protected:
 	/// in the order that they are defined.
 	std::vector<Sequence> _sequences;
 	/// The system clock rate, in Hz. It is used in various timng calculations.
-	double _systemClock;
+	float _systemClock;
 	/// The timing mode: 0 - internal prf generation, 1 - external prf generation.
 	int _timingMode;
 	/// The PCI address of the timer base register
@@ -147,8 +158,10 @@ protected:
 	TIMERHILO _seqdelay;
 	/// Set true if there has been a timer error
 	bool _error;
-
-
+	/// pci card handle from the TVic system.
+	PCI_CARD *_pcicard;
+	/// Timer card register base.
+	int	_reg_base;
 };
 
 #endif

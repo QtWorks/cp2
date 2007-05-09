@@ -63,20 +63,38 @@ CP2ExecThread::run()
 	long long pulsenum;
 	unsigned int PMACphysAddr;
 
-	int pciTimerMode = _config.getInt("PciTimer/TimerMode", 1);
+	int pciTimerMode   = _config.getInt("PciTimer/TimerMode", 1);
 	double systemClock = _config.getDouble("PciTimer/SystemClock", 48000000.0);
+	int prtCounts      = _config.getInt("Piraq/PrtCounts", 6000);
+
 
 	// Create the PciTimer. The timer will be stopped by
 	// the constructor. This makes sure that the Piraq
 	// triggers are not being generated when the Piraq
 	// dsp code is started below.
 	PciTimer pciTimer(systemClock, 10000000.0, 50000.0, pciTimerMode);
-	for (int i = 0; i < 6; i++) {
-		pciTimer.setBpulse(i, i*20+6, 20);
+
+	// Set up the hv switch strobe and polarization switch select signals.
+
+	// bpulse0 of the PciTimer will provide the strobe for the HV switch.
+	int hvStrobeWidthCounts = _config.getDouble("HVSwitch/hvStrobeWidthCounts", 60);
+	int hvStrobeDelayCounts = _config.getDouble("HVSwitch/hvStrobeDelayCounts", 20);
+	pciTimer.setBpulse(0, hvStrobeWidthCounts, hvStrobeDelayCounts);
+
+	// bpulse1 of the PciTimer will provide the polarization select signal
+	int hvSelectWidthCounts  = _config.getDouble("HVSwitch/hvSelectWidthCounts", 60) ;
+	int hvSelectDelayCounts  = _config.getDouble("HVSwitch/hvSelectDelayCounts", 20);
+	pciTimer.setBpulse(1, hvSelectWidthCounts, hvSelectDelayCounts);
+
+	// initialize all others to not fire
+	for (int i = 2; i < 6; i++) {
+		pciTimer.setBpulse(i, 1000, 0);
 	}
-	pciTimer.addSequence(600, 0x3f, 0, 0);
-	pciTimer.addSequence(900, 0x3f, 0, 0);
-	pciTimer.addSequence(1200, 0x3f, 0, 0);
+
+	// create two sequences. Bpulse0 will fire on both of them. Bpulse1
+	// will fire only on the first one.
+	pciTimer.addSeqCounts(prtCounts, 0x03, 0, 0);
+	pciTimer.addSeqCounts(prtCounts, 0x01, 0, 0);
 
 	// verfy that the dsp object file is accesible
 	std::string _dspObjFile = _config.getString("Piraq/DspObjectFile", "c:/Program Files/NCAR/CP2Soft/cp2piraq.out");
@@ -149,9 +167,9 @@ CP2ExecThread::run()
 
 	unsigned int pri; 
 	float prt = _config.getInt("Piraq/PrtCounts", 6000) * (8.0/(float)system_clock);
-	pri = (unsigned int)((((float)COUNTFREQ)/(float)(1/prt)) + 0.5); 
+	pri = (unsigned int)(((system_clock/8.0)/(float)(1/prt)) + 0.5); 
 	time_t now = time(&now);
-	pulsenum = ((((long long)(now+2)) * (long long)COUNTFREQ) / pri) + 1; 
+	pulsenum = ((((long long)(now+2)) * (long long)(system_clock/8.0)) / pri) + 1; 
 	printf("pulsenum = %I64d\n", pulsenum); 
 
 	///////////////////////////////////////////////////////////////////////////
