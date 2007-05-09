@@ -18,7 +18,6 @@
 #include "CP2PIRAQ.h"
 
 // from CP2Lib
-#include "PciTimer.h"
 #include "pci_w32.h"
 
 // from CP2Piraq
@@ -41,7 +40,8 @@ _pulses3(0),
 _stop(false),
 _status(STARTUP),
 _config("NCAR", "CP2Exec"),
-_pPulseSocket(0)
+_pPulseSocket(0),
+_simAngles(0)
 {
 }
 
@@ -49,6 +49,8 @@ _pPulseSocket(0)
 CP2ExecThread::~CP2ExecThread()
 {
 	delete _pPulseSocket;
+	if (_simAngles)
+		delete _simAngles;
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -63,39 +65,16 @@ CP2ExecThread::run()
 	long long pulsenum;
 	unsigned int PMACphysAddr;
 
-	int pciTimerMode   = _config.getInt("PciTimer/PrfSource", 1);
-	double systemClock = _config.getDouble("PciTimer/SystemClock", 48000000.0);
-	int prtCounts      = _config.getInt("Piraq/PrtCounts", 6000);
-
-
 	// Create the PciTimer. The timer will be stopped by
-	// the constructor. This makes sure that the Piraq
+	// the PciTimer constructor. This makes sure that the Piraq
 	// triggers are not being generated when the Piraq
 	// dsp code is started below.
-	PciTimer pciTimer(systemClock, 10000000.0, 50000.0, pciTimerMode);
+	int prfSource   = _config.getInt("PciTimer/PrfSource", 0);
+	double systemClock = _config.getDouble("PciTimer/SystemClock", 48000000.0);
+	PciTimer pciTimer(systemClock, 10000000.0, 50000.0, prfSource);
 
-	// Set up the hv switch strobe and polarization switch select signals.
-
-	// bpulse0 of the PciTimer will provide the strobe for the HV switch.
-	int hvStrobeWidthCounts = _config.getDouble("HVSwitch/hvStrobeWidthCounts", 60);
-	int hvStrobeDelayCounts = _config.getDouble("HVSwitch/hvStrobeDelayCounts", 20);
-	pciTimer.setBpulse(0, hvStrobeWidthCounts, hvStrobeDelayCounts);
-
-	// bpulse1 of the PciTimer will provide the polarization select signal
-	int hvSelectWidthCounts  = _config.getDouble("HVSwitch/hvSelectWidthCounts", 60) ;
-	int hvSelectDelayCounts  = _config.getDouble("HVSwitch/hvSelectDelayCounts", 20);
-	pciTimer.setBpulse(1, hvSelectWidthCounts, hvSelectDelayCounts);
-
-	// initialize all others to not fire
-	for (int i = 2; i < 6; i++) {
-		pciTimer.setBpulse(i, 1000, 0);
-	}
-
-	// create two sequences. Bpulse0 will fire on both of them. Bpulse1
-	// will fire only on the first one. Set each sequence length to 
-	// match the prt length.
-	pciTimer.addSeqCounts(prtCounts, 0x03, 0, 0);
-	pciTimer.addSeqCounts(prtCounts, 0x01, 0, 0);
+	// Configure the the timer
+	configurePciTimer(pciTimer);
 
 	// verfy that the dsp object file is accesible
 	std::string _dspObjFile = _config.getString("Piraq/DspObjectFile", "c:/Program Files/NCAR/CP2Soft/cp2piraq.out");
@@ -119,17 +98,12 @@ CP2ExecThread::run()
 
 	// find the PMAC card
 	PMACphysAddr = findPMACdpram();
-	if (PMACphysAddr == 0) {
-		printf("unable to locate PMAC dpram, piraqs will be told to ignore PMAC\n");
-	} else {
-		printf("PMAC DPRAM base addr is 0x%08x\n", PMACphysAddr);
-	}
 
 	// Initialize the pulse output socket
 	initSocket();
 
 	// get the simulated angles setup from the configuration
-	SimAngles simAngles = getSimAngles();
+	_simAngles = createSimAngles();
 
 	///////////////////////////////////////////////////////////////////////////
 	//
@@ -146,13 +120,13 @@ CP2ExecThread::run()
 
 	// create the piraqs
 	_piraq0 = new CP2PIRAQ(_pPulseSocket, "NCAR", "CP2Exec", dspObjFileName, 
-		_pulsesPerPciXfer, PMACphysAddr, 0, SHV, _doSimAngles, simAngles, system_clock);
+		_pulsesPerPciXfer, PMACphysAddr, 0, SHV, _doSimAngles, *_simAngles, system_clock);
 
 	_piraq1 = new CP2PIRAQ(_pPulseSocket, "NCAR", "CP2Exec", dspObjFileName, 
-		_pulsesPerPciXfer, PMACphysAddr, 1, XH, _doSimAngles, simAngles, system_clock);
+		_pulsesPerPciXfer, PMACphysAddr, 1, XH, _doSimAngles, *_simAngles, system_clock);
 
 	_piraq2 = new CP2PIRAQ(_pPulseSocket, "NCAR", "CP2Exec", dspObjFileName, 
-		_pulsesPerPciXfer, PMACphysAddr, 2, XV, _doSimAngles, simAngles, system_clock);
+		_pulsesPerPciXfer, PMACphysAddr, 2, XV, _doSimAngles, *_simAngles, system_clock);
 
 	/// @todo Actually do something with the CP2ExecThread piraq initialization errors
 	std::string errorMsg = getPiraqErrors();
@@ -350,8 +324,8 @@ CP2ExecThread::status()
 	return _status;
 }
 /////////////////////////////////////////////////////////////////////
-SimAngles
-CP2ExecThread::getSimAngles()
+SimAngles*
+CP2ExecThread::createSimAngles()
 {
 	// enable/disable simulated angles
 	_doSimAngles = _config.getBool("SimulatedAngles/Enabled", false);
@@ -371,7 +345,8 @@ CP2ExecThread::getSimAngles()
 	double sweepIncrement = _config.getDouble("SimulatedAngles//SweepIncrement", 3.0);
 	int numPulsesPerTransition = _config.getInt("SimulatedAngles//PulsesPerTransition", 31);
 
-	SimAngles simAngles(mode,
+	SimAngles* simAngles = new SimAngles(
+		mode,
 		pulsesPerBeam,
 		beamWidth,
 		rhiAzAngle,
@@ -423,6 +398,12 @@ CP2ExecThread::findPMACdpram()
 
 	pcicard = find_pci_card(0x1172,1,0);
 
+	if (pcicard == 0) {
+		printf("unable to locate PMAC dpram, piraqs will be told to ignore PMAC\n");
+	} else {
+		printf("PMAC DPRAM base addr is 0x%08x\n", pcicard);
+	}
+
 	if(!pcicard)
 		return(0);
 
@@ -431,6 +412,32 @@ CP2ExecThread::findPMACdpram()
 	return reg_base;
 }
 /////////////////////////////////////////////////////////////////////
+void
+CP2ExecThread::configurePciTimer(PciTimer& pciTimer) {
+
+	// bpulse0 of the pciTimer provides the basic PRF
+	int prfWidthWidthCounts = _config.getDouble("Radar/prfWidthWidthCounts", 60);
+	int prfDelayDelayCounts = _config.getDouble("Radar/prfDelayDelayCounts",  1);
+	pciTimer.setBpulse(0, prfWidthWidthCounts, prfDelayDelayCounts);
+
+	// bpulse1 of the PciTimer will provide the strobe for the HV switch.
+	int hvStrobeWidthCounts = _config.getDouble("HVSwitch/hvStrobeWidthCounts",   6);
+	int hvStrobeDelayCounts = _config.getDouble("HVSwitch/hvStrobeDelayCounts", 144);
+	pciTimer.setBpulse(1, hvStrobeWidthCounts, hvStrobeDelayCounts);
+
+	// bpulse2 of the PciTimer will provide the polarization select signal
+	int hvSelectWidthCounts  = _config.getDouble("HVSwitch/hvSelectWidthCounts",   6);
+	int hvSelectDelayCounts  = _config.getDouble("HVSwitch/hvSelectDelayCounts", 144);
+	pciTimer.setBpulse(2, hvSelectWidthCounts, hvSelectDelayCounts);
+
+	// create two sequences. Bpulse0 and bpulse1 will fire on both of them. Bpulse2
+	// will fire only on the first one. Set each sequence length to match the prt length.
+	int prtCounts      = _config.getInt("Piraq/PrtCounts", 6000);
+	pciTimer.addSeqCounts(prtCounts, 0x07, 0, 0);
+	pciTimer.addSeqCounts(prtCounts, 0x06, 0, 0);
+
+}
+
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
 

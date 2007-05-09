@@ -35,8 +35,8 @@ _pThread(0)
 	bool doSimAngles = config.getBool("SimulatedAngles/Enabled", false);
 	_simAnglesText->setText(doSimAngles ? "On":"Off");
 
-	int pciTimerMode = config.getInt("PciTimer/PrfSource", 1);
-	_prfSourceText->setText(pciTimerMode ? "External":"Internal");
+	int prfSource = config.getInt("PciTimer/PrfSource", 0);
+	_prfSourceText->setText(prfSource ? "External":"Internal");
 
 	int system_clock = config.getInt("PciTimer/SystemClock", 48000000);
 	double prt = config.getInt("Piraq/PrtCounts", 6000) * (8.0/(float)system_clock);

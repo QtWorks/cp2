@@ -9,6 +9,7 @@
 #include "CP2Net.h"
 #include "CP2UdpSocket.h"
 #include "CP2Config.h"
+#include "PciTimer.h"
 #include "SimAngles.h"
 
 class CP2ExecThread: public QThread {
@@ -57,18 +58,21 @@ protected:
 	void initSocket();
 	/// Get the simulated angles information from the configuration.
 	/// Will also set the _doSimAngles flag.
-	SimAngles getSimAngles();
+	SimAngles* createSimAngles();
 	/// Collect error messages for all three piraqs.
 	/// @returns Collect error mesages from the piraqs. If
 	/// none, will be an empty string.
 	std::string getPiraqErrors();
-	/// The configuration for CP2Exec
-	CP2Config _config;
 	/// The piraq dsp's will read the antenna pointing information
 	// directly across the pci bus from the PMAC. They need the 
 	/// PCI physical address of the PMAC dual ported ram.
 	/// @return The pci physical address of the PMAC dual ported ram.
 	unsigned int findPMACdpram();
+	/// Configure the PCI timer to generate the PRF and
+	/// H/V switch control signals.
+	void configurePciTimer(PciTimer& pciTimer);
+	/// The configuration for CP2Exec
+	CP2Config _config;
 	/// The S band piraq
 	CP2PIRAQ* _piraq0;
 	/// The Xh piraq
@@ -108,6 +112,7 @@ protected:
 	bool _eofFlags[3];
 	/// Set true if angles are to be simulated
 	bool _doSimAngles;
+	SimAngles* _simAngles;
 
 };
 
