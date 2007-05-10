@@ -85,8 +85,6 @@ CP2PIRAQ::init(char* dspObjFname)
 	_xmit_pulsewidth = _config.getInt("Piraq/xmitWidthCounts", 6);
 	// The number of gates
 	_gates  	     = _config.getInt("Piraq/gates", 950);
-	// hits should not even be needed. Let's make it zero and see what happens
-	_hits		     = 0;
 
 	// convert the prt and pulse widths
 	_rcvr_pulsewidth *= (8.0/(float)_system_clock);
@@ -132,15 +130,20 @@ CP2PIRAQ::init(char* dspObjFname)
 		printf("this fifo_create failed\n"); exit(0);
 	}
 
-	_pFifo->header_off = sizeof(CircularBuffer);						/* pointer to the user header */
-	_pFifo->cbbuf_off = _pFifo->header_off + sizeof(PINFOHEADER);		/* pointer to cb base address */
+	// pointer to the user header 
+	_pFifo->header_off = sizeof(CircularBuffer);					
+	// pointer to cb base address 
+	_pFifo->cbbuf_off = _pFifo->header_off + sizeof(PINFOHEADER);   
+	// size in bytes of each cb record
 	_pFifo->record_size = _pulsesPerPciXfer * (sizeof(PINFOHEADER) 
-		+ (_gates * _bytespergate));    /* size in bytes of each cb record */
-	_pFifo->record_num = PIRAQ_FIFO_NUM;							/* number of records in cb buffer */
-	_pFifo->head = _pFifo->tail = 0;							/* indexes to the head and tail records */
+		+ (_gates * _bytespergate));                                
+	// number of records in cb buffer 
+	_pFifo->record_num = PIRAQ_FIFO_NUM;                            
+	// indices to the head and tail records 
+	_pFifo->head = _pFifo->tail = 0;							    
 
-	printf("Circular buffer address is %p, recordsize = %d\n", _pFifo, _pFifo->record_size);
 	int cbTotalSize = sizeof(CircularBuffer) + PIRAQ_FIFO_NUM*_pFifo->record_size;
+	printf("Circular buffer address is %p, recordsize = %d\n", _pFifo, _pFifo->record_size);
 	printf("Total circular buffer size = %d (0x%08x)\n", cbTotalSize, cbTotalSize); 
 
 	//////////////////////////////////////////////////////////////////
@@ -149,13 +152,23 @@ CP2PIRAQ::init(char* dspObjFname)
 	// be placed there for the Piraq to read.
 	_pConfigPacket = (PPACKET *)cb_get_header_address(_pFifo); 
 
-	_pConfigPacket->info.gates = _gates;
-	_pConfigPacket->info.hits  = _hits;
-	_pConfigPacket->info.bytespergate = 2*sizeof(float);              // CP2: 2 fp I,Q per gate
+	// fill in the config packet. Again, this first packet in the circular
+	// buffer is used to pass configuration data on to the piraq.
+	_pConfigPacket->info.gates           = _gates;
+	// hits should not be used on the piraq. Someday we'll get rid of it, although
+	// changing the packet structure can sometimes mess up the alignment and
+	// foul up comms between host and the piraq.
+	_pConfigPacket->info.hits            = 0;
+	// CP2: 2 fp I,Q per gate
+	_pConfigPacket->info.bytespergate    = 2*sizeof(float);
+	// The number of pulses to transfer in each PCI copy to the circular buffer.
 	_pConfigPacket->info.packetsPerBlock = _pulsesPerPciXfer;
-	_pConfigPacket->info.flag = 0;							          // Preset the flags just in case
-	_pConfigPacket->info.channel = _boardnum;				          // set BOARD number
-	_pConfigPacket->info.rcvrType = _rcvrType;
+	// Preset the flags just in case. Not sure what they are used for.
+	_pConfigPacket->info.flag            = 0;                  
+	// set the board (piraq) number
+	_pConfigPacket->info.channel = _boardnum; 
+	// set the receiver type (e.g. Sband, Xhorix or Xvert).                  
+	_pConfigPacket->info.rcvrType = _rcvrType;                 
 	// set the pmac dpram address
 	_pConfigPacket->info.PMACdpramAddr = _pmacDpramAddr;
 
@@ -165,11 +178,12 @@ CP2PIRAQ::init(char* dspObjFname)
 	delete [] d;
 	printf("loading %s: this->LoadDspCode returns %d\n", dspObjFname, r_c);  
 
-	// Configure the Piraq board timers
-	// NOTE: also programs pll and FIR filter.
+	// Configure the Piraq board timers. NOTE: thisalso programs pll and FIR filter.
 	timerset();								 
 
-	this->SetCP2PIRAQTestAction(SEND_CHA);					//	send CHA by default; SEND_COMBINED after dynamic-range extension implemented 
+	// Send CHA by default; SEND_COMBINED after dynamic-range extension implemented.
+	// Eventually this will be used to control the hi/lo processing.
+	this->SetCP2PIRAQTestAction(SEND_CHA);					
 
 	return 0;
 }
@@ -227,7 +241,6 @@ CP2PIRAQ::poll()
 			header.antSize   = ppacket->info.antSize;
 			header.pulse_num = ppacket->info.pulse_num;
 			header.gates     = ppacket->info.gates;
-			//			header.hits      = ppacket->info.hits;
 			header.status    = 0;
 			header.prt       = _prt;
 			header.xmit_pw   = _xmit_pulsewidth;

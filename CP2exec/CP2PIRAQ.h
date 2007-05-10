@@ -231,10 +231,6 @@ protected:
 	int _timing_mode;
 	/// The number of gates.
 	int _gates;
-	///The number of pulses that will make up a beam. It really
-	/// does not belong here.
-	/// @todo remove _hits from the raw data stream.
-	int _hits;
 	/// The transmit pulse width in seconds.
 	double _xmit_pulsewidth;	
 	/// The recieve pulse width in seconds.
