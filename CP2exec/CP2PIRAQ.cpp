@@ -71,20 +71,20 @@ CP2PIRAQ::init(char* dspObjFname)
 
 	// the timing mode for the onboard piraq timer section. 
 	// 0 = continuous, 1 = triggered, 2 = sync, 
-	_timing_mode     = _config.getInt("Piraq/TimerMode", 1);
+	_timing_mode     = _config.getInt("Piraq/timerMode", 1);
 	// prt in terms of clock counts. 
 	// The correct time base for this is confusing. See calculations below
-	_prt             = _config.getInt("Piraq/PrtCounts", 6000);
+	_prt             = _config.getInt("Piraq/prtCounts", 6000);
 	// set prt2 equal to prt for non-staggered prt operation. CP2 can't do otherwise.
 	_prt2            = _prt;
 	// transmit pulse width in terms of clock counts. 
 	// The correct time base for this is confusing. See calculations below
-	_rcvr_pulsewidth = _config.getInt("Piraq/RcvrWidthCounts", 6);
+	_rcvr_pulsewidth = _config.getInt("Piraq/rcvrWidthCounts", 6);
 	// transmit pulse width in terms of clock counts. 
 	// The correct time base for this is confusing. See calculations below
-	_xmit_pulsewidth = _config.getInt("Piraq/XmitWidthCounts", 6);
+	_xmit_pulsewidth = _config.getInt("Piraq/xmitWidthCounts", 6);
 	// The number of gates
-	_gates  	     = _config.getInt("Piraq/Gates", 950);
+	_gates  	     = _config.getInt("Piraq/gates", 950);
 	// hits should not even be needed. Let's make it zero and see what happens
 	_hits		     = 0;
 
@@ -444,17 +444,17 @@ CP2PIRAQ::timerset()
 	/// @todo The whole timer configuration really needs to be reverse
 	/// engineered and figured out what it is trying to do. There are
 	/// probably capabilities that are not needed for CP2, and just confuse things.
-	int rcvrpulsewidth  = _config.getInt("Piraq/RcvrWidthCounts", 6);
-	int timingmode      = _config.getInt("Piraq/TimerMode", 1); 
-	int gate0mode       = _config.getInt("Piraq/Gate0Enable", 0);
-	int gatesa          = _config.getInt("Piraq/Gates", 950);
+	int rcvrpulsewidth  = _config.getInt("Piraq/rcvrWidthCounts", 6);
+	int timingmode      = _config.getInt("Piraq/timerMode", 1); 
+	int gate0mode       = _config.getInt("Piraq/gate0Enable", 0);
+	int gatesa          = _config.getInt("Piraq/gates", 950);
 	int gatesb          = gatesa; // config.cpp sets an unspecified gatesb equal to gatesa.
 	int sync            = 1;  // default set by config.dsp; don't know what it does.
-	int delay           = _config.getInt("Piraq/Delay", 1); 
-	int tpdelay         = _config.getInt("Piraq/TpDelayCounts", 8);
-	int tpwidth         = _config.getInt("Piraq/TpWidthCounts", 17);
-	int testpulse       = _config.getInt("Piraq/TpEnable", 0);
-	int prt             = _config.getInt("Piraq/PrtCounts", 6000);
+	int delay           = _config.getInt("Piraq/delay", 1); 
+	int tpdelay         = _config.getInt("Piraq/tpDelayCounts", 8);
+	int tpwidth         = _config.getInt("Piraq/tpWidthCounts", 17);
+	int testpulse       = _config.getInt("Piraq/tpEnable", 0);
+	int prt             = _config.getInt("Piraq/prtCounts", 6000);
 	int prt2            = prt;
 	int trigger         = 3;  // based on logic in the old config.cpp, using a trigger spec of one in config.dsp.
 

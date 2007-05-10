@@ -59,7 +59,7 @@ CP2ExecThread::run()
 {
 	_status = PIRAQINIT;
 
-	int gates = _config.getInt("Piraq/Gates", 950);
+	int gates = _config.getInt("Piraq/gates", 950);
 	char c;
 	int piraqs = 0;   
 	long long pulsenum;
@@ -69,15 +69,15 @@ CP2ExecThread::run()
 	// the PciTimer constructor. This makes sure that the Piraq
 	// triggers are not being generated when the Piraq
 	// dsp code is started below.
-	int prfSource   = _config.getInt("PciTimer/PrfSource", 0);
-	double systemClock = _config.getDouble("PciTimer/SystemClock", 48000000.0);
+	int prfSource   = _config.getInt("PciTimer/prfSource", 0);
+	double systemClock = _config.getDouble("PciTimer/systemClock", 48000000.0);
 	PciTimer pciTimer(systemClock, 10000000.0, 50000.0, prfSource);
 
 	// Configure the the timer
 	configurePciTimer(pciTimer);
 
 	// verfy that the dsp object file is accesible
-	std::string _dspObjFile = _config.getString("Piraq/DspObjectFile", "c:/Program Files/NCAR/CP2Soft/cp2piraq.out");
+	std::string _dspObjFile = _config.getString("Piraq/dspObjectFile", "c:/Program Files/NCAR/CP2Soft/cp2piraq.out");
 	FILE* dspEXEC;
 	if ((dspEXEC = fopen(_dspObjFile.c_str(),"r")) == NULL)  
 	{ 
@@ -116,7 +116,7 @@ CP2ExecThread::run()
 	strcpy(dspObjFileName, _dspObjFile.c_str());
 
 	// get the system clock
-	int system_clock = _config.getInt("PciTimer/SystemClock", 48000000);
+	int system_clock = _config.getInt("PciTimer/systemClock", 48000000);
 
 	// create the piraqs
 	_piraq0 = new CP2PIRAQ(_pPulseSocket, "NCAR", "CP2Exec", dspObjFileName, 
@@ -141,7 +141,7 @@ CP2ExecThread::run()
 	//     start with the same beam and pulse number.
 
 	unsigned int pri; 
-	float prt = _config.getInt("Piraq/PrtCounts", 6000) * (8.0/(float)system_clock);
+	float prt = _config.getInt("Piraq/prtCounts", 6000) * (8.0/(float)system_clock);
 	pri = (unsigned int)(((system_clock/8.0)/(float)(1/prt)) + 0.5); 
 	time_t now = time(&now);
 	pulsenum = ((((long long)(now+2)) * (long long)(system_clock/8.0)) / pri) + 1; 
@@ -227,9 +227,9 @@ CP2ExecThread::initSocket()
 	// pulses will be broadcast to. This can be a complete
 	// interface address, such as 192.168.1.3, or 127.0.0.1,
 	// or it can be just the network address such as 192.168.1
-	std::string pulseNetwork = _config.getString("Network/PulseNetwork", "192.168.1");
+	std::string pulseNetwork = _config.getString("Network/pulseNetwork", "192.168.1");
 	// Get the output port
-	_pulsePort = _config.getInt("Network/PulsePort", 3100); 
+	_pulsePort = _config.getInt("Network/pulsePort", 3100); 
 
 	_pPulseSocket = new CP2UdpSocket(pulseNetwork, _pulsePort, true, 10000000, 0);
 	if (!_pPulseSocket->ok()) {
@@ -328,22 +328,22 @@ SimAngles*
 CP2ExecThread::createSimAngles()
 {
 	// enable/disable simulated angles
-	_doSimAngles = _config.getBool("SimulatedAngles/Enabled", false);
+	_doSimAngles = _config.getBool("SimulatedAngles/enabled", false);
 
 	// if PPImode is true, do PPI else RHI
-	bool ppiMode = _config.getBool("SimulatedAngles/PPImode", true);
+	bool ppiMode = _config.getBool("SimulatedAngles/ppiMode", true);
 	SimAngles::SIMANGLESMODE mode = SimAngles::PPI;
 	if (!ppiMode)
 		mode = SimAngles::RHI;
 
-	int pulsesPerBeam = _config.getInt("SimulatedAngles//PulsesPerBeam", 100);
-	double beamWidth = _config.getDouble("SimulatedAngles//BeamWidth", 1.0);
-	double rhiAzAngle = _config.getDouble("SimulatedAngles//RhiAzAngle", 37.5);
-	double ppiElIncrement = _config.getDouble("SimulatedAngles//PpiElIncrement", 2.5);
-	double elMinAngle = _config.getDouble("SimulatedAngles//ElMinAngle", 3.0);
-	double elMaxAngle = _config.getDouble("SimulatedAngles//ElMaxAngle", 42.0);
-	double sweepIncrement = _config.getDouble("SimulatedAngles//SweepIncrement", 3.0);
-	int numPulsesPerTransition = _config.getInt("SimulatedAngles//PulsesPerTransition", 31);
+	int pulsesPerBeam = _config.getInt("SimulatedAngles/pulsesPerBeam", 100);
+	double beamWidth = _config.getDouble("SimulatedAngles/beamWidth", 1.0);
+	double rhiAzAngle = _config.getDouble("SimulatedAngles/rhiAzAngle", 37.5);
+	double ppiElIncrement = _config.getDouble("SimulatedAngles/ppiElIncrement", 2.5);
+	double elMinAngle = _config.getDouble("SimulatedAngles/elMinAngle", 3.0);
+	double elMaxAngle = _config.getDouble("SimulatedAngles/elMaxAngle", 42.0);
+	double sweepIncrement = _config.getDouble("SimulatedAngles/sweepIncrement", 3.0);
+	int numPulsesPerTransition = _config.getInt("SimulatedAngles/pulsesPerTransition", 31);
 
 	SimAngles* simAngles = new SimAngles(
 		mode,
@@ -416,7 +416,7 @@ void
 CP2ExecThread::configurePciTimer(PciTimer& pciTimer) {
 
 	// bpulse0 of the pciTimer provides the basic PRF
-	int prfWidthWidthCounts = _config.getDouble("Radar/prfWidthWidthCounts", 60);
+	int prfWidthWidthCounts = _config.getDouble("Radar/prfWidthWidthCounts",  6);
 	int prfDelayDelayCounts = _config.getDouble("Radar/prfDelayDelayCounts",  1);
 	pciTimer.setBpulse(0, prfWidthWidthCounts, prfDelayDelayCounts);
 
@@ -432,9 +432,9 @@ CP2ExecThread::configurePciTimer(PciTimer& pciTimer) {
 
 	// create two sequences. Bpulse0 and bpulse1 will fire on both of them. Bpulse2
 	// will fire only on the first one. Set each sequence length to match the prt length.
-	int prtCounts      = _config.getInt("Piraq/PrtCounts", 6000);
+	int prtCounts      = _config.getInt("Piraq/prtCounts", 6000);
 	pciTimer.addSeqCounts(prtCounts, 0x07, 0, 0);
-	pciTimer.addSeqCounts(prtCounts, 0x06, 0, 0);
+	pciTimer.addSeqCounts(prtCounts, 0x03, 0, 0);
 
 }
 

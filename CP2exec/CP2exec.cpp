@@ -32,25 +32,25 @@ _pThread(0)
 	int gates = config.getInt("Piraq/Gates", 950);
 	_gatesText->setNum(gates);
 
-	bool doSimAngles = config.getBool("SimulatedAngles/Enabled", false);
+	bool doSimAngles = config.getBool("SimulatedAngles/enabled", false);
 	_simAnglesText->setText(doSimAngles ? "On":"Off");
 
-	int prfSource = config.getInt("PciTimer/PrfSource", 0);
+	int prfSource = config.getInt("PciTimer/prfSource", 0);
 	_prfSourceText->setText(prfSource ? "External":"Internal");
 
-	int system_clock = config.getInt("PciTimer/SystemClock", 48000000);
+	int system_clock = config.getInt("PciTimer/systemClock", 48000000);
 	double prt = config.getInt("Piraq/PrtCounts", 6000) * (8.0/(float)system_clock);
 	QString prf = QString("%1").arg(((1.0)/prt),0,'f',1);
 	_prfHzText->setText(prf);
 
-	double xmit_pulsewidth = config.getInt("Piraq/XmitWidthCounts", 6) * (8.0/(float)system_clock);
+	double xmit_pulsewidth = config.getInt("Piraq/xmitWidthCounts", 6) * (8.0/(float)system_clock);
 	QString xmit = QString("%1").arg(xmit_pulsewidth*1.0e6,0,'f',1);
 	_pwText->setText(xmit);
 	
-	int outPort = config.getInt("Network/PulsePort", 3100);
+	int outPort = config.getInt("Network/pulsePort", 3100);
 	_networkPort->setNum(outPort);
 
-	std::string pulseInterface = config.getString("Network/PulseNetwork", "192.168.1");
+	std::string pulseInterface = config.getString("Network/pulseNetwork", "192.168.1");
 	_networkIP->setText(pulseInterface.c_str());
 
 	// create the main piraq execution thread.
