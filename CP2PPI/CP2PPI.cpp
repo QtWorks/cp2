@@ -243,12 +243,6 @@ CP2PPI::processProduct(CP2Product* pProduct)
 	int gates              = pProduct->header.gates;
 	double gateWidthKm     = pProduct->header.gateWidthKm;
 
-	az = 450 - az;
-	if (az < 0) 
-		az += 360.0;
-	else
-		if (az > 360)
-			az -= 360.0;
 	double el = pProduct->header.el;
 
 	if (_sProductList.find(prodType) != _sProductList.end()) {
@@ -673,7 +667,14 @@ CP2PPI::displaySbeam(double az, double el)
 {
 	if (!_pause) {
 		int gates = _beamSdata[0].size();
-		_ppiS->addBeam(az - 0.5, az + 0.5, gates, _beamSdata, 1, _mapsSband);
+		// convert meterological angle to cartessian angle
+		double cartAz = 450 - az;
+		if (cartAz < 0) 
+			cartAz += 360.0;
+		else
+			if (cartAz > 360)
+				cartAz -= 360.0;
+		_ppiS->addBeam(cartAz - 0.5, cartAz + 0.5, gates, _beamSdata, 1, _mapsSband);
 		if (_ppiSactive) {
 			_azLCD->display((int)az);
 			_elLCD->display((int)el);
@@ -686,7 +687,14 @@ CP2PPI::displayXbeam(double az, double el)
 {
 	if (!_pause) {
 		int gates = _beamXdata[0].size();
-		_ppiX->addBeam(az - 0.5, az + 0.5, gates, _beamXdata, 1, _mapsXband);
+		// convert meterological angle to cartessian angle
+		double cartAz = 450 - az;
+		if (cartAz < 0) 
+			cartAz += 360.0;
+		else
+			if (cartAz > 360)
+				cartAz -= 360.0;
+		_ppiX->addBeam(cartAz - 0.5, cartAz + 0.5, gates, _beamXdata, 1, _mapsXband);
 		if (!_ppiSactive) {
 			_azLCD->display((int)az);
 			_elLCD->display((int)el);
