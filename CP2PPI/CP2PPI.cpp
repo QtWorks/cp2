@@ -141,14 +141,13 @@ _backColor("royalblue")
 	connect(_ringsCheckBox, SIGNAL(stateChanged(int)), this, SLOT(ringStateChanged(int)));
 	connect(_gridsCheckBox, SIGNAL(stateChanged(int)), this, SLOT(gridStateChanged(int)));
 	connect(_colorBar,      SIGNAL(released()),        this, SLOT(colorBarReleasedSlot()));
-	connect(_colorButton,   SIGNAL(released()),        this, SLOT(colorButtonReleasedSlot()));
+	connect(_colorButton,   SIGNAL(released()),        this, SLOT(backColorButtonReleasedSlot()));
+	connect(_ringColorButton,   SIGNAL(released()),    this, SLOT(ringColorButtonReleasedSlot()));
 	connect(_saveButton,    SIGNAL(released()),        this, SLOT(saveImageSlot()));
+	connect(_resetButton,   SIGNAL(released()),        this, SLOT(resetButtonReleasedSlot()));
 
 	_ppiS->backgroundColor(_backColor);
-	_ppiX->refresh();
 	_ppiX->backgroundColor(_backColor);
-	_ppiX->refresh();
-
 
 	// start the statistics timer
 	startTimer(_statsUpdateInterval*1000);
@@ -373,10 +372,12 @@ CP2PPI::ppiTypeSlot(int newPpiType)
 	int index = _ppiInfo[_ppiSType].getPpiIndex();
 	if (_sProductList.find(_ppiSType)!=_sProductList.end()){
 		_ppiS->selectVar(index);
-		_colorBar->configure(*_mapsSband[index]);
+		_colorBar->configure(*_mapsSband[index]);	
+		ZoomFactor->display(_ppiS->getZoom());
 	} else {
 		_ppiX->selectVar(index);
 		_colorBar->configure(*_mapsXband[index]);
+		ZoomFactor->display(_ppiX->getZoom());
 	}
 }
 ////////////////////////////////////////////////////////////////////
@@ -859,11 +860,28 @@ CP2PPI::gridStateChanged(int state) {
 }
 //////////////////////////////////////////////////////////////////////
 void
-CP2PPI::colorButtonReleasedSlot() {
-	_backColor = QColorDialog::getColor("black");
+CP2PPI::backColorButtonReleasedSlot() {
+	_backColor = QColorDialog::getColor("blue");
 
 	_ppiS->backgroundColor(_backColor);
-	_ppiX->refresh();
 	_ppiX->backgroundColor(_backColor);
-	_ppiX->refresh();
+}
+//////////////////////////////////////////////////////////////////////
+void
+CP2PPI::ringColorButtonReleasedSlot() {
+	_ringsGridColor = QColorDialog::getColor("black");
+
+	_ppiS->gridRingsColor(_ringsGridColor);
+	_ppiX->gridRingsColor(_ringsGridColor);
+}
+//////////////////////////////////////////////////////////////////////
+void
+CP2PPI::resetButtonReleasedSlot() {
+	if (_ppiSactive) {
+		_ppiS->setZoom(1.0);
+		ZoomFactor->display(_ppiS->getZoom());
+	} else {
+		_ppiX->setZoom(1.0);
+		ZoomFactor->display(_ppiX->getZoom());
+	}
 }

@@ -69,14 +69,18 @@ public slots:
 	/// Activated when the ColorBarSettings dialog is finished.
 	/// @param result The dialog result code
 	void colorBarSettingsFinishedSlot(int result);
-	/// Called when the Color button has been pushed to activate color choosing.
-	void colorButtonReleasedSlot();
+	/// Called when the Color button has been pushed to activate background color choosing.
+	void backColorButtonReleasedSlot();
+	/// Called when the Color button has been pushed to activate ring/grid color choosing.
+	void ringColorButtonReleasedSlot();
 	/// Called then the ring choice has changed state.
 	void ringStateChanged(int state);
 	/// Called then the grid choice has changed state.
 	void gridStateChanged(int state);
 	/// Save the PPI image.
 	void saveImageSlot();
+	/// reset the zoom
+	void resetButtonReleasedSlot();
 
 protected:
 	/// The configuration for CP2PPI
@@ -210,11 +214,11 @@ protected:
 	double _zoomFactor;
 	/// Decimate the display of gates by this factor. Used to improve
 	/// graphics performance
-	/// Decimate the display of gates by this factor. Used to improve
-	/// graphics performance
+	int _ppiGateDecimation;
 	/// The background color
 	QColor _backColor;
-	int _ppiGateDecimation;
+	/// The rings/grid color
+	QColor _ringsGridColor;
   };
 
 #endif
