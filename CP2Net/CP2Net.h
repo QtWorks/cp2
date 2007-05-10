@@ -16,9 +16,7 @@ typedef struct CP2PulseHeader {
 	int antTrans;
     int  channel;			///< 
     int  gates;				///< The number of gates, set by the host.
-    //int  hits;				///< The number of hits in a beam, set by the host. Used
-							///< to calculate beam number from pulse numbers.
-	int status;           ///< Status that comes from the piraq for each pulse
+	int status;             ///< Status that comes from the piraq for each pulse
 	bool horiz;			    ///< set true for horizontal polarization, false for vertical
 	double prt;				///< The prt, in seconds
 	double xmit_pw;			///< The transmited pulse width, in seconds.
