@@ -201,7 +201,7 @@
           </size>
          </property>
          <property name="text" >
-          <string>Zoom in</string>
+          <string>Zoom In</string>
          </property>
         </widget>
        </item>
@@ -222,7 +222,7 @@
           </size>
          </property>
          <property name="text" >
-          <string>Reset</string>
+          <string>Zoom Reset</string>
          </property>
         </widget>
        </item>
@@ -243,7 +243,7 @@
           </size>
          </property>
          <property name="text" >
-          <string>Zoom out</string>
+          <string>Zoom Out</string>
          </property>
         </widget>
        </item>
@@ -592,14 +592,14 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ColorBar</class>
-   <extends>QWidget</extends>
-   <header>ColorBar.h</header>
-  </customwidget>
-  <customwidget>
    <class>PPI</class>
    <extends>QWidget</extends>
    <header>PPI.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ColorBar</class>
+   <extends>QWidget</extends>
+   <header>ColorBar.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
