@@ -421,13 +421,13 @@ CP2ExecThread::configurePciTimer(PciTimer& pciTimer) {
 	pciTimer.setBpulse(0, prfWidthWidthCounts, prfDelayDelayCounts);
 
 	// bpulse1 of the PciTimer will provide the strobe for the HV switch.
-	int hvStrobeWidthCounts = _config.getDouble("HVSwitch/hvStrobeWidthCounts",   6);
-	int hvStrobeDelayCounts = _config.getDouble("HVSwitch/hvStrobeDelayCounts", 144);
+	int hvStrobeWidthCounts = _config.getDouble("HVSwitch/hvStrobeWidthCounts",  12);
+	int hvStrobeDelayCounts = _config.getDouble("HVSwitch/hvStrobeDelayCounts", 102);
 	pciTimer.setBpulse(1, hvStrobeWidthCounts, hvStrobeDelayCounts);
 
 	// bpulse2 of the PciTimer will provide the polarization select signal
-	int hvSelectWidthCounts  = _config.getDouble("HVSwitch/hvSelectWidthCounts",   6);
-	int hvSelectDelayCounts  = _config.getDouble("HVSwitch/hvSelectDelayCounts", 144);
+	int hvSelectWidthCounts  = _config.getDouble("HVSwitch/hvSelectWidthCounts",  12);
+	int hvSelectDelayCounts  = _config.getDouble("HVSwitch/hvSelectDelayCounts", 102);
 	pciTimer.setBpulse(2, hvSelectWidthCounts, hvSelectDelayCounts);
 
 	// create two sequences. Bpulse0 and bpulse1 will fire on both of them. Bpulse2
@@ -439,5 +439,4 @@ CP2ExecThread::configurePciTimer(PciTimer& pciTimer) {
 }
 
 /////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////
 
