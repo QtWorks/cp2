@@ -435,9 +435,6 @@ int CP2PIRAQ::start(long long firstPulseNum)
 // What the heck is this?
 #define REF     100e3
 
-// Not sure if this is needed anymore.
-#define NCAR_DRX
-
 int  
 CP2PIRAQ::timerset()
 {
