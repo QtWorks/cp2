@@ -123,25 +123,25 @@ _config("NCAR", "CP2Moments")
 	else
 		Sparams.moments_params.window = Params::WINDOW_NONE;
 
-	Sparams.radar.horiz_beam_width                = _config.getDouble("ProcessingSband/horizBeamWidthDeg",  0.91);
-	Sparams.radar.vert_beam_width                 = _config.getDouble("ProcessingSband/vertBeamWidthDeg",   0.91);
-	Sparams.radar.xmit_rcv_mode                   = Params::DP_ALT_HV_CO_ONLY;
+	Sparams.radar.horiz_beam_width       = _config.getDouble("ProcessingSband/horizBeamWidthDeg",  0.91);
+	Sparams.radar.vert_beam_width        = _config.getDouble("ProcessingSband/vertBeamWidthDeg",   0.91);
+	Sparams.radar.xmit_rcv_mode          = Params::DP_ALT_HV_CO_ONLY;
 
 	Sparams.hc_receiver.noise_dBm        = _config.getDouble("ProcessingSband/hc_rcvr_noise_dbm",      -77.0);
 	Sparams.hc_receiver.gain             = _config.getDouble("ProcessingSband/hc_rcvr_gain_db",         37.0);
 	Sparams.hc_receiver.radar_constant   = _config.getDouble("ProcessingSband/hc_rcvr_radar_constant", -68.4);
 
-	Sparams.hx_receiver.noise_dBm        = _config.getDouble("ProcessingSband/hx_rcvr_noise_dbm",      -77.0);
-	Sparams.hx_receiver.gain             = _config.getDouble("ProcessingSband/hx_rcvr_gain_db",         37.0);
-	Sparams.hx_receiver.radar_constant   = _config.getDouble("ProcessingSband/hx_rcvr_radar_constant", -68.4);
+	Sparams.hx_receiver.noise_dBm        = Sparams.hc_receiver.noise_dBm;
+	Sparams.hx_receiver.gain             = Sparams.hc_receiver.gain; 
+	Sparams.hx_receiver.radar_constant   = Sparams.hx_receiver.radar_constant;
 
 	Sparams.vc_receiver.noise_dBm        = _config.getDouble("ProcessingSband/vc_rcvr_noise_dbm",      -77.0);
 	Sparams.vc_receiver.gain             = _config.getDouble("ProcessingSband/vc_rcvr_gain_db",         37.0);
 	Sparams.vc_receiver.radar_constant   = _config.getDouble("ProcessingSband/vc_rcvr_radar_constant", -68.4);
 
-	Sparams.vx_receiver.noise_dBm        = _config.getDouble("ProcessingSband/vx_rcvr_noise_dbm",      -77.0);
-	Sparams.vx_receiver.gain             = _config.getDouble("ProcessingSband/vx_rcvr_gain_db",         37.0);
-	Sparams.vx_receiver.radar_constant   = _config.getDouble("ProcessingSband/vx_rcvr_radar_constant", -68.4);
+	Sparams.vx_receiver.noise_dBm        = Sparams.vc_receiver.noise_dBm;
+	Sparams.vx_receiver.gain             = Sparams.vc_receiver.gain;
+	Sparams.vx_receiver.radar_constant   = Sparams.vc_receiver.radar_constant;
 
 	_pSmomentThread = new MomentThread(Sparams);
 
@@ -173,17 +173,17 @@ _config("NCAR", "CP2Moments")
 	Xparams.hc_receiver.gain             = _config.getDouble("ProcessingXband/hc_rcvr_gain_db",         37.0);
 	Xparams.hc_receiver.radar_constant   = _config.getDouble("ProcessingXband/hc_rcvr_radar_constant", -68.4);
 
-	Xparams.hx_receiver.noise_dBm        = _config.getDouble("ProcessingXband/hx_rcvr_noise_dbm",      -77.0);
-	Xparams.hx_receiver.gain             = _config.getDouble("ProcessingXband/hx_rcvr_gain_db",         37.0);
-	Xparams.hx_receiver.radar_constant   = _config.getDouble("ProcessingXband/hx_rcvr_radar_constant", -68.4);
-
-	Xparams.vc_receiver.noise_dBm        = _config.getDouble("ProcessingXband/vc_rcvr_noise_dbm",      -77.0);
-	Xparams.vc_receiver.gain             = _config.getDouble("ProcessingXband/vc_rcvr_gain_db",         37.0);
-	Xparams.vc_receiver.radar_constant   = _config.getDouble("ProcessingXband/vc_rcvr_radar_constant", -68.4);
+	Xparams.hx_receiver.noise_dBm        = Xparams.hc_receiver.noise_dBm; 
+	Xparams.hx_receiver.gain             = Xparams.hc_receiver.gain; 
+	Xparams.hx_receiver.radar_constant   = Xparams.hc_receiver.radar_constant; 
 
 	Xparams.vx_receiver.noise_dBm        = _config.getDouble("ProcessingXband/vx_rcvr_noise_dbm",      -77.0);
 	Xparams.vx_receiver.gain             = _config.getDouble("ProcessingXband/vx_rcvr_gain_db",         37.0);
 	Xparams.vx_receiver.radar_constant   = _config.getDouble("ProcessingXband/vx_rcvr_radar_constant", -68.4);
+
+	Xparams.vc_receiver.noise_dBm        = Xparams.vx_receiver.noise_dBm; 
+	Xparams.vc_receiver.gain             = Xparams.vx_receiver.gain; 
+	Xparams.vc_receiver.radar_constant   = Xparams.vc_receiver.radar_constant; 
 
 	_pXmomentThread = new MomentThread(Xparams);
 
