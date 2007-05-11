@@ -1,0 +1,9 @@
+/** @page cp2-build Building CP2Soft
+
+- qmake
+- release and debug configurations
+- msi configuration
+- svn repositories
+
+**/
+ 

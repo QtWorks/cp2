@@ -1,0 +1,19 @@
+/** @page cp2-components CP2Soft Software Technologies
+
+- Qt by Trolltech
+ - Designer
+ - UI form and derived class paradigm.
+ - Visual studio integration
+ - qmake
+- Microsoft Visual Studio
+- Microsoft installer (.msi)
+- FFTW
+- QtToolbox
+- OpenGL and GLUT
+- Qwt
+- Doxygen
+
+<h3>Source Tree Structure</h3>
+
+**/
+

@@ -1,0 +1,35 @@
+/**
+
+@mainpage CP2Soft
+
+@section intro Introduction
+
+The CP2 software architecture is based on network distribution
+of pulse and product data, so that any of the CP2 programs,
+excepting the data acquisition program, can be run on any 
+network attached host. This allows the processing load to be 
+distributed as necessary to support the load requirements.
+
+The CP2 software consists of four programs:
+ - CP2Exec: The CP2 signal processor executive, which must run on
+   the CP2 DRX signal procesor box. It broadcasts pulse data collected
+   by the Piraq digital receivers. An overview can be found at 
+   @ref cp2exec-overview.
+   
+ - CP2Moments: Reads pulse data from the network, calculates radar
+   products, and broadcasts these products to the network. An overview can be found at 
+   @ref cp2moments-overview.
+   
+ - CP2Scope: Reads pulse and product data from the network, and presents
+   these in an ascope type display. An overview can be found at 
+   @ref cp2scope-overview.
+   
+ - CP2PPI: reads product data from the network, and presents it in a
+   PPI or RHI type displays. An overview can be found at 
+   @ref cp2ppi-overview.
+
+A summary of the software technologies is provided at @ref cp2-components.
+
+Basic build instructions are located at @ref cp2-build.
+
+**/
