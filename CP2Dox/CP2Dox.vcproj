@@ -190,6 +190,10 @@
 			RelativePath=".\CP2Soft.dox"
 			>
 		</File>
+		<File
+			RelativePath=".\Doxygen"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
