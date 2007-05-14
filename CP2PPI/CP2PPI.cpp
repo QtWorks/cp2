@@ -30,6 +30,7 @@
 
 #include "ColorBarSettings.h"
 #include "CP2Version.h"
+using namespace CP2Lib;
 #include <iostream>
 #include <algorithm>
 

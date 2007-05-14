@@ -33,6 +33,7 @@ CP2PPI is configured via CP2PPI.ini.
 
 // CP2 timeseries network transfer protocol.
 #include "CP2Net.h"
+using namespace CP2Net;
 
 // ProductInfo knows the characteristics of a particular 
 // PPI product display
