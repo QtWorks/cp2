@@ -9,81 +9,89 @@
 #include "CP2Moments.h"
 #include "CP2Net.h"
 #include "CP2Version.h"
-
+using namespace CP2Lib;
 #include <Windows.h>  // just to get Sleep()
 #include <iostream>
 
 /* XPM */
 
 static char *icon[] = {
-/* width height ncolors chars_per_pixel */
-"32 32 12 1",
-/* colors */
-"` c #CBFFFF",
-"a c #AB0000",
-"c c #326565",
-"e c red",
-"g c green",
-"h c #770000",
-"i c #99CCCC",
-"j c #00AB00",
-"l c #007700",
-"m c #005500",
-"q c #DC0000",
-"v c black",
-/* pixels */
-"```````````````````````````````i",
-"`iiiiiiiiiiiiiiiiiiiiiiiiiiiiiic",
-"`iiiiiiiiiiiiiiiiiiiiiiiiiiiiiic",
-"`iiiiiiiiiiiiiiiiiiiviiiiiiiiiic",
-"`iiiiiiiiiiiiiiiiiivlviiiiiiiiic",
-"`iiiiiiiiiiiiiiiiivllmviiiiiiiic",
-"`iiiiiiiiiiiiiiiiiivlmmviiiiiiic",
-"`iiiiiiiiiiiiiiiiiiivmmmviiiiiic",
-"`iiivgvvvgvvvvvvvvvvvvmmmviiiiic",
-"`iiiiggggggggjjjjllllmmmmvviiiic",
-"`iiiiivgvvvggjjjjllllmmmmvvviiic",
-"`iiiiiiggggggjjjjllllmmmmvviiiic",
-"`iiiiiiivgvvvjvvvvvvvvmmmviiiiic",
-"`iiiiiiiiiiiiiiiiiiivmmmviiiiiic",
-"`iiiiiiiiiiviiiiiiivlmmviiiiiiic",
-"`iiiiiiiiivqviiiiivllmviiiiiiiic",
-"`iiiiiiiivqqqviiiiivlviiiiiiiiic",
-"`iiiiiiivqqqviiiiiiiviiiiiiiiiic",
-"`iiiiiiveqqviiiiiiiiiiiiiiiiiiic",
-"`iiiiiveeqvvvvvvvvvvvvhvvvvviiic",
-"`iiiiveeeqqqqaaaahhhhhhhhhviiiic",
-"`iiiveeeeqqqqaaaahhhhvvvhviiiiic",
-"`iiiiveeeqqqqaaaahhhhhhhhiiiiiic",
-"`iiiiiveeqvvvvvvvvhvvvhviiiiiiic",
-"`iiiiiiveqqviiiiiiiiiiiiiiiiiiic",
-"`iiiiiiivqqqviiiiiiiiiiiiiiiiiic",
-"`iiiiiiiivqqqviiiiiiiiiiiiiiiiic",
-"`iiiiiiiiivqviiiiiiiiiiiiiiiiiic",
-"`iiiiiiiiiiviiiiiiiiiiiiiiiiiiic",
-"`iiiiiiiiiiiiiiiiiiiiiiiiiiiiiic",
-"`iiiiiiiiiiiiiiiiiiiiiiiiiiiiiic",
-"iccccccccccccccccccccccccccccccc"
+	/* width height ncolors chars_per_pixel */
+	"32 32 12 1",
+	/* colors */
+	"` c #CBFFFF",
+	"a c #AB0000",
+	"c c #326565",
+	"e c red",
+	"g c green",
+	"h c #770000",
+	"i c #99CCCC",
+	"j c #00AB00",
+	"l c #007700",
+	"m c #005500",
+	"q c #DC0000",
+	"v c black",
+	/* pixels */
+	"```````````````````````````````i",
+	"`iiiiiiiiiiiiiiiiiiiiiiiiiiiiiic",
+	"`iiiiiiiiiiiiiiiiiiiiiiiiiiiiiic",
+	"`iiiiiiiiiiiiiiiiiiiviiiiiiiiiic",
+	"`iiiiiiiiiiiiiiiiiivlviiiiiiiiic",
+	"`iiiiiiiiiiiiiiiiivllmviiiiiiiic",
+	"`iiiiiiiiiiiiiiiiiivlmmviiiiiiic",
+	"`iiiiiiiiiiiiiiiiiiivmmmviiiiiic",
+	"`iiivgvvvgvvvvvvvvvvvvmmmviiiiic",
+	"`iiiiggggggggjjjjllllmmmmvviiiic",
+	"`iiiiivgvvvggjjjjllllmmmmvvviiic",
+	"`iiiiiiggggggjjjjllllmmmmvviiiic",
+	"`iiiiiiivgvvvjvvvvvvvvmmmviiiiic",
+	"`iiiiiiiiiiiiiiiiiiivmmmviiiiiic",
+	"`iiiiiiiiiiviiiiiiivlmmviiiiiiic",
+	"`iiiiiiiiivqviiiiivllmviiiiiiiic",
+	"`iiiiiiiivqqqviiiiivlviiiiiiiiic",
+	"`iiiiiiivqqqviiiiiiiviiiiiiiiiic",
+	"`iiiiiiveqqviiiiiiiiiiiiiiiiiiic",
+	"`iiiiiveeqvvvvvvvvvvvvhvvvvviiic",
+	"`iiiiveeeqqqqaaaahhhhhhhhhviiiic",
+	"`iiiveeeeqqqqaaaahhhhvvvhviiiiic",
+	"`iiiiveeeqqqqaaaahhhhhhhhiiiiiic",
+	"`iiiiiveeqvvvvvvvvhvvvhviiiiiiic",
+	"`iiiiiiveqqviiiiiiiiiiiiiiiiiiic",
+	"`iiiiiiivqqqviiiiiiiiiiiiiiiiiic",
+	"`iiiiiiiivqqqviiiiiiiiiiiiiiiiic",
+	"`iiiiiiiiivqviiiiiiiiiiiiiiiiiic",
+	"`iiiiiiiiiiviiiiiiiiiiiiiiiiiiic",
+	"`iiiiiiiiiiiiiiiiiiiiiiiiiiiiiic",
+	"`iiiiiiiiiiiiiiiiiiiiiiiiiiiiiic",
+	"iccccccccccccccccccccccccccccccc"
 };
 
+/////////////////////////////////////////////////////////////////////////////
 
-CP2Moments::CP2Moments(QDialog* parent):
-QDialog(parent),
+CP2Moments::CP2Moments(QDialog* parent): QDialog(parent),
 _pPulseSocket(0),    
 _pPulseSocketBuf(0),	
 _collator(5000),
 _statsUpdateInterval(5),
 _processSband(true),
 _processXband(true),
-_config("NCAR", "CP2Moments")
+_config("NCAR", "CP2Moments"),	
+_sGates(0),
+_xGates(0),
+_sBeamCount(0),
+_xBeamCount(0),
+_shBiQuad(0),
+_svBiQuad(0),
+_xhBiQuad(0),
+_xvBiQuad(0)
 {
 
+	// initialize fftw for thread usage.
 	fftw_init_threads();
 	fftw_plan_with_nthreads(2);
 
 	// setup our form
 	setupUi(parent);
-
 	this->setWindowIcon(QIcon(QPixmap(icon)));
 
 	// get our title from the coniguration
@@ -100,10 +108,13 @@ _config("NCAR", "CP2Moments")
 		_eof[i] = false;
 		_lastPulseNum[i] = 0;
 	}
-	_sBeamCount = 0;
-	_xBeamCount = 0;
 
 	// get the processing parameters
+	// Do we apply the biquad?
+	_doSbandBiQuad = _config.getBool("ProcessingSband/biQuadEnabled", false);
+	// get the biquad filter parameters
+	getBiQuadCoeffs();
+
 	// create the Sband moments processing thread
 	Params Sparams;
 
@@ -145,6 +156,7 @@ _config("NCAR", "CP2Moments")
 
 	_pSmomentThread = new MomentThread(Sparams);
 
+	_doXbandBiQuad = _config.getBool("ProcessingXband/biQuadEnabled", false);
 	// create the Sband moments processing thread
 	Params Xparams;
 
@@ -194,11 +206,14 @@ _config("NCAR", "CP2Moments")
 
 	// display a few of the processing parameters on the UI.
 	_sPulsesPerBeam->setNum(Sparams.moments_params.n_samples);
-	_sClutterFilter->setText(Sparams.moments_params.apply_clutter_filter ? "On":"Off");
 	_sAzIndexed->setText(Sparams.moments_params.index_beams_in_azimuth ? "On":"Off");
+	_sBiQuadCheck->setChecked(_doSbandBiQuad);
+	_sClutterFilter->setText(Sparams.moments_params.apply_clutter_filter ? "On":"Off");
+
 	_xPulsesPerBeam->setNum(Xparams.moments_params.n_samples);
-	_xClutterFilter->setText(Xparams.moments_params.apply_clutter_filter ? "On":"Off");
 	_xAzIndexed->setText(Xparams.moments_params.index_beams_in_azimuth ? "On":"Off");
+	_xBiQuadCheck->setChecked(_doXbandBiQuad);
+	_xClutterFilter->setText(Xparams.moments_params.apply_clutter_filter ? "On":"Off");
 
 	// start the moments processing threads. They will wait
 	// patiently until their processPulse() functions are
@@ -216,6 +231,10 @@ _config("NCAR", "CP2Moments")
 
 	// set the run state
 	startStopSlot(false);
+
+	// connect check boxes
+	connect(_sBiQuadCheck, SIGNAL(stateChanged(int)), this, SLOT(sBandBiQuadEnable(int)));
+	connect(_xBiQuadCheck, SIGNAL(stateChanged(int)), this, SLOT(xBandBiQuadEnable(int)));
 
 	// start the statistics timer
 	startTimer(_statsUpdateInterval*1000);
@@ -348,58 +367,119 @@ CP2Moments::newPulseDataSlot()
 					}
 					int chan = pPulse->header.channel;
 					if (chan >= 0 && chan < 3) {
-
+						// check error flags, count pulses, etc.
+						pulseBookKeeping(pPulse);
 						// do all of the heavy lifting for this pulse,
 						// but only if processing is enabled.
-						if (_run)
+						if (_run) {
+							// apply the biquad filter, if enabled
+							applyBiQuad(pPulse);
+							// compute moments and send out on network
 							processPulse(pPulse);
-
-						// look for pulse number errors
-						int chan = pPulse->header.channel;
-
-						// check for consecutive pulse numbers
-						if (_lastPulseNum[chan]) {
-							if (_lastPulseNum[chan]+1 != pPulse->header.pulse_num) {
-								_errorCount[chan]++;
-							}
-						}
-						_lastPulseNum[chan] = pPulse->header.pulse_num;
-
-						// count the pulses
-						_pulseCount[chan]++;
-
-						// look for eofs.
-						if (pPulse->header.status & PIRAQ_FIFO_EOF) {
-							switch (chan) 
-							{
-							case 0:
-								if (!_eof[0]) {
-									_eof[0] = true;
-									//_chan0led->setBackgroundColor(QColor("red"));
-								}
-								break;
-							case 1:
-								if (!_eof[1]) {
-									_eof[1] = true;
-									//_chan1led->setBackgroundColor(QColor("red"));
-								}
-								break;
-							case 2:
-								if (!_eof[2]) {
-									_eof[2] = true;
-									//_chan2led->setBackgroundColor(QColor("red"));
-								}
-								break;
-							}
-						}
-					} 
-				} 
+						} 
+					}
+				}
 			}
-		} 
+		}
 	} else {
 		// read error. What should we do here?
 	}
 }
+//////////////////////////////////////////////////////////////////////
+void
+CP2Moments::getBiQuadCoeffs() {
+
+	// these coefficients from an email by Eric Loew, ay 3, 2007.
+
+	_sa1 = _config.getFloat("BiQuad/s_a1", -1.8879310269054523f);
+	_sa2 = _config.getFloat("BiQuad/s_a2", 0.89293022305163017f);
+	_sb0 = _config.getFloat("BiQuad/s_b0", 1.0f);
+	_sb1 = _config.getFloat("BiQuad/s_b1", -1.9998230753949735f);
+	_sb2 = _config.getFloat("BiQuad/s_b2", 1.0f);
+
+	_xa1 = _config.getFloat("BiQuad/x_a1", -1.8879310269054523f);
+	_xa2 = _config.getFloat("BiQuad/x_a2", 0.89293022305163017f);
+	_xb0 = _config.getFloat("BiQuad/x_b0", 1.0f);
+	_xb1 = _config.getFloat("BiQuad/x_b1", -1.9998230753949735f);
+	_xb2 = _config.getFloat("BiQuad/x_b2", 1.0f);
+}
+//////////////////////////////////////////////////////////////////////
+void
+CP2Moments::applyBiQuad(CP2Pulse* pPulse) 
+{
+	int chan = pPulse->header.channel;
+	int gates = pPulse->header.gates;
+	// reconfigure biquad filters if necessary.
+	// *** Warning - there are returns in the following case statement ***
+	switch (chan) {
+		case 0:
+			// S band H and V pulses
+			if (!_doSbandBiQuad)
+				return;
+			if (gates != _sGates) {
+				// number of gates have changed; create new filters
+				if (_shBiQuad) {
+					delete _shBiQuad;
+					delete _svBiQuad;
+				}
+				_sGates = gates;
+				_shBiQuad = new CP2PulseBiQuad(_sGates, _sa1, _sa2, _sb0, _sb1, _sb2);
+				_svBiQuad = new CP2PulseBiQuad(_sGates, _sa1, _sa2, _sb0, _sb1, _sb2);
+			}
+			break;
+		case 1:
+		case 2:
+			// X band H and V pulses
+			if (!_doXbandBiQuad)
+				return;
+			if (gates != _xGates) {
+				// number of gates have changed; create new filters
+				if (_xhBiQuad) {
+					delete _shBiQuad;
+					delete _svBiQuad;
+				}
+				_xGates = gates;
+				_xhBiQuad = new CP2PulseBiQuad(_xGates, _xa1, _xa2, _xb0, _xb1, _xb2);
+				_xvBiQuad = new CP2PulseBiQuad(_xGates, _xa1, _xa2, _xb0, _xb1, _xb2);
+			}
+			break;
+		default:
+			{ 
+				// if we get here, something is realy wrong
+				return;
+			}
+	}
+
+	// apply the biquad filters
+
+	switch (chan) {
+			case 0: 
+				// Apply the filter. The filtering is done in place.
+				if (pPulse->header.horiz) {
+					// Sh pulse
+					_shBiQuad->tick(*pPulse);
+				} else {
+					// Sv pulse
+					_svBiQuad->tick(*pPulse);
+				}
+				break;
+			case 1: 
+				// Xh pulse
+				// Apply the filter. The filtering is done in place.
+				_xhBiQuad->tick(*pPulse);
+				break;
+			case 2:
+				// Xv pulse
+				// Apply the filter. The filtering is done in place.
+				_xvBiQuad->tick(*pPulse);
+				break;
+			default:
+				{ 
+					// if we get here, something is realy wrong
+				}
+	}
+}
+
 //////////////////////////////////////////////////////////////////////
 void
 CP2Moments::processPulse(CP2Pulse* pPulse) 
@@ -413,8 +493,8 @@ CP2Moments::processPulse(CP2Pulse* pPulse)
 	if (chan == 0) 
 	{	
 		// S band pulses: are successive coplaner H and V pulses
-		// this horizontal switch is a hack for now; we really
-		// need to find the h/v flag in the pulse header.
+		/// @todo Verify that the h/v flags are correctly making it all 
+		/// of the way through the moments processing 
 		CP2FullPulse* pFullPulse = new CP2FullPulse(pPulse);
 		if (_processSband) {
 			_pSmomentThread->processPulse(pFullPulse, 0);
@@ -426,8 +506,11 @@ CP2Moments::processPulse(CP2Pulse* pPulse)
 		// 0 if nothing is ready yet.
 		pBeam = _pSmomentThread->getNewBeam();
 		if (pBeam) {
+			// we got a complete beam, send it out on the network.
 			sBeamOut(pBeam);
+			// and return the storage.
 			delete pBeam;
+			// bump the counter
 			_sBeamCount++;
 		}
 	} else {
@@ -457,7 +540,7 @@ CP2Moments::processPulse(CP2Pulse* pPulse)
 				_pXmomentThread->processPulse(pHPulse, pVPulse);
 			} else {
 
-				// finished with these pulses, so delete them.
+				// not processing x band, so delete them.
 				delete pHPulse;
 				delete pVPulse;
 			}
@@ -468,9 +551,11 @@ CP2Moments::processPulse(CP2Pulse* pPulse)
 			pBeam = 0;
 		}
 		if (pBeam) {
-			// we have X products
+			// we have X products, send on the network
 			xBeamOut(pBeam);
+			// return the storage
 			delete pBeam;
+			// bump the counter
 			_xBeamCount++;
 		}
 	}
@@ -603,4 +688,58 @@ CP2Moments::xBeamOut(Beam* pBeam)
 	for (int i = 0; i < gates; i++) { _xProductData[i] = fields[i].ldrh;   }
 	sendProduct(header, _xProductData, _xProductPacket, true);
 
+}
+/////////////////////////////////////////////////////////////////////
+void 
+CP2Moments::pulseBookKeeping(CP2Pulse* pPulse) 
+{
+	// look for pulse number errors
+	int chan = pPulse->header.channel;
+
+	// check for consecutive pulse numbers
+	if (_lastPulseNum[chan]) {
+		if (_lastPulseNum[chan]+1 != pPulse->header.pulse_num) {
+			_errorCount[chan]++;
+		}
+	}
+	_lastPulseNum[chan] = pPulse->header.pulse_num;
+
+	// count the pulses
+	_pulseCount[chan]++;
+
+	// look for eofs.
+	if (pPulse->header.status & PIRAQ_FIFO_EOF) {
+		switch (chan) 
+		{
+		case 0:
+			if (!_eof[0]) {
+				_eof[0] = true;
+				//_chan0led->setBackgroundColor(QColor("red"));
+			}
+			break;
+		case 1:
+			if (!_eof[1]) {
+				_eof[1] = true;
+				//_chan1led->setBackgroundColor(QColor("red"));
+			}
+			break;
+		case 2:
+			if (!_eof[2]) {
+				_eof[2] = true;
+				//_chan2led->setBackgroundColor(QColor("red"));
+			}
+			break;
+		}
+	}
+}
+/////////////////////////////////////////////////////////////////////
+void
+CP2Moments::sBandBiQuadEnable(int state) {
+	_doSbandBiQuad = (state == Qt::Checked);
+}
+
+/////////////////////////////////////////////////////////////////////
+void 
+CP2Moments::xBandBiQuadEnable(int state) {
+	_doXbandBiQuad = (state == Qt::Checked);
 }

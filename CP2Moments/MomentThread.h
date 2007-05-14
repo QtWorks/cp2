@@ -8,6 +8,7 @@
 
 // CP2 timeseries network transfer protocol.
 #include "CP2Net.h"
+using namespace CP2Net;
 
 // Clases used in the moments computatons:
 #include "MomentsEngine.hh"

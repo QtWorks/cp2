@@ -37,6 +37,10 @@ MomentThread::run()
 			std::pair<CP2FullPulse*, CP2FullPulse*> pp = _pulseQueue[0];
 			CP2FullPulse* p1 = pp.first;
 			CP2FullPulse* p2 = pp.second;
+			// cross polar data, if available, appears in p2. Otherwise
+			// p2 is zero. The MomentsEngine detects the presence of
+			// cross data in the same way, hence the selection of the following
+			// two calls.
 			if (p2) {
 			_momentsEngine->processPulse(
 				p1->data(),

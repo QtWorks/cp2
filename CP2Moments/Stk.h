@@ -23,7 +23,8 @@
 // following user-definable floating-point type.  You
 // can change this to "float" if you prefer or perhaps
 // a "long double" in the future.
-typedef double StkFloat;
+//typedef double StkFloat;
+typedef float StkFloat;
 
 // The "MY_FLOAT" type was deprecated in STK
 // versions higher than 4.1.3 and replaced with the variable

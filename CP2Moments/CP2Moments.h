@@ -5,6 +5,7 @@ CP2Moments reads pulse data from the network, computes radar products, and
 broadcasts these to the network. A single product for all gates is called 
 a 'beam'. Configuration is managed by CP2Moments.ini.
 
+
 **/
 
 #ifndef CP2MomentsH_
@@ -23,7 +24,13 @@ a 'beam'. Configuration is managed by CP2Moments.ini.
 #include "MomentThread.h"
 #include "CP2UdpSocket.h" 
 #include "CP2Config.h"
+#include "CP2PulseBiQuad.h"
 
+using namespace CP2Net;
+
+/// The piraq scaling factor. The floating point values from the 
+/// Piraq are multiplied by this factor to normalize them to 
+/// volts. 
 #define PIRAQ3D_SCALE	1.0/(unsigned int)pow(2.0,31)	
 /// request this much space for the pulse socket receive buffer
 #define CP2MOMENTS_PULSE_RCVBUF 100000000
@@ -33,27 +40,36 @@ a 'beam'. Configuration is managed by CP2Moments.ini.
 /// used when determininga broadcast address.
 #define MAX_NBR_OF_ETHERNET_CARDS 10
 
-/// CP2Moments is a Qt based application which reads S band and X band
-/// pulses from a datagram sockets, feeds these pulses into moments
-/// calculation engines, and then transmits the resulting Beam products
-/// back to the network.
-///
-/// A pulse is a vector of I/Q data along the gates,
-/// from one radar channel (S, Xh or Xv).
-///
-/// A beam is a vector of multiple radar parameters along
-/// the gates, for either the S band radar or the X band radar. 
-/// The S beams are derived from the S band pulses.
-/// The X beams are derived from the Xh and Xv pulses. 
-/// Since the Xh and Xv pulses arrive as independent
-/// datagrams, a collator is used to align Xh and Xv
-/// pulses with identical timestamps, before delivering
-/// them to the moments computation.
+/*!
+CP2Moments is a Qt based application which reads S band and X band
+pulses from a datagram sockets, feeds these pulses into moments
+calculation engines, and then transmits the resulting Beam products
+back to the network.
+
+A pulse is a vector of I/Q data along the gates,
+from one radar channel (S, Xh or Xv).
+
+A beam is a vector of multiple radar parameters along
+the gates, for either the S band radar or the X band radar. 
+The S beams are derived from the S band pulses.
+The X beams are derived from the Xh and Xv pulses. 
+Since the Xh and Xv pulses arrive as independent
+datagrams, a collator is used to align Xh and Xv
+pulses with identical timestamps, before delivering
+them to the moments computation.
+
+processPulse() is perhaps the critical routine in CP2Moments.
+It is where the data marshalling occurs, collating Xh and Xv,
+before sending them onto the moments engine.
+
+*/
 class CP2Moments: public QDialog, public Ui::CP2Moments 
 {
 	Q_OBJECT
 public:
+	/// Constructor
 	CP2Moments(QDialog* parent=0);
+	/// Destructor
 	virtual ~CP2Moments();
 
 public slots:
@@ -61,6 +77,11 @@ public slots:
 	void startStopSlot(bool);
 	/// Call when new pulse data is available on the pulse socket.
 	void newPulseDataSlot();
+	/// Checkbox for S band biquad
+	void sBandBiQuadEnable(int);
+	/// Checkbox for X band biquad
+	void xBandBiQuadEnable(int);
+
 
 protected:
 	/// The builtin timer will be used to display statistics.
@@ -77,13 +98,24 @@ protected:
 	/// Send out a products data gram for X band.
 	/// @param pBeam The Xband beam.
 	void xBeamOut(Beam* pBeam);
-	void sendProduct(CP2ProductHeader& header, 
-						 std::vector<double>& data,
-						 CP2Packet& packet,
-						 bool forceSend=false);
+	/// Collect products in a packet. Send the packet
+	/// on the network when it reaches a certain size,
+	/// or if send immediately if specified.
+	void sendProduct(CP2ProductHeader& header,       ///< The product header.
+						 std::vector<double>& data,  ///< The product data.
+						 CP2Packet& packet,          ///< A packet which the dat will be buffered in.
+						 bool forceSend=false);      ///< If true, send the packet immediately.
+	/// Get the BiQuad filer coefficients. They are read from the configuration.
+	void getBiQuadCoeffs();
+	/// apply the biquad filter to the pulse. The biquad enable
+	/// flags are checked; if not set then no filtering is applied.
+	/// @param pPulse The pulse to be filtered
+	void applyBiQuad(CP2Pulse* pPulse);
+	// Do some book keeping, check eof flags, etc.
+	void pulseBookKeeping(CP2Pulse* pPulse);
 	/// set true if products are to be calculated; false otherwise.
 	bool _run;
-	/// The thread which will compute S band moments
+	/// The thread which will compute S band moments.
 	MomentThread* _pSmomentThread;
 	/// The thread which will compute X band moments.
 	MomentThread* _pXmomentThread;
@@ -138,6 +170,22 @@ protected:
 	/// in this packet, and then the individual pulses can
 	/// be pulled out of it.
 	CP2Packet _pulsePacket;
+	/// set true if the biqaud clutter filter is activated for Sband.
+	bool _doSbandBiQuad;
+	/// set true if the biqaud clutter filter is activated for Xband.
+	bool _doXbandBiQuad;
+	/// The IIR filter for the Sh channel
+	CP2PulseBiQuad* _shBiQuad;
+	/// The IIR filter for the Sv channel
+	CP2PulseBiQuad* _svBiQuad;
+	/// BiQuad filer coefficients for the Sband
+	float _sa1, _sa2, _sb0, _sb1, _sb2;
+	/// The IIR filter for the Xh channel
+	CP2PulseBiQuad* _xhBiQuad;
+	/// The IIR filter for the Xv channel
+	CP2PulseBiQuad* _xvBiQuad;
+	/// BiQuad filer coefficients for the Xband
+	float _xa1, _xa2, _xb0, _xb1, _xb2;
 	/// The Sband beam products will be filled into this packet, and 
 	/// then it will be writen to the network.
 	CP2Packet _sProductPacket;
@@ -148,6 +196,10 @@ protected:
 	CP2Config _config;
 	/// The gate spacing in km
 	double _gateSpacing;
+	/// The number of S gates. It will initially be zero.
+	int _sGates;
+	/// The number of X gates. It will initially be zero.
+	int _xGates;
 };
 
 #endif

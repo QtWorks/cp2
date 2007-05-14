@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>434</width>
-    <height>550</height>
+    <width>432</width>
+    <height>558</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -88,45 +88,62 @@
           <property name="spacing" >
            <number>6</number>
           </property>
-          <item row="2" column="0" >
-           <widget class="QLabel" name="label_7" >
-            <property name="text" >
-             <string>Az Indexed Beams</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1" >
-           <widget class="QLabel" name="_sPulsesPerBeam" >
-            <property name="text" >
-             <string>0</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0" >
+          <item row="3" column="0" colspan="2" >
            <widget class="QLabel" name="label_2" >
             <property name="text" >
-             <string>Clutter Filter</string>
+             <string>FFT Clutter Filter</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="1" >
-           <widget class="QLabel" name="_sClutterFilter" >
-            <property name="text" >
-             <string>Off</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1" >
+          <item row="1" column="2" >
            <widget class="QLabel" name="_sAzIndexed" >
             <property name="text" >
              <string>Off</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="0" >
+          <item row="2" column="1" colspan="2" >
+           <widget class="QCheckBox" name="_sBiQuadCheck" >
+            <property name="layoutDirection" >
+             <enum>Qt::RightToLeft</enum>
+            </property>
+            <property name="text" >
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" colspan="2" >
            <widget class="QLabel" name="label" >
             <property name="text" >
              <string>Pulses per Beam</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="2" >
+           <widget class="QLabel" name="label_7" >
+            <property name="text" >
+             <string>Az Indexed Beams</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2" >
+           <widget class="QLabel" name="_sClutterFilter" >
+            <property name="text" >
+             <string>Off</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" >
+           <widget class="QLabel" name="label_9" >
+            <property name="text" >
+             <string>BiQuad IIR Filter</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2" >
+           <widget class="QLabel" name="_sPulsesPerBeam" >
+            <property name="text" >
+             <string>0</string>
             </property>
            </widget>
           </item>
@@ -141,8 +158,8 @@
         </property>
         <property name="sizeHint" >
          <size>
-          <width>40</width>
-          <height>20</height>
+          <width>31</width>
+          <height>80</height>
          </size>
         </property>
        </spacer>
@@ -176,22 +193,46 @@
           <property name="spacing" >
            <number>6</number>
           </property>
-          <item row="2" column="0" >
+          <item row="3" column="0" >
+           <widget class="QLabel" name="label_5" >
+            <property name="text" >
+             <string>FFT Clutter Filter</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" >
            <widget class="QLabel" name="label_8" >
             <property name="text" >
              <string>Az Indexed Beams</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="1" >
-           <widget class="QLabel" name="_xClutterFilter" >
+          <item row="2" column="1" >
+           <widget class="QCheckBox" name="_xBiQuadCheck" >
+            <property name="layoutDirection" >
+             <enum>Qt::RightToLeft</enum>
+            </property>
             <property name="text" >
-             <string>Off</string>
+             <string/>
             </property>
            </widget>
           </item>
-          <item row="2" column="1" >
-           <widget class="QLabel" name="_xAzIndexed" >
+          <item row="2" column="0" >
+           <widget class="QLabel" name="label_10" >
+            <property name="text" >
+             <string>BiQuad IIR Filter</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" >
+           <widget class="QLabel" name="_xPulsesPerBeam" >
+            <property name="text" >
+             <string>0</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1" >
+           <widget class="QLabel" name="_xClutterFilter" >
             <property name="text" >
              <string>Off</string>
             </property>
@@ -204,17 +245,10 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="1" >
-           <widget class="QLabel" name="_xPulsesPerBeam" >
+          <item row="1" column="1" >
+           <widget class="QLabel" name="_xAzIndexed" >
             <property name="text" >
-             <string>0</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0" >
-           <widget class="QLabel" name="label_5" >
-            <property name="text" >
-             <string>Clutter Filter</string>
+             <string>Off</string>
             </property>
            </widget>
           </item>
