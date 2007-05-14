@@ -49,8 +49,8 @@
 ///
 /// <h3>PCI Timer Bpulse Definitions</h3>
 /// - bpulse(0) - Gate0 pulse to the piraq cards (t0)
-/// - bpulse(1) - H/V switch strobe (t0 - 16uS)
-/// - bpulse(2) - H/V switch select (t0 - 16uS) (alternates each PRF)
+/// - bpulse(1) - H/V switch strobe (t0 - 22uS)
+/// - bpulse(2) - H/V switch select (t0 - 22uS) (alternates each PRF)
 /// - bpulse(3) - PRF pulse for Xband (t0 - ? uS)
 /// - bpulse(4) - PRF pulse to CP2 timing generator (t0 - 24uS)
 ///
