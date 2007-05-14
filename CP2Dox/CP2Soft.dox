@@ -10,6 +10,55 @@ excepting the data acquisition program, can be run on any
 network attached host. This allows the processing load to be 
 distributed as necessary to support the load requirements.
 
+A summary of the software technologies (compilers, toolkits, 
+build systems, revison control, etc.)
+is provided at @ref cp2-components.
+
+Basic build instructions are located at @ref cp2-build.
+
+@section definitions-conventions Definitions and Conventions
+
+There are a few terms and concepts which are used throughout 
+the CP2Soft architecture. Understanding these
+will make the code, programs and data flow easier to understand.
+- Pulse: A pulse is defined as the received I and Q data 
+for all gates for a single pulse. It 
+is often referred to as the times series data. CP2PulseHeader, 
+CP2Pulse and CP2FullPulse are used to manage pulse data.
+- Beam: A beam is the result of processing and combining a 
+number of pulses. The number of pulses is often referred to as 
+"hits" or "nhits". 
+- Product: A product is one type of calculated value, derived 
+from one or more pulses. They are also know as moments. Dbz, 
+velocity, and width are examples of products. A single product for all
+gates along a beam is mananaged with the CP2ProductHeader and 
+CP2Product classes. Products are computed by CP2Moments.
+- Qt: The CP2 software makes extensive use of the Trolltech Qt
+package. Programs which have graphical user interfaces (currently
+all CP2Soft programs) will be built on Qt. Subsystems which have
+no user interface functionality will not depend upon Qt. For instance,
+the data encapsulation classes listed above,and the moments calculation
+library are independent of Qt.
+- QtToolbox: The basic graphical rendering components are isolated in
+the general purpose QtToolbox visualization library. This library is
+used in many other systems, and so care must be taken not to make
+modifications which will limit the functionality of other packages
+using QtTolbox.
+
+@section piraqs The Infamous Piraq
+There are three Piraq digital receiver cards. The data stream from a 
+Piraq is sometimnes given a channel number, thus the channel assignments
+are:
+- Sband Piraq: channel 0
+- Xh Piraq: channel 1
+- Xv Piraq: channel 2
+
+Each Piraq is delivering pulses at the same rate. 
+The Sband receiver produces alternating horizontal and vertical pulses. These are
+distinguished by an H/V flag in the pulse header.
+
+@section cp2soft-programs CP2Soft Programs
+
 The CP2 software consists of four programs:
  - CP2Exec: The CP2 signal processor executive, which must run on
    the CP2 DRX signal procesor box. It broadcasts pulse data collected
@@ -17,8 +66,8 @@ The CP2 software consists of four programs:
    @ref cp2exec-overview.
    
  - CP2Moments: Reads pulse data from the network, calculates radar
-   products, and broadcasts these products to the network. An overview can be found at 
-   @ref cp2moments-overview.
+   products, and broadcasts these products to the network. An overview 
+   can be found at @ref cp2moments-overview.
    
  - CP2Scope: Reads pulse and product data from the network, and presents
    these in an ascope type display. An overview can be found at 
@@ -27,15 +76,24 @@ The CP2 software consists of four programs:
  - CP2PPI: reads product data from the network, and presents it in a
    PPI or RHI type displays. An overview can be found at 
    @ref cp2ppi-overview.
-
-A summary of the software technologies is provided at @ref cp2-components.
-
-Basic build instructions are located at @ref cp2-build.
-
+   
 @section program-configuration Program Configuration
 
-@section data-networking Networked Data
+Configuration specification for all applications is handled by the
+Qt  QSettings scheme, 
+which provides a convenient .ini file
+interface mechanism. These files are edited by a standard text
+editor, and read at startup by each application. To change 
+a program's configuration, edit the file and then restart 
+the application.
 
-@section doxygen-usage Doxygen Usage
+The configuration files are stored in the default QSettings
+location: C:\\Documents and Settings\\\<User Name\>\\Application Data.
+Note that \<User Name\> is currently "CP2 Tester" on the
+CP2-DRX and CP2-Viz machines. See 
+<a href=http://doc.trolltech.com/4.2/qsettings.htmll#platform-specific-notes>
+QSettings </a> for other options on .ini file locations.
+
+@section data-networking Networked Data
 
 **/
