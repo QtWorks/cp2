@@ -27,6 +27,9 @@ public:
 	void setDouble(std::string key, double d);
 	double getDouble(std::string key, double defaultValue);
 
+	void setFloat(std::string key, float d);
+	float getFloat(std::string key, float defaultValue);
+
 	void setInt(std::string key, int i);
 	int getInt(std::string key, int defaultValue);
 

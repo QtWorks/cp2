@@ -80,6 +80,24 @@ CP2Config::getDouble(std::string key, double defaultValue)
 
 //////////////////////////////////////////////////////////
 void
+CP2Config::setFloat(std::string key, float value) 
+{
+	_settings.setValue(key.c_str(), value);
+	sync();
+}
+
+//////////////////////////////////////////////////////////
+float
+CP2Config::getFloat(std::string key, float defaultValue) 
+{
+	float d = _settings.value(key.c_str(), defaultValue).toDouble();
+	_settings.setValue(key.c_str(), d);
+	sync();
+	return d;
+}
+
+//////////////////////////////////////////////////////////
+void
 CP2Config::setInt(std::string key, int value) 
 {
 	_settings.setValue(key.c_str(), value);
