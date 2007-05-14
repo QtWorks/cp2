@@ -373,12 +373,12 @@ CP2Scope::displayData()
 		case ScopePlot::TIMESERIES:
 			if (_performAutoScale)
 				autoScale(I, Q);
-			_scopePlot->TimeSeries(I, Q, yBottom, yTop, 1);
+			_scopePlot->TimeSeries(I, Q, yBottom, yTop, 1, "Gate", "I - Q (V)");
 			break;
 		case ScopePlot::IVSQ:
 			if (_performAutoScale)
 				autoScale(I, Q);
-			_scopePlot->IvsQ(I, Q, yBottom, yTop, 1); 
+			_scopePlot->IvsQ(I, Q, yBottom, yTop, 1, "I (V)", "Q (V)"); 
 			break;
 		case ScopePlot::SPECTRUM:
 			_scopePlot->Spectrum(_spectrum, 
@@ -394,12 +394,16 @@ CP2Scope::displayData()
 	} else {
 		if (_performAutoScale)
 			autoScale(_ProductData);
+		// send in the product id, which ScopePlot::Product() uses
+		// to decide if axis rescaling is needed.
 		PlotInfo* pi = &_prodPlotInfo[_productPlotType];
 		_scopePlot->Product(_ProductData, 
 			pi->getId(), 
 			yBottom, 
 			yTop, 
-			_ProductData.size());
+			_ProductData.size(),
+			"Gate",
+			pi->getLongName());
 	}
 }
 
