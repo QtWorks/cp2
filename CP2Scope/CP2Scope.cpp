@@ -32,6 +32,7 @@
 #include <qwt_wheel.h>
 
 #include "CP2Version.h"
+using namespace CP2Lib;
 
 //////////////////////////////////////////////////////////////////////
 CP2Scope::CP2Scope(QDialog* parent):

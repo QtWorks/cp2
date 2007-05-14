@@ -33,6 +33,7 @@ CP2Scope is configured via CP2Scope.ini.
 
 // CP2 timeseries network transfer protocol.
 #include "CP2Net.h"
+using namespace CP2Net;
 
 // PlotInfo knows the characteristics of a plot
 #include "PlotInfo.h"
