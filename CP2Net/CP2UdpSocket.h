@@ -3,8 +3,15 @@
 #include <QUdpSocket>
 #include <QHostAddress>
 #include <string>
-//#include <winsock.h>
 
+/**
+@brief Provide UDP socket services.
+
+CP2QUdpSocket extends the QUdpSocket class to add some default
+behavior, such as increasing buffer sizes, locating broadcast
+interfaces, and providing text translations of IP information.
+
+**/
 class CP2UdpSocket: public QUdpSocket {
 public:
 	/// @param network Set this to the network IP of the interface

@@ -1,6 +1,8 @@
 #include "CP2Net.h"
 #include <iostream>
 
+using namespace CP2Net;
+
 CP2Packet::CP2Packet():
 _dataSize(0)
 {
