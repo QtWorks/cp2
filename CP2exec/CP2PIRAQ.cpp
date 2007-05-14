@@ -461,9 +461,9 @@ CP2PIRAQ::timerset()
 	int gatesb          = gatesa; // config.cpp sets an unspecified gatesb equal to gatesa.
 	int sync            = 1;  // default set by config.dsp; don't know what it does.
 	int delay           = _config.getInt("Piraq/delay", 1); 
-	int tpdelay         = _config.getInt("Piraq/tpDelayCounts", 8);
-	int tpwidth         = _config.getInt("Piraq/tpWidthCounts", 17);
-	int testpulse       = _config.getInt("Piraq/tpEnable", 0);
+	int tpdelay         = _config.getInt("Piraq/tpDelayCounts", 1);
+	int tpwidth         = _config.getInt("Piraq/tpWidthCounts", 6);
+	int testpulse       = _config.getInt("Piraq/tpEnable", 1);
 	int prt             = _config.getInt("Piraq/prtCounts", 6000);
 	int prt2            = prt;
 	int trigger         = 3;  // based on logic in the old config.cpp, using a trigger spec of one in config.dsp.

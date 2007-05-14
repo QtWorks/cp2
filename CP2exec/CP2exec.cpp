@@ -4,6 +4,7 @@
 #include "CP2Version.h"
 #include <iostream>
 
+using namespace CP2Lib;
 
 CP2Exec::CP2Exec(QDialog* parent):
 QDialog(parent),

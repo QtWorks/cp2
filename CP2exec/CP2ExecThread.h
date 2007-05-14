@@ -12,6 +12,8 @@
 #include "PciTimer.h"
 #include "SimAngles.h"
 
+using namespace CP2Lib;
+
 class CP2ExecThread: public QThread {
 
 public:

@@ -1,5 +1,7 @@
 #ifndef CP2PIRAQINC_
 #define CP2PIRAQINC_
+
+
 #include "Piraq.h"
 #include "piraqComm.h"
 #include "CP2Net.h"
@@ -50,6 +52,8 @@
 #define STATCLR1(card,a)       (card->GetControl()->UnSetBit_StatusRegister1(a)) ///< *card->status0 &= ~(a)
 #define STATTOG1(card,a)       if(STATUSRD0(card,a)) { STATCLR1(card,a);}else{STATSET1(card,a);} ///< *card->status0 ^= (a)
 #define STATPLL(card,a)        STATUS1(card,STATUSRD1(card,0xFFF8) |  (a))
+
+using namespace CP2Net;
 
 ///
 ///\brief

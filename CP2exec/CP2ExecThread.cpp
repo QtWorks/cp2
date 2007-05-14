@@ -415,26 +415,42 @@ CP2ExecThread::findPMACdpram()
 void
 CP2ExecThread::configurePciTimer(PciTimer& pciTimer) {
 
-	// bpulse0 of the pciTimer provides the basic PRF
-	int prfWidthWidthCounts = _config.getDouble("Radar/prfWidthWidthCounts",  6);
-	int prfDelayDelayCounts = _config.getDouble("Radar/prfDelayDelayCounts",  1);
-	pciTimer.setBpulse(0, prfWidthWidthCounts, prfDelayDelayCounts);
+	int prtCounts      = _config.getInt("Piraq/prtCounts", 6000);
+
+	// bpulse0 of the pciTimer is gate0 for the Piraqs (t0)
+	pciTimer.setBpulse(0, 6, 1);
 
 	// bpulse1 of the PciTimer will provide the strobe for the HV switch.
-	int hvStrobeWidthCounts = _config.getDouble("HVSwitch/hvStrobeWidthCounts",  12);
-	int hvStrobeDelayCounts = _config.getDouble("HVSwitch/hvStrobeDelayCounts", 102);
-	pciTimer.setBpulse(1, hvStrobeWidthCounts, hvStrobeDelayCounts);
+	int hvStrobeWidthCounts = _config.getInt("HVSwitch/hvStrobeWidthCounts",  12);
+	int hvStrobeDelayCounts = _config.getInt("HVSwitch/hvStrobeDelayCounts", 102);
+	pciTimer.setBpulse(1, hvStrobeWidthCounts, prtCounts-hvStrobeDelayCounts);
 
 	// bpulse2 of the PciTimer will provide the polarization select signal
-	int hvSelectWidthCounts  = _config.getDouble("HVSwitch/hvSelectWidthCounts",  12);
-	int hvSelectDelayCounts  = _config.getDouble("HVSwitch/hvSelectDelayCounts", 102);
-	pciTimer.setBpulse(2, hvSelectWidthCounts, hvSelectDelayCounts);
+	// It must alternate every prf.
+	int hvSelectWidthCounts  = _config.getInt("HVSwitch/hvSelectWidthCounts",  12);
+	int hvSelectDelayCounts  = _config.getInt("HVSwitch/hvSelectDelayCounts", 102);
+	pciTimer.setBpulse(2, hvSelectWidthCounts, prtCounts-hvSelectDelayCounts);
+
+	// bpulse3 of the PciTimer will provide the Xband PRF pulse
+	// The timer is sending gate0 to the Piraqs, so set the transmit pulse
+	// relative to gate0. This means that the very first pulse of
+	// Piraq sampling will not see a transmitted signal.
+	int xPrfWidthWidthCounts = _config.getInt("Radar/xPrfWidthWidthCounts",  6);
+	int xPrfDelayDelayCounts = _config.getInt("Radar/xPrfDelayDelayCounts",  18);
+	pciTimer.setBpulse(3, xPrfWidthWidthCounts, prtCounts-xPrfDelayDelayCounts);
+
+	// bpulse4 of the PciTimer will provide the Sband PRF pulse
+	// The timer is sending gate0 to the Piraqs, so set the transmit pulse
+	// relative to gate0. This means that the very first pulse of
+	// Piraq sampling will not see a transmitted signal.
+	int sPrfWidthWidthCounts = _config.getInt("Radar/sPrfWidthWidthCounts",  6);
+	int sPrfDelayDelayCounts = _config.getInt("Radar/sPrfDelayDelayCounts",  144);
+	pciTimer.setBpulse(4, sPrfWidthWidthCounts, prtCounts-sPrfDelayDelayCounts);
 
 	// create two sequences. Bpulse0 and bpulse1 will fire on both of them. Bpulse2
 	// will fire only on the first one. Set each sequence length to match the prt length.
-	int prtCounts      = _config.getInt("Piraq/prtCounts", 6000);
-	pciTimer.addSeqCounts(prtCounts, 0x07, 0, 0);
-	pciTimer.addSeqCounts(prtCounts, 0x03, 0, 0);
+	pciTimer.addSeqCounts(prtCounts, 0x1f, 0, 0);
+	pciTimer.addSeqCounts(prtCounts, 0x1b, 0, 0);
 
 }
 
