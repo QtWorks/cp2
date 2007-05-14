@@ -1,9 +1,15 @@
-/// Provide a version number for the CP2 software
+#ifndef CP2VERSIONINC_
+#define CP2VERSIONINC_
+
 #include <string>
 
-struct CP2Version {
-public:
-	static std::string revision();
+namespace CP2Lib {
+	/// Provide a version number for the CP2 software
+
+	struct CP2Version {
+	public:
+		static std::string revision();
+	};
 };
 
-	
+#endif

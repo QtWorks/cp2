@@ -1,6 +1,8 @@
 #include "PciTimer.h"
 #include <time.h>
 
+using namespace CP2Lib;
+
 /////////////////////////////////////////////////////
 PciTimer::PciTimer(float systemClock,
 				   float refFrequency,
