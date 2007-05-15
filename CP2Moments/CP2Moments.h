@@ -179,13 +179,13 @@ protected:
 	/// The IIR filter for the Sv channel
 	CP2PulseBiQuad* _svBiQuad;
 	/// BiQuad filer coefficients for the Sband
-	float _sa1, _sa2, _sb0, _sb1, _sb2;
+	float _sa11, _sa12, _sb10, _sb11, _sb12, _sa21, _sa22, _sb20, _sb21, _sb22;
 	/// The IIR filter for the Xh channel
 	CP2PulseBiQuad* _xhBiQuad;
 	/// The IIR filter for the Xv channel
 	CP2PulseBiQuad* _xvBiQuad;
 	/// BiQuad filer coefficients for the Xband
-	float _xa1, _xa2, _xb0, _xb1, _xb2;
+	float _xa11, _xa12, _xb10, _xb11, _xb12, _xa21, _xa22, _xb20, _xb21, _xb22;
 	/// The Sband beam products will be filled into this packet, and 
 	/// then it will be writen to the network.
 	CP2Packet _sProductPacket;

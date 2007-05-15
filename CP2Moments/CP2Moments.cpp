@@ -391,17 +391,29 @@ CP2Moments::getBiQuadCoeffs() {
 
 	// these coefficients from an email by Eric Loew, ay 3, 2007.
 
-	_sa1 = _config.getFloat("BiQuad/s_a1", -1.8879310269054523f);
-	_sa2 = _config.getFloat("BiQuad/s_a2", 0.89293022305163017f);
-	_sb0 = _config.getFloat("BiQuad/s_b0", 1.0f);
-	_sb1 = _config.getFloat("BiQuad/s_b1", -1.9998230753949735f);
-	_sb2 = _config.getFloat("BiQuad/s_b2", 1.0f);
+	_sa11 = _config.getFloat("BiQuad/s_a11", -1.8879310269054523f);
+	_sa12 = _config.getFloat("BiQuad/s_a12", 0.89293022305163017f);
+	_sb10 = _config.getFloat("BiQuad/s_b10", 1.0f);
+	_sb11 = _config.getFloat("BiQuad/s_b11", -1.9998230753949735f);
+	_sb12 = _config.getFloat("BiQuad/s_b12", 1.0f);
 
-	_xa1 = _config.getFloat("BiQuad/x_a1", -1.8879310269054523f);
-	_xa2 = _config.getFloat("BiQuad/x_a2", 0.89293022305163017f);
-	_xb0 = _config.getFloat("BiQuad/x_b0", 1.0f);
-	_xb1 = _config.getFloat("BiQuad/x_b1", -1.9998230753949735f);
-	_xb2 = _config.getFloat("BiQuad/x_b2", 1.0f);
+	_sa21 = _config.getFloat("BiQuad/s_a21", -1.9765168993177902f);
+	_sa22 = _config.getFloat("BiQuad/s_a22", 0.97954329118391725f);
+	_sb20 = _config.getFloat("BiQuad/s_b20", 1.0f);
+	_sb21 = _config.getFloat("BiQuad/s_b21", -1.9990748878268811f);
+	_sb22 = _config.getFloat("BiQuad/s_b22", 1.0f);
+
+	_xa11 = _config.getFloat("BiQuad/x_a11", -1.8879310269054523f);
+	_xa12 = _config.getFloat("BiQuad/x_a12", 0.89293022305163017f);
+	_xb10 = _config.getFloat("BiQuad/x_b10", 1.0f);
+	_xb11 = _config.getFloat("BiQuad/x_b11", -1.9998230753949735f);
+	_xb12 = _config.getFloat("BiQuad/x_b12", 1.0f);
+
+	_xa21 = _config.getFloat("BiQuad/x_a21", -1.9765168993177902f);
+	_xa22 = _config.getFloat("BiQuad/x_a22", 0.97954329118391725f);
+	_xb20 = _config.getFloat("BiQuad/x_b20", 1.0f);
+	_xb21 = _config.getFloat("BiQuad/x_b21", -1.9998230753949735f);
+	_xb22 = _config.getFloat("BiQuad/x_b22", 1.0f);
 }
 //////////////////////////////////////////////////////////////////////
 void
@@ -423,8 +435,8 @@ CP2Moments::applyBiQuad(CP2Pulse* pPulse)
 					delete _svBiQuad;
 				}
 				_sGates = gates;
-				_shBiQuad = new CP2PulseBiQuad(_sGates, _sa1, _sa2, _sb0, _sb1, _sb2);
-				_svBiQuad = new CP2PulseBiQuad(_sGates, _sa1, _sa2, _sb0, _sb1, _sb2);
+				_shBiQuad = new CP2PulseBiQuad(_sGates, _sa11, _sa12, _sb10, _sb11, _sb12, _sa21, _sa22, _sb20, _sb21, _sb22);
+				_svBiQuad = new CP2PulseBiQuad(_sGates, _sa11, _sa12, _sb10, _sb11, _sb12, _sa21, _sa22, _sb20, _sb21, _sb22);
 			}
 			break;
 		case 1:
@@ -439,8 +451,8 @@ CP2Moments::applyBiQuad(CP2Pulse* pPulse)
 					delete _svBiQuad;
 				}
 				_xGates = gates;
-				_xhBiQuad = new CP2PulseBiQuad(_xGates, _xa1, _xa2, _xb0, _xb1, _xb2);
-				_xvBiQuad = new CP2PulseBiQuad(_xGates, _xa1, _xa2, _xb0, _xb1, _xb2);
+				_xhBiQuad = new CP2PulseBiQuad(_xGates, _xa11, _xa12, _xb10, _xb11, _xb12, _xa21, _xa22, _xb20, _xb21, _xb22);
+				_xvBiQuad = new CP2PulseBiQuad(_xGates, _xa11, _xa12, _xb10, _xb11, _xb12, _xa21, _xa22, _xb20, _xb21, _xb22);
 			}
 			break;
 		default:
