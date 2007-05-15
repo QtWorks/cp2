@@ -127,10 +127,6 @@ _backColor("royalblue")
 		_mapsXband[index] = pMap;
 	}
 
-	// set the intial plot type
-	_ppiSType = PROD_S_DBZ;
-	ppiTypeSlot(PROD_S_DBZ);
-
 	// connect the control buttons
 	ZoomFactor->display(1.0);
 	_zoomFactor = _config.getDouble("zoomFactor", 1.2);
@@ -149,6 +145,9 @@ _backColor("royalblue")
 
 	_ppiS->backgroundColor(_backColor);
 	_ppiX->backgroundColor(_backColor);
+
+	ppiTypeSlot(PROD_S_DBZ);
+	_ppiStack->setCurrentIndex(0);
 
 	// start the statistics timer
 	startTimer(_statsUpdateInterval*1000);
@@ -389,7 +388,7 @@ CP2PPI::initPlots()
 {
 
 	// set the initial plot type
-	_ppiSType = PROD_S_DBZ;
+	_ppiSType = PROD_S_DBMHC;
 
 	_sProductList.insert(PROD_S_DBMHC);
 	_sProductList.insert(PROD_S_DBMVC);
