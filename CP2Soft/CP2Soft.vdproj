@@ -57,6 +57,18 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_3A4E856D961105F6A640CC785C792A02"
+        "OwnerKey" = "8:_C8D2BBF322194651A059EC2D7C6B5F07"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_3EB6AD4A2FE80B8CC7E40C38D03171EA"
+        "OwnerKey" = "8:_C8D2BBF322194651A059EC2D7C6B5F07"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_4BB2882734C8472ABFBD9BB68C0498C8"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -81,32 +93,50 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_7D9436E38EBA422F8D983806EAE63A09"
-        "OwnerKey" = "8:_4BB2882734C8472ABFBD9BB68C0498C8"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_7D9436E38EBA422F8D983806EAE63A09"
-        "OwnerKey" = "8:_F343FDA288604E58B04A6DC822016495"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_7D9436E38EBA422F8D983806EAE63A09"
-        "OwnerKey" = "8:_C935B21A55AD438A83C1A85F72C006BE"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_82EC8F72228FE56A017EA49C04A6A8E8"
         "OwnerKey" = "8:_F343FDA288604E58B04A6DC822016495"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
+        "MsmKey" = "8:_96DEC222236F4DEEB1AA633F7EA38D95"
+        "OwnerKey" = "8:_B15B77DDFBF143AF8530344FCA1C6309"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_9AB26F5AE14C49CD8CC029163A0C8AE3"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_A076F5BB5BE5FE31A4D9C7391204C061"
         "OwnerKey" = "8:_4BB2882734C8472ABFBD9BB68C0498C8"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_B15B77DDFBF143AF8530344FCA1C6309"
+        "OwnerKey" = "8:_4BB2882734C8472ABFBD9BB68C0498C8"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_B15B77DDFBF143AF8530344FCA1C6309"
+        "OwnerKey" = "8:_F343FDA288604E58B04A6DC822016495"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_B15B77DDFBF143AF8530344FCA1C6309"
+        "OwnerKey" = "8:_C935B21A55AD438A83C1A85F72C006BE"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_B15B77DDFBF143AF8530344FCA1C6309"
+        "OwnerKey" = "8:_C8D2BBF322194651A059EC2D7C6B5F07"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -119,12 +149,6 @@
         {
         "MsmKey" = "8:_BB1A812B91ED462FA8F51C93EDD96A6C"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_C83ADBB143AF47588E8765E58DB5691A"
-        "OwnerKey" = "8:_7D9436E38EBA422F8D983806EAE63A09"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -183,6 +207,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_DAA54A30D1CCEB07587806757AABB869"
+        "OwnerKey" = "8:_C8D2BBF322194651A059EC2D7C6B5F07"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_E0BC80C76589DFCB44F581C0C1186B81"
         "OwnerKey" = "8:_4BB2882734C8472ABFBD9BB68C0498C8"
         "MsmSig" = "8:_UNDEFINED"
@@ -197,6 +227,12 @@
         {
         "MsmKey" = "8:_E0BC80C76589DFCB44F581C0C1186B81"
         "OwnerKey" = "8:_C935B21A55AD438A83C1A85F72C006BE"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_E0BC80C76589DFCB44F581C0C1186B81"
+        "OwnerKey" = "8:_C8D2BBF322194651A059EC2D7C6B5F07"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -388,6 +424,26 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3EB6AD4A2FE80B8CC7E40C38D03171EA"
+            {
+            "SourcePath" = "8:PiraqIII_RevD_Driver.dll"
+            "TargetName" = "8:PiraqIII_RevD_Driver.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_04305C9CADE44428B7EE853F880CDD96"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5236DA134480B5A2A4CFB6C535B6FEDA"
             {
             "SourcePath" = "8:PPI.dll"
@@ -466,6 +522,26 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9AB26F5AE14C49CD8CC029163A0C8AE3"
+            {
+            "SourcePath" = "8:..\\Artifacts\\Documents\\General\\Hubbert Moments Calcs.pdf"
+            "TargetName" = "8:Hubbert Moments Calcs.pdf"
+            "Tag" = "8:"
+            "Folder" = "8:_47315AC19BA64E489F335B6FF02BF9A9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A076F5BB5BE5FE31A4D9C7391204C061"
@@ -684,6 +760,17 @@
             "Property" = "8:TARGETDIR"
                 "Folders"
                 {
+                    "{9EF0B969-E518-4E46-987F-47570745A589}:_47315AC19BA64E489F335B6FF02BF9A9"
+                    {
+                    "Name" = "8:Docs"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_6EC4B4C43BC7439FB55DABC21A99CA1F"
+                        "Folders"
+                        {
+                        }
+                    }
                     "{9EF0B969-E518-4E46-987F-47570745A589}:_F3FBAB01F710467F94BBCCBD0EFD6456"
                     {
                     "Name" = "8:PiraqSupport"
@@ -1373,11 +1460,11 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_7D9436E38EBA422F8D983806EAE63A09"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_96DEC222236F4DEEB1AA633F7EA38D95"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:Microsoft_VC80_CRT_x86.msm"
+            "SourcePath" = "8:policy_8_0_microsoft_vc80_crt_x86.msm"
                 "Properties"
                 {
                 }
@@ -1387,11 +1474,11 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_C83ADBB143AF47588E8765E58DB5691A"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_B15B77DDFBF143AF8530344FCA1C6309"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:policy_8_0_microsoft_vc80_crt_x86.msm"
+            "SourcePath" = "8:Microsoft_VC80_CRT_x86.msm"
                 "Properties"
                 {
                 }
