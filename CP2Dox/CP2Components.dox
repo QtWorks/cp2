@@ -1,18 +1,117 @@
 /** @page cp2-components CP2Soft Software Technologies
 
 @section qt Qt by Trolltech
+
 @subsection Designer
  - UI form and derived class paradigm.
  - Visual studio integration
+ 
+ @subsection Plugins
+ - 
  - qmake
+ 
 @section ms-vs Microsoft Visual Studio
+- debug versus release builds
+- svnInfo.h
+- libraries are linked out of their source build trees.
+
 @section ms-msi Microsoft installer (.msi)
+- DLL dependencies etc.
+
 @section fftw FFTW
+- threading
+- using downloaded binaries
+- 
+
 @section stk Signal-processing Toolkit STK
+
 @section qttoolbox QtToolbox
+
 @section opengl OpenGL and GLUT
+
 @section qwt Qwt
+
+<a href=http://qwt.sourceforge.net> Qwt </a> is a scientific visualization
+toolkit built on Qt. It is utilized by QtTool box for the ScopePlot,
+which forms the core display for CP2Scope. Thus, qwt must be in place
+before trying to build the QtToolbox. The QwtPlot provides the high 
+performance x-y plotting widget used in CP2Scope.
+
+Qwt is built from the qwt sources, which are checked out directly
+from the qwt subversion repository. Instructions are provided in the
+distribution for building under Visual Studio. As with the other Visual
+Studio projects, a debug and a release version are built, in order to
+provide for debugging.
+
+There a few comments relating to the build of Qwt, gleaned from the INSTALL
+file and tweaks for our application.
+- From a DOS window, cd to c:\\Projects\\qwt. Enter <i>admin\make-msvc.bat vc</i>
+to create the Visual Studio .vcproj files.
+- Open qwt.vcproj in Visual Studio. Do a solution save, which will create 
+qwt.sln.
+- Within Visual Studio, add all of the other .vcproj files, using File->Add->Existing Project.
+Be sure to include the qwt plugin project. The example projects can be added as desired (They
+do create some neat examples).
+- Edit the qwt project properties, and for the debug configuration, change the
+linker output file from ../lib/qwt5.dll to qwt5d.dll. This prevents the debug DLLs from
+being overwritten by the release build.
+- For each of the example projects, and qwt_designer_plugin, edit the 
+properties and change the linker input specification to use the debug versions
+of qwt; i.e. change the library specification from ../lib/qwt5.dll to ../libqwt5d.lib.
+If this is not done, the debug versions will link, but they will silently start
+and then exit when run in debug mode.
+- Build the debug and release configurations. These should create separate debug
+and release DLLs for the qwt library and the qwt designer plugin.
+- Copy c:\\Projects\\qwt\\lib\\qwt5.dll to c:\\Qt\\4.2.2\\plugins\designer.
+- Copy c::\\Projects\\qwt\\designer\\plugins\\designer\\qwt_designer_plugin.dll to  c:\\Qt\\4.2.2\\plugins\designer.
+
 @section doxygen Doxygen
+<a href=http://www.doxygen.org> Doxygen </a> 
+is utilized to produce extensive 
+formatted documentation for much of the
+CP2 system. The generated product includes source code documentation,
+operation instructions, configuration procedures, and generally
+any information which relates to the software system.
+
+Doxygen is run as a separate program, outside of the
+development IDE. To create the formatted documentation,
+doxygen parses the source files and detects special comment blocks.
+The comment blocks are non-intrusive. Usually
+one simply uses a special comment start indicator ( ///, or
+/**) to associate the comment with the code following
+it. Class, member functions, function parameters and data
+members are documented n this way. A simple syntax 
+provides for creation of additional documentation 
+artifacts.
+
+<b>Generating the CP2 Documentation</b>
+- Run <i>Doxywizard</i> from the Start->Programs->Doxygen menu
+- Use the <i>Load</i> button to load the doxygen configuration from C:/Projects/CP2/CP2Dox/Doxygen
+- Press the <i>Start</i> button to start doxygen.
+- When the processing is complete, the generated html can be entered via the standard
+<a href=C:/Projects/CP2/Artifacts/Doxygen/html/index.html index.html </a> page.
+
+<b>The Doxygen Tools</b>
+
+The main Doxygen package creates the normal documentation. It has a large number
+of configuration parameters which can be tweaked to tailor the process and also
+to  produce different output formats (html, Latex, etc.). 
+
+With the inclusion of the <i>Dot</i> program, doxygen will create 
+useful call graphs. Dot is proviced by the <i>graphviz</i> package.
+
+Configuration of doxygen for CP2 is performed via the previously specified
+C:/Projects/CP2/CP2Dox/Doxygen. 
+
+Most of the CP2 documentation is entered as doxygen comments in the 
+header and implementation source files. A few files containing overview
+information exist. These files have a <i>.dox</i> extension.
+
+The <i>CP2Dox</i> project, in the CP2 Visual Studio solution, contains
+the .dox files, and the Doygen configuration file. This project was
+created so that it is easy to open and edit these files from within
+the Visual Studio IDE. There are no build actions for the CP2Dox project.
+
 @section subversion Subversion
 @section source-tree Source Tree Structure
 **/
