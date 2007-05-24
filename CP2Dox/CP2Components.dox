@@ -2,13 +2,209 @@
 
 @section qt Qt by Trolltech
 
-@subsection Designer
- - UI form and derived class paradigm.
- - Visual studio integration
+A quick overview of Qt, and its application to CP2 software,
+is given here. The <a href="http://doc.trolltech.com/4.2/index.html">
+Qt documentation</a> is outstanding, and
+should be consulted for in-depth information.
+
+All CP2 programs with graphical interfaces (i.e. all CP2 programs)
+are based on Trolltech's Qt4 package. Qt is an elegant and robust
+system that provides a rich user interface environment, as well
+as many other supporting services. Its signal/slot paradigm provides
+a powerful foundation for asynchronous event handling, and is
+available not only for user interface callbacks such as button
+presses and so on, but also for other activities such as 
+data availabilty on sockets, timer timeouts, etc.
+
+In addition to utilizing the Qt user interface components,
+the CP2 software has taken advantage of other Qt capabilities,
+notably the networking and thread management facilities. This 
+decision was made because these components are very well
+designed, easy to use, and of course integrate naturally with the
+Qt user interface system. However, effort has been taken to isolate
+and minimize the dependence on non-gui Qt facilities, so that
+these structures could be replaced easily if necessary.
+
+Qt allows user interfaces to be completely defined in
+source code. However, it is far easier to take advantage
+of the Qt user interface builder, know as <i>designer</i>,
+to layout user interfaces. This approach has been used for 
+all CP2 user interfaces.
+
+The CP2Exec and CP2Moments programs are similar in that
+they have significant computational activities which must
+not be interrupted by user interface actions. These programs
+are designed such that the computational tasks are performed
+in a separate thread, which is spawned from the user interface.
+The Qt thread support library is utilized here. The typical 
+design has a class which implements the user interface, 
+and a QThread derived class which provides the compute
+thread. The interface thread, which is the main program
+thread and contains the Qt event loop, calls functions in
+the compute class in order to send and receive data products,
+send commands to the compute thread, or request status from
+the compute thread. The compute thread makes use of standard 
+mutual exclusion techniques where necessary. In this design, 
+the compute thread class is not aware of the user interface
+class, and thus never calls into the user interface thread.
+
+The CP2Scope and CP2PPI programs are similar in that
+they are user interface applications which are also data driven.
+Qt defines signals that are generated upon data availabilty
+on a socket. These signals can be handled like any other
+Qt user interface signal, and the received data is essentially
+passed directly onto a display component. Thus there is no need to
+create a multithreaded design for these programs.
+
+@subsection Designer Using Designer
+
+The Qt designer is used to create user interface spcifications.
+All components on the interface can be assigned a name,
+which will become a pointer to a variable of the type
+for that interface element. For instance, a push button
+dropped on the form and named _pStartButton would correspond
+to: 
+@code
+QPushButton* _pStartButton;
+@endcode
+Designer generated specifications are saved in an XML formatted
+file with a .ui extension. A complete interface is referred
+to as a form. The top level form type will be 
+a Qt component, such as a QDialog, or QMainWindow.
+
+In the Qt4 system, the .ui files are translated at build time
+by the <i>User Interface Compiler (uic)</i> into a header file.
+A standard naming convention is followed. For example, uic
+would process CP2Exec.ui to produce a ui_CP2Exec.h.
+The header file contains a class definition <b>and</b>
+implmentation for a class which implements the form
+defined in the .ui definition file. The class name is created
+from the top level widget name on the form. Thus if
+the top level widget is a QDialog, given the name 
+CP2Exec, then the generated class becomes Ui_CP2Exec.
+<i>Note that this class is not derived from any 
+Qt classes</i>. Rather, an initialization member function contains 
+an argument that is a pointer to the type of Qt component.
+In our CP2Exec example, the class definition then contains:
+@code
+class Ui_CP2Exec
+{
+public:
+...
+    void setupUi(QDialog *CP2Exec)
+    {
+    ...
+    };
+...
+};
+@endcode
+
+To put the form to use in our application, we create a class
+which is multiply derived from the form's type and the uic created
+class:
+@code
+class CP2Exec: public QDialog, public Ui::CP2Exec 
+{
+	Q_OBJECT
+public:
+	CP2Exec(QDialog* parent);
+	virtual ~CP2Exec();
+...
+};
+@endcode
+The first activity in the constructor of our class is to call the
+form initialization function, which will create and populate
+the form:
+@code
+CP2Exec::CP2Exec(QDialog* parent):
+QDialog(parent)
+{
+	setupUi(parent);
+...
+}
+@endcode
+Don't forget to call the constructor for the form's class, in this
+case QDialog(parent), or all sorts of mischief will follow.
+
+So far we have described how user interface classes are created
+and utilized. Many classes will need to interact with the user interface,
+and employ the signal/slot mechanism. The Qt <i> Meta-Object Compiler (moc)</i>
+makes this possible.
+
+A couple of special symbols are utilized in Qt based classes 
+to identify Qt mechanisms in the header files. The moc scans the
+header file, finds these definitions, and creates an implmentation
+file that provides the glue for the Qt interactions. In particular,
+the <i>Q_OBJECT</i> macro is the first line in any
+class which references any QObject derived classes.
+The <i>public slots:</i> element delineates sections in the
+class definition that define slots. Likewise, the 
+<i>signals:</i> item indicates that signal definitions
+follow in the class definition.
+
+Typically, the moc scans all header files, and if it finds these 
+constructs, it will create a new implmentation file. Thus,
+moc would create moc_CP2Exec.cpp from CP2Exec.h. The moc
+generated files will be compiled and linked with all of the
+user defined source files in the project.
+
+@subsection ms-vs-qt-integration Qt Integration With Visual Studio
+Visual Studio typically uses an individual project to 
+define and create a library or an application. A collection
+of projects can be amalgomated into a Visual Studio
+solution.
+
+Qt4 has excellent integration with Visual Studio. This
+is provided by the Trolltech Visual Studio Addin. The addin
+provides the dependency checking and target definitions
+necessary to apply the User Interface Compiler and the 
+Meta-Object Compiler, and then build and link the output
+files from these tools. 
+
+In theory, all of the interaction between Visual Studio and
+Qt can be managed via this addin. However, the experience with 
+this has been less than reliable. Instead, the CP2 project 
+makes use of the Qt <i>qmake</i> facility. 
+
+In practice, a Visual Studio project is defined in a
+qmake .pro file. qmake processes this file, and generates
+a Visual Studio project definition in a .vcproj file. 
+The .pro defines the type of product to be created,
+such as an executable or a library. It specifies all of 
+the source files, including .ui files. Different 
+configuration types, such as release or debug, can be 
+defined.
+
+The advantage of using qmake is that the .pro files
+are quite succinct at defining quite complicated
+build requirements, and this definition can be
+cleanly managed and preserved in a text file. The
+downside is that qmake must be run via a DOS window
+in the directory where the .pro file is located. 
+The .pro file must be edited and qmake run again
+to regenerate a new .vcproj file whenever files
+or added or removed from the project. This really
+is not needed very often, however.
+
+Qmake can be run to create a new .vcproj file
+even when Visual Studio is open and accessing that
+project. Visual Studio will recognize that the 
+project has been updated, and offer to reload it.
+
+To run qmake, simply open a DOS window, change
+to the appropriate directory, and run qmake. It will
+process any .pro files foud in that directory.
+
+The batch script <i>runQmake.bat</i> is available 
+in the top CP2 directory to run qmake and generate all of 
+the .vcproj files for projects that depend on Qt.
  
- @subsection Plugins
- - 
- - qmake
+@subsection Plugins
+Qt provides a mechanism for creating components which
+can be accessed in the designer. These are known as
+designer plugins. The CP2 software does not create any
+plugins, but it does use plugins that are provided by
+the QtToolbox.
  
 @section ms-vs Microsoft Visual Studio
 - debug versus release builds
@@ -31,7 +227,7 @@
 
 @section qwt Qwt
 
-<a href=http://qwt.sourceforge.net> Qwt </a> is a scientific visualization
+<a href="http://qwt.sourceforge.net"> Qwt </a> is a scientific visualization
 toolkit built on Qt. It is utilized by QtTool box for the ScopePlot,
 which forms the core display for CP2Scope. Thus, qwt must be in place
 before trying to build the QtToolbox. The QwtPlot provides the high 
@@ -66,7 +262,7 @@ and release DLLs for the qwt library and the qwt designer plugin.
 - Copy c::\\Projects\\qwt\\designer\\plugins\\designer\\qwt_designer_plugin.dll to  c:\\Qt\\4.2.2\\plugins\designer.
 
 @section doxygen Doxygen
-<a href=http://www.doxygen.org> Doxygen </a> 
+<a href="http://www.doxygen.org"> Doxygen </a> 
 is utilized to produce extensive 
 formatted documentation for much of the
 CP2 system. The generated product includes source code documentation,
@@ -89,7 +285,7 @@ artifacts.
 - Use the <i>Load</i> button to load the doxygen configuration from C:/Projects/CP2/CP2Dox/Doxygen
 - Press the <i>Start</i> button to start doxygen.
 - When the processing is complete, the generated html can be entered via the standard
-<a href=C:/Projects/CP2/Artifacts/Doxygen/html/index.html index.html </a> page.
+<a href=C:/Projects/CP2/Artifacts/Doxygen/html/index.html> index.html </a> page.
 
 <b>The Doxygen Tools</b>
 
