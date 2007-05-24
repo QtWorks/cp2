@@ -48,13 +48,14 @@ mutual exclusion techniques where necessary. In this design,
 the compute thread class is not aware of the user interface
 class, and thus never calls into the user interface thread.
 
-The CP2Scope and CP2PPI programs are similar in that
-they are user interface applications which are also data driven.
-Qt defines signals that are generated upon data availabilty
+The CP2Scope and CP2PPI programs are from CP2Exec and CP2Moments.
+They are applications where the user interface is driven by an incoming
+data stream.
+Qt defines signals that are emitted upon data availabilty
 on a socket. These signals can be handled like any other
 Qt user interface signal, and the received data is essentially
 passed directly onto a display component. Thus there is no need to
-create a multithreaded design for these programs.
+use a multithreaded design for these programs.
 
 @subsection Designer Using Designer
 
