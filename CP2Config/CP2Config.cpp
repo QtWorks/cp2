@@ -1,7 +1,7 @@
 #include "CP2Config.h"
-#include <qlist>
-#include <qstringlist>
-#include <qvariant>
+#include <QList>
+#include <QStringList>
+#include <QVariant>
 
 //////////////////////////////////////////////////////////
 CP2Config::CP2Config(const std::string organization, const std::string application):

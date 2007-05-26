@@ -3,8 +3,12 @@
 #include <QList>
 #include <QNetworkInterface>
 #include <QNetworkAddressEntry>
+#ifdef WIN32
 #include <winsock2.h>
-
+#else
+#include <sys/types.h>
+#include <sys/socket.h>
+#endif
 
 ///////////////////////////////////////////////////////////
 CP2UdpSocket::CP2UdpSocket(
@@ -29,7 +33,7 @@ _ok(false)
 		QNetworkInterface iface = allIfaces[i];
 		QList<QNetworkAddressEntry> addrs = iface.addressEntries();
 		for (int j = 0; j < addrs.size(); j++) {
-			std::string thisIp = addrs[j].ip().toString().toAscii();
+		  std::string thisIp = addrs[j].ip().toString().toStdString();
 			if (thisIp.find(_network)!= std::string::npos) {
 				addrEntry = addrs[j];
 				found = true;

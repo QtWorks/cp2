@@ -10,7 +10,13 @@
 #include "CP2Net.h"
 #include "CP2Version.h"
 using namespace CP2Lib;
+
+#ifdef WIN32
 #include <Windows.h>  // just to get Sleep()
+#else
+#define Sleep(x) usleep(x*1000)
+#endif
+
 #include <iostream>
 
 /* XPM */

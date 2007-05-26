@@ -1,7 +1,7 @@
 #ifndef CP2CONFIGINC_
 #define CP2CONFIGINC_
 
-#include <QSettings.h>
+#include <QSettings>
 #include <string>
 #include <vector>
 
