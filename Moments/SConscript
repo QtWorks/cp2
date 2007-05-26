@@ -1,0 +1,23 @@
+
+env = Environment(tools=['default',], 
+CPPPATH=Split("""
+.
+""")
+)
+
+moments = env.Library('moments',
+Split("""
+Beam.cc
+ClutFilter.cc
+Complex.cc
+Fft.cc
+Fields.cc
+Moments.cc
+MomentsEngine.cc
+MomentsMgr.cc
+Params.cc
+PhidpKdp.cc
+Pulse.cc
+umalloc.cc
+"""))
+

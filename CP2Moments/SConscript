@@ -1,0 +1,51 @@
+
+env = Environment(tools=['default', 'qt4'], 
+CPPPATH=Split("""
+.
+../CP2Net
+../Moments
+../CP2Config
+../CP2Lib
+""")
+)
+
+env.EnableQt4Modules(['QtCore', 'QtGui', 'QtNetwork'])
+
+forms = \
+Split("""
+CP2Moments.ui
+""")
+
+interfaces = [env.Uic4(uic) for uic in forms] 
+
+cp2moments = env.Program('cp2moments',
+source=Split("""
+BiQuad.cpp
+CP2Moments.cpp
+CP2PulseBiQuad.cpp
+Filter.cpp
+main.cpp
+MomentThread.cpp
+Stk.cpp
+"""),
+LIBS=Split("""
+cp2net
+cp2lib
+cp2config
+moments
+QtCore
+QtGui
+QtNetwork
+fftw3
+fftw3_threads
+"""),
+LIBPATH=Split("""
+../CP2Net
+../CP2Lib
+../CP2Config
+../Moments
+$QTDIR/lib
+/usr/local/lib
+""")
+)
+
