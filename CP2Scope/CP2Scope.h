@@ -8,7 +8,9 @@ CP2Scope is configured via CP2Scope.ini.
 #ifndef CP2SCOPE_H
 #define CP2SCOPE_H
 
+#ifdef WIN32
 #include <winsock2.h>		//	no redefinition errors if before Qt includes?
+#endif
 #include <QDialog>
 #include <QPalette>
 #include <qevent.h>
@@ -26,7 +28,7 @@ CP2Scope is configured via CP2Scope.ini.
 #include <fftw3.h>
 
 // The base class created from the designer .ui specification
-#include "ui_CP2Scope.h"
+#include "ui_CP2scope.h"
 
 // Coponents from the QtToolbox
 #include <ScopePlot.h>

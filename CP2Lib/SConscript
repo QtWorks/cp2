@@ -1,11 +1,6 @@
+Import('qtenv')
 
-env = Environment(tools=['default',], 
-CPPPATH=Split("""
-.
-""")
-)
-
-cp2lib = env.Library('cp2lib',
+cp2lib = qtenv.Library('cp2lib',
 Split("""
 CP2Version.cpp
 """))

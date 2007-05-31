@@ -1,0 +1,42 @@
+# use the predefined qt environment
+Import('qtenv')
+
+# apply uic to the PPI form
+qtenv.Uic4('CP2PPI.ui')
+
+# apply uic to the color bar settings form
+qtenv.Uic4('ColorBarSettings.ui')
+
+# sources:
+sources=Split("""
+main.cpp
+CP2PPI.cpp
+PpiInfo.cpp
+ColorBarSettings.cpp
+""")
+
+# libraries:
+libs = Split("""
+cp2net
+cp2lib
+cp2config
+QtCore
+QtGui
+QtNetwork
+ppi
+colorbar
+""")
+
+# library paths:
+libpaths=Split("""
+../CP2Net
+../CP2Lib
+../CP2Config
+$QTDIR/lib
+$QTTOOLBOXDIR/ColorBar
+$QTTOOLBOXDIR/PPI
+""")
+
+# Build cp2ppi
+cp2ppi = qtenv.Program('cp2ppi', sources, LIBS=libs, LIBPATH=libpaths)
+

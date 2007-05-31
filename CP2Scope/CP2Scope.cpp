@@ -25,7 +25,9 @@
 
 #include <algorithm>
 
+#ifdef WIN32
 #include <winsock.h>
+#endif
 #include <iostream>
 #include <time.h>
 
@@ -178,7 +180,9 @@ CP2Scope::newProductSlot()
 		}
 	} else {
 		// read error. What to do?
+#ifdef WIN32
 		int e = WSAGetLastError();
+#endif
 	}
 
 }

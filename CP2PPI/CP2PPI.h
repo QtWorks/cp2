@@ -7,7 +7,9 @@ CP2PPI is configured via CP2PPI.ini.
 
 #ifndef CP2PPIH
 #define CP2PPIH
+#ifdef WIN32
 #include <winsock2.h>		//	no redefinition errors if before Qt includes?
+#endif
 #include <QUdpSocket> 
 #include <QEvent>
 #include <QButtonGroup>

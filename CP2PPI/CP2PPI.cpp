@@ -3,8 +3,8 @@
 #include "CP2PPI.h"
 #include <QLabel>
 #include <QTimer>
-#include <QSpinbox>	
-#include <QLcdNumber>
+#include <QSpinBox>	
+#include <QLCDNumber>
 #include <QSlider>
 #include <QLayout>
 #include <QTabWidget>
@@ -34,7 +34,9 @@ using namespace CP2Lib;
 #include <iostream>
 #include <algorithm>
 
+#ifdef WIN32
 #include <winsock.h>
+#endif
 #include <iostream>
 #include <time.h>
 

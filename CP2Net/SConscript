@@ -1,13 +1,6 @@
+Import('qtenv')
 
-env = Environment(tools=['default', 'qt4'], 
-CPPPATH=Split("""
-.
-""")
-)
-
-env.EnableQt4Modules(['QtCore', 'QtGui', 'QtNetwork'])
-
-cp2net = env.Library('cp2net',
+cp2net = qtenv.Library('cp2net',
 Split("""
 CP2Net.cpp
 CP2UdpSocket.cpp

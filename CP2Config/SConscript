@@ -1,13 +1,6 @@
+Import('qtenv')
 
-env = Environment(tools=['default', 'qt4'], 
-CPPPATH=Split("""
-.
-""")
-)
-
-env.EnableQt4Modules(['QtCore',])
-
-cp2config = env.Library('cp2config',
+cp2config = qtenv.Library('cp2config',
 Split("""
 CP2Config.cpp
 """))
