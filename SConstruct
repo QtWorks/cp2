@@ -4,7 +4,9 @@ import os
 # QTDIR        - The location of Qt4
 # QWTDIR       - The location of the qwt installation
 # QTTOOLBOXDIR - The location of the QtToolbox installation.
-
+# FFTWDIR      - The location of installed fftw. A lib and include directory 
+#                are expected below this
+#
 # Create an environment for building Qt and QtToolbox apps.
 # We will add include paths here, but not librariy paths 
 # or libraries. Individual components will need to specify
@@ -20,6 +22,9 @@ qtenv['QWTDIR'] = os.environ.get('QWTDIR', None)
 # get the location of qttoolbox
 qtenv['QTTOOLBOXDIR'] = os.environ.get('QTTOOLBOXDIR', None)
 
+# get the location of installed fftw
+qtenv['FFTWDIR'] = os.environ.get('FFTWDIR', None)
+
 # add include path to all of the QtToolbox components
 # (check out the interesting for loop that executes qtenv.AppendUnique()
 toolboxdirs = ['ColorBar', 'Knob', 'TwoKnobs', 'ScopePlot', 'PPI']
@@ -27,6 +32,9 @@ x = [qtenv.AppendUnique(CPPPATH=['$QTTOOLBOXDIR','$QTTOOLBOXDIR/'+dir,]) for dir
 
 #  add include path for qwt
 qtenv.AppendUnique(CPPPATH=['$QWTDIR/include',])
+
+#  add include path for fftw
+qtenv.AppendUnique(CPPPATH=['$FFTWDIR/include',])
 
 # Add include path to the main cp2 libraries
 qtenv.AppendUnique(CPPPATH=['#./CP2Net','#./Moments','#./CP2Config','#./CP2Lib'])

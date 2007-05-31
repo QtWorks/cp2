@@ -36,7 +36,7 @@ $QTDIR/lib
 $QWTDIR/lib
 $QTTOOLBOXDIR/ScopePlot
 $QTTOOLBOXDIR/Knob
-/usr/local/lib
+$FFTWDIR/lib
 """)
 
 # Build cp2scope
