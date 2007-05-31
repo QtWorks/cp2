@@ -22,9 +22,11 @@ cp2lib
 cp2config
 QtCore
 QtGui
+QtOpenGL
 QtNetwork
 ppi
 colorbar
+glut
 """)
 
 # library paths:
@@ -35,6 +37,7 @@ libpaths=Split("""
 $QTDIR/lib
 $QTTOOLBOXDIR/ColorBar
 $QTTOOLBOXDIR/PPI
+$GLUTDIR/lib
 """)
 
 # Build cp2ppi

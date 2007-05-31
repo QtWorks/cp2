@@ -1,11 +1,6 @@
+Import('qtenv')
 
-env = Environment(tools=['default',], 
-CPPPATH=Split("""
-.
-""")
-)
-
-moments = env.Library('moments',
+moments = qtenv.Library('moments',
 Split("""
 Beam.cc
 ClutFilter.cc

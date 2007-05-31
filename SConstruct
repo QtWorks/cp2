@@ -6,6 +6,7 @@ import os
 # QTTOOLBOXDIR - The location of the QtToolbox installation.
 # FFTWDIR      - The location of installed fftw. A lib and include directory 
 #                are expected below this
+# GLUTDIR      - The location of glut.
 #
 # Create an environment for building Qt and QtToolbox apps.
 # We will add include paths here, but not librariy paths 
@@ -14,27 +15,29 @@ import os
 # or when invoking the builders.
 
 # the qt4 tool will be found in the top directory
-qtenv = Environment(tools=['default', 'qt4'], toolpath=['#'])
+qtenv = Environment(tools=['default', 'qt4', 'svninfo'], toolpath=['#'])
 
 # get the location of qwt
 qtenv['QWTDIR'] = os.environ.get('QWTDIR', None)
+#  add include path for qwt
+qtenv.AppendUnique(CPPPATH=['$QWTDIR/include',])
 
 # get the location of qttoolbox
 qtenv['QTTOOLBOXDIR'] = os.environ.get('QTTOOLBOXDIR', None)
-
-# get the location of installed fftw
-qtenv['FFTWDIR'] = os.environ.get('FFTWDIR', None)
-
 # add include path to all of the QtToolbox components
 # (check out the interesting for loop that executes qtenv.AppendUnique()
 toolboxdirs = ['ColorBar', 'Knob', 'TwoKnobs', 'ScopePlot', 'PPI']
 x = [qtenv.AppendUnique(CPPPATH=['$QTTOOLBOXDIR','$QTTOOLBOXDIR/'+dir,]) for dir in toolboxdirs]
 
-#  add include path for qwt
-qtenv.AppendUnique(CPPPATH=['$QWTDIR/include',])
-
+# get the location of installed fftw
+qtenv['FFTWDIR'] = os.environ.get('FFTWDIR', None)
 #  add include path for fftw
 qtenv.AppendUnique(CPPPATH=['$FFTWDIR/include',])
+
+# get the location of installed glut
+qtenv['GLUTDIR'] = os.environ.get('GLUTDIR', None)
+#  add include path for glut
+qtenv.AppendUnique(CPPPATH=['$GLUTDIR/GL/include',])
 
 # Add include path to the main cp2 libraries
 qtenv.AppendUnique(CPPPATH=['#./CP2Net','#./Moments','#./CP2Config','#./CP2Lib'])
