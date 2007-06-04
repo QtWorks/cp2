@@ -96,4 +96,36 @@ QSettings </a> for other options on .ini file locations.
 
 @section data-networking Networked Data
 
+Data transmission between applcations is performed via UDP broadcasts.
+All input data is obtained by reading these broadcasts, and all output
+products are delivered via the broadcasts.
+
+There are two types of transmitted data:
+ - CP2Pulse: A pulse contains the baseband I and Q values for all gates for 
+ one radar return pulse from one receiver. Thus for CP2, three pulses are 
+ generated for each PRF, one each from the SBand, Xh and Xv Piraq cards. The CP2Exec 
+ program creates and transmits the pulse data.
+ - CP2Product: A product contains a calculated quanitity for a beam, and is
+ derived from a specified number of pulses. Typical products are power
+ values, width, velocity, etc. The CP2Moments application creates the 
+ products data.
+  
+The UDP datagram network and port numbers are specified in each application's 
+.ini file. The network specification does not need a full IP address; only the
+network protion is required. The applications will find the first interface 
+with that network address. Thus if the pulse data is to be broadcast on
+the 192.182.1 network, and the machine has an interfce with IP 192.168.1.101,
+the network is identified with 192.168.1.
+
+It is possible to broadcast to and read from the loopback adapter, using a
+network address of 127.0.0.
+
+The pulse and product packet formats are implmented in the CP2Netd project.
+CP2Net/CP2Net.h contains the packet format specification.
+Note that multiple pulses will be combine to form a UDP jumbo packet (less 
+than 64KB), which greatly increases the network efficiency. The same holds for
+the product packets.
+
+@todo Verify that the loopback adapter network is functioning correctly.
+
 **/

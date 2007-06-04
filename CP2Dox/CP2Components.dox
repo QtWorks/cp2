@@ -3,7 +3,7 @@
 @section qt Qt by Trolltech
 
 A quick overview of Qt, and its application to CP2 software,
-is given here. The <a href="http://doc.trolltech.com/4.2/index.html">
+is given here. The <a href="http:/doc.trolltech.com/4.2/index.html">
 Qt documentation</a> is outstanding, and
 should be consulted for in-depth information.
 
@@ -208,9 +208,43 @@ plugins, but it does use plugins that are provided by
 the QtToolbox.
  
 @section ms-vs Microsoft Visual Studio
-- debug versus release builds
-- svnInfo.h
+- debug versus release build
 - libraries are linked out of their source build trees.
+
+@subsection svninfo Revision Information Access
+The CP2 applications display the subversion source code
+revision number in the window title bar. In order to
+make subversion revision information available to the
+source code, the Windows batch file CP2Lib/makeSvnInfo.bat 
+is run. This runs a subversion status command, 
+extracts revision information,
+and creates the CP2Lib/svnInfo.h file. The header file
+is used by the CP2Version class to provide run time
+access to revision information.
+
+Normally the batch file is run as pre-build event
+when the CP2Lib project is compiled. There are
+two caveats, however:
+- Qmake does not have a mechanism for specifying pre-build 
+events. When the CP2Lib Visual Studio project has been 
+regenerated (via runQmake.bat, or running qmake in the CP2Lib
+directory), the pre-build event will disappear from the 
+project. Open the project properties for CP2Lib in Visual
+studio, and enter makeSvnInfo.bat into the pre-build
+event for Release and Debug configuration.
+- It seems that subversion sometimes caches revision information,
+and it does not get completely updated after a subversion update.
+If the revison number does not change as expected, try a top level
+subversion update again of the CP2 source tree.
+
+You can always manually generate svnInfo.h, by 
+opening a DOS command window, changing to CP2/CP2Lib,
+and running makeSvnIfo.bat.
+
+To find out what is going to be used as the current revision number
+when building CP2, just open svnInfo.h in Visual Studio.
+
+@todo Find out how to get qmake to create a pre-build event.
 
 @section ms-msi Microsoft installer (.msi)
 - DLL dependencies etc.
@@ -218,17 +252,36 @@ the QtToolbox.
 @section fftw FFTW
 - threading
 - using downloaded binaries
-- 
 
 @section stk Signal-processing Toolkit STK
 
 @section qttoolbox QtToolbox
 
+The CP2 visualization applications use QtToolbox. It
+is an NCAR/EOL package which provides some building block
+graphical components that are useful for radar software systems. 
+These include a scope display, a colorbar, a PPI and couple of others.
+The components are provided as Qt plugins, and therefore are 
+compatible witht he Qt designer.
+
+QtToolbox has a separate Visual Studio solution. The build process
+is similar. Open the QtToolbox solution, and buiild both the Release and
+the Debug configurations. The build process will copy the plugins  (i.e. DLLs)
+to the Qt designer plugin directory. The libraries are created in the 
+standard Visual Studio Debug and Release directories, and the CP2 solution
+links from these directories.
+
+The CP2 msi installer includes the qtToolbox DLLs in the CP2
+distributuion.
+
+It is important to update the QtToolbox working copy when there are
+chages to its repository, rebuild it, and then rebuild CP2.
+
 @section opengl OpenGL and GLUT
 
 @section qwt Qwt
 
-<a href="http://qwt.sourceforge.net"> Qwt </a> is a scientific visualization
+<a href="http:/qwt.sourceforge.net"> Qwt </a> is a scientific visualization
 toolkit built on Qt. It is utilized by QtTool box for the ScopePlot,
 which forms the core display for CP2Scope. Thus, qwt must be in place
 before trying to build the QtToolbox. The QwtPlot provides the high 
@@ -259,11 +312,11 @@ If this is not done, the debug versions will link, but they will silently start
 and then exit when run in debug mode.
 - Build the debug and release configurations. These should create separate debug
 and release DLLs for the qwt library and the qwt designer plugin.
-- Copy c:\\Projects\\qwt\\lib\\qwt5.dll to c:\\Qt\\4.2.2\\plugins\designer.
-- Copy c::\\Projects\\qwt\\designer\\plugins\\designer\\qwt_designer_plugin.dll to  c:\\Qt\\4.2.2\\plugins\designer.
+- Copy c:/Projects/qwt/lib/qwt5.dll to c:/Qt/4.2.2/plugins/designer.
+- Copy c:/Projects/qwt/designer/plugins/designer/qwt_designer_plugin.dll to  c:/Qt/4.2.2/plugins/designer.
 
 @section doxygen Doxygen
-<a href="http://www.doxygen.org"> Doxygen </a> 
+<a href="http:/www.doxygen.org"> Doxygen </a> 
 is utilized to produce extensive 
 formatted documentation for much of the
 CP2 system. The generated product includes source code documentation,
@@ -274,7 +327,7 @@ Doxygen is run as a separate program, outside of the
 development IDE. To create the formatted documentation,
 doxygen parses the source files and detects special comment blocks.
 The comment blocks are non-intrusive. Usually
-one simply uses a special comment start indicator ( ///, or
+one simply uses a special comment start indicator ( /, or
 /**) to associate the comment with the code following
 it. Class, member functions, function parameters and data
 members are documented n this way. A simple syntax 
@@ -310,6 +363,27 @@ created so that it is easy to open and edit these files from within
 the Visual Studio IDE. There are no build actions for the CP2Dox project.
 
 @section subversion Subversion
+<a href="http:/subversion.tigris.org/"> Subversion </a> is used as the revison 
+control system for CP2 software. There are two Internet visible repositories
+hosted at NCAR. 
+The CP2 materials are located at https:/proxy.subversion.ucar.edu/CP2/. The
+QtToolbox is found at https:/proxy.subversion.ucar.edu/QtToolbox/.
+
+Both repositories follow the common subversion trunk/, branches, and tags/
+organization. The CP2 and QtToolbox Visual Studio project specifications  
+employ some absolute path names, and so it is important to check out
+the source trees from the correct location in the repository, and into
+the correct location on the development system. Thus, use the following
+subversion checkouts:
+- https:/proxy.subversion.ucar.edu/QtToolbox/QtToolbox/branches/Qt4migration 
+into c:/Projects/QtToolbox. <i>Note the superfluous double QtToolbox directory nesting. </i>
+- https:/proxy.subversion.ucar.edu/CP2/trunk/ 
+into  c:/Projects/cp2.
+
+@todo Remove the unecessary QtToolbox/QtToolbox directory.
+
 @section source-tree Source Tree Structure
+
+
 **/
 
