@@ -66,7 +66,7 @@ CP2SimThread::nextPulses()
 	for (int i = 0; i < _pulsesPerDatagram; i++) {
 		header.scanType  = 1;
 		header.antSize   = 0;
-		header.pulse_num = 0;
+		header.pulse_num = _pulseCount;
 		header.gates     = 950;
 		header.status    = 0;
 		header.prt       = 1.0E3; //_prt;
