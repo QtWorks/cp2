@@ -17,6 +17,9 @@ import os
 # the qt4 tool will be found in the top directory
 qtenv = Environment(tools=['default', 'qt4', 'svninfo'], toolpath=['#'])
 
+#  add our ideas for CCFLAGS
+qtenv.AppendUnique(CCFLAGS=['-O2',])
+
 # get the location of qwt
 qtenv['QWTDIR'] = os.environ.get('QWTDIR', None)
 #  add include path for qwt

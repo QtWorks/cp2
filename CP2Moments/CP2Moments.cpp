@@ -94,7 +94,7 @@ _xvBiQuad(0)
 
 	// initialize fftw for thread usage.
 	fftw_init_threads();
-	fftw_plan_with_nthreads(2);
+	fftw_plan_with_nthreads(4);
 
 	// setup our form
 	setupUi(parent);
