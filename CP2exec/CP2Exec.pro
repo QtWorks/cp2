@@ -30,7 +30,6 @@ HEADERS += CP2Exec.h
 HEADERS += CP2ExecThread.h
 HEADERS += CP2ExecIcon.h
 HEADERS += CP2PIRAQ.h
-HEADERS += SimAngles.h
 HEADERS += ../include/dd_types.h
 HEADERS += ../CP2Piraq/piraqComm.h
 
@@ -38,7 +37,6 @@ SOURCES += main.cpp
 SOURCES += CP2Exec.cpp
 SOURCES += CP2ExecThread.cpp
 SOURCES += CP2PIRAQ.cpp
-SOURCES += SimAngles.cpp
 SOURCES += ../CP2Piraq/piraqComm.c
 
 FORMS	= CP2Exec.ui

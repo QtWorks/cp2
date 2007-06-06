@@ -166,6 +166,10 @@
 				RelativePath=".\PciTimer.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\SimAngles.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -182,6 +186,10 @@
 			</File>
 			<File
 				RelativePath=".\PciTimer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SimAngles.h"
 				>
 			</File>
 			<File
