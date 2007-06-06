@@ -35,7 +35,7 @@ using namespace CP2Net;
 /// request this much space for the pulse socket receive buffer
 #define CP2MOMENTS_PULSE_RCVBUF 100000000
 /// request this much space for the product socket send buffer
-#define CP2MOMENTS_PROD_SNDBUF  10000000
+#define CP2MOMENTS_PROD_SNDBUF  100000000
 // the max number of ethernet interfaces a machine might have,
 /// used when determininga broadcast address.
 #define MAX_NBR_OF_ETHERNET_CARDS 10
