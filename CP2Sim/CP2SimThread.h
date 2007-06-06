@@ -27,6 +27,8 @@ public:
 	virtual ~CP2SimThread(void);
 	virtual void run();
 	void setRunState(bool runState);
+	/// @return The cumulative pulse count, in thousands
+	int getPulseCount();
 
 protected:
 	/// initialize the socket for outgoing pulses.
@@ -56,14 +58,14 @@ protected:
 	int _pulsesPerDatagram;
 	/// The number of resends on the datagram
 	int _resendCount;
+	/// The cumulative pulse count
+	int _pulseCount;
 
 	CP2Packet _sPacket;
 	CP2Packet _xhPacket;
 	CP2Packet _xvPacket;
 
 	SimAngles _simAngles;
-
-
 };
 
 #endif

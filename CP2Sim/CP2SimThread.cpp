@@ -11,10 +11,11 @@
 ///////////////////////////////////////////////////////////////////////////////////
 CP2SimThread::CP2SimThread():
 _config("NCAR", "CP2Sim"),
-_run(true),
+_run(false),
 _gates(950),
 _pulsesPerDatagram(8),
-_simAngles(SimAngles::PPI, 100, 1.0, 79.0, 1.0, 1.0, 18.0, 0.88, 243)
+_simAngles(SimAngles::PPI, 100, 1.0, 79.0, 1.0, 1.0, 18.0, 0.88, 243),
+_pulseCount(0)
 {	
 	// intialize the data transmission socket.
 	initializeSocket();	
@@ -89,6 +90,8 @@ CP2SimThread::nextPulses()
 		header.channel = 2;
 		_xvPacket.addPulse(&header, header.gates*2, &_data[0]);
 
+		_pulseCount++;
+
 	}
 
 	int bytesSent;
@@ -134,7 +137,7 @@ CP2SimThread::initializeSocket()
 	std::string pulseNetwork   = _config.getString("Network/PulseNetwork", "192.168.1");
 
 	// create the socket
-	_pPulseSocket   = new CP2UdpSocket(pulseNetwork, _pulsePort, false, 0, 10000000);
+	_pPulseSocket   = new CP2UdpSocket(pulseNetwork, _pulsePort, false, 10000000, 0);
 
 	if (!_pPulseSocket->ok()) {
 		std::string errMsg = _pPulseSocket->errorMsg().c_str();
@@ -182,4 +185,10 @@ CP2SimThread::createSimAngles()
 
 	return simAngles;
 
+}
+///////////////////////////////////////////////////////////////////////////////////
+int
+CP2SimThread::getPulseCount()
+{
+	return _pulseCount;
 }

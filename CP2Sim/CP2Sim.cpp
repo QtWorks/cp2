@@ -18,7 +18,7 @@ using namespace CP2Lib;
 CP2Sim::CP2Sim(QDialog* parent):
 QDialog(parent),
 _config("NCAR", "CP2Sim"),
-_run(true)  // run will be inverted by a call to startStopSlot
+_run(true)  // will be inverted by call to startStopSlot() 
 {
 
 	// setup our form
@@ -43,12 +43,19 @@ _run(true)  // run will be inverted by a call to startStopSlot
 
 	// create the pulse creation thread
 	_pCP2SimThread = new CP2SimThread();
+	_pCP2SimThread->start();
 
-	// set the run state to false
+	// set the run status
 	startStopSlot();
 
 	// connect the start button
 	connect(_startStopButton, SIGNAL(released()), this, SLOT(startStopSlot()));
+
+	// initialize the statistics
+	timerEvent(0);
+
+	// start the statistics timer
+	startTimer(1000);
 
 }
 /////////////////////////////////////////////////////////////////////
@@ -60,16 +67,14 @@ CP2Sim::~CP2Sim()
 void
 CP2Sim::startStopSlot()
 {
-	// When the button is pushed in, we are stopped
+	// invert current state
 	_run = !_run;
 	// set the button text to the opposite of the
 	// current state.
 	if (!_run) {
 		_startStopButton->setText("Start");
-		_statusText->setText("Stopped");
 	} else {
 		_startStopButton->setText("Stop");
-		_statusText->setText("Running");
 	}
 
 	// signal the thread
@@ -77,3 +82,16 @@ CP2Sim::startStopSlot()
 
 }
 //////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+void
+CP2Sim::timerEvent(QTimerEvent*) 
+{
+	double az;
+	double el;
+	unsigned int sweep;
+	unsigned int volume;
+
+	_pulseCount->setNum(_pCP2SimThread->getPulseCount()/1000);
+
+}
+/////////////////////////////////////////////////////////////////////

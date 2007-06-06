@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>297</width>
-    <height>122</height>
+    <height>124</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -35,22 +35,31 @@
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="_statusText" >
-     <property name="sizePolicy" >
-      <sizepolicy>
-       <hsizetype>1</hsizetype>
-       <vsizetype>1</vsizetype>
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
+    <layout class="QHBoxLayout" >
+     <property name="margin" >
+      <number>0</number>
      </property>
-     <property name="text" >
-      <string>Your Status Here</string>
+     <property name="spacing" >
+      <number>6</number>
      </property>
-     <property name="alignment" >
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
+     <item>
+      <widget class="QLabel" name="label_2" >
+       <property name="text" >
+        <string>Pulse Count (k)</string>
+       </property>
+       <property name="alignment" >
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="_pulseCount" >
+       <property name="text" >
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <layout class="QHBoxLayout" >

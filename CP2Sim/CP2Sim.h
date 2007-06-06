@@ -31,6 +31,8 @@ public slots:
 	void startStopSlot();
 
 protected:
+	/// The builtin timer will be used to display statistics.
+	virtual void timerEvent(QTimerEvent*);
 	/// The configuration
 	CP2Config _config;
 	/// set true if pulses are to be calculated; false otherwise.
