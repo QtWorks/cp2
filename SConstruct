@@ -56,7 +56,8 @@ cp2dirs = [
 'CP2Net',
 'CP2Moments',
 'CP2Scope',
-'CP2PPI'
+'CP2PPI',
+'CP2Sim'
 ]
 
 x = [SConscript(dir+'/SConscript') for dir in cp2dirs]

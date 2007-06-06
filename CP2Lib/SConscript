@@ -6,5 +6,6 @@ svnInfo = qtenv.SvnInfo('svnInfo.h', '#')
 cp2lib = qtenv.Library('cp2lib',
 Split("""
 CP2Version.cpp
+SimAngles.cpp
 """))
 

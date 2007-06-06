@@ -14,7 +14,7 @@ using namespace CP2Net;
 #include "CP2Config.h"
 
 // UDP socket support
-#include "CP2UDPSocket.h"
+#include "CP2UdpSocket.h"
 
 // Angle simulator
 #include "SimAngles.h"

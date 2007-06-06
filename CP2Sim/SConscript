@@ -1,0 +1,34 @@
+# use the predefined qt environment
+Import('qtenv')
+
+# apply uic to the form
+qtenv.Uic4('CP2Sim.ui')
+
+# sources:
+sources=Split("""
+main.cpp
+CP2Sim.cpp
+CP2SimThread.cpp
+""")
+
+# libraries:
+libs = Split("""
+cp2net
+cp2lib
+cp2config
+QtCore
+QtGui
+QtNetwork
+""")
+
+# library paths:
+libpaths=Split("""
+../CP2Net
+../CP2Lib
+../CP2Config
+$QTDIR/lib
+""")
+
+# Build cp2sim
+cp2sim = qtenv.Program('cp2sim', sources, LIBS=libs, LIBPATH=libpaths)
+
