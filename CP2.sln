@@ -72,6 +72,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CP2Dox", "CP2Dox\CP2Dox.vcp
 		Integration = True
 	EndGlobalSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CP2Sim", "CP2Sim\CP2Sim.vcproj", "{74504EB1-32A9-38D0-9823-2049864D6816}"
+	GlobalSection(Qt) = preSolution
+		Integration = True
+	EndGlobalSection
+EndProject
 Global
 	GlobalSection(Qt) = preSolution
 		Integration = True
@@ -124,6 +129,10 @@ Global
 		{5947F49B-FBC8-449E-9367-18D4473FB535}.Debug|Win32.Build.0 = Debug|Win32
 		{5947F49B-FBC8-449E-9367-18D4473FB535}.Release|Win32.ActiveCfg = Release|Win32
 		{5947F49B-FBC8-449E-9367-18D4473FB535}.Release|Win32.Build.0 = Release|Win32
+		{74504EB1-32A9-38D0-9823-2049864D6816}.Debug|Win32.ActiveCfg = Debug|Win32
+		{74504EB1-32A9-38D0-9823-2049864D6816}.Debug|Win32.Build.0 = Debug|Win32
+		{74504EB1-32A9-38D0-9823-2049864D6816}.Release|Win32.ActiveCfg = Release|Win32
+		{74504EB1-32A9-38D0-9823-2049864D6816}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
