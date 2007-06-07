@@ -1,8 +1,8 @@
 # use the predefined qt environment
-Import('qtenv')
+Import('env')
 
 # apply uic to the form
-qtenv.Uic4('CP2Moments.ui')
+env.Uic4('CP2Moments.ui')
 
 # sources:
 sources=Split("""
@@ -39,5 +39,8 @@ $FFTWDIR/lib
 """)
 
 # Build cp2moments
-cp2moments = qtenv.Program('cp2moments', sources, LIBS=libs, LIBPATH=libpaths)
+cp2moments = env.Program('cp2moments', sources, LIBS=libs, LIBPATH=libpaths)
+
+# install cp2moments
+env.InstallBin(cp2moments)
 

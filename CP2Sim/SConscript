@@ -1,8 +1,8 @@
 # use the predefined qt environment
-Import('qtenv')
+Import('env')
 
 # apply uic to the form
-qtenv.Uic4('CP2Sim.ui')
+env.Uic4('CP2Sim.ui')
 
 # sources:
 sources=Split("""
@@ -30,5 +30,9 @@ $QTDIR/lib
 """)
 
 # Build cp2sim
-cp2sim = qtenv.Program('cp2sim', sources, LIBS=libs, LIBPATH=libpaths)
+cp2sim = env.Program('cp2sim', sources, LIBS=libs, LIBPATH=libpaths)
+
+# install cp2sim
+env.InstallBin(cp2sim)
+
 

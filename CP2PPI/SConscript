@@ -1,11 +1,11 @@
 # use the predefined qt environment
-Import('qtenv')
+Import('env')
 
 # apply uic to the PPI form
-qtenv.Uic4('CP2PPI.ui')
+env.Uic4('CP2PPI.ui')
 
 # apply uic to the color bar settings form
-qtenv.Uic4('ColorBarSettings.ui')
+env.Uic4('ColorBarSettings.ui')
 
 # sources:
 sources=Split("""
@@ -41,5 +41,8 @@ $GLUTDIR/lib
 """)
 
 # Build cp2ppi
-cp2ppi = qtenv.Program('cp2ppi', sources, LIBS=libs, LIBPATH=libpaths)
+cp2ppi = env.Program('cp2ppi', sources, LIBS=libs, LIBPATH=libpaths)
+
+# install CP2PPI
+env.InstallBin(cp2ppi)
 

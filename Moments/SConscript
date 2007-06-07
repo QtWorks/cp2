@@ -1,6 +1,6 @@
-Import('qtenv')
+Import('env')
 
-moments = qtenv.Library('moments',
+moments = env.Library('moments',
 Split("""
 Beam.cc
 ClutFilter.cc

@@ -15,41 +15,49 @@ import os
 # or when invoking the builders.
 
 # the qt4 tool will be found in the top directory
-qtenv = Environment(tools=['default', 'qt4', 'svninfo'], toolpath=['#'])
+env = Environment(tools=['default', 'qt4', 'svninfo'], toolpath=['#'])
 
 #  add our ideas for CCFLAGS
-qtenv.AppendUnique(CCFLAGS=['-O2',])
+env.AppendUnique(CCFLAGS=['-O2',])
 
 # get the location of qwt
-qtenv['QWTDIR'] = os.environ.get('QWTDIR', None)
+env['QWTDIR'] = os.environ.get('QWTDIR', None)
 #  add include path for qwt
-qtenv.AppendUnique(CPPPATH=['$QWTDIR/include',])
+env.AppendUnique(CPPPATH=['$QWTDIR/include',])
 
 # get the location of qttoolbox
-qtenv['QTTOOLBOXDIR'] = os.environ.get('QTTOOLBOXDIR', None)
+env['QTTOOLBOXDIR'] = os.environ.get('QTTOOLBOXDIR', None)
 # add include path to all of the QtToolbox components
-# (check out the interesting for loop that executes qtenv.AppendUnique()
+# (check out the interesting for loop that executes env.AppendUnique()
 toolboxdirs = ['ColorBar', 'Knob', 'TwoKnobs', 'ScopePlot', 'PPI']
-x = [qtenv.AppendUnique(CPPPATH=['$QTTOOLBOXDIR','$QTTOOLBOXDIR/'+dir,]) for dir in toolboxdirs]
+x = [env.AppendUnique(CPPPATH=['$QTTOOLBOXDIR','$QTTOOLBOXDIR/'+dir,]) for dir in toolboxdirs]
 
 # get the location of installed fftw
-qtenv['FFTWDIR'] = os.environ.get('FFTWDIR', None)
+env['FFTWDIR'] = os.environ.get('FFTWDIR', None)
 #  add include path for fftw
-qtenv.AppendUnique(CPPPATH=['$FFTWDIR/include',])
+env.AppendUnique(CPPPATH=['$FFTWDIR/include',])
 
 # get the location of installed glut
-qtenv['GLUTDIR'] = os.environ.get('GLUTDIR', None)
+env['GLUTDIR'] = os.environ.get('GLUTDIR', None)
 #  add include path for glut
-qtenv.AppendUnique(CPPPATH=['$GLUTDIR/GL/include',])
+env.AppendUnique(CPPPATH=['$GLUTDIR/GL/include',])
 
-# Add include path to the main cp2 libraries
-qtenv.AppendUnique(CPPPATH=['#./CP2Net','#./Moments','#./CP2Config','#./CP2Lib'])
+# add include path to the main cp2 libraries
+env.AppendUnique(CPPPATH=['#./CP2Net','#./Moments','#./CP2Config','#./CP2Lib'])
 
 # Enable any qt module that is used in cp2
-qtenv.EnableQt4Modules(['QtCore','QtGui','QtOpenGL','QtNetwork'])
+env.EnableQt4Modules(['QtCore','QtGui','QtOpenGL','QtNetwork'])
+
+# add an install target method for applications
+def InstallBin(self, bin):
+	installdir = '#/bin'
+	self.Install(installdir, bin)
+	self.Alias('install', installdir)
+
+Environment.InstallBin = InstallBin
 
 # Export this fancy environment
-Export('qtenv')
+Export('env')
 
 # Build cp2 components
 cp2dirs = [

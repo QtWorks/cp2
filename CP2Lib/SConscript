@@ -1,9 +1,9 @@
-Import('qtenv')
+Import('env')
 
 # create svnInfo.h
-svnInfo = qtenv.SvnInfo('svnInfo.h', '#')
+svnInfo = env.SvnInfo('svnInfo.h', '#')
 
-cp2lib = qtenv.Library('cp2lib',
+cp2lib = env.Library('cp2lib',
 Split("""
 CP2Version.cpp
 SimAngles.cpp

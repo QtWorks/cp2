@@ -1,8 +1,8 @@
 # use the predefined qt environment
-Import('qtenv')
+Import('env')
 
 # apply uic to the form
-qtenv.Uic4('CP2scope.ui')
+env.Uic4('CP2scope.ui')
 
 # sources:
 sources=Split("""
@@ -40,5 +40,7 @@ $FFTWDIR/lib
 """)
 
 # Build cp2scope
-cp2scope = qtenv.Program('cp2scope', sources, LIBS=libs, LIBPATH=libpaths)
+cp2scope = env.Program('cp2scope', sources, LIBS=libs, LIBPATH=libpaths)
 
+# install cp2scope
+env.InstallBin(cp2scope)

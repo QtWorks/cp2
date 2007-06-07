@@ -1,6 +1,6 @@
-Import('qtenv')
+Import('env')
 
-cp2net = qtenv.Library('cp2net',
+cp2net = env.Library('cp2net',
 Split("""
 CP2Net.cpp
 CP2UdpSocket.cpp
