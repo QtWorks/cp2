@@ -137,7 +137,7 @@ _ok(false)
 
 	// read back the socket buffer sizes
 	int sockbufsize;
-	socklen_t sz;
+	int sz;
 
 	result = getsockopt (socketDescriptor(),
 			     SOL_SOCKET,
