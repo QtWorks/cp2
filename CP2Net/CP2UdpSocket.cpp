@@ -137,7 +137,11 @@ _ok(false)
 
 	// read back the socket buffer sizes
 	int sockbufsize;
+#ifdef WIN32
 	int sz;
+#else
+	socklen_t sz;
+#endif
 
 	result = getsockopt (socketDescriptor(),
 			     SOL_SOCKET,
