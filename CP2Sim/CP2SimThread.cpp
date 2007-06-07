@@ -39,7 +39,7 @@ void
 CP2SimThread::run()
 {
 	while (1) {
-		Sleep(1*_pulsesPerDatagram);
+	  Sleep((int)(1*_pulsesPerDatagram*0.8));
 		if (_run) {
 			nextPulses();
 		}

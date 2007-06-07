@@ -85,21 +85,16 @@ _ok(false)
 	  }
 	}
 
-	std::cout << "socket descriptor is " << socketDescriptor() << std::endl;
-
+	// set SO_REUSEADDR. I'm not sure why it is both here and in
+	// the bind, but let's not make troulbe by taking it out.
 	int optval = 1;
 	int result = setsockopt(socketDescriptor(), 
 		SOL_SOCKET, 
-		SO_REUSEADDR, 
+				SO_REUSEADDR, 
 		(const char*)&optval, 
 		sizeof(optval)); 
 
 	bool sockError = false;
-
-	std::cout << "socket receive buffer size request " 
-		     << _rcvBufferSize 
-			<< ", send buffer size request " 
-			   << _sndBufferSize <<  std::endl;
 
 	if (_sndBufferSize) {
 		// set the system send buffer size
@@ -135,7 +130,7 @@ _ok(false)
 	  return;
 	}
 
-	// read back the socket buffer sizes
+	// read back the socket buffer sizes, which we may use for debugging if necessary.
 	int sockbufsize;
 #ifdef WIN32
 	int sz;
@@ -143,23 +138,19 @@ _ok(false)
 	socklen_t sz;
 #endif
 
+	sz = sizeof(sockbufsize);
+
 	result = getsockopt (socketDescriptor(),
 			     SOL_SOCKET,
 			     SO_SNDBUF,
 			     (char *) &sockbufsize,
 			     &sz);
 
-	std::cout << "socket send buffer size is " << sockbufsize << std::endl;
-
-
 	result = getsockopt (socketDescriptor(),
 			     SOL_SOCKET,
 			     SO_RCVBUF,
 			     (char *) &sockbufsize,
 			     &sz);
-
-	std::cout << "socket receive buffer size is " << sockbufsize << std::endl;
-
 
 	_ok = true;
 
