@@ -42,7 +42,7 @@ void
 CP2SimThread::run()
 {
 	while (!_quitThread) {
-	  Sleep((int)(1*_pulsesPerDatagram*0.8));
+	  Sleep((int)(1*_pulsesPerDatagram*0.6));
 		if (_run) {
 			nextPulses();
 		}
@@ -70,7 +70,7 @@ CP2SimThread::nextPulses()
 		header.scanType  = 1;
 		header.antSize   = 0;
 		header.pulse_num = _pulseCount;
-		header.gates     = 950;
+		header.gates     = _gates;
 		header.status    = 0;
 		header.prt       = 1.0E3; //_prt;
 		header.xmit_pw   = 1.0e-6; //xmit_pulsewidth;
@@ -84,6 +84,13 @@ CP2SimThread::nextPulses()
 		//_el     = header.el;
 		//_volume = header.volNum;
 		//_sweep  = header.sweepNum;
+
+		// create random data
+		for (int i = 0; i < _gates*2; i++) {
+		  _sData[i] = rand();
+		  _xhData[i] = rand();
+		  _xvData[i] = rand();
+		}
 
 		// add pulse to the outgoing packets
 		header.channel = 0;
