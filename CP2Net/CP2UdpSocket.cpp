@@ -52,6 +52,8 @@ CP2UdpSocket::CP2UdpSocket(
     return;
   }
 
+  std::cout << "broadcast is " << broadcast << std::endl;
+
   if (!broadcast) {
     _hostAddress = addrEntry.ip();
   } else {
@@ -59,6 +61,8 @@ CP2UdpSocket::CP2UdpSocket(
     /// or how it is supposed to be used.
     _hostAddress = QHostAddress(addrEntry.ip().toIPv4Address() 
 				| ~addrEntry.netmask().toIPv4Address());
+    std::cout << "adddrEntry.ip() is " << addrEntry.ip().toIPv4Address() << ",  addrEntry.netmask() is " 
+	      << addrEntry.netmask().toIPv4Address() << std::endl;
   }
 
   // bind socket to port/network
