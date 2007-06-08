@@ -15,7 +15,8 @@ _run(false),
 _gates(950),
 _pulsesPerDatagram(8),
 _simAngles(SimAngles::PPI, 100, 1.0, 79.0, 1.0, 1.0, 18.0, 0.88, 243),
-_pulseCount(0)
+_pulseCount(0),
+_quitThread(false)
 {	
 	// intialize the data transmission socket.
 	initializeSocket();	
@@ -24,7 +25,9 @@ _pulseCount(0)
 	_simAngles = createSimAngles();
 
 	// allocate space to create data
-	_data.resize(2*_gates);
+	_sData.resize(2*_gates);
+	_xhData.resize(2*_gates);
+	_xvData.resize(2*_gates);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -38,7 +41,7 @@ CP2SimThread::~CP2SimThread(void)
 void
 CP2SimThread::run()
 {
-	while (1) {
+	while (!_quitThread) {
 	  Sleep((int)(1*_pulsesPerDatagram*0.8));
 		if (_run) {
 			nextPulses();
@@ -84,11 +87,11 @@ CP2SimThread::nextPulses()
 
 		// add pulse to the outgoing packets
 		header.channel = 0;
-		_sPacket.addPulse(&header,  header.gates*2, &_data[0]);
+		_sPacket.addPulse(&header,  header.gates*2, &_sData[0]);
 		header.channel = 1;
-		_xhPacket.addPulse(&header, header.gates*2, &_data[0]);
+		_xhPacket.addPulse(&header, header.gates*2, &_xhData[0]);
 		header.channel = 2;
-		_xvPacket.addPulse(&header, header.gates*2, &_data[0]);
+		_xvPacket.addPulse(&header, header.gates*2, &_xvData[0]);
 
 		_pulseCount++;
 
@@ -191,4 +194,9 @@ int
 CP2SimThread::getPulseCount()
 {
 	return _pulseCount;
+}
+///////////////////////////////////////////////////////////////////////////////////
+void
+CP2SimThread::end() {
+  _quitThread = true;
 }

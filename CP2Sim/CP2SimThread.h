@@ -26,7 +26,10 @@ public:
 	CP2SimThread();
 	virtual ~CP2SimThread(void);
 	virtual void run();
+	/// @param runstate Set true to produce output, false otherwise
 	void setRunState(bool runState);
+	/// Call to terminate the thread
+	void end();
 	/// @return The cumulative pulse count, in thousands
 	int getPulseCount();
 
@@ -43,6 +46,8 @@ protected:
 	CP2Config _config;
 	/// set true if pulses are to be calculated; false otherwise.
 	bool _run;
+	/// set true when its time to exit the thread
+	bool _quitThread;
 	/// The time series raw data socket.
 	CP2UdpSocket*   _pPulseSocket;
 	/// The port number for outgoing pulses.
@@ -50,8 +55,12 @@ protected:
 	/// The maximum message size that we can send
 	/// on UDP.
 	int _soMaxMsgSize;
-	/// data fill area
-	std::vector<float> _data;
+	/// Sband data fill area
+	std::vector<float> _sData;
+	/// xhband data fill area
+	std::vector<float> _xhData;
+	/// xvband data fill area
+	std::vector<float> _xvData;
 	/// number of gates
 	int _gates;
 	/// Number of pulses to put in each datagram
