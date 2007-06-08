@@ -31,19 +31,19 @@ CP2Sim::CP2Sim(QDialog* parent):
   title += CP2Version::revision();
   parent->setWindowTitle(title.c_str());
 
+  // create the pulse creation thread
+  _pCP2SimThread = new CP2SimThread();
+  _pCP2SimThread->start();
+
   // get the incoming and outgoing port numbers.
   int _pulsePort	    = _config.getInt("Network/PulsePort", 3100);
 
   // get the network identifiers
-  std::string pulseNetwork   = _config.getString("Network/PulseNetwork", "192.168.1");
+  std::string pulseNetwork   = _pCP2SimThread->hostAddressToString();
 
   // set the socket info displays
   _outIpText->setText(pulseNetwork.c_str());
   _outPortText->setNum(_pulsePort);
-
-  // create the pulse creation thread
-  _pCP2SimThread = new CP2SimThread();
-  _pCP2SimThread->start();
 
   // set the run status
   startStopSlot();

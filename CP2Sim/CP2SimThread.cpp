@@ -1,5 +1,6 @@
 #include "CP2SimThread.h"
 #include <QMessageBox>
+#include <iostream>
 
 #ifdef WIN32
 #include <Windows.h>  // just to get Sleep()
@@ -8,7 +9,7 @@
 #endif
 
 
-///////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 CP2SimThread::CP2SimThread():
 _config("NCAR", "CP2Sim"),
 _run(false),
@@ -16,6 +17,7 @@ _gates(950),
 _pulsesPerDatagram(8),
 _simAngles(SimAngles::PPI, 100, 1.0, 79.0, 1.0, 1.0, 18.0, 0.88, 243),
 _pulseCount(0),
+_pPulseSocket(0),
 _quitThread(false)
 {	
 	// intialize the data transmission socket.
@@ -30,14 +32,14 @@ _quitThread(false)
 	_xvData.resize(2*_gates);
 }
 
-///////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
 CP2SimThread::~CP2SimThread(void)
 {
 	if (_pPulseSocket)
 		delete _pPulseSocket;
 }
 
-///////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 void
 CP2SimThread::run()
 {
@@ -77,7 +79,8 @@ CP2SimThread::nextPulses()
 		header.horiz     = true;
 
 		// set the antenna information. 
-		_simAngles.nextAngle(header.az, header.el, header.antTrans, header.sweepNum, header.volNum);
+		_simAngles.nextAngle(header.az, header.el, header.antTrans, 
+				     header.sweepNum, header.volNum);
 
 		// Save the current antenna information
 		//_az     = header.az;
@@ -105,7 +108,7 @@ CP2SimThread::nextPulses()
 	}
 
 	int bytesSent;
-	bytesSent = sendData(_sPacket.packetSize(),   _sPacket.packetData());
+	bytesSent = sendData(_sPacket.packetSize(), _sPacket.packetData());
 	bytesSent = sendData(_xhPacket.packetSize(), _xhPacket.packetData());
 	bytesSent = sendData(_xvPacket.packetSize(), _xvPacket.packetData());
 }
@@ -196,14 +199,26 @@ CP2SimThread::createSimAngles()
 	return simAngles;
 
 }
+
 ///////////////////////////////////////////////////////////////////////////////////
 int
 CP2SimThread::getPulseCount()
 {
 	return _pulseCount;
 }
+
 ///////////////////////////////////////////////////////////////////////////////////
 void
 CP2SimThread::end() {
   _quitThread = true;
+}
+
+///////////////////////////////////////////////////////////////////////////////////
+std::string
+CP2SimThread::hostAddressToString() {
+  std::string result;
+  if (_pPulseSocket) {
+    result = _pPulseSocket->toString();
+  }
+  return result;
 }

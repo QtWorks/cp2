@@ -32,6 +32,9 @@ public:
 	void end();
 	/// @return The cumulative pulse count, in thousands
 	int getPulseCount();
+	/// @return The host IP address
+	std::string hostAddressToString();
+
 
 protected:
 	/// initialize the socket for outgoing pulses.
