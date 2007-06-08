@@ -34,8 +34,7 @@ libpaths=Split("""
 ../Moments
 $QTDIR/lib
 $QWTDIR/lib
-$QTTOOLBOXDIR/ScopePlot
-$QTTOOLBOXDIR/Knob
+$QTTOOLBOXDIR/designer
 $FFTWDIR/lib
 """)
 
