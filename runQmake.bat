@@ -26,3 +26,6 @@ cd CP2PPI
 qmake
 cd ..
 
+cd CP2Sim
+qmake
+cd ..
