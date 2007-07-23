@@ -113,6 +113,7 @@ _xvBiQuad(0)
 		_errorCount[i] = 0;
 		_eof[i] = false;
 		_lastPulseNum[i] = 0;
+		_lastPulseAz[i] = 0;
 	}
 
 	// get the processing parameters
@@ -718,9 +719,17 @@ CP2Moments::pulseBookKeeping(CP2Pulse* pPulse)
 	if (_lastPulseNum[chan]) {
 		if (_lastPulseNum[chan]+1 != pPulse->header.pulse_num) {
 			_errorCount[chan]++;
+			std::cout << "Out of order pulse - Channel=" << chan <<
+			" lastnum=" << _lastPulseNum[chan] << 
+			"(lastaz=" << _lastPulseAz[chan] << ")" << 
+			" received=" << pPulse->header.pulse_num << 
+			"(az=" << pPulse->header.az << ")" << 
+			" diff=" << pPulse->header.pulse_num - _lastPulseNum[chan] << 
+			std::endl;
 		}
 	}
 	_lastPulseNum[chan] = pPulse->header.pulse_num;
+	_lastPulseAz[chan] = pPulse->header.az;
 
 	// count the pulses
 	_pulseCount[chan]++;
