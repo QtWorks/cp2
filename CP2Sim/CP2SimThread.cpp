@@ -150,8 +150,8 @@ CP2SimThread::initializeSocket()
 	std::string pulseNetwork   = _config.getString("Network/PulseNetwork", "192.168.1");
 
 	// create the socket
-	//	_pPulseSocket   = new CP2UdpSocket(pulseNetwork, _pulsePort, true, 10000000, 0);
-	_pPulseSocket   = new CP2UdpSocket(pulseNetwork, _pulsePort, false, 10000000, 0);
+		_pPulseSocket   = new CP2UdpSocket(pulseNetwork, _pulsePort, true, 10000000, 0);
+//	_pPulseSocket   = new CP2UdpSocket(pulseNetwork, _pulsePort, false, 10000000, 0);
 
 	if (!_pPulseSocket->ok()) {
 		std::string errMsg = _pPulseSocket->errorMsg().c_str();
