@@ -35,6 +35,7 @@ libpaths=Split("""
 $QTDIR/lib
 $QWTDIR/lib
 $QTTOOLBOXDIR/designer
+$QTTOOLBOXDIR/lib
 $FFTWDIR/lib
 """)
 

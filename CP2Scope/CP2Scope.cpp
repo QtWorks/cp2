@@ -425,10 +425,6 @@ CP2Scope::initSockets()
 
 	int result;
 
-	// allocate the socket read buffers
-	_pPulseSocketBuf.resize(1000000);
-	_pProductSocketBuf.resize(1000000);
-
 	// creat the sockets
 	_pPulseSocket   = new CP2UdpSocket(pulseNetwork, _pulsePort,   false, 0, 10000000);
 	if (!_pPulseSocket->ok()) {
@@ -443,13 +439,22 @@ CP2Scope::initSockets()
 			QMessageBox::Ok, QMessageBox::NoButton);
 	}
 
+	// allocate the socket read buffers
+	_pPulseSocketBuf.resize(_pPulseSocket->rcvBufferSize());
+	_pProductSocketBuf.resize(_pProductSocket->rcvBufferSize());
+
 	m_pulseIP->setText(_pPulseSocket->toString().c_str());
 	m_productIP->setText(_pProductSocket->toString().c_str());
 
 	// connect the incoming data signal to the read slots
-	connect(_pPulseSocket, SIGNAL(readyRead()), this, SLOT(newPulseSlot()));
-	connect(_pProductSocket, SIGNAL(readyRead()), this, SLOT(newProductSlot()));
-
+	if (!connect(_pPulseSocket, SIGNAL(readyRead()), 
+		     this, SLOT(newPulseSlot())))
+	  std::cout << "CP2Scope::initSockets connect(pPulseSocket) failed"
+		    << std::endl;
+	if (!connect(_pProductSocket, SIGNAL(readyRead()), 
+		    this, SLOT(newProductSlot())))
+	  std::cout << "CP2Scope::initSockets connect(pProductSocket) failed"
+		    << std::endl;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -791,6 +796,11 @@ CP2Scope::timerEvent(QTimerEvent*)
 	_chan2pulseCount->setNum(_pulseCount[2]/1000);
 	_chan2pulseRate->setNum(rate[2]);
 	_chan2errors->setNum(_errorCount[2]);
+	  
+//	std::cout << "Packet errors = " <<
+//	  _errorCount[0] << " " << _errorCount[1] << " " <<
+//	  _errorCount[2] << std::endl;
+
 }
 
 //////////////////////////////////////////////////////////////////////
