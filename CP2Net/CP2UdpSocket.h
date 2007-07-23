@@ -46,16 +46,22 @@ public:
 	bool ok();
 	/// @return The most recent error message
 	std::string errorMsg();
+	int rcvBufferSize()
+	  { return _rcvBufferSize; };
+	int sndBufferSize()
+	  { return _sndBufferSize; };
 
 protected:
 	/// set true if the socket will be broadcasting
 	bool _broadcast;
 	/// Set to non-zero to request the send buffer size
 	/// to be set.
-	int _sndBufferSize;
+	int _sndBufferSize,    // actual send buffer size granted
+	  _sndBufferSize_Req;  // requested send buffer size
 	/// Set to non-zero to request the receive buffer size 
 	/// be set.
-	int _rcvBufferSize;
+	int _rcvBufferSize,    // actual rcv buffer size granted
+	  _rcvBufferSize_Req;  // requested rcv buffer size
 	/// The host address
 	QHostAddress _hostAddress;
 	/// The network interface

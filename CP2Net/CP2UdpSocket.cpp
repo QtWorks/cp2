@@ -18,11 +18,14 @@ CP2UdpSocket::CP2UdpSocket(
 			   bool broadcast, 
 			   int sndBufferSize, 
 			   int rcvBufferSize):
+  QUdpSocket(),
   _network(network),
   _port(port),
   _broadcast(broadcast),
-  _sndBufferSize(sndBufferSize),
-  _rcvBufferSize(rcvBufferSize),
+  _sndBufferSize(0),
+  _sndBufferSize_Req(sndBufferSize),
+  _rcvBufferSize(0),
+  _rcvBufferSize_Req(rcvBufferSize),
   _ok(false)
 {
   QList<QNetworkInterface> allIfaces = QNetworkInterface::allInterfaces();
@@ -42,7 +45,12 @@ CP2UdpSocket::CP2UdpSocket(
       }
     }
     if (found)
-      break;
+      {
+	std::cout << "CP2UdpSocket::CP2UdpSocket - Found interface " <<
+	  allIfaces[i].name().toStdString() << " for network " <<
+	  network << " " << std::endl;
+	break;
+      }
   }
 
   if (!found) {
@@ -61,13 +69,28 @@ CP2UdpSocket::CP2UdpSocket(
     /// or how it is supposed to be used.
     _hostAddress = QHostAddress(addrEntry.ip().toIPv4Address() 
 				| ~addrEntry.netmask().toIPv4Address());
-    std::cout << "adddrEntry.ip() is " << addrEntry.ip().toIPv4Address() << ",  addrEntry.netmask() is " 
-	      << addrEntry.netmask().toIPv4Address() << std::endl;
+    std::cout << "addrEntry.ip() is " << 
+      addrEntry.ip().toString().toStdString() << 
+      ",  addrEntry.netmask() is " <<
+      addrEntry.netmask().toString().toStdString() << std::endl <<
+      ", hostAddress is " << _hostAddress.toString().toStdString() << 
+     " port=" << _port << std::endl;
+      
   }
 
   // bind socket to port/network
+  std::cout << "Binding to addrEntry.ip()  " << 
+    addrEntry.ip().toString().toStdString() << 
+    ",  addrEntry.netmask() " <<
+    addrEntry.netmask().toString().toStdString() << std::endl <<
+      "hostAddress is " << _hostAddress.toString().toStdString() << 
+     " port=" << _port << std::endl;
+  
   if (!broadcast) {
-    if (!bind(_hostAddress, _port, QUdpSocket::ShareAddress | QUdpSocket::ReuseAddressHint)) {
+//     if (!bind(_hostAddress, _port, 
+// 	      QUdpSocket::ShareAddress | QUdpSocket::ReuseAddressHint)) {
+    if (!bind(_port, 
+	      QUdpSocket::ShareAddress | QUdpSocket::ReuseAddressHint)) {
       _errorMsg += "Unable to bind datagram port ";
       _errorMsg += _hostAddress.toString().toStdString();
       _errorMsg += ":";
@@ -78,7 +101,8 @@ CP2UdpSocket::CP2UdpSocket(
       return;
     }
   } else {
-    if (!bind(_port, QUdpSocket::ShareAddress | QUdpSocket::ReuseAddressHint)) {
+    if (!bind(_port, 
+	      QUdpSocket::ShareAddress | QUdpSocket::ReuseAddressHint)) {
       _errorMsg += "Unable to bind datagram port ";
       _errorMsg += _hostAddress.toString().toStdString();
       _errorMsg += ":";
@@ -112,9 +136,9 @@ CP2UdpSocket::CP2UdpSocket(
 
   bool sockError = false;
 
-  if (_sndBufferSize) {
+  if (_sndBufferSize_Req) {
     // set the system send buffer size
-    int sockbufsize = _sndBufferSize;
+    int sockbufsize = _sndBufferSize_Req;
     result = setsockopt (socketDescriptor(),
 			 SOL_SOCKET,
 			 SO_SNDBUF,
@@ -127,9 +151,9 @@ CP2UdpSocket::CP2UdpSocket(
     }
   }
 
-  if (_rcvBufferSize) {
+  if (_rcvBufferSize_Req) {
     // set the system receive buffer size
-    int sockbufsize = _rcvBufferSize;
+    int sockbufsize = _rcvBufferSize_Req;
     result = setsockopt (socketDescriptor(),
 			 SOL_SOCKET,
 			 SO_RCVBUF,
@@ -146,27 +170,35 @@ CP2UdpSocket::CP2UdpSocket(
     return;
   }
 
-  // read back the socket buffer sizes, which we may use for debugging if necessary.
-  int sockbufsize;
+  // read back the actual granted socket buffer sizes
+
 #ifdef WIN32
   int sz;
 #else
   socklen_t sz;
 #endif
 
-  sz = sizeof(sockbufsize);
+  sz = sizeof(_sndBufferSize);
 
   result = getsockopt (socketDescriptor(),
 		       SOL_SOCKET,
 		       SO_SNDBUF,
-		       (char *) &sockbufsize,
+		       (char *) &_sndBufferSize,
 		       &sz);
+  if (_sndBufferSize != _sndBufferSize_Req)
+    std::cout << "CP2UdpSocket sndBufferSize requested=" << 
+      _sndBufferSize_Req << " granted=" << 
+      _sndBufferSize << std::endl;
 
   result = getsockopt (socketDescriptor(),
 		       SOL_SOCKET,
 		       SO_RCVBUF,
-		       (char *) &sockbufsize,
+		       (char *) &_rcvBufferSize,
 		       &sz);
+  if (_rcvBufferSize != _rcvBufferSize_Req)
+    std::cout << "CP2UdpSocket rcvBufferSize requested=" << 
+      _rcvBufferSize_Req << " granted=" << 
+      _rcvBufferSize << std::endl;
 
   _ok = true;
 
