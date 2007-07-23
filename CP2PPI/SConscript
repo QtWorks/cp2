@@ -36,6 +36,7 @@ libpaths=Split("""
 ../CP2Config
 $QTDIR/lib
 $QTTOOLBOXDIR/designer
+$QTTOOLBOXDIR/lib
 $GLUTDIR/lib
 """)
 
