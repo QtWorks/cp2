@@ -149,6 +149,7 @@ protected:
 	bool _eof[3];		
 	/// The pulse number of the preceeding pules, used to detect dropped pulses.
 	long long _lastPulseNum[3];
+	float _lastPulseAz[3];
 	/// The interval, in seconds, that the statistics displays will be updated.
 	int _statsUpdateInterval;
 	/// A running count of produced S band beams.
